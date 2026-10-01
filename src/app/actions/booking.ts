@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRoleFast } from "@/lib/auth";
 import { cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, hashBookingManageToken, recreateBookingManageToken, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { isAllowedDiscoverySlot } from "@/lib/discovery-booking";
+import { queueDiscoveryOutcomeAutomation } from "@/lib/trigger-automation";
 
 function managePath(token: string, result: string) {
   return `/book-client-call/manage?token=${encodeURIComponent(token)}&${result}`;
@@ -77,6 +78,16 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
       try { await cancelGoogleMeetDiscoveryMeeting(meeting.eventId); } catch { /* best-effort cleanup of the unsaved new event */ }
     }
     redirect(managePath(token, error.code === "23505" ? "error=taken" : "error=reschedule"));
+  }
+
+  try {
+    await queueDiscoveryOutcomeAutomation(
+      lead.id,
+      scheduledAt,
+      lead.discovery_duration_minutes || 30,
+    );
+  } catch {
+    // Rescheduling remains valid if durable automation is temporarily unavailable.
   }
 
   redirect(managePath(token, "rescheduled=1"));

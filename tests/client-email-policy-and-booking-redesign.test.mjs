@@ -102,6 +102,18 @@ test("public discovery booking does not trigger Google attendee email", async ()
   assert.match(ops,/sendUpdates=\$\{args\.notifyAttendees === false \? "none" : "all"\}/);
 });
 
+
+test("repeat discovery booking updates the existing lead and calendar event instead of creating a duplicate", async () => {
+  const leads=await read("src/app/actions/leads.ts");
+  assert.match(leads,/async function findActiveDiscoveryBooking/);
+  assert.match(leads,/\.is\("discovery_cancelled_at", null\)/);
+  assert.match(leads,/const activeBooking = await findActiveDiscoveryBooking/);
+  assert.match(leads,/updateGoogleMeetDiscoveryMeeting\(\{/);
+  assert.match(leads,/booking_rescheduled_via_duplicate_guard/);
+  assert.match(leads,/booking_duplicate_reused/);
+  assert.match(leads,/&updated=1/);
+});
+
 test("booking page uses the simplified low-friction booking experience", async () => {
   const [page,form,css]=await Promise.all([
     read("src/app/book-client-call/page.tsx"),

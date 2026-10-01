@@ -251,8 +251,9 @@ export async function updateLeadTimeZoneAction(formData: FormData) {
     .maybeSingle();
   if (leadError) fail(leadError.message);
   if (!lead) fail("Client record not found.");
+  const validatedLead = lead!;
 
-  const previousTimeZone = isValidTimeZone(lead.timezone) ? String(lead.timezone) : null;
+  const previousTimeZone = isValidTimeZone(validatedLead.timezone) ? String(validatedLead.timezone) : null;
   const { error: updateError } = await admin
     .from("lead_intake")
     .update({ timezone: timeZone })
@@ -260,11 +261,11 @@ export async function updateLeadTimeZoneAction(formData: FormData) {
     .eq("lead_type", "client_hiring");
   if (updateError) fail(updateError.message || "Could not update the client timezone.");
 
-  if (lead.job_id) {
+  if (validatedLead.job_id) {
     const { error: jobTimeZoneError } = await admin
       .from("jobs")
       .update({ timezone: timeZone })
-      .eq("id", lead.job_id);
+      .eq("id", validatedLead.job_id);
     if (jobTimeZoneError) fail("Client timezone saved, but the linked role timezone could not be updated.");
   }
 
@@ -275,7 +276,7 @@ export async function updateLeadTimeZoneAction(formData: FormData) {
     description: "Recruiter corrected the client timezone used for local-time display and follow-up scheduling.",
     actorId: user.id,
     metadata: {
-      job_id: lead.job_id || null,
+      job_id: validatedLead.job_id || null,
       previous_timezone: previousTimeZone,
       timezone: timeZone,
     },

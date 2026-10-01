@@ -33,6 +33,7 @@ import {
 } from "@/app/actions/recruiter";
 import { createCrmCustomFieldAction, saveCrmClosingControlAction, setCrmCustomValueAction } from "@/app/actions/crm";
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
+import { createRoleFromLeadAndMatchAction } from "@/app/actions/recruiter-hiring";
 import styles from "../crm.module.css";
 import { ClientEngagementPanel } from "@/components/client-engagement-panel";
 import { clientReplyStatusLabel, type ClientReplyStateRow } from "@/lib/client-reply-state";
@@ -548,7 +549,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           ) : null}
           <Link className={styles.primaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}><ClipboardList size={15}/> Discovery workspace</Link>
           {lead.client_id ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/messages?client=${encodeURIComponent(lead.client_id)}${lead.job_id ? `&job=${encodeURIComponent(lead.job_id)}` : ""}`}><MessageSquareText size={15}/> Message client</Link> : null}
-          {job ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : null}
+          {job ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/roles/${job.id}`}><BriefcaseBusiness size={15}/> Open linked role</Link> : <form action={createRoleFromLeadAndMatchAction}><input type="hidden" name="lead_id" value={lead.id}/><input type="hidden" name="return_to" value={`/workspace/recruiter/crm/${lead.id}`}/><button className={styles.secondaryButton} type="submit"><BriefcaseBusiness size={15}/> Create role & open matching</button></form>}
         </div>
       </header>
 

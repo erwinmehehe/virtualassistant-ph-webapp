@@ -84,7 +84,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["VA messages", "/workspace/recruiter/va-messages", MessageCircle],
         ["Roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Talent", "/workspace/recruiter/talent", Search],
-        ["Placements", "/workspace/recruiter/placements", Wrench],
         ["Account settings", "/workspace/account", Settings],
       ],
     },
@@ -98,8 +97,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "Reports",
       items: [
-        ["Agency Funnel", "/workspace/recruiter/funnel", Activity],
-        ["Recruiting Analytics", "/workspace/recruiter/analytics", BarChart3],
+        ["Performance", "/workspace/recruiter/performance", BarChart3],
         ["Finance", "/workspace/recruiter/finance", CircleDollarSign],
       ],
     },

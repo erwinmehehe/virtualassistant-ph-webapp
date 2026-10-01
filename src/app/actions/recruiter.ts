@@ -345,7 +345,7 @@ export async function sendClientFollowupAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
   const jobId = String(formData.get("job_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
   const subject = String(formData.get("subject") || "").trim();
   const message = String(formData.get("message") || "").trim();
   const archiveCopy = formData.get("archive_copy") === "1";
@@ -553,7 +553,7 @@ export async function recordLeadContactAction(formData: FormData) {
   }
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/recruiter/today");
@@ -568,7 +568,7 @@ export async function updateLeadCrmAction(formData: FormData) {
   const followUpRaw = String(formData.get("next_follow_up_at") || "").trim();
   const estimatedRaw = String(formData.get("estimated_value_usd") || "").trim();
   const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
 
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_error=${encodeURIComponent(message)}`);
   if (!leadId || !isLeadCrmStage(stageRaw)) return fail("Choose a valid sales stage.");
@@ -653,14 +653,14 @@ export async function updateLeadCrmAction(formData: FormData) {
   if (stage === "won" && lead.crm_stage !== "won") {
     await admin.from("analytics_events").insert({
       event_name: "lead_won",
-      path: "/workspace/recruiter/leads",
+      path: "/workspace/recruiter/crm",
       session_id: lead.session_id || null,
       metadata: { lead_id: leadId, job_id: lead.job_id || null, estimated_value_usd: estimatedValue }
     });
   }
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
@@ -672,7 +672,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
   const requestId = String(formData.get("request_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
   const raw = String(formData.get("discovery_scheduled_at") || "").trim();
   const submittedTimeZone = String(formData.get("discovery_timezone") || "").trim();
   const duration = Math.max(15, Math.min(120, Number(formData.get("discovery_duration_minutes") || 30)));
@@ -802,7 +802,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   });
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/recruiter/today");
@@ -814,7 +814,7 @@ export async function scheduleDiscoveryAction(formData: FormData) {
 export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
   if (!leadId) return fail("Booking not found.");
 
@@ -865,7 +865,7 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
     metadata: { meeting_url: meet.joinUrl, calendar_event_id: meet.eventId }
   });
 
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/admin/leads");
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}meet_link_created=1`);
 }
@@ -873,7 +873,7 @@ export async function createDiscoveryGoogleMeetLinkAction(formData: FormData) {
 export async function cancelRecruiterDiscoveryAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
   if (!leadId) return fail("Booking not found.");
   const admin = createAdminClient();
@@ -903,7 +903,7 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
     metadata: { previous_stage: lead.crm_stage || null, job_id: lead.job_id || null }
   });
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_cancelled=1`);
@@ -931,7 +931,7 @@ export async function closeRecruiterRoleAction(formData: FormData) {
 export async function completeDiscoveryAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
   const outcome = String(formData.get("outcome") || "qualified");
   const notes = String(formData.get("discovery_notes") || "").trim().slice(0, 5000);
   const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
@@ -982,7 +982,7 @@ export async function completeDiscoveryAction(formData: FormData) {
   });
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/recruiter/today");
@@ -995,7 +995,7 @@ export async function completeDiscoveryAction(formData: FormData) {
 export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/leads");
+  const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
   const joiner = returnTo.includes("?") ? "&" : "?";
   const fail = (message: string) => redirect(`${returnTo}${joiner}rebook_email_error=${encodeURIComponent(message)}${leadId ? `&action_lead=${encodeURIComponent(leadId)}` : ""}`);
   if (!leadId) return fail("Lead not found.");
@@ -1068,7 +1068,7 @@ export async function sendDiscoveryNoShowRebookAction(formData: FormData) {
   }
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/recruiter/today");
@@ -1132,7 +1132,7 @@ export async function updateLeadStatusAction(formData: FormData) {
   }
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
 }

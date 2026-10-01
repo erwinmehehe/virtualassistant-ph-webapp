@@ -90,6 +90,8 @@ function viewMatch(view: string, lead: LeadRow, userId: string, now: number, act
   const followDue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(stage));
   const firstResponseDue = !lead.first_contact_at && now - new Date(lead.created_at).getTime() > 30 * 60 * 1000 && stage === "new";
   const unreadChat = Number(activity?.unread_chat || 0);
+  if (view === "all") return true;
+  if (view === "nurture") return stage === "nurture";
   if (view === "mine") return lead.owner_id === userId && isOpenLeadStage(stage);
   if (view === "attention") return (isOpenLeadStage(stage) && (unreadChat > 0 || activity?.latest_decision === "need_more_options" || clientReplyNeedsAction(activity?.reply_status))) || followDue || firstResponseDue;
   if (view === "discovery") return stage === "discovery_booked";
@@ -105,7 +107,8 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   const admin = createAdminClient();
 
   const requestedView = String(params.view || "active");
-  const view = SYSTEM_VIEWS.some(([value]) => value === requestedView) ? requestedView : "active";
+  const allowedViews = new Set<string>([...SYSTEM_VIEWS.map(([value]) => value), "nurture", "all"]);
+  const view = allowedViews.has(requestedView) ? requestedView : "active";
   const mode = params.mode === "board" ? "board" : "table";
   const q = String(params.q || "").trim();
   const owner = String(params.owner || "").trim();

@@ -5,7 +5,8 @@ import fs from "node:fs";
 const migration = fs.readFileSync("supabase/migrations/20260930145500_end_to_end_hiring_funnel.sql", "utf8");
 const dashboard = fs.readFileSync("src/components/agency-funnel-dashboard.tsx", "utf8");
 const loader = fs.readFileSync("src/lib/agency-funnel-metrics.ts", "utf8");
-const recruiterPage = fs.readFileSync("src/app/workspace/recruiter/funnel/page.tsx", "utf8");
+const recruiterPage = fs.readFileSync("src/components/recruiter-performance-funnel.tsx", "utf8");
+const recruiterPerformance = fs.readFileSync("src/app/workspace/recruiter/performance/page.tsx", "utf8");
 const adminPage = fs.readFileSync("src/app/workspace/admin/funnel/page.tsx", "utf8");
 const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 
@@ -51,7 +52,7 @@ test("delivery and retention stay separate from sales conversion", () => {
 test("recruiter and admin funnel views have correct scope and fast auth", () => {
   assert.match(recruiterPage,/requireRoleFast\("recruiter"\)/);
   assert.match(recruiterPage,/recruiterId=\{userId\}/);
-  assert.match(recruiterPage,/leadsPath="\/workspace\/recruiter\/leads"/);
+  assert.match(recruiterPage,/leadsPath="\/workspace\/recruiter\/crm"/);
   assert.match(recruiterPage,/rolesPath="\/workspace\/recruiter\/roles"/);
   assert.match(adminPage,/requireRoleFast\("admin"\)/);
   assert.match(adminPage,/recruiterId=\{null\}/);
@@ -59,8 +60,11 @@ test("recruiter and admin funnel views have correct scope and fast auth", () => 
   assert.match(adminPage,/rolesPath="\/workspace\/admin\/jobs"/);
 });
 
-test("agency funnel remains discoverable", () => {
-  assert.match(nav,/Agency Funnel/);
-  assert.match(nav,/\/workspace\/recruiter\/funnel/);
+test("agency funnel remains discoverable inside recruiter Performance", () => {
+  assert.match(nav,/Performance/);
+  assert.match(nav,/\/workspace\/recruiter\/performance/);
+  assert.doesNotMatch(nav,/\["Agency Funnel", "\/workspace\/recruiter\/funnel"/);
+  assert.match(recruiterPerformance,/Agency Funnel/);
+  assert.match(recruiterPerformance,/tab=funnel/);
   assert.match(nav,/\/workspace\/admin\/funnel/);
 });

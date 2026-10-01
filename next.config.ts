@@ -119,6 +119,14 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       ...roleResourceConsolidationRedirects,
+      // Recruiter workspace consolidation. Keep the legacy pages intact for safe rollback/testing,
+      // but route people to the canonical destinations at runtime.
+      { source: "/workspace/recruiter/leads", destination: "/workspace/recruiter/crm", permanent: false },
+      { source: "/workspace/recruiter/leads/board", destination: "/workspace/recruiter/crm?mode=board", permanent: false },
+      { source: "/workspace/recruiter/queue", destination: "/workspace/recruiter/talent?stage=recruiter_review&sort=completion", permanent: false },
+      { source: "/workspace/recruiter/activity", destination: "/workspace/recruiter/today", permanent: false },
+      { source: "/workspace/recruiter/funnel", destination: "/workspace/recruiter/performance?tab=funnel", permanent: false },
+      { source: "/workspace/recruiter/analytics", destination: "/workspace/recruiter/performance?tab=analytics", permanent: false },
       // Editorial topics belong in the blog. Preserve today's temporary URLs with one-hop permanent redirects.
       { source: "/virtual-assistant-companies-philippines", destination: "/blog/virtual-assistant-companies-philippines", permanent: true },
       { source: "/virtual-assistant-companies-philippines/", destination: "/blog/virtual-assistant-companies-philippines", permanent: true },

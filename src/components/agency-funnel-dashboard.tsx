@@ -134,7 +134,7 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
         <p>{scopeLabel}. Follow one client lead cohort from enquiry through discovery, shortlist, interview, offer, and hire. Delivery and retention operations remain separate below.</p>
       </div>
       <div className="role-filter-tabs agency-range-tabs" aria-label="Funnel date range">
-        {[30,90,180].map((range)=><Link prefetch={false} key={range} className={days===range?"active":""} href={basePath+"?days="+range}>{range} days</Link>)}
+        {[30,90,180].map((range)=><Link prefetch={false} key={range} className={days===range?"active":""} href={`${basePath}${basePath.includes("?")?"&":"?"}days=${range}`}>{range} days</Link>)}
       </div>
     </div>
 

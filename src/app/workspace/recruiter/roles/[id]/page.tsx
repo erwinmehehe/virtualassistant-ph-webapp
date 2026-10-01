@@ -346,7 +346,7 @@ export default async function RoleControlCenter({
             </form>
           ) : null}
           {publication.key === "waiting_client_approval" ? (
-            <Link className="btn" href={lead?.email ? `/workspace/recruiter/leads?q=${encodeURIComponent(lead.email)}` : "/workspace/recruiter/leads"}>
+            <Link className="btn" href={lead?.email ? `/workspace/recruiter/crm?q=${encodeURIComponent(lead.email)}` : "/workspace/recruiter/crm"}>
               Follow up with client
             </Link>
           ) : null}
@@ -426,7 +426,7 @@ export default async function RoleControlCenter({
             ) : null}
           </div>
           {lead?.email ? (
-            <Link className="btn btn-sm" style={{ marginTop: 14 }} href={`/workspace/recruiter/leads?q=${encodeURIComponent(lead.email)}`}>
+            <Link className="btn btn-sm" style={{ marginTop: 14 }} href={`/workspace/recruiter/crm?q=${encodeURIComponent(lead.email)}`}>
               Open client CRM record
             </Link>
           ) : null}

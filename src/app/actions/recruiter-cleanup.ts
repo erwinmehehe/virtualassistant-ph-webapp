@@ -51,7 +51,7 @@ export async function recruiterCleanupLeadAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/today");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/admin/leads");
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}cleanup_saved=${encodeURIComponent(action)}`);
 }

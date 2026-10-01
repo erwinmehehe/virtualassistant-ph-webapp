@@ -92,11 +92,12 @@ test("Work Readiness can scope directly to recruiter-selected candidates for one
   assert.match(page, /work_setup_submitted_at/);
 });
 
-test("Role Control Center turns blocked shortlist readiness into direct actions", async () => {
+test("Role Control Center only treats pool membership and availability as shortlist blockers", async () => {
   const page = await read("src/app/workspace/recruiter/roles/[id]/page.tsx");
   assert.match(page, /Shortlist readiness blockers/);
-  assert.match(page, /Open scoped work readiness/);
   assert.match(page, /bulkRecruiterVaAction/);
   assert.match(page, /Add to talent pool/);
-  assert.match(page, /work-readiness\?job=/);
+  assert.match(page, /needsAvailability/);
+  assert.doesNotMatch(page, /Open scoped work readiness/);
+  assert.doesNotMatch(page, /need verified work setup/);
 });

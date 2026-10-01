@@ -22,9 +22,7 @@ test("closing a lead refreshes every page that lists it", () => {
   const close = source("src/app/actions/close-lead.ts");
 
   for (const path of [
-    "/workspace/recruiter/leads",
-    "/workspace/recruiter/leads/board",
-    "/workspace/recruiter/queue",
+    "/workspace/recruiter/crm",
     "/workspace/recruiter/today",
     "/workspace/recruiter/agenda",
     "/workspace/recruiter/stalled",

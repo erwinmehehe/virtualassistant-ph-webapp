@@ -67,15 +67,22 @@ async function resolveAssignee(
     .eq("id", lead.id)
     .is("owner_id", null);
 
+  const { data: currentLead } = await admin
+    .from("lead_intake")
+    .select("owner_id")
+    .eq("id", lead.id)
+    .maybeSingle();
+  const assigneeId = currentLead?.owner_id || recruiter.id;
+
   if (lead.job_id) {
     await admin
       .from("jobs")
-      .update({ recruiter_id: recruiter.id })
+      .update({ recruiter_id: assigneeId })
       .eq("id", lead.job_id)
       .is("recruiter_id", null);
   }
 
-  return recruiter.id as string;
+  return assigneeId as string;
 }
 
 export async function POST(request: Request) {
@@ -140,7 +147,7 @@ export async function POST(request: Request) {
 
   const now = new Date().toISOString();
   const priority = parsed.checkpoint === "2h" ? "urgent" : "high";
-  const subject = lead.company || lead.name || lead.email || "Client lead";
+  const subject = String(lead.company || lead.name || lead.email || "Client lead").slice(0, 110);
   const href = `/workspace/recruiter/crm/${lead.id}`;
   const description =
     parsed.checkpoint === "2h"

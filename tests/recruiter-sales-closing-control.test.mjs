@@ -99,3 +99,26 @@ test("closing control is responsive and does not add a parallel sales database",
 
   assert.doesNotMatch(actions, /lead_closing_state/);
 });
+
+
+test("closing follow-ups use the client timezone and expose local time to recruiters", async () => {
+  const [actions, page, css] = await Promise.all([
+    read("src/app/actions/crm.ts"),
+    read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
+    read("src/app/workspace/recruiter/crm/crm.module.css"),
+  ]);
+
+  assert.match(actions, /zonedDateTimeToUtc/);
+  assert.match(actions, /isValidTimeZone/);
+  assert.match(actions, /followUpTimeZone/);
+  assert.match(actions, /followUpAtClientNine/);
+  assert.match(actions, /follow_up_timezone: followUpTimeZone/);
+  assert.doesNotMatch(actions, /T09:00:00\+08:00/);
+  assert.doesNotMatch(actions, /followUp\.setHours\(9/);
+
+  assert.match(page, /Client local time/);
+  assert.match(page, /Schedules for 9:00 AM in/);
+  assert.match(page, /formatDateTimeInTimeZone\(lead\.next_follow_up_at, clientTimeZone\)/);
+  assert.match(css, /\.clientLocalClock/);
+  assert.match(css, /\.followUpTimeZoneHint/);
+});

@@ -103,7 +103,7 @@ AS $function$
   order by priority_rank asc, w.created_at asc
   limit least(greatest(coalesce(p_limit, 100), 1), 200)
   offset greatest(coalesce(p_offset, 0), 0);
-$function$
+$function$;
 
 
 CREATE OR REPLACE FUNCTION public.client_success_placement_detail(p_actor_id uuid, p_workroom_id uuid)
@@ -173,7 +173,7 @@ AS $function$
     ), '[]'::jsonb)
   )
   from visible v;
-$function$
+$function$;
 
 
 CREATE OR REPLACE FUNCTION public.client_success_support_summary(p_actor_id uuid, p_limit integer DEFAULT 300)
@@ -254,7 +254,7 @@ AS $function$
     coalesce(jsonb_agg(to_jsonb(r) order by r.created_at desc), '[]'::jsonb)
   )
   from request_rows r;
-$function$
+$function$;
 
 
 CREATE OR REPLACE FUNCTION public.client_success_retention_summary(p_actor_id uuid, p_room_limit integer DEFAULT 200, p_request_limit integer DEFAULT 200)

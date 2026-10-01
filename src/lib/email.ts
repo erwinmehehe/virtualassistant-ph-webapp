@@ -641,7 +641,7 @@ export async function sendLeadAcknowledgementEmail(args: {
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const joinUrl = `${appUrl}/auth/join/client${args.leadId ? `?lead=${encodeURIComponent(args.leadId)}` : ""}`;
   const bodyHtml = [
-    `Thanks for reaching out about hiring a <strong>${escapeHtml(service)}</strong>. We have your request and our recruiting team is reviewing it now.`,
+    `Thanks for reaching out about hiring for the <strong>${escapeHtml(service)}</strong> role. We have your request and our recruiting team is reviewing it now.`,
     "Activate your client hiring workspace to follow this request, review recruiter-selected candidates, and manage the hiring process in one place.",
     "Your original hiring request is already saved, so you will not need to fill it out again."
   ].map((paragraph) => `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">${paragraph}</p>`).join("");
@@ -651,7 +651,7 @@ export async function sendLeadAcknowledgementEmail(args: {
     to: [recipient],
     replyTo: configuredReplyToFor({ leadId: args.leadId }),
     subject: `Got your ${service} request`,
-    text: `Hi ${firstName},\n\nThanks for reaching out about hiring a ${service}. We have your request and our recruiting team is reviewing it now.\n\nActivate your client hiring workspace here: ${joinUrl}\n\nYour original hiring request is already saved, so you will not need to fill it out again.\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
+    text: `Hi ${firstName},\n\nThanks for reaching out about hiring for the ${service} role. We have your request and our recruiting team is reviewing it now.\n\nActivate your client hiring workspace here: ${joinUrl}\n\nYour original hiring request is already saved, so you will not need to fill it out again.\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
       firstName,
       bodyHtml,

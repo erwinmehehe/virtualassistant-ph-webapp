@@ -164,8 +164,9 @@ export async function POST(request: Request) {
     .limit(1)
     .maybeSingle();
 
+  let taskError = null;
   if (existingTask?.id) {
-    await admin
+    const result = await admin
       .from("recruiter_tasks")
       .update({
         priority,
@@ -176,8 +177,9 @@ export async function POST(request: Request) {
         snoozed_until: null,
       })
       .eq("id", existingTask.id);
+    taskError = result.error;
   } else {
-    await admin.from("recruiter_tasks").insert({
+    const result = await admin.from("recruiter_tasks").insert({
       title: `Lead SLA · recruiter contact overdue · ${subject}`,
       description,
       assignee_id: assigneeId,
@@ -189,6 +191,15 @@ export async function POST(request: Request) {
       repeat_rule: "none",
       due_at: now,
     });
+    taskError = result.error;
+  }
+
+  if (taskError) {
+    console.error("[automation] lead SLA task write failed", {
+      leadId: lead.id,
+      code: taskError.code,
+    });
+    return NextResponse.json({ error: "SLA task write failed" }, { status: 500 });
   }
 
   await admin
@@ -199,7 +210,7 @@ export async function POST(request: Request) {
     .eq("href", href)
     .is("done_at", null);
 
-  await admin.from("notifications").insert({
+  const { error: notificationError } = await admin.from("notifications").insert({
     user_id: assigneeId,
     type: "lead_sla",
     priority,
@@ -210,6 +221,14 @@ export async function POST(request: Request) {
     body: description,
     href,
   });
+
+  if (notificationError) {
+    console.error("[automation] lead SLA notification write failed", {
+      leadId: lead.id,
+      code: notificationError.code,
+    });
+    return NextResponse.json({ error: "SLA notification write failed" }, { status: 500 });
+  }
 
   await admin.from("recruiter_activity").insert({
     subject_type: "lead",

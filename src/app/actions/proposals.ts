@@ -12,10 +12,35 @@ import { proposalAgencyValue, proposalClientMonthlyTotal } from "@/lib/proposals
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { sendTransactionalEventEmail } from "@/lib/email";
 import { ensureAcceptedLeadClientWorkspace } from "@/lib/client-handoff";
+import { isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
+}
+
+function localDateKey(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value || "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function addDaysToDateKey(value: string, days: number) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const next = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + days));
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${next.getUTCFullYear()}-${pad(next.getUTCMonth() + 1)}-${pad(next.getUTCDate())}`;
+}
+
+function followUpAtClientNine(dateKey: string | null, timeZone: string) {
+  if (!dateKey) return null;
+  return zonedDateTimeToUtc(`${dateKey}T09:00`, timeZone)?.toISOString() || null;
 }
 
 function numberValue(value: FormDataEntryValue | null) {
@@ -154,7 +179,7 @@ export async function sendProposalToClientAction(formData: FormData) {
       .eq("lead_id", leadId)
       .maybeSingle(),
     admin.from("lead_intake")
-      .select("id,name,email,company,owner_id")
+      .select("id,name,email,company,owner_id,timezone,job_id")
       .eq("id", leadId)
       .eq("lead_type", "client_hiring")
       .maybeSingle(),
@@ -220,11 +245,22 @@ export async function sendProposalToClientAction(formData: FormData) {
   }).eq("id", proposalId);
   if (sentError) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(sentError.message || "Proposal email sent, but status could not be updated.")}`));
 
+  let proposalFollowUpTimeZone = isValidTimeZone(lead.timezone) ? String(lead.timezone) : "";
+  if (!proposalFollowUpTimeZone && lead.job_id) {
+    const { data: linkedJob } = await admin.from("jobs").select("timezone").eq("id", lead.job_id).maybeSingle();
+    if (isValidTimeZone(linkedJob?.timezone)) proposalFollowUpTimeZone = String(linkedJob?.timezone);
+  }
+  if (!proposalFollowUpTimeZone) proposalFollowUpTimeZone = "Asia/Manila";
+  const proposalFollowUpAt = followUpAtClientNine(
+    addDaysToDateKey(localDateKey(now, proposalFollowUpTimeZone), 2),
+    proposalFollowUpTimeZone,
+  ) || new Date(now.getTime() + 2 * 86400000).toISOString();
+
   await admin.from("lead_intake").update({
     crm_stage: "terms_sent",
     status: "converted",
     owner_id: lead.owner_id || user.id,
-    next_follow_up_at: new Date(now.getTime() + 2 * 86400000).toISOString(),
+    next_follow_up_at: proposalFollowUpAt,
     stage_updated_at: now.toISOString(),
     lost_at: null,
     lost_reason: null,
@@ -241,6 +277,8 @@ export async function sendProposalToClientAction(formData: FormData) {
       send_count: nextSendCount,
       expires_at: expiresAt.toISOString(),
       service_model: fields.serviceModel,
+      next_follow_up_at: proposalFollowUpAt,
+      follow_up_timezone: proposalFollowUpTimeZone,
     },
   });
 
@@ -255,7 +293,7 @@ export async function sendProposalToClientAction(formData: FormData) {
 export async function createAndSendProposalAction(formData: FormData) {
   const { user } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/leads?view=qualified");
+  const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/crm?view=qualified");
   const roleTitle = String(formData.get("role_title") || "").trim().slice(0, 160);
   const summary = String(formData.get("summary") || "").trim().slice(0, 5000);
   const serviceModel = String(formData.get("service_model") || "curated_placement") === "managed_service" ? "managed_service" : "curated_placement";
@@ -342,7 +380,7 @@ export async function createAndSendProposalAction(formData: FormData) {
   });
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/admin/leads");
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_saved=1`);
 }
@@ -371,6 +409,7 @@ export async function respondToLeadProposalAction(formData: FormData) {
 
   const now = new Date();
   const askingForChanges = decision === "changes";
+  const recruiterHref = askingForChanges ? `/workspace/recruiter/crm/${lead.id}/proposal` : `/workspace/recruiter/crm/${lead.id}`;
   await admin.from("lead_proposals").update({
     status: askingForChanges ? "changes_requested" : "declined",
     changes_requested_at: askingForChanges ? now.toISOString() : null,
@@ -408,7 +447,7 @@ export async function respondToLeadProposalAction(formData: FormData) {
       user_id: userId,
       title: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
       body: reason,
-      href: "/workspace/recruiter/leads?view=qualified"
+      href: recruiterHref
     })));
   }
 
@@ -420,14 +459,14 @@ export async function respondToLeadProposalAction(formData: FormData) {
         subject: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
         heading: askingForChanges ? "Client wants changes" : "Client declined the proposal",
         body: reason,
-        href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}/workspace/recruiter/leads?view=qualified`,
+        href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}${recruiterHref}`,
         hrefLabel: "Open sales CRM"
       });
     } catch {}
   }
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   redirect(`/proposal/${token}?${askingForChanges ? "changes_requested=1" : "declined=1"}`);
 }
 
@@ -576,7 +615,7 @@ export async function acceptLeadProposalAction(formData: FormData) {
   }
 
   revalidatePath("/workspace/recruiter");
-  revalidatePath("/workspace/recruiter/leads");
+  revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/admin/leads");
   if (clientId) {
     revalidatePath("/workspace/client");

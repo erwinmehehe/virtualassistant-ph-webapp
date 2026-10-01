@@ -239,7 +239,7 @@ export async function updateVaProfileAction(formData: FormData) {
         subjectType: "va",
         subjectId: user.id,
         action: "private_address_provided",
-        description: "VA provided the requested private home address.",
+        description: "VA provided the requested home address.",
         actorId: user.id,
       });
     }

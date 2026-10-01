@@ -21,9 +21,9 @@ test("recruiters can request missing private addresses without changing VA stage
     /va_vetting[^\n]*update\(/
   );
 
-  assert.match(talent, /<option value="request_address">Request private address<\/option>/);
+  assert.match(talent, /<option value="request_address">Request address<\/option>/);
   assert.match(candidate, /requestVaPrivateAddressAction/);
-  assert.match(candidate, /Request private address/);
+  assert.match(candidate, /Request address/);
   assert.match(candidate, /Ask the VA to confirm the current address rather than guessing/);
 });
 
@@ -33,7 +33,7 @@ test("saving a private address resolves outstanding address requests without log
   assert.match(profile, /eq\("type", "private_address_request"\)/);
   assert.match(profile, /update\(\{ done_at: resolvedAt, read_at: resolvedAt, snoozed_until: null \}\)/);
   assert.match(profile, /private_address_provided/);
-  assert.match(profile, /VA provided the requested private home address/);
+  assert.match(profile, /VA provided the requested home address/);
 
   const activityBlock = profile.match(/action: "private_address_provided"[\s\S]{0,260}/)?.[0] || "";
   assert.doesNotMatch(activityBlock, /address,/);
@@ -48,7 +48,7 @@ test("address requests point VAs directly to the private profile field", async (
   ]);
 
   assert.match(action, /href: "\/workspace\/va\/profile#basics"/);
-  assert.match(dashboard, /title:"Add your private address"/);
+  assert.match(dashboard, /title:"Add your address"/);
   assert.match(dashboard, /href:"\/workspace\/va\/profile#basics"/);
   assert.match(profilePage, /name="address"/);
   assert.match(profilePage, /never shown on your public profile/);
@@ -65,12 +65,12 @@ test("VA dashboard summary includes private address requests in recruiter reques
 });
 
 
-test("recruiter profile health separates auth, profile completeness and private address queues", async () => {
+test("recruiter profile health separates auth, profile completeness and address queues", async () => {
   const talent = await read("src/app/workspace/recruiter/talent/page.tsx");
   assert.match(talent, /Profile health/);
   assert.match(talent, /Email unconfirmed/);
   assert.match(talent, /Profile incomplete/);
-  assert.match(talent, /Private address missing/);
+  assert.match(talent, /Address missing/);
   assert.match(talent, /Resume address review/);
   assert.match(talent, /registration_health", "profile_incomplete"/);
   assert.match(talent, /has_private_address", false/);

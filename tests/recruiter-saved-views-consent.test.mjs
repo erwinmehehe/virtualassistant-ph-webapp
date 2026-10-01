@@ -39,8 +39,8 @@ test("talent directory exposes saved queues sorting counts and real public block
   assert.match(page,/Most experience/);
   assert.match(page,/Consent needed/);
   assert.match(page,/publicVisibilityRequirements/);
-  assert.match(page,/Private address missing/);
-  assert.match(page,/Private address recorded/);
+  assert.match(page,/Address missing/);
+  assert.match(page,/Address recorded/);
 });
 
 test("recruiter roles expose saved action queues with counts and sorting", async()=>{

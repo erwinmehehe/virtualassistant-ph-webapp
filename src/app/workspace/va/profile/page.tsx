@@ -76,7 +76,7 @@ export default async function VaProfilePage({
       ) : null}
       {!String(va?.address || "").trim() ? (
         <div className="alert profile-feedback-banner" role="status">
-          <strong>Add your private home address.</strong> Recruiters need it for hiring operations. It is never shown on your public profile.
+          <strong>Add your address.</strong> Recruiters need it for hiring operations. It is never shown on your public profile.
         </div>
       ) : null}
 
@@ -116,7 +116,7 @@ export default async function VaProfilePage({
                   <span className="field-help">Public pages show first name + last initial only.</span>
                 </div>
                 <div className="field">
-                  <label>Current home address <span className="muted">(private)</span></label>
+                  <label>Current home address</label>
                   <input
                     name="address"
                     defaultValue={va?.address || ""}

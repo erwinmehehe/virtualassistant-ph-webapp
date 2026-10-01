@@ -255,8 +255,8 @@ export async function bulkRecruiterVaAction(formData: FormData) {
           requestIds.map((id) => ({
             user_id: id,
             type: "private_address_request",
-            title: "Add your private home address",
-            body: "Please add your current home address for recruiter/admin hiring operations. It stays private and is never shown to clients or on your public profile.",
+            title: "Add your address",
+            body: "Please add your current home address for recruiter/admin hiring operations. It is never shown to clients or on your public profile.",
             href: "/workspace/va/profile#basics",
           }))
         );
@@ -268,7 +268,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
               subjectType: "va",
               subjectId: id,
               action: "private_address_requested",
-              description: "Recruiter requested the VA's private home address.",
+              description: "Recruiter requested the VA's current home address.",
               actorId: user.id,
             })
           )
@@ -1187,8 +1187,8 @@ export async function requestVaPrivateAddressAction(formData: FormData) {
     const { error: notificationError } = await admin.from("notifications").insert({
       user_id: vaId,
       type: "private_address_request",
-      title: "Add your private home address",
-      body: "Please add your current home address for recruiter/admin hiring operations. It stays private and is never shown to clients or on your public profile.",
+      title: "Add your address",
+      body: "Please add your current home address for recruiter/admin hiring operations. It is never shown to clients or on your public profile.",
       href: "/workspace/va/profile#basics",
     });
     if (notificationError) throw notificationError;
@@ -1197,7 +1197,7 @@ export async function requestVaPrivateAddressAction(formData: FormData) {
       subjectType: "va",
       subjectId: vaId,
       action: "private_address_requested",
-      description: "Recruiter requested the VA's private home address.",
+      description: "Recruiter requested the VA's current home address.",
       actorId: user.id,
     });
   }

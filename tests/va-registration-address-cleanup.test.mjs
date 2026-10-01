@@ -16,7 +16,7 @@ test("registration health stays recruiter-only and exposes reasons without raw a
   assert.doesNotMatch(migration, /au\.email\s+as/);
 });
 
-test("Talent exposes exact zero-percent and private-address rescue queues with bulk-safe filters", async () => {
+test("Talent exposes exact zero-percent and address rescue queues with bulk-safe filters", async () => {
   const [page, filters, recruiterTalent, recruiter] = await Promise.all([
     read("src/app/workspace/recruiter/talent/page.tsx"),
     read("src/lib/recruiter-talent-filters.ts"),
@@ -26,7 +26,7 @@ test("Talent exposes exact zero-percent and private-address rescue queues with b
 
   assert.match(page, /0% \/ not started/);
   assert.match(page, /Email unconfirmed/);
-  assert.match(page, /Missing private address/);
+  assert.match(page, /Missing address/);
   assert.match(page, /Resume address review/);
   assert.match(page, /recruiter_va_directory_health/);
   assert.match(page, /registration_health/);

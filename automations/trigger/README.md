@@ -15,6 +15,20 @@ This package contains durable workflows that sit around VAPH. VAPH/Supabase rema
 
 No Supabase service key is stored in Trigger.dev. The task only calls the protected VAPH automation callback.
 
+## Discovery outcome
+
+`vaph-discovery-outcome` is queued whenever a discovery call is booked or rescheduled.
+
+- waits until 45 minutes after the scheduled call end
+- checks whether the recruiter recorded an outcome
+- creates a high-priority outcome task when the call is still unresolved
+- escalates the same task to urgent two hours later
+- ignores stale runs after a reschedule
+- creates an internal recommendation task when the outcome is qualified and no proposal exists
+- creates an internal no-show recovery task without automatically emailing the client
+- clears the outcome reminder as soon as the recruiter completes Discovery Workspace
+
+
 ## Activate
 
 1. Create a Trigger.dev project.

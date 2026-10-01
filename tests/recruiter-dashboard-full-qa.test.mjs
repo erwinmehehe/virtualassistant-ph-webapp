@@ -5,22 +5,25 @@ import { readFile } from "node:fs/promises";
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("recruiter badge destinations use current role and talent pages while focused nav stays intact", async () => {
-  const [nav,badges,today]=await Promise.all([
+  const [nav,badges,today,opsNav]=await Promise.all([
     read("src/components/app-nav-links.tsx"),
     read("src/lib/workspace-badges.ts"),
     read("src/app/workspace/recruiter/today/page.tsx"),
+    read("src/components/recruiter-operations-nav.tsx"),
   ]);
 
   assert.match(nav,/\["Clients", "\/workspace\/recruiter\/crm", UsersRound\]/);
   assert.match(nav,/\["Roles", "\/workspace\/recruiter\/roles", BriefcaseBusiness\]/);
   assert.doesNotMatch(nav,/\["Client review", "\/workspace\/recruiter\/client-review"/);
-  assert.match(nav,/\["Placements", "\/workspace\/recruiter\/placements", Wrench\]/);
+  assert.doesNotMatch(nav,/\["Placements", "\/workspace\/recruiter\/placements"/);
+  assert.match(nav,/\["Performance", "\/workspace\/recruiter\/performance", BarChart3\]/);
   assert.match(badges,/"\/workspace\/recruiter\/talent": Number\(raw\.vetting \|\| 0\)/);
   assert.match(badges,/"\/workspace\/recruiter\/roles": Number\(raw\.pending_roles \|\| 0\)/);
   assert.doesNotMatch(badges,/"\/workspace\/recruiter\/queue"/);
   assert.doesNotMatch(badges,/"\/workspace\/recruiter\/matching"/);
+  assert.match(today,/RecruiterOperationsNav current="today"/);
   for (const href of ["/workspace/recruiter/agenda","/workspace/recruiter/tasks","/workspace/recruiter/notifications"]) {
-    assert.ok(today.includes(href));
+    assert.ok(opsNav.includes(href));
   }
 });
 

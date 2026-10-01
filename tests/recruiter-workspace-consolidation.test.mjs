@@ -13,6 +13,7 @@ test("legacy recruiter lead surfaces redirect into the canonical CRM", async () 
     read("src/app/actions/close-lead.ts"),
     read("src/app/actions/recruiter-hiring.ts"),
   ]);
+  const crmRecord = await read("src/app/workspace/recruiter/crm/[leadId]/page.tsx");
   assert.match(leads, /\/workspace\/recruiter\/crm/);
   assert.match(board, /mode=board/);
   assert.match(crm, /"nurture", "all"/);
@@ -20,6 +21,8 @@ test("legacy recruiter lead surfaces redirect into the canonical CRM", async () 
     assert.doesNotMatch(source, /\/workspace\/recruiter\/leads/);
     assert.match(source, /\/workspace\/recruiter\/crm/);
   }
+  assert.match(crmRecord, /createRoleFromLeadAndMatchAction/);
+  assert.match(crmRecord, /Create role & open matching/);
 });
 
 test("My Day owns the recruiter action surfaces through one tab set", async () => {

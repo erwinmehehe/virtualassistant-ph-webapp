@@ -614,11 +614,33 @@ export async function acceptLeadProposalAction(formData: FormData) {
     }
   }
 
+  if (clientId && handoff.linked && handoff.actionLink) {
+    try {
+      await sendTransactionalEventEmail({
+        to: handoff.email,
+        subject: handoff.created ? "Your VirtualAssistant.com.ph client workspace is ready" : "Open your VirtualAssistant.com.ph client workspace",
+        heading: handoff.created ? "Your client workspace is ready" : "Continue in your client workspace",
+        body: handoff.created
+          ? "Your hiring proposal is accepted. Use this secure one-time link to activate your client workspace, review the accepted proposal, and follow recruiting progress."
+          : "Your hiring proposal is accepted. Use this secure sign-in link to open your client workspace, review the accepted proposal, and follow recruiting progress.",
+        href: handoff.actionLink,
+        hrefLabel: handoff.created ? "Activate client workspace" : "Open client workspace",
+        priority: "critical",
+        idempotencyKey: `proposal-workspace-access-${proposal.id}-${clientId}`,
+        eventType: "client_workspace_access",
+      });
+    } catch {
+      // Acceptance is already committed. Workspace access email is recoverable
+      // from the normal client login flow and must never roll back the hire.
+    }
+  }
+
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/admin/leads");
   if (clientId) {
     revalidatePath("/workspace/client");
+    revalidatePath("/workspace/client/proposals");
     revalidatePath("/workspace/client/jobs");
     revalidatePath(`/workspace/client/jobs/${acceptedJobId}`);
   }

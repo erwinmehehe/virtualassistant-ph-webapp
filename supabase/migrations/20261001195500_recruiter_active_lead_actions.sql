@@ -200,6 +200,7 @@ timezone_confirmation as (
   from public.lead_intake l
   where l.lead_type='client_hiring'
     and coalesce(l.crm_stage,'new') not in ('won','lost')
+    and (l.owner_id=p_user_id or l.owner_id is null)
     and (
       l.timezone is null
       or btrim(l.timezone)=''

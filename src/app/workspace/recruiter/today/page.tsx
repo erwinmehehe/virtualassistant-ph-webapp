@@ -74,6 +74,22 @@ type ProposalActionRow = {
   action_at: string | null;
 };
 
+type CleanupLeadRow = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  company: string | null;
+  service: string | null;
+  crm_stage: string | null;
+  first_contact_at: string | null;
+  last_contact_at: string | null;
+  next_follow_up_at: string | null;
+  last_touch_at: string | null;
+  primary_reason: "Missed first response" | "Follow-up overdue" | "No next step" | "Stale 3 days" | "Stale 7 days" | "Ready to close";
+  cleanup_labels: string[] | null;
+  due_at: string | null;
+};
+
 function ageLabel(hours: number | null | undefined) {
   const value = Math.max(0, Number(hours || 0));
   if (value < 24) return `${Math.max(1, Math.round(value))}h`;
@@ -127,6 +143,7 @@ function exactActionHref(item:any) {
   if(item.kind==="discovery"&&item.id) return `/workspace/recruiter/crm/${item.id}/discovery`;
   if(item.kind==="client_email_reply"&&item.id) return `/workspace/recruiter/crm/${item.id}`;
   if(item.kind==="proposal_action"&&item.id) return `/workspace/recruiter/crm/${item.id}/proposal`;
+  if(item.kind==="closing_followup"&&item.id) return `/workspace/recruiter/crm/${item.id}#client-followup`;
   if(["placement_checkin","placement_risk","placement_handoff"].includes(String(item.kind))&&item.href) return item.href;
   if(meta.subject_type==="job"&&meta.subject_id) return `/workspace/recruiter/roles/${meta.subject_id}`;
   if(meta.subject_type==="va"&&meta.subject_id) return `/workspace/recruiter/candidates/${meta.subject_id}`;
@@ -139,6 +156,7 @@ function actionLabel(item:any) {
   if(item.kind==="discovery") return "Open Discovery Workspace";
   if(item.kind==="client_email_reply") return "Reply to client";
   if(item.kind==="proposal_action") return "Open proposal";
+  if(item.kind==="closing_followup") return "Open closing record";
   if(item.kind==="all_candidates_passed") return "Find replacements";
   if(["client_shortlist_waiting","client_response_overdue"].includes(String(item.kind))) return "Open role";
   if(item.kind==="interview_requested") return "Schedule interview";
@@ -189,6 +207,23 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const proposalChangesRequested = Number(summary.proposal_changes_requested || 0);
   const proposalViewedWaiting = Number(summary.proposal_viewed_waiting || 0);
   const proposalUnopened = Number(summary.proposal_unopened || 0);
+  const cleanupQueue = (Array.isArray(summary.cleanup_queue) ? summary.cleanup_queue : []) as CleanupLeadRow[];
+
+  const higherPriorityClosingLeadIds = new Set([
+    ...clientReplies.map((row) => row.lead_id),
+    ...proposalActions.map((row) => row.lead_id),
+  ]);
+  const closingCleanupSignals = cleanupQueue
+    .filter((row) => !higherPriorityClosingLeadIds.has(row.id))
+    .filter((row) => ["Follow-up overdue", "No next step", "Stale 3 days", "Stale 7 days", "Ready to close"].includes(row.primary_reason));
+  const overdueClosingLeads = closingCleanupSignals.filter((row) => row.primary_reason === "Follow-up overdue");
+  const stalledClosingLeads = closingCleanupSignals.filter((row) => ["Stale 3 days", "Stale 7 days", "Ready to close"].includes(row.primary_reason));
+  const noNextStepLeads = closingCleanupSignals.filter((row) => row.primary_reason === "No next step");
+  const closingActionLeadIds = new Set([
+    ...clientReplies.map((row) => row.lead_id),
+    ...proposalActions.map((row) => row.lead_id),
+    ...closingCleanupSignals.map((row) => row.id),
+  ]);
 
   const rawQueue = Array.isArray(summary.today_queue) ? summary.today_queue as any[] : [];
   const nonLeadQueue = rawQueue.filter((item:any)=>!LEAD_QUEUE_KINDS.has(String(item.kind)));
@@ -220,9 +255,30 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       href: `/workspace/recruiter/crm/${row.lead_id}/proposal`,
       metadata: { proposal_id: row.proposal_id, action_kind: row.action_kind },
     })),
+    ...closingCleanupSignals.map((row) => ({
+      kind: "closing_followup",
+      id: row.id,
+      title: row.primary_reason === "Follow-up overdue"
+        ? `Follow-up overdue: ${row.company || row.name || "Client"}`
+        : row.primary_reason === "Ready to close"
+          ? `Decision needed: ${row.company || row.name || "Client"}`
+          : row.primary_reason === "No next step"
+            ? `No next step: ${row.company || row.name || "Client"}`
+            : `${row.primary_reason === "Stale 7 days" ? "Stalled 7d" : "Stalled 72h+"}: ${row.company || row.name || "Client"}`,
+      subtitle: row.primary_reason === "Follow-up overdue"
+        ? "The scheduled CRM follow-up is past due. Re-engage with a specific decision or next step."
+        : row.primary_reason === "Ready to close"
+          ? "This lead has had multiple touches and no movement for 7+ days. Decide whether to recover or close it."
+          : row.primary_reason === "No next step"
+            ? "The client is active but has no next follow-up date. Set the next decision point."
+            : `No meaningful movement since ${manilaTime(row.last_touch_at)}. Re-engage or move the lead to nurture.`,
+      due_at: row.due_at,
+      priority: ["Follow-up overdue", "Ready to close"].includes(row.primary_reason) ? "high" : "normal",
+      href: `/workspace/recruiter/crm/${row.id}#client-followup`,
+      metadata: { primary_reason: row.primary_reason, crm_stage: row.crm_stage },
+    })),
     ...nonLeadQueue.filter((item:any)=>!FOLLOW_THROUGH_KINDS.has(String(item.kind))),
   ];
-  const cleanupQueue = Array.isArray(summary.cleanup_queue) ? summary.cleanup_queue as any[] : [];
   const dailyActions = (Array.isArray(summary.daily_actions) ? summary.daily_actions : []) as DailyActionRow[];
   const clientWaitByJob = new Map<string,DailyActionRow>();
   for (const item of dailyActions) {
@@ -245,13 +301,16 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const interviewsDue = Number(summary.interviews_due || 0);
 
   const nextActionCandidates = [
-    {count:upcomingDiscoveryCalls.length,title:"Prepare upcoming discovery calls",copy:"Review the client pain, role, and known context before the call starts.",href:"#upcoming-discovery-calls",cta:"Open call prep",icon:<CalendarDays size={20}/>},
-    {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"/workspace/recruiter/crm?view=attention",cta:"Open client replies",icon:<MessageSquare size={20}/>},
+    {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
     {count:proposalActions.length,title:"Move open proposals",copy:proposalChangesRequested
       ? `${proposalChangesRequested} client change request${proposalChangesRequested===1?"":"s"} need revision now.`
       : proposalViewedWaiting
         ? `${proposalViewedWaiting} viewed proposal${proposalViewedWaiting===1?" is":"s are"} waiting for a decision.`
-        : `${proposalUnopened} proposal${proposalUnopened===1?" has":"s have"} not been opened after 48 hours.`,href:proposalActions[0]?`/workspace/recruiter/crm/${proposalActions[0].lead_id}/proposal`:"/workspace/recruiter/crm?view=attention",cta:"Open proposal queue",icon:<FileText size={20}/>},
+        : `${proposalUnopened} proposal${proposalUnopened===1?" has":"s have"} not been opened after 48 hours.`,href:"#sales-closing",cta:"Open proposal queue",icon:<FileText size={20}/>},
+    {count:overdueClosingLeads.length,title:"Recover overdue follow-ups",copy:`${overdueClosingLeads.length} client follow-up${overdueClosingLeads.length===1?" is":"s are"} past the CRM due date. Re-engage before the opportunity goes cold.`,href:"#sales-closing",cta:"Open overdue follow-ups",icon:<Clock3 size={20}/>},
+    {count:stalledClosingLeads.length,title:"Recover stalled client leads",copy:`${stalledClosingLeads.length} lead${stalledClosingLeads.length===1?" has":"s have"} had no meaningful movement for at least 72 hours. Follow up, nurture, or close the loop.`,href:"#sales-closing",cta:"Open stalled leads",icon:<RefreshCw size={20}/>},
+    {count:noNextStepLeads.length,title:"Set missing next steps",copy:`${noNextStepLeads.length} active client lead${noNextStepLeads.length===1?" has":"s have"} no scheduled follow-up. Give each one a clear next decision point.`,href:"#sales-closing",cta:"Set next steps",icon:<Clock3 size={20}/>},
+    {count:upcomingDiscoveryCalls.length,title:"Prepare upcoming discovery calls",copy:"Review the client pain, role, and known context before the call starts.",href:"#upcoming-discovery-calls",cta:"Open call prep",icon:<CalendarDays size={20}/>},
     {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
     {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#role-follow-through",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
@@ -303,6 +362,47 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         <p>{primaryAction.copy}</p>
       </div>
       <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
+    </section>
+
+    <section id="sales-closing" className={styles.closingCommandCenter} aria-labelledby="sales-closing-heading">
+      <div className={styles.closingCommandHead}>
+        <div>
+          <span>Sales closing</span>
+          <h2 id="sales-closing-heading">Close the loop before leads go cold.</h2>
+          <p>Replies, proposal decisions, overdue follow-ups, and stalled client leads from the same Recruiter Today summary.</p>
+        </div>
+        <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/crm?view=attention">Open CRM <ArrowRight size={13}/></Link>
+      </div>
+      <div className={styles.closingSignalGrid}>
+        <a href="#needs-action" className={clientReplies.length ? styles.closingSignalHot : styles.closingSignalClear}>
+          <MessageSquare size={15}/>
+          <span>Client replies</span>
+          <strong>{clientReplies.length}</strong>
+          <small>{clientReplies.length ? "Waiting on recruiter" : "Clear"}</small>
+        </a>
+        <a href="#needs-action" className={proposalActions.length ? styles.closingSignalWarm : styles.closingSignalClear}>
+          <FileText size={15}/>
+          <span>Proposal actions</span>
+          <strong>{proposalActions.length}</strong>
+          <small>{proposalChangesRequested ? `${proposalChangesRequested} changes requested` : proposalViewedWaiting ? `${proposalViewedWaiting} viewed · waiting` : proposalUnopened ? `${proposalUnopened} unopened` : "Clear"}</small>
+        </a>
+        <a href="#needs-action" className={overdueClosingLeads.length ? styles.closingSignalHot : styles.closingSignalClear}>
+          <Clock3 size={15}/>
+          <span>Overdue follow-ups</span>
+          <strong>{overdueClosingLeads.length}</strong>
+          <small>{overdueClosingLeads.length ? "Past CRM due date" : "Clear"}</small>
+        </a>
+        <a href="#needs-action" className={(stalledClosingLeads.length + noNextStepLeads.length) ? styles.closingSignalWarm : styles.closingSignalClear}>
+          <RefreshCw size={15}/>
+          <span>Stalled / no next step</span>
+          <strong>{stalledClosingLeads.length + noNextStepLeads.length}</strong>
+          <small>{stalledClosingLeads.length ? `${stalledClosingLeads.length} stalled 72h+` : noNextStepLeads.length ? `${noNextStepLeads.length} missing follow-up` : "Clear"}</small>
+        </a>
+      </div>
+      <div className={styles.closingCommandFoot}>
+        <strong>{closingActionLeadIds.size ? `${closingActionLeadIds.size} client lead${closingActionLeadIds.size===1?"":"s"} need closing attention` : "Closing queue is clear"}</strong>
+        <span>{closingActionLeadIds.size ? "Work these before routine sourcing and profile review." : "No reply, proposal, overdue follow-up, or stalled-lead signal is active."}</span>
+      </div>
     </section>
 
     {upcomingDiscoveryCalls.length ? <section id="upcoming-discovery-calls" className={`card dashboard-section-card ${styles.sectionShell}`}>
@@ -402,7 +502,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
 
     <div className={styles.actionColumns}>
-    <section className={`card dashboard-section-card ${styles.sectionShell} ${styles.queueCard}`}>
+    <section id="needs-action" className={`card dashboard-section-card ${styles.sectionShell} ${styles.queueCard}`}>
       <div className={`dashboard-section-head ${styles.sectionHead}`}><div><h2>Needs action</h2><p>Only work that needs a recruiter decision or follow-up today.</p></div><span className={`badge ${queue.length ? "badge-warning" : "badge-success"}`}>{queue.length} item{queue.length===1?"":"s"}</span></div>
       {queue.length ? <>
         {queue.length > 2 ? <div className={styles.scrollHint}>All {queue.length} items are below. Scroll this queue to review every item.</div> : null}

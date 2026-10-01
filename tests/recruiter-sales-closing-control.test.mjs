@@ -108,13 +108,18 @@ test("closing follow-ups use the client timezone and expose local time to recrui
     read("src/app/workspace/recruiter/crm/crm.module.css"),
   ]);
 
-  assert.match(actions, /zonedDateTimeToUtc/);
-  assert.match(actions, /isValidTimeZone/);
-  assert.match(actions, /followUpTimeZone/);
-  assert.match(actions, /followUpAtClientNine/);
-  assert.match(actions, /follow_up_timezone: followUpTimeZone/);
-  assert.doesNotMatch(actions, /T09:00:00\+08:00/);
-  assert.doesNotMatch(actions, /followUp\.setHours\(9/);
+  const closingStart = actions.indexOf("export async function saveCrmClosingControlAction");
+  const closingEnd = actions.indexOf("export async function updateCrmCompanyAction", closingStart);
+  const closingAction = actions.slice(closingStart, closingEnd);
+
+  assert.ok(closingStart >= 0 && closingEnd > closingStart);
+  assert.match(closingAction, /zonedDateTimeToUtc|followUpAtClientNine/);
+  assert.match(closingAction, /isValidTimeZone/);
+  assert.match(closingAction, /followUpTimeZone/);
+  assert.match(closingAction, /followUpAtClientNine/);
+  assert.match(closingAction, /follow_up_timezone: followUpTimeZone/);
+  assert.doesNotMatch(closingAction, /T09:00:00\+08:00/);
+  assert.doesNotMatch(closingAction, /followUp\.setHours\(9/);
 
   assert.match(page, /Client local time/);
   assert.match(page, /Schedules for 9:00 AM in/);

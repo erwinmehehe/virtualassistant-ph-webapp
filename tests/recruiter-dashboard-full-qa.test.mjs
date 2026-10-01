@@ -17,9 +17,9 @@ test("recruiter badge destinations use current role and talent pages while focus
   assert.doesNotMatch(nav,/\["Client review", "\/workspace\/recruiter\/client-review"/);
   assert.doesNotMatch(nav,/\["Placements", "\/workspace\/recruiter\/placements"/);
   assert.match(nav,/\["Performance", "\/workspace\/recruiter\/performance", BarChart3\]/);
-  assert.match(badges,/"\/workspace\/recruiter\/talent": Number\(raw\.vetting \|\| 0\)/);
+  assert.match(badges,/"\/workspace\/recruiter\/crm": Number\(raw\.leads \|\| 0\)/);\n  assert.match(badges,/"\/workspace\/recruiter\/talent": Number\(raw\.vetting \|\| 0\)/);
   assert.match(badges,/"\/workspace\/recruiter\/roles": Number\(raw\.pending_roles \|\| 0\)/);
-  assert.doesNotMatch(badges,/"\/workspace\/recruiter\/queue"/);
+  assert.doesNotMatch(badges,/"\/workspace\/recruiter\/leads"/);\n  assert.doesNotMatch(badges,/"\/workspace\/recruiter\/queue"/);
   assert.doesNotMatch(badges,/"\/workspace\/recruiter\/matching"/);
   assert.match(today,/RecruiterOperationsNav current="today"/);
   for (const href of ["/workspace/recruiter/agenda","/workspace/recruiter/tasks","/workspace/recruiter/notifications"]) {

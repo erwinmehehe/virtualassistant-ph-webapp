@@ -5,22 +5,20 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("legacy recruiter lead surfaces redirect into the canonical CRM", async () => {
-  const [leads, board, crm, role, closeLead, hiring] = await Promise.all([
-    read("src/app/workspace/recruiter/leads/page.tsx"),
-    read("src/app/workspace/recruiter/leads/board/page.tsx"),
+  const [nextConfig, crm, role, closeLead, hiring, crmRecord] = await Promise.all([
+    read("next.config.ts"),
     read("src/app/workspace/recruiter/crm/page.tsx"),
     read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
     read("src/app/actions/close-lead.ts"),
     read("src/app/actions/recruiter-hiring.ts"),
+    read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
   ]);
-  const crmRecord = await read("src/app/workspace/recruiter/crm/[leadId]/page.tsx");
-  assert.match(leads, /\/workspace\/recruiter\/crm/);
-  assert.match(board, /mode=board/);
+  assert.match(nextConfig, /source: "\/workspace\/recruiter\/leads", destination: "\/workspace\/recruiter\/crm"/);
+  assert.match(nextConfig, /source: "\/workspace\/recruiter\/leads\/board", destination: "\/workspace\/recruiter\/crm\?mode=board"/);
   assert.match(crm, /"nurture", "all"/);
-  for (const source of [role, closeLead, hiring]) {
-    assert.doesNotMatch(source, /\/workspace\/recruiter\/leads/);
-    assert.match(source, /\/workspace\/recruiter\/crm/);
-  }
+  assert.match(role, /\/workspace\/recruiter\/crm/);
+  assert.match(closeLead, /\/workspace\/recruiter\/crm/);
+  assert.match(hiring, /\/workspace\/recruiter\/crm/);
   assert.match(crmRecord, /createRoleFromLeadAndMatchAction/);
   assert.match(crmRecord, /Create role & open matching/);
 });
@@ -41,24 +39,22 @@ test("My Day owns the recruiter action surfaces through one tab set", async () =
 });
 
 test("vetting and dead activity routes collapse into canonical destinations", async () => {
-  const [queue, activity, talent] = await Promise.all([
-    read("src/app/workspace/recruiter/queue/page.tsx"),
-    read("src/app/workspace/recruiter/activity/page.tsx"),
+  const [nextConfig, talent] = await Promise.all([
+    read("next.config.ts"),
     read("src/app/workspace/recruiter/talent/page.tsx"),
   ]);
-  assert.match(queue, /talent\?stage=recruiter_review&sort=completion/);
-  assert.match(activity, /redirect\("\/workspace\/recruiter\/today"\)/);
+  assert.match(nextConfig, /source: "\/workspace\/recruiter\/queue", destination: "\/workspace\/recruiter\/talent\?stage=recruiter_review&sort=completion"/);
+  assert.match(nextConfig, /source: "\/workspace\/recruiter\/activity", destination: "\/workspace\/recruiter\/today"/);
   assert.match(talent, /approve_publish/);
   assert.match(talent, /request_changes/);
   assert.match(talent, /reject/);
 });
 
 test("recruiter reporting is one Performance destination while Finance stays operational", async () => {
-  const [nav, performance, funnelRedirect, analyticsRedirect, finance] = await Promise.all([
+  const [nav, performance, nextConfig, finance] = await Promise.all([
     read("src/components/app-nav-links.tsx"),
     read("src/app/workspace/recruiter/performance/page.tsx"),
-    read("src/app/workspace/recruiter/funnel/page.tsx"),
-    read("src/app/workspace/recruiter/analytics/page.tsx"),
+    read("next.config.ts"),
     read("src/app/workspace/recruiter/finance/page.tsx"),
   ]);
   assert.match(nav, /\["Performance", "\/workspace\/recruiter\/performance"/);
@@ -66,7 +62,7 @@ test("recruiter reporting is one Performance destination while Finance stays ope
   assert.doesNotMatch(nav, /\["Placements", "\/workspace\/recruiter\/placements"/);
   assert.match(performance, /Analytics/);
   assert.match(performance, /Agency Funnel/);
-  assert.match(funnelRedirect, /tab: "funnel"/);
-  assert.match(analyticsRedirect, /tab: "analytics"/);
+  assert.match(nextConfig, /source: "\/workspace\/recruiter\/funnel", destination: "\/workspace\/recruiter\/performance\?tab=funnel"/);
+  assert.match(nextConfig, /source: "\/workspace\/recruiter\/analytics", destination: "\/workspace\/recruiter\/performance\?tab=analytics"/);
   assert.match(finance, /requestMarginExceptionAction/);
 });

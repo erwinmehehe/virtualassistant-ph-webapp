@@ -6,6 +6,7 @@ import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isLeadCrmStage, legacyLeadStatus } from "@/lib/lead-crm";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
+import { isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 
 const CRM_OBJECTS = new Set(["lead", "company", "contact"]);
 const FIELD_TYPES = new Set(["text", "number", "date", "boolean", "select"]);
@@ -30,6 +31,29 @@ function slugKey(value: string) {
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "")
     .slice(0, 48);
+}
+
+function localDateKey(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value || "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function addDaysToDateKey(value: string, days: number) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) throw new Error("Invalid local date key");
+  const next = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]) + days));
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${next.getUTCFullYear()}-${pad(next.getUTCMonth() + 1)}-${pad(next.getUTCDate())}`;
+}
+
+function followUpAtClientNine(dateKey: string, timeZone: string) {
+  return zonedDateTimeToUtc(`${dateKey}T09:00`, timeZone)?.toISOString() || null;
 }
 
 function parseCsv(text: string) {
@@ -222,25 +246,10 @@ export async function saveCrmClosingControlAction(formData: FormData) {
   if (!leadId) fail("Client record not found.");
   if (!CLOSING_NEXT_STEPS.has(nextStep)) fail("Choose a valid closing next step.");
 
-  let nextFollowUpAt: string | null | undefined;
-  if (quickDaysRaw) {
-    const days = Number(quickDaysRaw);
-    if (![2, 7, 14].includes(days)) fail("Choose a valid follow-up interval.");
-    const followUp = new Date();
-    followUp.setDate(followUp.getDate() + days);
-    followUp.setHours(9, 0, 0, 0);
-    nextFollowUpAt = followUp.toISOString();
-  } else if (followUpRaw) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(followUpRaw)) fail("Choose a valid follow-up date.");
-    const parsed = new Date(`${followUpRaw}T09:00:00+08:00`);
-    if (!Number.isFinite(parsed.getTime())) fail("Choose a valid follow-up date.");
-    nextFollowUpAt = parsed.toISOString();
-  }
-
   const admin = createAdminClient();
   const { data: lead, error: leadError } = await admin
     .from("lead_intake")
-    .select("id,crm_stage,owner_id,job_id,next_follow_up_at")
+    .select("id,crm_stage,owner_id,job_id,next_follow_up_at,timezone")
     .eq("id", leadId)
     .eq("lead_type", "client_hiring")
     .maybeSingle();
@@ -248,6 +257,30 @@ export async function saveCrmClosingControlAction(formData: FormData) {
   if (!lead) fail("Client record not found.");
   const validatedLead = lead!;
   if (["won", "lost"].includes(String(validatedLead.crm_stage || ""))) fail("Closed clients do not need a closing follow-up plan.");
+
+  let followUpTimeZone = isValidTimeZone(validatedLead.timezone) ? String(validatedLead.timezone) : "";
+  if (!followUpTimeZone && validatedLead.job_id) {
+    const { data: linkedJob, error: linkedJobError } = await admin
+      .from("jobs")
+      .select("timezone")
+      .eq("id", validatedLead.job_id)
+      .maybeSingle();
+    if (!linkedJobError && isValidTimeZone(linkedJob?.timezone)) followUpTimeZone = String(linkedJob?.timezone);
+  }
+  if (!followUpTimeZone) followUpTimeZone = "Asia/Manila";
+
+  let nextFollowUpAt: string | null | undefined;
+  if (quickDaysRaw) {
+    const days = Number(quickDaysRaw);
+    if (![2, 7, 14].includes(days)) fail("Choose a valid follow-up interval.");
+    const clientDate = addDaysToDateKey(localDateKey(new Date(), followUpTimeZone), days);
+    nextFollowUpAt = followUpAtClientNine(clientDate, followUpTimeZone);
+    if (!nextFollowUpAt) fail("Could not schedule 9:00 AM in the client timezone.");
+  } else if (followUpRaw) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(followUpRaw)) fail("Choose a valid follow-up date.");
+    nextFollowUpAt = followUpAtClientNine(followUpRaw, followUpTimeZone);
+    if (!nextFollowUpAt) fail("Could not schedule 9:00 AM in the client timezone.");
+  }
 
   const qualificationStatus = nextStep === "nurture"
     ? "nurture"
@@ -287,6 +320,7 @@ export async function saveCrmClosingControlAction(formData: FormData) {
       has_objection_notes: Boolean(failureRisks),
       has_closing_notes: Boolean(additionalNotes),
       quick_followup_days: quickDaysRaw ? Number(quickDaysRaw) : null,
+      follow_up_timezone: followUpTimeZone,
     },
   });
 

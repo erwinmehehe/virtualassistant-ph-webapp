@@ -34,7 +34,7 @@ export async function SalesAnalyticsDashboard({
   });
   const errors = Object.entries(data.errors).filter(([, value]) => value);
 
-  const queryHref = (nextDays: number, nextScope = scope) => `${basePath}?days=${nextDays}${allowScopeToggle ? `&scope=${nextScope}` : ""}`;
+  const queryHref = (nextDays: number, nextScope = scope) => `${basePath}${basePath.includes("?") ? "&" : "?"}days=${nextDays}${allowScopeToggle ? `&scope=${nextScope}` : ""}`;
 
   const metrics = [
     ["Hiring enquiries", data.totals.leads, String(data.totals.discoveryBooked) + " discovery calls booked", UsersRound],

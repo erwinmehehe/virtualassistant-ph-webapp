@@ -554,7 +554,6 @@ export async function recordLeadContactAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/crm");
-  revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/admin/leads");

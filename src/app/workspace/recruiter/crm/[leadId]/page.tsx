@@ -32,7 +32,7 @@ import {
   createDiscoveryGoogleMeetLinkAction,
   cancelRecruiterDiscoveryAction,
 } from "@/app/actions/recruiter";
-import { createCrmCustomFieldAction, saveCrmClosingControlAction, setCrmCustomValueAction } from "@/app/actions/crm";
+import { createCrmCustomFieldAction, saveCrmClosingControlAction, setCrmCustomValueAction, updateLeadTimeZoneAction } from "@/app/actions/crm";
 import { completeRecruiterTaskAction, createRecruiterTaskAction } from "@/app/actions/recruiter-ops";
 import { createRoleFromLeadAndMatchAction } from "@/app/actions/recruiter-hiring";
 import styles from "../crm.module.css";
@@ -531,6 +531,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       {query.discovery_error ? <div className="alert" role="alert">{query.discovery_error}</div> : null}
       {query.closing_saved ? <div className="success-banner">Closing plan updated.</div> : null}
       {query.closing_error ? <div className="alert" role="alert">{query.closing_error}</div> : null}
+      {query.timezone_saved ? <div className="success-banner">Client timezone updated.</div> : null}
+      {query.timezone_error ? <div className="alert" role="alert">{query.timezone_error}</div> : null}
 
       <Link className={styles.detailBack} href="/workspace/recruiter/crm"><ArrowLeft size={14}/> Back to clients</Link>
 
@@ -582,10 +584,47 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           <div><span>Role / need</span><strong>{resolvedRole}</strong></div>
           <div><span>Hours</span><strong>{resolvedHours}</strong></div>
           <div><span>Budget</span><strong>{resolvedBudget}</strong></div>
-          <div>
+          <div className={styles.timeZoneFact}>
             <span>Timezone</span>
             <strong>{clientTimeZoneDetails ? `${clientTimeZoneDetails.city}${clientTimeZoneDetails.zoneName ? ` · ${clientTimeZoneDetails.zoneName}` : ""}` : "Not detected"}</strong>
-            {clientTimeZoneDetails ? <small>{clientTimeZoneDetails.localTime} local · {clientTimeZoneDetails.timeZone}</small> : null}
+            {clientTimeZoneDetails
+              ? <small>{clientTimeZoneDetails.localTime} local · {clientTimeZoneDetails.timeZone}</small>
+              : <small>Set this before scheduling client-local follow-ups.</small>}
+            <details className={styles.timeZoneEditor}>
+              <summary>{clientTimeZoneDetails ? "Edit timezone" : "Set timezone"}</summary>
+              <form action={updateLeadTimeZoneAction}>
+                <input type="hidden" name="lead_id" value={lead.id}/>
+                <input type="hidden" name="return_to" value={returnTo}/>
+                <label htmlFor={`lead-timezone-${lead.id}`}>IANA timezone</label>
+                <div>
+                  <input
+                    id={`lead-timezone-${lead.id}`}
+                    name="timezone"
+                    list="lead-timezone-options"
+                    required
+                    defaultValue={clientTimeZone || ""}
+                    placeholder="Australia/Sydney"
+                    autoComplete="off"
+                  />
+                  <button type="submit">Save</button>
+                </div>
+                <datalist id="lead-timezone-options">
+                  <option value="Australia/Sydney"/>
+                  <option value="Australia/Melbourne"/>
+                  <option value="Australia/Brisbane"/>
+                  <option value="Australia/Perth"/>
+                  <option value="Pacific/Auckland"/>
+                  <option value="Asia/Manila"/>
+                  <option value="Asia/Singapore"/>
+                  <option value="America/New_York"/>
+                  <option value="America/Chicago"/>
+                  <option value="America/Denver"/>
+                  <option value="America/Los_Angeles"/>
+                  <option value="Europe/London"/>
+                </datalist>
+                <small>Use a city-based timezone so daylight-saving changes stay accurate.</small>
+              </form>
+            </details>
           </div>
           <div><span>Preferred start</span><strong>{resolvedStart}</strong></div>
           <div><span>Source</span><strong>{String(lead.source_page || "Direct").replaceAll("_", " ")}</strong></div>
@@ -694,7 +733,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
               <small className={styles.followUpTimeZoneHint}>
                 {clientTimeZoneDetails
                   ? `Schedules for 9:00 AM in ${clientTimeZoneDetails.city}${clientTimeZoneDetails.zoneName ? ` (${clientTimeZoneDetails.zoneName})` : ""}.`
-                  : "Timezone not detected. Schedules for 9:00 AM Manila time."}
+                  : "Timezone not detected. Set the client timezone before scheduling."}
               </small>
             </label>
             <div className={styles.closingFormActions}>

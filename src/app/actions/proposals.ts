@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { cleanJobDescription, cleanJobSummary } from "@/lib/job-content-cleanup";
 import { inferCategories, inferHours } from "@/lib/category-inference";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
@@ -614,13 +615,48 @@ export async function acceptLeadProposalAction(formData: FormData) {
     }
   }
 
+  let acceptedBySignedInClient = false;
+  if (clientId) {
+    try {
+      const supabase = await createClient();
+      const { data: { user: signedInUser } } = await supabase.auth.getUser();
+      acceptedBySignedInClient = signedInUser?.id === clientId;
+    } catch {
+      acceptedBySignedInClient = false;
+    }
+  }
+
+  if (clientId && handoff.linked && handoff.actionLink) {
+    try {
+      await sendTransactionalEventEmail({
+        to: handoff.email,
+        firstName: lead.name,
+        subject: `Your client workspace is ready: ${proposal.role_title}`,
+        heading: "Your client workspace is ready",
+        body: "Your hiring proposal is accepted and your role is now in the client workspace. Open the workspace to follow recruiting progress, review your shortlist, and keep this proposal in your account history.",
+        href: handoff.actionLink,
+        hrefLabel: "Open client workspace",
+        eventType: "client_workspace_ready",
+        idempotencyKey: `proposal-workspace-${proposal.id}`,
+        priority: "critical",
+      });
+    } catch {
+      // Acceptance is already committed. Workspace email delivery is a
+      // recoverable handoff step and must not roll back the accepted proposal.
+    }
+  }
+
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/crm");
   revalidatePath("/workspace/admin/leads");
   if (clientId) {
     revalidatePath("/workspace/client");
     revalidatePath("/workspace/client/jobs");
+    revalidatePath("/workspace/client/proposals");
     revalidatePath(`/workspace/client/jobs/${acceptedJobId}`);
+  }
+  if (acceptedBySignedInClient && clientId) {
+    redirect(`/workspace/client/jobs/${acceptedJobId}?proposal_accepted=1`);
   }
   redirect(`/proposal/${token}?accepted=1`);
 }

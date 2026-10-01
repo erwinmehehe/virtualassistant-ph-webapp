@@ -27,8 +27,24 @@ async function placementContext(workroomId: string) {
   return { admin, room, job };
 }
 
-function assertAgencyAccess(profileRole: string, userId: string, room: any, job: any) {
+function assertRecruiterHandoffAccess(profileRole: string, userId: string, room: any, job: any) {
   if (profileRole === "admin") return;
+  if (job.recruiter_id === userId && !room.handoff_completed_at) return;
+  throw new Error("Recruitment access ends after the Client Success handoff.");
+}
+
+function assertClientSuccessAccess(profileRole: string, userId: string, room: any) {
+  if (profileRole === "admin") return;
+  if (room.client_success_owner_id === userId) return;
+  throw new Error("Post-start placement work belongs to the assigned Client Success owner.");
+}
+
+function assertPlacementChecklistAccess(profileRole: string, userId: string, room: any, job: any) {
+  if (profileRole === "admin") return;
+  if (room.handoff_completed_at) {
+    assertClientSuccessAccess(profileRole, userId, room);
+    return;
+  }
   if (job.recruiter_id === userId || room.client_success_owner_id === userId) return;
   throw new Error("This placement is assigned to another agency owner.");
 }
@@ -70,7 +86,7 @@ export async function assignClientSuccessOwnerAction(formData: FormData) {
   if (!workroomId || !ownerId) throw new Error("Choose a Client Success owner.");
 
   const { admin, room, job } = await placementContext(workroomId);
-  assertAgencyAccess(profile.role, user.id, room, job);
+  assertRecruiterHandoffAccess(profile.role, user.id, room, job);
   const { data: owner } = await admin.from("profiles").select("id,full_name,role,account_status").eq("id", ownerId).maybeSingle();
   if (!owner || !["recruiter", "admin"].includes(String(owner.role)) || owner.account_status !== "active") throw new Error("Choose an active agency team member.");
 
@@ -103,7 +119,7 @@ export async function completeRecruiterHandoffAction(formData: FormData) {
   if (!workroomId || !notes || notes.length < 20) throw new Error("Add a useful handoff note of at least 20 characters.");
 
   const { admin, room, job } = await placementContext(workroomId);
-  assertAgencyAccess(profile.role, user.id, room, job);
+  assertRecruiterHandoffAccess(profile.role, user.id, room, job);
   if (!room.client_success_owner_id) throw new Error("Assign a Client Success owner before completing the handoff.");
 
   const now = new Date().toISOString();
@@ -136,7 +152,7 @@ export async function toggleAgencyChecklistAction(formData: FormData) {
   if (!checklistId || !workroomId) throw new Error("Checklist item is required.");
 
   const { admin, room, job } = await placementContext(workroomId);
-  assertAgencyAccess(profile.role, user.id, room, job);
+  assertPlacementChecklistAccess(profile.role, user.id, room, job);
   const { data: item } = await admin.from("workroom_checklist").select("id,owner_role,title,workroom_id").eq("id", checklistId).eq("workroom_id", workroomId).maybeSingle();
   if (!item || item.owner_role !== "agency") throw new Error("Only agency-owned readiness items can be changed here.");
 
@@ -220,7 +236,7 @@ export async function recordPlacementCheckinAction(formData: FormData) {
   if (!clientSignal && !vaSignal) throw new Error("Record at least the client or VA placement signal.");
 
   const { admin, room, job } = await placementContext(workroomId);
-  assertAgencyAccess(profile.role, user.id, room, job);
+  assertClientSuccessAccess(profile.role, user.id, room);
   const { data: checkin } = await admin.from("placement_checkins").select("*").eq("id", checkinId).eq("workroom_id", workroomId).maybeSingle();
   if (!checkin) throw new Error("Check-in not found.");
 
@@ -262,7 +278,7 @@ export async function updatePlacementStageAction(formData: FormData) {
   if (stage === "recovery" && (!recoveryPlan || recoveryPlan.length < 10)) throw new Error("Add a concrete recovery plan.");
 
   const { admin, room, job } = await placementContext(workroomId);
-  assertAgencyAccess(profile.role, user.id, room, job);
+  assertClientSuccessAccess(profile.role, user.id, room);
   const now = new Date().toISOString();
   const { error } = await admin.from("workrooms").update({
     placement_stage: stage,

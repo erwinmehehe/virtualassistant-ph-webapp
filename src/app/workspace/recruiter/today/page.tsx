@@ -186,6 +186,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   if (roleSummary.error) throw roleSummary.error;
 
   const summary = (summaryData || {}) as Record<string,any>;
+  const timezoneNeedsConfirmation = Number(summary.timezone_confirmation_count || 0);
   const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
@@ -328,6 +329,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
   const nextActionCandidates = [
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
+    {count:timezoneNeedsConfirmation,title:"Confirm client timezones",copy:`${timezoneNeedsConfirmation} active client${timezoneNeedsConfirmation===1?" has":"s have"} no valid scheduling timezone. Confirm it before discovery or local-time follow-up.`,href:"/workspace/recruiter/crm?view=timezone",cta:"Review timezones",icon:<Clock3 size={20}/>},
     {count:overdueDiscoveryActions.length,title:"Resolve overdue discovery outcomes",copy:`${overdueDiscoveryActions.length} discovery call${overdueDiscoveryActions.length===1?" is":"s are"} past the scheduled time with no saved outcome. Record the result before the sales trail goes stale.`,href:"#needs-action",cta:"Resolve discoveries",icon:<CalendarDays size={20}/>},
     {count:proposalMissingActions.length,title:"Prepare qualified proposals",copy:`${proposalMissingActions.length} qualified discover${proposalMissingActions.length===1?"y has":"ies have"} not entered the proposal workflow. Prepare the recommendation before matching.`,href:"#needs-action",cta:"Prepare proposals",icon:<FileText size={20}/>},
     {count:proposalDraftActions.length,title:"Send proposal drafts",copy:`${proposalDraftActions.length} proposal draft${proposalDraftActions.length===1?" has":"s have"} been sitting unsent for at least two hours.`,href:"#needs-action",cta:"Finish proposals",icon:<FileText size={20}/>},

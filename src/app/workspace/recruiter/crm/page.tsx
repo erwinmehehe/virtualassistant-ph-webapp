@@ -11,6 +11,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { scoreLead } from "@/lib/lead-scoring";
 import { clientReplyNeedsAction, clientReplyStatusLabel } from "@/lib/client-reply-state";
+import { isValidTimeZone } from "@/lib/timezone";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
 import { RecruiterCrmSelectionControl } from "@/components/recruiter-crm-selection-control";
 import { bulkUpdateCrmLeadsAction } from "@/app/actions/crm";
@@ -64,6 +65,7 @@ const SYSTEM_VIEWS = [
   ["active", "Active"],
   ["mine", "Mine"],
   ["attention", "Needs action"],
+  ["timezone", "Timezone"],
   ["discovery", "Discovery"],
   ["qualified", "Qualified"],
   ["won", "Won"],
@@ -94,6 +96,7 @@ function viewMatch(view: string, lead: LeadRow, userId: string, now: number, act
   if (view === "nurture") return stage === "nurture";
   if (view === "mine") return lead.owner_id === userId && isOpenLeadStage(stage);
   if (view === "attention") return (isOpenLeadStage(stage) && (unreadChat > 0 || activity?.latest_decision === "need_more_options" || clientReplyNeedsAction(activity?.reply_status))) || followDue || firstResponseDue;
+  if (view === "timezone") return isOpenLeadStage(stage) && !isValidTimeZone(lead.timezone);
   if (view === "discovery") return stage === "discovery_booked";
   if (view === "qualified") return ["qualified", "terms_sent", "shortlist_sent"].includes(stage);
   if (view === "won") return stage === "won";
@@ -199,6 +202,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   const needsAction = allLeads.filter((lead) => viewMatch("attention", lead, userId, now, activityMap.get(lead.id)));
   const discovery = allLeads.filter((lead) => lead.crm_stage === "discovery_booked");
   const qualified = allLeads.filter((lead) => ["qualified", "terms_sent", "shortlist_sent"].includes(String(lead.crm_stage || "")));
+  const timezoneNeedsConfirmation = active.filter((lead) => !isValidTimeZone(lead.timezone));
 
   const pipelineLeads: PipelineLead[] = visible
     .filter((lead) => BOARD_STAGES.includes(String(lead.crm_stage || "new") as PipelineStage))
@@ -249,6 +253,15 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
         <div><span>Active</span><strong>{active.length}</strong></div>
       </section>
 
+      {timezoneNeedsConfirmation.length ? (
+        <div className={styles.timezoneBanner}>
+          <div>
+            <strong>{timezoneNeedsConfirmation.length} active client{timezoneNeedsConfirmation.length === 1 ? "" : "s"} need timezone confirmation.</strong>
+            <span>Confirm an IANA timezone before discovery scheduling or client-local follow-ups.</span>
+          </div>
+          <Link href={buildHref({ view: "timezone", mode: "table" })}>Review timezones</Link>
+        </div>
+      ) : null}
       {params.bulk_saved ? <div className={styles.successBanner}>Updated {params.bulk_saved} selected client record{params.bulk_saved === "1" ? "" : "s"}.</div> : null}
       {params.bulk_error ? <div className={styles.errorBanner}>{params.bulk_error}</div> : null}
 
@@ -329,6 +342,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                       <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
                       <td>
                         <span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span>
+                        {!isValidTimeZone(lead.timezone) && isOpenLeadStage(lead.crm_stage || "new") ? <span className={styles.timezoneWarning}>Timezone needed</span> : null}
                         {lead.discovery_scheduled_at && !lead.discovery_completed_at ? (
                           <Link className={styles.inlineLink} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Open discovery</Link>
                         ) : null}

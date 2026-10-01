@@ -864,7 +864,9 @@ export async function submitContactAction(formData: FormData) {
 const discoveryBookingSchema = z.object({
   audience: z.literal("client"),
   scheduled_at: z.string().datetime({ offset: true }),
-  timezone: z.string().trim().min(2).max(100),
+  timezone: z.string().trim().min(2).max(100).refine((value) => isValidTimeZone(value), {
+    message: "We could not confirm your timezone. Refresh the page and choose a time again.",
+  }),
   name: z.string().trim().min(2).max(100),
   email: z.string().trim().email(),
   phone: z.string().trim().max(50).optional(),

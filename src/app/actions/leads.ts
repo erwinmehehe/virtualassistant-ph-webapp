@@ -19,6 +19,7 @@ import { createSignedCapability } from "@/lib/public-capability";
 import { ensurePendingRoleForLead, jobTitleForCategory, rateRangeFromBudget } from "@/lib/lead-role";
 import { isValidTimeZone } from "@/lib/timezone";
 import { queueDiscoveryOutcomeAutomation, queueLeadSlaAutomation } from "@/lib/trigger-automation";
+import { resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -1063,6 +1064,13 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
       // Updating the confirmed booking must not fail because an internal alert failed.
     }
 
+    if (!sameSlot) {
+      try {
+        await resolveDiscoveryOutcomeArtifacts(admin, activeBooking.id);
+      } catch {
+        // Rescheduling stays valid even if stale task cleanup is unavailable.
+      }
+    }
     try {
       await queueDiscoveryOutcomeAutomation(
         activeBooking.id,

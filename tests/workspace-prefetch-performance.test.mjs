@@ -6,6 +6,7 @@ const read = (path) => readFileSync(path, "utf8");
 const nav = read("src/components/app-nav-links.tsx");
 const dashUi = read("src/components/dash-ui.tsx");
 const recruiter = read("src/app/workspace/recruiter/today/page.tsx");
+const recruiterOpsNav = read("src/components/recruiter-operations-nav.tsx");
 const clientSuccess = read("src/app/workspace/client-success/page.tsx");
 
 // Authenticated workspace links are intentionally click-to-load. The production
@@ -21,7 +22,7 @@ test("shared dashboard cards and signal links avoid background route prefetch", 
 
 test("recruiter My Day does not preload dense action destinations", () => {
   assert.match(recruiter, /noShows\.slice\(0,5\)\.map[\s\S]*<Link prefetch=\{false\}/);
-  assert.match(recruiter, /<Link prefetch=\{false\} className="dash-btn dash-btn-light"/);
+  assert.match(recruiterOpsNav, /<Link key=\{key\} prefetch=\{false\} href=\{href\}/);
   assert.match(recruiter, /<Link prefetch=\{false\} className="btn btn-primary" href=\{primaryAction\.href\}/);
 });
 

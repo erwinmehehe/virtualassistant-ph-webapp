@@ -17,7 +17,7 @@ import { runCrmStageWorkflows } from "@/lib/crm-workflows";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 import { queueDiscoveryOutcomeAutomation } from "@/lib/trigger-automation";
-import { ensureDiscoveryOutcomeNextAction } from "@/lib/discovery-outcome-automation";
+import { ensureDiscoveryOutcomeNextAction, resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "request_address", "hide", "assign", "remind"]);
 
@@ -803,6 +803,12 @@ export async function scheduleDiscoveryAction(formData: FormData) {
   });
 
   try {
+    await resolveDiscoveryOutcomeArtifacts(admin, leadId);
+  } catch {
+    // Rescheduling remains valid if stale reminder cleanup fails.
+  }
+
+  try {
     await queueDiscoveryOutcomeAutomation(leadId, scheduled.toISOString(), duration);
   } catch {
     // The saved discovery booking does not depend on durable automation.
@@ -904,6 +910,7 @@ export async function cancelRecruiterDiscoveryAction(formData: FormData) {
     await runCrmStageWorkflows({ leadId, stage: "nurture", actorId: user.id });
   }
   try { await cancelGoogleMeetDiscoveryMeeting(lead.discovery_calendar_event_id); } catch { /* cancellation remains recorded if Google Calendar is unavailable */ }
+  try { await resolveDiscoveryOutcomeArtifacts(admin, leadId); } catch { /* cancellation remains valid if stale reminder cleanup fails */ }
   await writeRecruiterActivity({
     subjectType: "lead", subjectId: leadId, action: "discovery_cancelled",
     description: "Discovery booking cancelled by recruiter", actorId: user.id,

@@ -73,10 +73,17 @@ test("closing control blocks closed leads and offers safe follow-up presets", as
 
   assert.match(actions, /\["won", "lost"\]\.includes/);
   assert.match(actions, /Closed clients do not need a closing follow-up plan/);
-  assert.match(actions, /\[2, 7, 14\]\.includes\(days\)/);
+  assert.match(actions, /\[2, 7\]\.includes\(days\)/);
+  assert.match(actions, /quickNurtureDaysRaw/);
+  assert.match(actions, /days !== 14/);
+  assert.match(actions, /nextStep = "follow_up"/);
+  assert.match(actions, /nextStep = "nurture"/);
+  assert.match(actions, /Set a follow-up date so this client has a clear next decision point/);
+  assert.match(actions, /Set a nurture follow-up date so this client does not disappear from the pipeline/);
+  assert.match(actions, /Choose a future follow-up date so the closing plan does not become overdue immediately/);
   assert.match(page, /name="quick_followup_days" value="2"/);
   assert.match(page, /name="quick_followup_days" value="7"/);
-  assert.match(page, /name="quick_followup_days" value="14"/);
+  assert.match(page, /name="quick_nurture_days" value="14"/);
   assert.match(page, /This lead is closed\. Follow-up scheduling is disabled\./);
 });
 

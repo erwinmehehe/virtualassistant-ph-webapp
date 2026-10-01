@@ -699,7 +699,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
               <button type="submit">Save closing plan</button>
               <button type="submit" name="quick_followup_days" value="2" className={styles.secondaryFormButton}>Follow up +2 days</button>
               <button type="submit" name="quick_followup_days" value="7" className={styles.secondaryFormButton}>+7 days</button>
-              <button type="submit" name="quick_followup_days" value="14" className={styles.secondaryFormButton}>Nurture +14 days</button>
+              <button type="submit" name="quick_nurture_days" value="14" className={styles.secondaryFormButton}>Nurture +14 days</button>
             </div>
           </form>
         ) : (

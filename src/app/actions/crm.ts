@@ -238,9 +238,10 @@ export async function saveCrmClosingControlAction(formData: FormData) {
   const returnTo = safePath(formData.get("return_to"), leadId ? `/workspace/recruiter/crm/${leadId}` : "/workspace/recruiter/crm");
   const failureRisks = String(formData.get("failure_risks") || "").trim().slice(0, 5000) || null;
   const additionalNotes = String(formData.get("additional_notes") || "").trim().slice(0, 5000) || null;
-  const nextStep = String(formData.get("closing_next_step") || "follow_up").trim();
+  let nextStep = String(formData.get("closing_next_step") || "follow_up").trim();
   const followUpRaw = String(formData.get("next_follow_up_at") || "").trim();
   const quickDaysRaw = String(formData.get("quick_followup_days") || "").trim();
+  const quickNurtureDaysRaw = String(formData.get("quick_nurture_days") || "").trim();
 
   const fail = (message: string): never => redirect(withParam(returnTo, "closing_error", message));
   if (!leadId) fail("Client record not found.");
@@ -270,9 +271,18 @@ export async function saveCrmClosingControlAction(formData: FormData) {
   if (!followUpTimeZone) followUpTimeZone = "Asia/Manila";
 
   let nextFollowUpAt: string | null | undefined;
+  if (quickDaysRaw && quickNurtureDaysRaw) fail("Choose one follow-up shortcut.");
   if (quickDaysRaw) {
     const days = Number(quickDaysRaw);
-    if (![2, 7, 14].includes(days)) fail("Choose a valid follow-up interval.");
+    if (![2, 7].includes(days)) fail("Choose a valid follow-up interval.");
+    nextStep = "follow_up";
+    const clientDate = addDaysToDateKey(localDateKey(new Date(), followUpTimeZone), days);
+    nextFollowUpAt = followUpAtClientNine(clientDate, followUpTimeZone);
+    if (!nextFollowUpAt) fail("Could not schedule 9:00 AM in the client timezone.");
+  } else if (quickNurtureDaysRaw) {
+    const days = Number(quickNurtureDaysRaw);
+    if (days !== 14) fail("Choose a valid nurture interval.");
+    nextStep = "nurture";
     const clientDate = addDaysToDateKey(localDateKey(new Date(), followUpTimeZone), days);
     nextFollowUpAt = followUpAtClientNine(clientDate, followUpTimeZone);
     if (!nextFollowUpAt) fail("Could not schedule 9:00 AM in the client timezone.");
@@ -280,6 +290,18 @@ export async function saveCrmClosingControlAction(formData: FormData) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(followUpRaw)) fail("Choose a valid follow-up date.");
     nextFollowUpAt = followUpAtClientNine(followUpRaw, followUpTimeZone);
     if (!nextFollowUpAt) fail("Could not schedule 9:00 AM in the client timezone.");
+  }
+
+  if (["follow_up", "nurture"].includes(nextStep)) {
+    const effectiveFollowUpAt = nextFollowUpAt === undefined ? validatedLead.next_follow_up_at : nextFollowUpAt;
+    if (!effectiveFollowUpAt) {
+      fail(nextStep === "nurture"
+        ? "Set a nurture follow-up date so this client does not disappear from the pipeline."
+        : "Set a follow-up date so this client has a clear next decision point.");
+    }
+    if (new Date(effectiveFollowUpAt).getTime() <= Date.now()) {
+      fail("Choose a future follow-up date so the closing plan does not become overdue immediately.");
+    }
   }
 
   const qualificationStatus = nextStep === "nurture"
@@ -320,6 +342,7 @@ export async function saveCrmClosingControlAction(formData: FormData) {
       has_objection_notes: Boolean(failureRisks),
       has_closing_notes: Boolean(additionalNotes),
       quick_followup_days: quickDaysRaw ? Number(quickDaysRaw) : null,
+      quick_nurture_days: quickNurtureDaysRaw ? Number(quickNurtureDaysRaw) : null,
       follow_up_timezone: followUpTimeZone,
     },
   });

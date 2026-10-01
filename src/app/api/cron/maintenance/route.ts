@@ -8,6 +8,7 @@ import { reconcilePaymongoPayments } from "@/lib/payment-reconciliation";
 import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement";
 import { runVaAddressResumeBackfill } from "@/lib/va-address-backfill";
 import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
+import { proposalAutomationConfigured } from "@/lib/trigger-automation";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -514,14 +515,16 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   for (const proposal of proposals || []) {
     const lead: any = proposalLeadMap.get(proposal.lead_id);
     const recipients = lead?.owner_id ? [lead.owner_id] : staffIds;
-    for (const recipientId of recipients) {
-      if (await sendWorkflowReminder(admin, {
-        subjectType: "proposal", subjectId: proposal.id, recipientId,
-        action: proposal.viewed_at ? "viewed_proposal_open" : "proposal_not_viewed",
-        title: proposal.viewed_at ? `Viewed proposal still open: ${proposal.role_title}` : `Proposal not viewed: ${proposal.role_title}`,
-        body: proposal.viewed_at ? `${lead?.company || lead?.name || "The client"} viewed the proposal but has not responded. Follow up while intent is still warm.` : `${lead?.company || lead?.name || "The client"} has not viewed the proposal sent at least two days ago.`,
-        href: `/workspace/recruiter/crm/${proposal.lead_id}/proposal`, repeatDays: 2
-      })) proposalReminders++;
+    if (!proposalAutomationConfigured()) {
+      for (const recipientId of recipients) {
+        if (await sendWorkflowReminder(admin, {
+          subjectType: "proposal", subjectId: proposal.id, recipientId,
+          action: proposal.viewed_at ? "viewed_proposal_open" : "proposal_not_viewed",
+          title: proposal.viewed_at ? `Viewed proposal still open: ${proposal.role_title}` : `Proposal not viewed: ${proposal.role_title}`,
+          body: proposal.viewed_at ? `${lead?.company || lead?.name || "The client"} viewed the proposal but has not responded. Follow up while intent is still warm.` : `${lead?.company || lead?.name || "The client"} has not viewed the proposal sent at least two days ago.`,
+          href: `/workspace/recruiter/crm/${proposal.lead_id}/proposal`, repeatDays: 2
+        })) proposalReminders++;
+      }
     }
 
     if (lead?.email && proposal.public_token) {

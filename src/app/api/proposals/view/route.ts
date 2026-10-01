@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { isExplicitCrossSiteRequest, readRequestJson } from "@/lib/http-security";
+import { queueProposalViewedAutomation } from "@/lib/trigger-automation";
 
 export async function POST(request: Request) {
   if (isExplicitCrossSiteRequest(request)) return NextResponse.json({ ok: false }, { status: 403 });
@@ -26,7 +27,8 @@ export async function POST(request: Request) {
     .update({ viewed_at: now, updated_at: now })
     .eq("public_token", token)
     .is("viewed_at", null)
-    .select("id,lead_id,role_title")
+    .eq("status", "sent")
+    .select("id,lead_id,role_title,sent_at")
     .maybeSingle();
 
   if (data) {
@@ -37,6 +39,17 @@ export async function POST(request: Request) {
       description: `Client viewed proposal for ${data.role_title}`,
       metadata: { proposal_id: data.id }
     });
+  }
+
+  if (data?.sent_at) {
+    try {
+      await queueProposalViewedAutomation(data.id, data.sent_at, now);
+    } catch (automationError) {
+      console.error("[automation] proposal viewed queue failed", {
+        proposalId: data.id,
+        error: automationError instanceof Error ? automationError.message : String(automationError),
+      });
+    }
   }
   return NextResponse.json({ ok: true });
 }

@@ -29,6 +29,22 @@ No Supabase service key is stored in Trigger.dev. The task only calls the protec
 - clears the outcome reminder as soon as the recruiter completes Discovery Workspace
 
 
+## Proposal closing
+
+Two durable tasks work together:
+
+- `vaph-proposal-closing` checks a sent proposal at 24 hours and again at 48 hours
+- unopened proposals create a recruiter follow-up task
+- proposals that were viewed but have no decision create a warmer decision follow-up task
+- the 48-hour checkpoint escalates the same action to urgent
+- `vaph-proposal-viewed` starts a separate 4-hour follow-up clock from the first client view
+- resends invalidate older runs by comparing the current `sent_at`
+- stale view runs exit when the recorded `viewed_at` no longer matches
+- changes requested create an urgent revision task immediately
+- accepted, declined, expired, or resent proposals clear stale closing work
+- the existing 2-day client reminder email remains in maintenance
+- legacy recruiter proposal reminders remain active until `TRIGGER_AUTOMATIONS_ACTIVE=1`
+
 ## Activate
 
 1. Create a Trigger.dev project.
@@ -37,5 +53,6 @@ No Supabase service key is stored in Trigger.dev. The task only calls the protec
 4. Add a Trigger-only production API key to Vercel as `TRIGGER_SECRET_KEY`.
 5. Set `VAPH_APP_URL=https://virtualassistant.com.ph` in Trigger.dev.
 6. From this directory run `npm install`, then `npx trigger.dev@4.6.4 deploy`.
+7. Verify the deployed tasks, then set `TRIGGER_AUTOMATIONS_ACTIVE=1` in Vercel.
 
-Until both Vercel secrets are configured, VAPH safely skips queueing the automation and lead capture behaves exactly as before.
+Until the secrets are configured and activation is explicit, VAPH safely skips queueing the automation and lead capture behaves exactly as before.

@@ -14,6 +14,8 @@ import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { sendTransactionalEventEmail } from "@/lib/email";
 import { ensureAcceptedLeadClientWorkspace } from "@/lib/client-handoff";
 import { isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
+import { queueProposalClosingAutomation } from "@/lib/trigger-automation";
+import { ensureProposalClosingTask, resolveProposalClosingArtifacts } from "@/lib/proposal-closing-automation";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -246,6 +248,17 @@ export async function sendProposalToClientAction(formData: FormData) {
   }).eq("id", proposalId);
   if (sentError) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(sentError.message || "Proposal email sent, but status could not be updated.")}`));
 
+  try {
+    await resolveProposalClosingArtifacts(admin, proposalId, leadId);
+    await queueProposalClosingAutomation(proposalId, now.toISOString());
+  } catch (automationError) {
+    console.error("[automation] proposal closing queue failed", {
+      proposalId,
+      leadId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
+
   let proposalFollowUpTimeZone = isValidTimeZone(lead.timezone) ? String(lead.timezone) : "";
   if (!proposalFollowUpTimeZone && lead.job_id) {
     const { data: linkedJob } = await admin.from("jobs").select("timezone").eq("id", lead.job_id).maybeSingle();
@@ -444,6 +457,28 @@ export async function respondToLeadProposalAction(formData: FormData) {
     metadata: { proposal_id: proposal.id, reason }
   });
 
+  try {
+    if (askingForChanges) {
+      await ensureProposalClosingTask({
+        admin,
+        proposalId: proposal.id,
+        leadId: lead.id,
+        ownerId: lead.owner_id,
+        subject: proposal.role_title || lead.name || lead.email || "Client proposal",
+        kind: "changes_requested",
+        urgent: true,
+      });
+    } else {
+      await resolveProposalClosingArtifacts(admin, proposal.id, lead.id);
+    }
+  } catch (automationError) {
+    console.error("[automation] proposal response next action failed", {
+      proposalId: proposal.id,
+      leadId: lead.id,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
+
   let recipients: string[] = [];
   if (lead.owner_id) {
     recipients = [lead.owner_id];
@@ -599,6 +634,16 @@ export async function acceptLeadProposalAction(formData: FormData) {
 
   const acceptedJobId = String(acceptance.job_id || jobId);
   const clientId = acceptance.client_id ? String(acceptance.client_id) : null;
+
+  try {
+    await resolveProposalClosingArtifacts(admin, proposal.id, lead.id);
+  } catch (automationError) {
+    console.error("[automation] accepted proposal cleanup failed", {
+      proposalId: proposal.id,
+      leadId: lead.id,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
 
   if (clientId && handoff.linked) {
     try {

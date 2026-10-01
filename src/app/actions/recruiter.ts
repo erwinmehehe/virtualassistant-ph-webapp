@@ -660,10 +660,10 @@ export async function updateLeadCrmAction(formData: FormData) {
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/crm");
-  revalidatePath("/workspace/recruiter/crm");
   revalidatePath(`/workspace/recruiter/crm/${leadId}`);
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+  if (stage === "qualified" && profile.role === "recruiter") redirect(`/workspace/recruiter/crm/${leadId}/discovery?discovery_completed=1`);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_saved=1`);
 }
 

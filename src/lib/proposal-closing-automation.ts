@@ -82,12 +82,6 @@ export async function ensureProposalClosingTask(args: {
   kind: "not_viewed" | "viewed_waiting" | "changes_requested";
   urgent?: boolean;
 }) {
-  await resolveProposalClosingArtifacts(
-    args.admin,
-    args.proposalId,
-    args.leadId,
-  );
-
   const assigneeId = await activeAssignee(args.admin, args.ownerId);
   if (!assigneeId) {
     return { created: false as const, reason: "no_active_assignee" as const };

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Clock3, ListTodo, Plus } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, Plus } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, createRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
+import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
 
 function manilaLabel(value?:string|null){return value?new Intl.DateTimeFormat("en-PH",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Manila"}).format(new Date(value)):"No due time";}
 function exactTaskHref(task:any){
@@ -34,7 +35,8 @@ export default async function RecruiterTasksPage({searchParams}:{searchParams:Pr
   return <div className="dash-page">
     {params.task_saved?<div className="success-banner">Task saved.</div>:null}
     {params.task_error?<div className="alert" role="alert">{params.task_error}</div>:null}
-    <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>Tasks & Reminders</h1><p>Click a task to go straight to the exact client, role, candidate, interview, or offer that needs action.</p></div><Link className="btn" href="/workspace/recruiter/today"><ListTodo size={16}/> My Day</Link></div>
+    <div className="dash-header"><div><div className="dash-kicker">My Day</div><h1>Tasks & Reminders</h1><p>Click a task to go straight to the exact client, role, candidate, interview, or offer that needs action.</p></div></div>
+    <RecruiterOperationsNav current="tasks"/>
 
     <details className="card" open={!rows.length}>
       <summary className="row"><Plus size={16}/><strong>Create task</strong></summary>
@@ -46,7 +48,7 @@ export default async function RecruiterTasksPage({searchParams}:{searchParams:Pr
           <div className="field"><label>Due date & time <span className="muted">(Manila)</span></label><input type="datetime-local" name="due_at"/></div>
           <div className="field"><label>Priority</label><select name="priority" defaultValue="normal"><option value="urgent">Urgent</option><option value="high">High</option><option value="normal">Normal</option><option value="low">Low</option></select></div>
           <div className="field"><label>Repeat</label><select name="repeat_rule" defaultValue="none"><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option></select></div>
-          <div className="field"><label>Linked page <span className="muted">(optional)</span></label><input name="href" placeholder="/workspace/recruiter/leads?view=attention"/></div>
+          <div className="field"><label>Linked page <span className="muted">(optional)</span></label><input name="href" placeholder="/workspace/recruiter/crm?view=attention"/></div>
         </div>
         <div className="field"><label>Notes</label><textarea name="description" maxLength={4000} placeholder="What needs to happen, what to check, or what the client is waiting for."/></div>
         <button className="btn btn-primary" type="submit">Save task</button>

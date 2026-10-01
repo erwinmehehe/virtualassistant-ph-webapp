@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, Bell, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, ListTodo, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { DashHeader } from "@/components/dash-ui";
+import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
@@ -347,12 +348,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       kicker="Recruiter workspace"
       title="Today"
       subtitle={<>Work the next action, then clear the queue. Roles and talent stay in their dedicated workspaces. <span className="dash-freshness">Less scanning · clearer ownership</span></>}
-      actions={<>
-        <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/agenda"><CalendarDays size={16}/> Agenda</Link>
-        <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/tasks"><ListTodo size={16}/> Tasks {openTasks ? `(${openTasks})` : ""}</Link>
-        <Link prefetch={false} className="dash-btn dash-btn-light" href="/workspace/recruiter/notifications"><Bell size={16}/> Inbox {unreadNotifications ? `(${unreadNotifications})` : ""}</Link>
-      </>}
     />
+    <RecruiterOperationsNav current="today" taskCount={openTasks} notificationCount={unreadNotifications}/>
 
     <section className={`${styles.nextAction} ${primaryAction.count ? styles.nextActionOpen : styles.nextActionClear}`} aria-labelledby="recruiter-next-action">
       <span className={styles.nextActionIcon}>{primaryAction.icon}</span>

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { CalendarDays, CheckCircle2, ExternalLink, ListTodo, Mail, UserRound, Video } from "lucide-react";
+import { CalendarDays, CheckCircle2, ExternalLink, Mail, UserRound, Video } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/actions/recruiter-ops";
+import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
 
 type AgendaTaskRow = { id: string; title: string; description: string | null; due_at: string; priority: string | null; href: string | null; repeat_rule: string | null; subject_type: string | null; subject_id: string | null };
 type AgendaItem = {
@@ -58,7 +59,8 @@ export default async function RecruiterAgendaPage(){
   const days=Array.from({length:7},(_,index)=>{const date=new Date(start.getTime()+index*86400000);return{key:ymdInManila(date),label:new Intl.DateTimeFormat("en-PH",{weekday:"long",month:"short",day:"numeric",timeZone:"Asia/Manila"}).format(date)};});
 
   return <div className="dash-page">
-    <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>This Week</h1><p>All active discovery calls, plus your client candidate interviews, recruiter vetting interviews, and scheduled tasks in one agenda.</p></div><div className="row wrap"><Link className="btn" href="/workspace/recruiter/today"><ListTodo size={16}/> My Day</Link><Link className="btn" href="/workspace/recruiter/tasks">Tasks</Link></div></div>
+    <div className="dash-header"><div><div className="dash-kicker">My Day</div><h1>This Week</h1><p>All active discovery calls, plus your client candidate interviews, recruiter vetting interviews, and scheduled tasks in one agenda.</p></div></div>
+    <RecruiterOperationsNav current="week"/>
 
     <div className="stack">
       {days.map((day)=>{const dayItems=items.filter((item)=>ymdInManila(new Date(item.at))===day.key);return <section className="card dashboard-section-card" key={day.key}>

@@ -4,6 +4,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { completeRecruiterNotificationAction, markAllRecruiterNotificationsReadAction, markRecruiterNotificationReadAction, openRecruiterNotificationAction, setRecruiterNotificationPriorityAction, snoozeRecruiterNotificationAction } from "@/app/actions/recruiter-ops";
+import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
 
 const PRIORITY_ORDER:Record<string,number>={urgent:0,high:1,normal:2,low:3};
 
@@ -24,7 +25,8 @@ export default async function RecruiterNotificationsPage({searchParams}:{searchP
   const unread=rows.filter((row:any)=>!row.read_at&&!row.done_at).length;
 
   return <div className="dash-page recruiter-notifications-page">
-    <div className="dash-header"><div><div className="dash-kicker">Recruiter operations</div><h1>Notification Inbox</h1><p>Click an alert to go straight to the client, role, interview, offer, or candidate that needs action.</p></div>{unread?<form action={markAllRecruiterNotificationsReadAction}><button className="btn" type="submit">Mark all read</button></form>:null}</div>
+    <div className="dash-header"><div><div className="dash-kicker">My Day</div><h1>Notification Inbox</h1><p>Click an alert to go straight to the client, role, interview, offer, or candidate that needs action.</p></div>{unread?<form action={markAllRecruiterNotificationsReadAction}><button className="btn" type="submit">Mark all read</button></form>:null}</div>
+    <RecruiterOperationsNav current="notifications"/>
 
     <div className="role-filter-tabs" aria-label="Notification views">
       {[["inbox","Inbox"],["all","All"],["snoozed","Snoozed"],["done","Done"]].map(([value,label])=><Link className={view===value?"active":""} aria-current={view===value?"page":undefined} href={`/workspace/recruiter/notifications?view=${value}`} key={value}>{label}</Link>)}

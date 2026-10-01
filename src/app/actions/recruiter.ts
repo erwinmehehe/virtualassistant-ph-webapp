@@ -330,7 +330,7 @@ export async function bulkRecruiterVaAction(formData: FormData) {
   await writeAdminAudit({ actorId: user.id, action: `recruiter_bulk_${action}`, targetType: "va", metadata: { requested: ids.length, affected, published, skipped: skippedNames.length } });
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/talent");
-  revalidatePath("/workspace/recruiter/queue");
+  revalidatePath("/workspace/recruiter/talent");
   revalidatePath("/workspace/recruiter/matching");
   revalidatePath("/find-talent");
   const extra = new URLSearchParams();

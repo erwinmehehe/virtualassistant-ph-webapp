@@ -13,8 +13,9 @@ test("Talent OS stays contextual behind the durable Talent workspace", () => {
   assert.match(nav, /<Link[\s\S]*prefetch=\{false\}[\s\S]*href=\{href\}/);
 });
 
-test("client-ready status requires recorded operational evidence", () => {
-  assert.match(model, /approved && input\.activePool && available && freshAvailability && setupVerified/);
+test("client-ready status requires approval, active pool membership, and fresh availability", () => {
+  assert.match(model, /approved && input\.activePool && available && freshAvailability/);
+  assert.doesNotMatch(model, /setupVerified/);
   assert.match(model, /TALENT_AVAILABILITY_FRESH_DAYS = 30/);
   assert.match(page, /availability_confirmed_at,work_setup_verified_at/);
   assert.match(page, /Only approved pool members with availability confirmed/);

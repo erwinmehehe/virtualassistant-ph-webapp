@@ -18,12 +18,9 @@ import {
   Megaphone,
   Search,
   ShoppingBag,
-  Sparkles,
   Target,
   Wrench,
 } from "lucide-react";
-import { DashHeader } from "@/components/dash-ui";
-import { KiroMascot } from "@/components/kiro-mascot";
 import { TrainingDashboardOverview } from "@/components/training-dashboard-overview";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { TrainingNextSteps } from "@/components/training-next-steps";
@@ -279,38 +276,6 @@ export default async function TrainingDashboardPage({
       })
     : null;
   const postCompletionPrimary = postCompletion?.courses[0] || null;
-
-  const kiroTrainingTitle = resumeCourse
-    ? `Ready for your next step in ${resumeCourse.title}`
-    : isNewLearner
-      ? "Start broad, then specialise."
-      : postCompletionPrimary
-        ? `Build on ${latestCompleted?.title || "your latest course"}`
-        : nextRecommended
-          ? `Your next recommended course is ${nextRecommended.title}`
-          : "Choose the next skill you want to build.";
-  const kiroTrainingDescription = resumeCourse
-    ? resumeCourse.nextAssessment
-      ? "Your lessons are complete. The final check is ready when you are."
-      : resumeCourse.nextLesson
-        ? `Continue with ${resumeCourse.nextLesson.title}. Keep the learning flow focused on one practical step at a time.`
-        : "Reopen the course whenever you are ready to continue."
-    : isNewLearner
-      ? "Kiro recommends Virtual Assistant Foundations first, then a role, software, or industry path that matches the work you want."
-      : postCompletionPrimary
-        ? (postCompletion?.reason || "Keep building on the skills you have already completed.")
-        : nextRecommended
-          ? (specialty ? `This follows your ${vaCategoryLabel(specialty)} profile and current learning path.` : "This is the strongest next step in your current learning path.")
-          : "Browse the course library and pick the skill that is most useful for your next client or role.";
-  const kiroTrainingAction = resumeCourse
-    ? { href: nextCourseHref(resumeCourse), label: nextCourseLabel(resumeCourse) }
-    : foundationsCourse && isNewLearner
-      ? { href: `/workspace/training/courses/${foundationsCourse.slug}`, label: "View Foundations" }
-      : postCompletionPrimary
-        ? { href: `/workspace/training/courses/${postCompletionPrimary.slug}`, label: "View next course" }
-        : nextRecommended
-          ? { href: `/workspace/training/courses/${nextRecommended.slug}`, label: "View course" }
-          : { href: "/workspace/training?browse=1", label: "Browse courses" };
 
   const firstName = String(profile?.full_name || "there").trim().split(/\s+/)[0] || "there";
   const referenceCourses = courses.map((course) => ({

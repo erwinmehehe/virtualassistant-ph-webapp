@@ -1,6 +1,6 @@
 # Agency release readiness
-Reviewed 2026-10-03 (Asia/Manila) against production app-code baseline `7259220cbd15ef9ee66ed5a2735dec1e10cbd148`, the connected production Supabase project, and the production runtime checks recorded below. Documentation/test-only release commits after this baseline do not change the application runtime under test.
-Decision: HOLD final launch sign-off. Core database acceptance, live intake, email delivery, Google Meet booking, scheduler, and public proposal rendering are verified; backup/recovery, strict environment/callback verification, browser Auth handoff, the full proposal lifecycle, and final privacy/regression sign-off remain open.
+Reviewed 2026-10-03 (Asia/Manila) against production release `038f318838727e4a6f8abbb01346e0a93e2c16f1`, the connected production Supabase project, Resend delivery telemetry, and the runtime checks recorded below.
+Decision: HOLD final launch sign-off. Core database acceptance for both service models, live intake, primary auth and hiring email delivery, Google Meet booking, scheduler operation, public proposal rendering, and current-release error health are verified. The remaining hard blocker is recoverable off-site database backup on the Supabase Free plan; browser Auth/workspace handoff, the rest of the proposal response lifecycle, final privacy/regression QA, and monitoring ownership also remain open.
 
 ## 2026-10-02 production refresh
 - Production Vercel deployment `dpl_HjUZfp2ArGZC8vJx4wiW4zwqACkH` is READY for main SHA `634618ff1167f798c06ba4d13b0b80004d3ec013` and is aliased to `virtualassistant.com.ph` and `www.virtualassistant.com.ph`.
@@ -21,31 +21,35 @@ Decision: HOLD final launch sign-off. Core database acceptance, live intake, ema
 - The read-only release preflight now returns one JSON document so API/MCP clients preserve every check instead of only the final SELECT result.
 
 ## 2026-10-03 production hiring-loop verification
-- Production email infrastructure is live: the `virtualassistant.com.ph` Resend domain is verified with sending enabled, and recent hiring acknowledgements, internal discovery notifications, account confirmations, and password-reset messages show delivered status.
-- In the last 24 hours, production recorded 3 client-hiring leads. All 3 were acknowledged, assigned to CRM owners, linked to recruiting jobs, and moved beyond the `new` CRM stage.
-- Production discovery scheduling has 3 recent booked calls in the last 7 days; all 3 have Google Meet URLs plus Calendar event IDs, with 0 booked calls missing meeting details.
-- The Supabase discovery reminder scheduler `discovery-reminder-sweep` is active every 15 minutes. Its recent runs succeeded, and Vercel returned HTTP 200 for the reminder endpoint on the same cadence.
-- A rollback-only production acceptance test exercised the real `accept_lead_proposal_atomic` function with an active client identity. It verified: lead conversion to won, a published recruiting role, accepted commercials, comped candidate access, proposal acceptance, recruiter activity, lead-won analytics, and idempotent repeat acceptance. The downstream hiring automation advanced the role from `ready_to_recruit` to `sourcing`, which is accepted by the reusable QA script.
-- Rollback-only failure checks verified `client_identity_invalid` for an invalid client and `proposal_expired` for an expired proposal, with no job created.
-- A temporary sent proposal was created only long enough to fetch the real production public proposal page. The page returned HTTP 200 and rendered the role, recommendation, responsibilities, compensation, Approve, and Request changes UI. The QA proposal and lead were then deleted, with 0 rows remaining.
-- Production Auth is actively creating and confirming accounts. In the last 24 hours, 55 Auth users were created and 53 were email-confirmed; 16 matching profile rows were created.
-- The only production workroom was traced to the repository's original Posh Moving and Storage demo seed. It had a closed demo job, an admin profile in the client slot, no messages, time entries, or placement offers, and 10 stale check-in notifications. The demo workroom was retired to `completed / ended`, and those 10 stale notifications were closed. No real client workroom was modified.
-- `scripts/agency-production-runtime-qa.sql` now captures the acceptance-core production test as a rollback-only repeatable check. It intentionally does not claim browser Server Action, Auth invite/magic-link, or real-client proposal-send coverage.
+- Production release `038f318838727e4a6f8abbb01346e0a93e2c16f1` is READY on Vercel deployment `dpl_HYMbthfBsQK3o7LPcgSMEAA6oo82` and serves both production aliases. Post-merge CI and CodeQL passed.
+- The active release has 0 unresolved app errors tagged to its SHA, and Vercel reported no runtime error groups in the post-deploy observation window. Historical unresolved incidents remain visible but no longer block a clean release.
+- The production Resend sending domain is verified with sending enabled. For October 2 UTC, Resend reports 29 sent, 29 delivered, 0 failed, 0 bounced, and 0 complained.
+- VAPH account confirmation uses Supabase secure token generation plus the branded Resend delivery path, not Supabase's default signup email sender. A recent 100-email sample contained 41 delivered account-confirmation messages, alongside delivered hiring acknowledgements, internal lead notifications, discovery messages, and shortlist mail.
+- Since the client-acknowledgement migration, production has received 3 `client_hiring` enquiries. All 3 were acknowledged, assigned to an owner, had a timezone, and had a concrete next state: 2 reached won/lost and 1 reached discovery scheduling.
+- Since timezone enforcement, the current discovery sample has 1 Google Meet booking and it has all four required pieces: timezone, Calendar event ID, meeting URL, and `google_meet` provider state.
+- The `discovery-reminder-sweep` scheduler is active every 15 minutes and the lead-response SLA job is active every 5 minutes. Relevant cron jobs had 0 failures in the checked seven-day window.
+- Production rollback-only QA now exercises both `curated_placement` and `managed_service` through the real `accept_lead_proposal_atomic` function. Both produce the expected won lead, published recruiting role, accepted commercials, comped candidate access, recruiter activity, and lead-won analytics. The published-role trigger advances the effective hiring stage to `sourcing`.
+- Repeat acceptance returns `already_accepted` without duplicate hiring state. An invalid client identity returns `client_identity_invalid` and leaves no acceptance-caused job, commercials, access, proposal, or lead handoff mutations. The earlier production expiry check returned `proposal_expired` without creating a job.
+- The reusable `scripts/agency-production-runtime-qa.sql` now covers both service models, idempotent retry, invalid-client failure, audit/analytics, and rollback cleanup. It was executed successfully against production after the update.
+- Public proposal rendering and expiry behavior were separately production-tested by the existing October 3 QA pass. Browser-level authenticated recruiter/client actions remain outside the connected runtime used for this verification.
+- The Supabase organization is on the Free plan. Current Supabase backup guidance does not provide managed daily backup recovery for Free projects and recommends regular off-site `db dump` exports. No recoverable off-site dump or restore rehearsal is currently recorded.
+- The earlier October 3 operations pass also retired the original demo workroom and closed its 10 stale check-in notifications without modifying a real client workroom.
+- All synthetic acceptance-smoke records were transactionally rolled back. A residue check found 0 synthetic leads, jobs, or proposals after testing.
 
 ## Remaining release gates
 | Complete | Owner | Action | Required evidence |
 | --- | --- | --- | --- |
 | [x] | Release operator | Record current production deployment and rollback deployment | Current READY SHA/deployment and previous rollback-candidate SHA/deployment recorded above |
-| [ ] | Database owner | Confirm recoverable backup and remaining historical schema coverage | Migration coverage is current; still record backup timestamp and tested recovery procedure |
+| [ ] | Database owner | Establish recoverable production backup | Project is on Supabase Free; create a regular off-site `db dump`, record its timestamp/location, and rehearse restore to a non-production database |
 | [x] | Engineering | Harden acceptance as one consistent business operation | Atomic acceptance RPC, row locks, idempotent retry, release-safety tests and rollback-only constraint-failure coverage |
 | [ ] | Engineering + QA | Verify client identity handoff end to end | Acceptance with a valid client identity and invalid-identity blocking are production-tested; still record runtime new/existing-client Auth invite/magic-link and role-conflict evidence |
-| [ ] | Release operator | Verify production environment | App URL, Supabase runtime, Resend sending, Auth email delivery, Google Calendar/Meet, and discovery scheduler are live; still verify all strict config keys/callbacks without exposing secret values |
+| [ ] | Release operator | Verify production environment | App URL, Supabase runtime, Resend sending, primary account-confirmation delivery, Google Calendar/Meet, deployment identity and schedulers are live; strict secret/callback inventory still needs operator verification without exposing values |
 | [x] | Release operator | Verify tested release on the production domain | Production SHA/aliases verified, smoke checks passed, rollback candidate recorded |
-| [ ] | Recruiter + QA | Hiring brief and CRM | Live intake proves persistence, acknowledgement, owner, stage and job handoff; still record a runtime follow-up timestamp/interaction |
+| [x] | Recruiter + QA | Hiring brief and CRM | Current post-migration client-hiring sample is persisted, acknowledged, owner-assigned, timezone-tagged, beyond new, and has a concrete next state |
 | [ ] | Recruiter + QA | Discovery | Live bookings prove scheduling plus Google Meet/Calendar creation; still record attended/completed outcome and delivery-failure feedback |
 | [ ] | Recruiter + QA | Proposals | Public proposal render and expiry failure are production-tested; still record both service models plus send/view/revise/replace/decline and email-failure preservation |
 | [ ] | Client + QA | Acceptance and workspace | Rollback-only production acceptance proves one role, correct client, accepted terms, included access and CRM won; still record Auth handoff, workspace login and released-shortlist runtime |
-| [ ] | Engineering + QA | Failures and retries | Production rollback QA proves invalid-client blocking, expiry handling and idempotent repeat acceptance; still record Auth and email failure behavior |
+| [ ] | Engineering + QA | Failures and retries | Production rollback QA proves invalid-client blocking and idempotent repeat acceptance with no partial acceptance writes; browser Auth and provider-email failure behavior still need runtime evidence |
 | [ ] | Operations | Maintenance and reminders | Discovery scheduler is active and succeeding every 15 minutes; still record the daily maintenance run and a due reminder/automation outcome |
 | [ ] | QA | Privacy and regression | Unrelated client denied; unreleased private candidates hidden; existing engagements work; mobile/desktop journeys and VA notifications pass |
 | [ ] | Release operator | Sign-off and monitoring | Record owner, monitoring window, backup/recovery evidence and rollback decision |
@@ -67,13 +71,16 @@ These controls close the original source-level acceptance blockers. They do not 
 7. Verify public intake, login, existing client workspaces, recruiter queues and maintenance behavior after rollback.
 
 ## Sign-off record
-Release SHA: `634618ff1167f798c06ba4d13b0b80004d3ec013`
-Production deployment: `dpl_HjUZfp2ArGZC8vJx4wiW4zwqACkH` / `virtualassistant-ph-webapp-v4103-p6rzls7d0.vercel.app`
+Release SHA: `038f318838727e4a6f8abbb01346e0a93e2c16f1`
+Production deployment: `dpl_HYMbthfBsQK3o7LPcgSMEAA6oo82` / `virtualassistant-ph-webapp-v4103-g097stlaq.vercel.app`
 Production aliases: `virtualassistant.com.ph`, `www.virtualassistant.com.ph`
-Rollback candidate: `dpl_3JzTir6NYJxF3TTzYEqMviLpXn6d` / SHA `8a650d256fae343e17ef7b9989a46f44514ba91c`
-Database preflight: PASS for recorded schema/security/consistency checks; proposal sample count remains 0
-Backup/recovery evidence: pending
-Runtime Auth/email and full hiring-journey evidence: pending
+Rollback target: previous READY production deployment `dpl_2HE99v4t4CL428TtwTxo9zhDA6Mw` / SHA `90fc7526bc0eb2e5e3ea066ba95af04f5c931d63`
+Database preflight: PASS for recorded schema/security/consistency checks
+Production acceptance QA: PASS for curated placement, managed service, audit/analytics, idempotent retry, invalid-client blocking, and rollback cleanup
+Current-release error health: 0 release-tagged unresolved app errors; no Vercel runtime error groups in the post-deploy observation window
+Primary email delivery: PASS; verified sending domain and 29/29 delivered on October 2 UTC with 0 failures/bounces/complaints
+Backup/recovery evidence: BLOCKED; Supabase Free project has no recorded recoverable off-site dump or restore rehearsal
+Browser Auth/workspace and remaining proposal-response lifecycle: pending
 Monitoring owner/window: pending
 Go/no-go: HOLD
 

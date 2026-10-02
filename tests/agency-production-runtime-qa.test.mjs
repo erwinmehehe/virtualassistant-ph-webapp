@@ -16,6 +16,10 @@ test("production hiring runtime QA remains rollback-only and covers acceptance i
   assert.match(sql, /proposal_accepted/);
   assert.match(sql, /event_name = 'lead_won'/);
   assert.match(sql, /already_accepted/);
+  assert.match(sql, /managed_service/);
+  assert.match(sql, /managed_markup_percent = 25/);
+  assert.match(sql, /client_identity_invalid/);
+  assert.match(sql, /partial_failure_state/);
   assert.match(sql, /'cleanup', 'rollback'/);
 
   assert.doesNotMatch(sql, /commit;/i);
@@ -27,14 +31,14 @@ test("release readiness records live runtime evidence without overstating remain
   const readiness = await readFile("AGENCY_RELEASE_READINESS.md", "utf8");
 
   assert.match(readiness, /2026-10-03 production hiring-loop verification/);
-  assert.match(readiness, /3 client-hiring leads/);
-  assert.match(readiness, /3 recent booked calls/);
+  assert.match(readiness, /3 `client_hiring` enquiries/);
+  assert.match(readiness, /1 Google Meet booking/);
   assert.match(readiness, /discovery-reminder-sweep/);
   assert.match(readiness, /client_identity_invalid/);
   assert.match(readiness, /proposal_expired/);
   assert.match(readiness, /10 stale check-in notifications/);
   assert.match(readiness, /still record runtime new\/existing-client Auth invite\/magic-link/);
-  assert.match(readiness, /still record both service models/);
-  assert.match(readiness, /still record Auth and email failure behavior/);
+  assert.match(readiness, /both `curated_placement` and `managed_service`/);
+  assert.match(readiness, /browser Auth and provider-email failure behavior still need runtime evidence/);
   assert.match(readiness, /Go\/no-go: HOLD/);
 });

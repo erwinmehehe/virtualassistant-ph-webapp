@@ -84,6 +84,7 @@ export function TrainingDashboardOverview({
 }: Props) {
   const [tab,setTab]=useState<(typeof tabs)[number][0]>("progress");
   const [query,setQuery]=useState("");
+  const [greeting,setGreeting]=useState("Welcome");
   const [saved,setSaved]=useState<string[]>(initialSavedCourseIds);
   const [kiroOpen,setKiroOpen]=useState(false);
   const [kiroQuestion,setKiroQuestion]=useState("");
@@ -92,6 +93,9 @@ export function TrainingDashboardOverview({
   const [askingKiro,startAskingKiro]=useTransition();
 
   useEffect(()=>{
+    const hour=new Date().getHours();
+    setGreeting(hour<12?"Good morning":hour<18?"Good afternoon":"Good evening");
+
     const searchHandler=(event:Event)=>{
       const custom=event as CustomEvent<{query?:string}>;
       setQuery(custom.detail?.query||"");
@@ -117,21 +121,47 @@ export function TrainingDashboardOverview({
   const certificates=courses.filter((course)=>course.certificate);
   const current=courses.find((course)=>course.slug===currentCourseSlug)||inProgress[0]||null;
   const recommended=courses.find((course)=>course.slug===recommendedCourseSlug)||notStarted[0]||null;
-  const overallProgress=courses.length
-    ? Math.round(courses.reduce((sum,course)=>sum+course.progressPercent,0)/courses.length)
-    : 0;
+  const totalLessons=courses.reduce((sum,course)=>sum+Math.max(course.lessonCount,0),0);
+  const completedLessons=courses.reduce((sum,course)=>sum+Math.min(Math.max(course.completedLessons,0),Math.max(course.lessonCount,0)),0);
+  const overallProgress=totalLessons
+    ? Math.round((completedLessons/totalLessons)*100)
+    : courses.length
+      ? Math.round(courses.reduce((sum,course)=>sum+course.progressPercent,0)/courses.length)
+      : 0;
 
   const normalizedQuery=query.trim().toLowerCase();
   const filtered=useMemo(()=>{
-    const base=tab==="completed"?completed:tab==="not-started"?notStarted:inProgress;
-    if(!normalizedQuery) return base;
+    const base=normalizedQuery
+      ? courses
+      : tab==="completed"
+        ? completed
+        : tab==="not-started"
+          ? notStarted
+          : inProgress;
+    if(!normalizedQuery)return base;
     return base.filter((course)=>
       [course.title,course.category,course.countryFocus||"",...course.searchTerms]
         .join(" ")
         .toLowerCase()
         .includes(normalizedQuery)
     );
-  },[completed,inProgress,notStarted,normalizedQuery,tab]);
+  },[completed,courses,inProgress,notStarted,normalizedQuery,tab]);
+
+  function matchingLesson(course:TrainingDashboardCourseItem) {
+    if(!normalizedQuery)return null;
+    return course.searchTerms.find((term)=>term.toLowerCase().includes(normalizedQuery))||null;
+  }
+
+  function courseStatus(course:TrainingDashboardCourseItem) {
+    if(course.completedAt)return "Completed";
+    if(course.enrolled)return "In Progress";
+    return "Not Started";
+  }
+
+  function clearSearch() {
+    setQuery("");
+    window.dispatchEvent(new CustomEvent("vaph-training-search-set",{detail:{query:""}}));
+  }
 
   const savedCourses=courses.filter((course)=>saved.includes(course.id));
   const foundation=courses.find((course)=>course.slug.includes("foundation"))||null;
@@ -186,7 +216,7 @@ export function TrainingDashboardOverview({
     <div className="training-reference-dashboard">
       <header className="training-reference-greeting">
         <div>
-          <h1>Good morning, {firstName}!</h1>
+          <h1>{greeting}, {firstName}!</h1>
           <p>Ready to learn something new today?</p>
         </div>
       </header>
@@ -216,7 +246,7 @@ export function TrainingDashboardOverview({
         </div>
         <div className="training-reference-progress-copy">
           <strong>Overall Progress</strong>
-          <span>{completed.length} of {courses.length} courses completed</span>
+          <span>{completedLessons} of {totalLessons} lessons completed · {completed.length} of {courses.length} courses</span>
           <div className="training-reference-progress-line"><span style={{width:overallProgress+"%"}}/></div>
         </div>
         <div className="training-reference-metrics">
@@ -280,25 +310,33 @@ export function TrainingDashboardOverview({
             <Link href="/workspace/training?browse=1#course-library-title">View all <ArrowRight size={13}/></Link>
           </div>
 
-          {query?<div className="training-reference-search-state"><Search size={14}/> Search results for “{query}” across courses and lessons</div>:null}
+          {query?<div className="training-reference-search-state">
+            <span><Search size={14}/> {filtered.length} result{filtered.length===1?"":"s"} for “{query}” across courses and lessons</span>
+            <button type="button" onClick={clearSearch}>Clear search</button>
+          </div>:null}
 
-          <div className="training-reference-tabs" role="tablist" aria-label="My course status">
+          {!query?<div className="training-reference-tabs" role="tablist" aria-label="My course status">
             {tabs.map(([key,label])=><button type="button" role="tab" aria-selected={tab===key} className={tab===key?"is-active":""} onClick={()=>setTab(key)} key={key}>{label} ({key==="completed"?completed.length:key==="not-started"?notStarted.length:inProgress.length})</button>)}
-          </div>
+          </div>:null}
 
           <div className="training-reference-course-list">
-            {filtered.slice(0,4).map((course)=><article key={course.id}>
+            {filtered.slice(0,normalizedQuery?8:4).map((course)=>{
+              const lessonMatch=matchingLesson(course);
+              return <article className={normalizedQuery?"is-search-result":""} key={course.id}>
               <div className="training-reference-list-icon">{initials(course.title)}</div>
               <div className="training-reference-list-copy">
                 <strong>{course.title}</strong>
                 <span>{course.lessonCount} lessons · {fmtDuration(course.estimatedMinutes)}</span>
+                {normalizedQuery?<span className="training-reference-result-status">{courseStatus(course)}</span>:null}
+                {lessonMatch?<span className="training-reference-lesson-match"><Search size={11}/> Lesson match: {lessonMatch}</span>:null}
                 {course.enrolled&&!course.completedAt?<div><i style={{width:course.progressPercent+"%"}}/></div>:null}
               </div>
               {course.enrolled&&!course.completedAt?<strong className="training-reference-list-percent">{course.progressPercent}%</strong>:null}
               <button className={"training-reference-save "+(saved.includes(course.id)?"is-saved":"")} type="button" onClick={()=>toggleSaved(course.id)} disabled={savingCourse} aria-label={(saved.includes(course.id)?"Unsave ":"Save ")+course.title}><Bookmark size={15}/></button>
               <Link className="btn btn-sm" href={course.nextHref}>{course.completedAt?"Review":course.enrolled?"Continue":"Open"} <ArrowRight size={13}/></Link>
-            </article>)}
-            {!filtered.length?<div className="training-reference-empty"><Search size={18}/><div><strong>No courses in this view.</strong><span>{query?"Try another search term.":"Switch tabs or browse the full course library."}</span></div></div>:null}
+            </article>;
+            })}
+            {!filtered.length?<div className="training-reference-empty"><Search size={18}/><div><strong>{query?"No courses or lessons matched your search.":"No courses in this view."}</strong><span>{query?"Try a course title, lesson topic, software, or skill.":"Switch tabs or browse the full course library."}</span></div></div>:null}
           </div>
 
           <div className="training-reference-saved" id="saved-courses">

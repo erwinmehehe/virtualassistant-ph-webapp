@@ -35,6 +35,28 @@ function retryLabel(value: string | null) {
   }).format(date);
 }
 
+function trainingCourseMark(slug: string, title: string) {
+  const value = slug.toLowerCase();
+  if (value === "virtual-assistant-foundations") return "VA";
+  if (value.includes("seo")) return "SEO";
+  if (value.includes("ndis")) return "NDIS";
+  if (value.includes("xero")) return "XERO";
+  if (value.includes("myob")) return "MYOB";
+  if (value.includes("cliniko")) return "CLIN";
+  if (value.includes("servicem8")) return "S8";
+  if (value.includes("real-estate") || value.includes("property")) return "PROP";
+  if (value.includes("bookkeeping") || value.includes("payroll")) return "FIN";
+  if (value.includes("customer-support")) return "CS";
+  if (value.includes("executive")) return "EA";
+  if (value.includes("operations")) return "OPS";
+  if (value.includes("project-management")) return "PM";
+  if (value.includes("social-media")) return "SOC";
+  if (value.includes("marketing")) return "MKT";
+  if (value.includes("sales") || value.includes("lead-generation")) return "SALES";
+  const words = title.replace(/virtual assistant/gi, "").replace(/[^a-z0-9 ]/gi, " ").split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "VA";
+}
+
 export default async function TrainingAssessmentPage({
   params,
   searchParams,
@@ -94,6 +116,14 @@ export default async function TrainingAssessmentPage({
   const attemptNumber = attemptState.total + 1;
   const retryAt = retryLabel(attemptState.retryAt);
   const retryLocked = !passed && attemptState.last24Hours >= 3 && Boolean(attemptState.retryAt);
+  const courseMark = trainingCourseMark(course.slug, course.title);
+  const assessmentState = passed
+    ? "Passed"
+    : retryLocked
+      ? "Review required"
+      : lessonsComplete
+        ? "Ready"
+        : "Locked";
 
   const generatedQuestions =
     lessonsComplete && !passed && !retryLocked
@@ -147,49 +177,67 @@ export default async function TrainingAssessmentPage({
         </div>
       ) : null}
 
-      <section className="card training-assessment-journey" aria-label="Course completion steps">
-        <div className={`training-assessment-step ${lessonsComplete ? "is-complete" : "is-current"}`}>
-          <span>{lessonsComplete ? <CheckCircle2 size={14}/> : <Clock3 size={14}/>}</span>
+      <section className="card training-assessment-journey training-assessment-journey-v2" aria-label="Course completion steps">
+        <div className="training-assessment-course-id">
+          <span className="training-assessment-course-mark" aria-hidden="true">{courseMark}</span>
           <div>
-            <strong>Lessons</strong>
-            <small>{course.completedLessons} of {course.lessonCount}</small>
+            <small>{course.title}</small>
+            <strong>{assessmentState}</strong>
           </div>
         </div>
-        <div className={`training-assessment-step ${passed ? "is-complete" : lessonsComplete ? "is-current" : ""}`}>
-          <span>{passed ? <CheckCircle2 size={14}/> : <FileCheck2 size={14}/>}</span>
-          <div>
-            <strong>Final check</strong>
-            <small>{passed ? "Passed" : failed ? "Review and retry" : "Ready"}</small>
+        <div className="training-assessment-step-track">
+          <div className={`training-assessment-step ${lessonsComplete ? "is-complete" : "is-current"}`}>
+            <span>{lessonsComplete ? <CheckCircle2 size={14}/> : <Clock3 size={14}/>}</span>
+            <div>
+              <strong>Lessons</strong>
+              <small>{course.completedLessons} of {course.lessonCount}</small>
+            </div>
           </div>
-        </div>
-        <div className={`training-assessment-step ${credentialHref ? "is-complete" : ""}`}>
-          <span>{credentialHref ? <CheckCircle2 size={14}/> : <Award size={14}/>}</span>
-          <div>
-            <strong>Certificate</strong>
-            <small>{credentialHref ? "Issued" : "After passing"}</small>
+          <div className={`training-assessment-step ${passed ? "is-complete" : lessonsComplete ? "is-current" : ""}`}>
+            <span>{passed ? <CheckCircle2 size={14}/> : <FileCheck2 size={14}/>}</span>
+            <div>
+              <strong>Final check</strong>
+              <small>{passed ? "Passed" : failed ? "Review and retry" : lessonsComplete ? "Ready" : "Locked"}</small>
+            </div>
+          </div>
+          <div className={`training-assessment-step ${credentialHref ? "is-complete" : ""}`}>
+            <span>{credentialHref ? <CheckCircle2 size={14}/> : <Award size={14}/>}</span>
+            <div>
+              <strong>Certificate</strong>
+              <small>{credentialHref ? "Issued" : "After passing"}</small>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="card dashboard-section-card training-assessment-hero">
-        <div className="dash-kicker">Final check</div>
-        <h1>{assessment.title}</h1>
-        <p>
-          Answer {questions.length || 8} questions based on the course. Pass once and your
-          certificate is issued automatically.
-        </p>
-        <div className="training-assessment-meta">
-          <span><FileCheck2 size={14}/> {questions.length || 8} questions</span>
-          <span><ShieldCheck size={14}/> Pass {passScore}%</span>
-          <span><RefreshCw size={14}/> Fresh mix each attempt</span>
-          <span className={lessonsComplete ? "is-ready" : ""}>
-            <CheckCircle2 size={14}/> {lessonsComplete
-              ? "Lessons complete"
-              : `${course.completedLessons}/${course.lessonCount} lessons complete`}
-          </span>
+      <section className="card dashboard-section-card training-assessment-hero training-assessment-hero-v2">
+        <div className="training-assessment-hero-grid">
+          <div>
+            <div className="dash-kicker">Final check</div>
+            <h1>{assessment.title}</h1>
+            <p>
+              Answer {questions.length || 8} questions based on the course. Pass once and your
+              certificate is issued automatically.
+            </p>
+            <div className="training-assessment-meta">
+              <span><FileCheck2 size={14}/> {questions.length || 8} questions</span>
+              <span><ShieldCheck size={14}/> Pass {passScore}%</span>
+              <span><RefreshCw size={14}/> Fresh mix each attempt</span>
+              <span className={lessonsComplete ? "is-ready" : ""}>
+                <CheckCircle2 size={14}/> {lessonsComplete
+                  ? "Lessons complete"
+                  : `${course.completedLessons}/${course.lessonCount} lessons complete`}
+              </span>
+            </div>
+          </div>
+          <aside className="training-assessment-attempt-card">
+            <span className="training-assessment-attempt-label">Attempt status</span>
+            <strong>{passed ? "Complete" : retryLocked ? "Locked for review" : `Attempt ${attemptNumber}`}</strong>
+            <small>{passed ? "Your certificate is ready." : retryLocked && retryAt ? `Next attempt after ${retryAt}` : "You can make up to 3 attempts in a rolling 24-hour period."}</small>
+          </aside>
         </div>
         <p className="training-assessment-attempt-note">
-          You can make up to 3 attempts in a rolling 24-hour period. A passing score still requires the authority-boundary question to be correct.
+          A passing score still requires the authority-boundary question to be correct.
         </p>
       </section>
 
@@ -312,10 +360,13 @@ export default async function TrainingAssessmentPage({
 
             <div className="training-auto-assessment-questions">
               {questions.map((question, index) => (
-                <fieldset className="training-auto-question" key={question.id}>
+                <fieldset className="training-auto-question training-auto-question-v2" key={question.id}>
                   <legend>
-                    <span className="training-auto-question-meta">Question {index + 1} of {questions.length} · {question.lessonTitle}</span>
-                    <strong>{question.prompt}</strong>
+                    <span className="training-auto-question-number">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="training-auto-question-copy">
+                      <span className="training-auto-question-meta">Question {index + 1} of {questions.length} · {question.lessonTitle}</span>
+                      <strong>{question.prompt}</strong>
+                    </span>
                   </legend>
                   <div className="training-auto-question-options">
                     {question.options.map((option) => (
@@ -350,18 +401,22 @@ export default async function TrainingAssessmentPage({
 
       {passed && course.completedAt ? (
         <>
-          <section className="card training-completion-card">
-            <div className="training-completion-icon"><Award size={22}/></div>
+          <section className="card training-completion-card training-completion-card-v2">
+            <div className="training-completion-seal" aria-hidden="true">
+              <span>{courseMark}</span>
+              <Award size={22}/>
+            </div>
             <div className="training-completion-copy">
               <div className="dash-kicker">Course complete</div>
               <h2>{course.title}</h2>
               <p>You passed the final check. Your course is complete and your certificate is ready.</p>
 
               {course.certificate ? (
-                <div className="training-completion-credential">
-                  <div>
-                    <span className="small muted">Credential code</span>
+                <div className="training-completion-credential training-completion-credential-v2">
+                  <div className="training-completion-credential-copy">
+                    <span className="small muted">Verified credential</span>
                     <code>{course.certificate.credential_code}</code>
+                    <small>Share this code or verification link as evidence of course completion.</small>
                   </div>
                   <div className="training-certificate-actions">
                     {credentialHref ? (

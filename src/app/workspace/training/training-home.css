@@ -6174,3 +6174,350 @@
     align-items: flex-start;
   }
 }
+
+
+/* Assessment + completion v2 */
+.training-assessment-page {
+  --assessment-accent: var(--training-indigo);
+  --assessment-soft: var(--training-indigo-soft);
+  --assessment-border: #d9ddff;
+}
+
+.training-assessment-journey.training-assessment-journey-v2 {
+  display: grid;
+  grid-template-columns: minmax(210px, .72fr) minmax(0, 1.28fr);
+  gap: 16px;
+  align-items: stretch;
+  padding: 14px;
+  border-color: #e1e4ef;
+  background: #fff;
+  box-shadow: 0 12px 30px -28px rgba(15, 23, 42, .4);
+}
+
+.training-assessment-course-id {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--assessment-border);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(255,255,255,.94), transparent 32%),
+    linear-gradient(145deg, var(--assessment-soft), #fff 88%);
+}
+
+.training-assessment-course-mark {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid var(--assessment-border);
+  border-radius: 13px;
+  color: var(--assessment-accent);
+  background: rgba(255,255,255,.82);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -.05em;
+}
+
+.training-assessment-course-id small,
+.training-assessment-course-id strong {
+  display: block;
+}
+
+.training-assessment-course-id small {
+  color: #667085;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.training-assessment-course-id strong {
+  margin-top: 3px;
+  color: #101828;
+  font-size: 13px;
+}
+
+.training-assessment-step-track {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
+}
+
+.training-assessment-journey-v2 .training-assessment-step {
+  min-height: 70px;
+  margin: 0;
+  padding: 10px 11px;
+  border: 1px solid #eaecf0;
+  border-radius: 13px;
+  background: #f9fafb;
+}
+
+.training-assessment-journey-v2 .training-assessment-step.is-current {
+  border-color: #c7d7fe;
+  background: #f5f7ff;
+}
+
+.training-assessment-journey-v2 .training-assessment-step.is-complete {
+  border-color: #abefc6;
+  background: #f6fef9;
+}
+
+.training-assessment-hero.training-assessment-hero-v2 {
+  padding: 22px;
+  border-color: var(--assessment-border);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(79,70,229,.1), transparent 30%),
+    linear-gradient(145deg, #fff, #fafaff);
+  box-shadow: 0 18px 40px -34px rgba(79, 70, 229, .46);
+}
+
+.training-assessment-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 22px;
+  align-items: start;
+}
+
+.training-assessment-attempt-card {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid var(--assessment-border);
+  border-radius: 15px;
+  background: rgba(255,255,255,.84);
+}
+
+.training-assessment-attempt-label {
+  color: #667085;
+  font-size: 10px;
+  font-weight: 780;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.training-assessment-attempt-card strong {
+  color: #101828;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.training-assessment-attempt-card small {
+  color: #667085;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.training-assessment-submit {
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.training-auto-assessment-questions {
+  gap: 16px;
+}
+
+.training-auto-question.training-auto-question-v2 {
+  padding: 16px;
+  border-color: #e4e7ec;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 24px -24px rgba(15,23,42,.34);
+}
+
+.training-auto-question-v2 legend {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 11px;
+  width: 100%;
+  align-items: start;
+}
+
+.training-auto-question-number {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--assessment-border);
+  border-radius: 11px;
+  color: var(--assessment-accent);
+  background: var(--assessment-soft);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -.03em;
+}
+
+.training-auto-question-copy {
+  min-width: 0;
+}
+
+.training-auto-question-copy .training-auto-question-meta,
+.training-auto-question-copy strong {
+  display: block;
+}
+
+.training-auto-question-copy .training-auto-question-meta {
+  margin-bottom: 4px;
+}
+
+.training-auto-question-v2 .training-auto-question-options {
+  margin-top: 14px;
+}
+
+.training-auto-question-v2 .training-auto-question-options label {
+  min-height: 48px;
+  align-items: center;
+  border-radius: 12px;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.training-auto-question-v2 .training-auto-question-options label:hover {
+  border-color: var(--assessment-border);
+  background: #fbfbff;
+  box-shadow: 0 8px 20px -20px rgba(79,70,229,.4);
+}
+
+.training-completion-card.training-completion-card-v2 {
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 18px;
+  padding: 24px;
+  border-color: #b7c2ff;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(79,70,229,.12), transparent 32%),
+    radial-gradient(circle at 6% 88%, rgba(16,185,129,.08), transparent 28%),
+    linear-gradient(135deg, #fff, #fafaff);
+  box-shadow: 0 24px 50px -36px rgba(79,70,229,.5);
+}
+
+.training-completion-seal {
+  display: grid;
+  width: 78px;
+  height: 78px;
+  place-items: center;
+  align-content: center;
+  gap: 4px;
+  border: 1px solid #c7d2fe;
+  border-radius: 21px;
+  color: #4338ca;
+  background: rgba(238,242,255,.9);
+}
+
+.training-completion-seal span {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -.05em;
+}
+
+.training-completion-seal svg {
+  opacity: .82;
+}
+
+.training-completion-credential.training-completion-credential-v2 {
+  gap: 18px;
+  padding: 14px;
+  border-color: #e1e5f7;
+  border-radius: 14px;
+  background: rgba(255,255,255,.9);
+}
+
+.training-completion-credential-copy {
+  min-width: 0;
+}
+
+.training-completion-credential-copy small {
+  display: block;
+  margin-top: 5px;
+  color: #667085;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.training-completion-card-v2 .training-completion-actions {
+  gap: 8px;
+}
+
+@media (max-width: 860px) {
+  .training-assessment-journey.training-assessment-journey-v2,
+  .training-assessment-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .training-assessment-course-id {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .training-assessment-course-mark {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 620px) {
+  .training-assessment-step-track {
+    grid-template-columns: 1fr;
+  }
+
+  .training-assessment-journey-v2 .training-assessment-step {
+    min-height: 0;
+  }
+
+  .training-auto-question-v2 legend {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .training-auto-question-number {
+    width: 34px;
+    height: 34px;
+  }
+
+  .training-completion-card.training-completion-card-v2 {
+    grid-template-columns: 1fr;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .training-completion-seal {
+    width: 60px;
+    height: 60px;
+    border-radius: 17px;
+  }
+
+  .training-completion-credential.training-completion-credential-v2 {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .training-completion-credential-v2 .training-certificate-actions,
+  .training-completion-credential-v2 .training-certificate-actions .btn {
+    width: 100%;
+  }
+
+  .training-completion-credential-v2 .training-certificate-actions .btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 430px) {
+  .training-assessment-hero.training-assessment-hero-v2,
+  .training-assessment-submit {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .training-assessment-attempt-card {
+    padding: 12px;
+  }
+
+  .training-auto-question.training-auto-question-v2 {
+    padding: 12px 10px;
+    border-radius: 14px;
+  }
+
+  .training-auto-question-v2 .training-auto-question-options label {
+    min-height: 46px;
+  }
+}

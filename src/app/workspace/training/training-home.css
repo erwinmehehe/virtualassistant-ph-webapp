@@ -7557,3 +7557,55 @@
     grid-column: auto;
   }
 }
+
+
+/* Restored saved-course control; keeps the current training card visual system. */
+.training-course-v2-cover-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.training-course-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255,255,255,.46);
+  border-radius: 999px;
+  background: rgba(255,255,255,.82);
+  color: #26355f;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.training-course-save:hover {
+  background: #fff;
+}
+
+.training-course-save.is-saved {
+  background: #fff;
+  color: #3f46c8;
+}
+
+.training-course-save:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+@media (max-width: 680px) {
+  .training-course-v2-cover-actions {
+    gap: 5px;
+  }
+
+  .training-course-save {
+    padding-inline: 7px;
+  }
+
+  .training-course-save span {
+    display: none;
+  }
+}

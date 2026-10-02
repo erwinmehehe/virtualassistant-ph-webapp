@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSessionProfile, requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolvePlacementReadinessIfReady } from "@/lib/post-hire-automation";
 
 export async function createTaskAction(formData: FormData) {
   const { user } = await requireRole("client");
@@ -47,10 +48,20 @@ export async function toggleChecklistAction(formData: FormData) {
   const id = String(formData.get("checklist_id"));
   const done = String(formData.get("done")) === "1";
   const supabase = await createClient();
-  const { data: checklistItem } = await supabase.from("workroom_checklist").select("id").eq("id",id).single();
+  const { data: checklistItem } = await supabase.from("workroom_checklist").select("id,workroom_id").eq("id",id).single();
   if (!checklistItem) throw new Error("Checklist item not found.");
-  const { error } = await createAdminClient().from("workroom_checklist").update({ completed_at: done ? null : new Date().toISOString(), completed_by: done ? null : user.id }).eq("id",id);
+  const admin = createAdminClient();
+  const { error } = await admin.from("workroom_checklist").update({ completed_at: done ? null : new Date().toISOString(), completed_by: done ? null : user.id }).eq("id",id);
   if (error) throw error;
+  await admin.rpc("recompute_placement_readiness", { p_workroom_id: checklistItem.workroom_id });
+  try {
+    await resolvePlacementReadinessIfReady(admin, checklistItem.workroom_id);
+  } catch (automationError) {
+    console.error("[automation] placement readiness legacy cleanup failed", {
+      workroomId: checklistItem.workroom_id,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   revalidatePath("/workspace/client/workroom");
   revalidatePath("/workspace/va/workroom");
 }

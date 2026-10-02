@@ -39,7 +39,7 @@ try {
     await image.waitFor();
 
     const naturalWidth = await image.evaluate((node) => node instanceof HTMLImageElement ? node.naturalWidth : 0);
-    if (naturalWidth < 160) throw new Error(`Kiro source asset is too small: ${naturalWidth}px wide.`);
+    if (naturalWidth < 300) qualityIssues.push(`${fixture.name}: Kiro delivered image is only ${naturalWidth}px wide.`);
 
     const heroBox = await hero.boundingBox();
     const imageBox = await image.boundingBox();

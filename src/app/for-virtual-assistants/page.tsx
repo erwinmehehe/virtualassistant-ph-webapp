@@ -17,6 +17,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath } from "@/lib/seo-url";
 import { getPublicTrainingOverview } from "@/lib/public-training";
 import "./for-virtual-assistants.css";
+import { socialMetadata } from "@/lib/og";
 
 const META_TITLE = "For Virtual Assistants Philippines | Training & Jobs";
 const META_DESCRIPTION =
@@ -26,6 +27,14 @@ export const metadata: Metadata = {
   title: { absolute: META_TITLE },
   description: META_DESCRIPTION,
   alternates: { canonical: canonicalPath("/for-virtual-assistants") },
+  ...socialMetadata({
+    title: META_TITLE,
+    description: META_DESCRIPTION,
+    path: canonicalPath("/for-virtual-assistants"),
+    category: "training",
+    eyebrow: "For Filipino Virtual Assistants",
+    points: ["Free VA training", "Reviewed remote jobs", "Profile tools", "Career resources"],
+  }),
 };
 
 function duration(minutes: number) {

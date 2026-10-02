@@ -29,6 +29,7 @@ import {
 import { trainingJoinHref } from "@/lib/training-intent";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import "../training-landing.css";
+import { socialMetadata } from "@/lib/og";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -110,25 +111,14 @@ export const metadata: Metadata = {
   title: { absolute: META_TITLE },
   description: META_DESCRIPTION,
   alternates: { canonical: canonicalPath("/training") },
-  openGraph: {
-    type: "website",
-    url: canonicalUrl("/training"),
-    siteName: "VirtualAssistant.com.ph",
+  ...socialMetadata({
     title: META_TITLE,
     description: META_DESCRIPTION,
-    images: [{
-      url: "/training/opengraph-image",
-      width: 1200,
-      height: 630,
-      alt: "VirtualAssistant.com.ph training"
-    }]
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: META_TITLE,
-    description: META_DESCRIPTION,
-    images: ["/training/opengraph-image"]
-  }
+    path: canonicalPath("/training"),
+    category: "training",
+    eyebrow: "Free VA Training",
+    points: ["Practical lessons", "Real VA workflows", "Randomized final checks", "Free verified certificates"],
+  }),
 };
 
 const JOIN_HREF = trainingJoinHref();

@@ -56,3 +56,21 @@ test("course completion creates learner notifications in the backend", async () 
   assert.match(completion, /certificate_issued/);
   assert.match(trainingAction, /assessment_retry/);
 });
+
+
+test("Ask Kiro is grounded in authenticated backend training data", async () => {
+  const [action, ai] = await Promise.all([
+    readFile("src/app/actions/training-kiro.ts", "utf8"),
+    readFile("src/lib/ai-training-kiro.ts", "utf8"),
+  ]);
+
+  assert.match(action, /requireAuthenticatedUserFast/);
+  assert.match(action, /answerTrainingKiro/);
+  assert.match(ai, /getTrainingDashboard\(userId\)/);
+  assert.match(ai, /Training is free and separate from hiring/);
+  assert.match(ai, /savedCourseIds/);
+  assert.match(ai, /progressPercent/);
+  assert.match(ai, /certificateCode/);
+  assert.match(ai, /AI_GATEWAY_API_KEY/);
+  assert.match(ai, /source: "fallback"/);
+});

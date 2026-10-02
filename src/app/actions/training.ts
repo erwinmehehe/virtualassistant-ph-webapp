@@ -668,6 +668,18 @@ export async function submitTrainingAssessmentAction(formData: FormData) {
     },
   });
 
+  if (!passed) {
+    await admin.from("training_notifications").upsert({
+      user_id: userId,
+      type: "assessment_retry",
+      title: "Final check needs another attempt",
+      body: `You scored ${score}%. Review the highlighted lessons, then try the final check again.`,
+      href: `/workspace/training/courses/${course.slug}/assessments/${assessment.id}`,
+      source_key: `assessment-retry:${assessment.id}:${nextAttempt}`,
+      created_at: new Date().toISOString(),
+    }, { onConflict: "user_id,source_key" });
+  }
+
   if (passed) {
     const completion = await finalizeTrainingCourseIfEligible(userId, course.id);
     if (completion.newlyCompleted) {

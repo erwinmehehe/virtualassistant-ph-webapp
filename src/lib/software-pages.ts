@@ -60,10 +60,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "ApplyOnline",
     category: "Mortgage & Finance",
     directoryCategory: "Real Estate",
-    primaryKeyword: "applyonline virtual assistant",
-    metaTitle: "Hire ApplyOnline Virtual Assistant Philippines",
-    metaDescription:
-      "Get support with ApplyOnline data entry, loan file preparation, document tracking, lender conditions and settlement administration.",
+    primaryKeyword: "applyonline virtual assistant philippines",
+    metaTitle: "ApplyOnline Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based ApplyOnline Virtual Assistants for application data entry, document uploading. Get support from vetted Filipino remote professionals.",
     h1: "Keep ApplyOnline Applications Moving Without Loading Up Your Brokers",
     intro:
       "A trained assistant can prepare application data, organise supporting documents and keep lender conditions visible inside your mortgage workflow. Your broker retains responsibility for credit advice, product selection and final submission approval.",
@@ -122,10 +121,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Salestrekker",
     category: "Mortgage & Finance",
     directoryCategory: "Real Estate",
-    primaryKeyword: "salestrekker virtual assistant",
-    metaTitle: "Hire Salestrekker Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource Salestrekker CRM updates, mortgage pipeline administration, document tracking, follow-ups and settlement workflows.",
+    primaryKeyword: "salestrekker virtual assistant philippines",
+    metaTitle: "Salestrekker Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Salestrekker Virtual Assistants for crm data entry, pipeline updates. Get support from vetted Filipino remote professionals.",
     h1: "Keep Your Salestrekker Pipeline Current From Lead to Settlement",
     intro:
       "Your mortgage CRM should show exactly where every opportunity and application stands. A Salestrekker Virtual Assistant keeps records, tasks, documents and milestones current while brokers handle advice and client decisions.",
@@ -181,10 +179,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "BrokerEngine",
     category: "Mortgage & Finance",
     directoryCategory: "Real Estate",
-    primaryKeyword: "brokerengine virtual assistant",
-    metaTitle: "Hire BrokerEngine Virtual Assistant Philippines",
-    metaDescription:
-      "Run mortgage workflow administration in BrokerEngine with support for tasks, document collection, milestones and client follow-up.",
+    primaryKeyword: "brokerengine virtual assistant philippines",
+    metaTitle: "BrokerEngine Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based BrokerEngine Virtual Assistants for workflow maintenance, task updates. Get support from vetted Filipino remote professionals.",
     h1: "Turn BrokerEngine Into a Consistent Mortgage Processing Workflow",
     intro:
       "BrokerEngine works best when every task, milestone and client requirement is kept current. A mortgage Virtual Assistant can maintain those production workflows so brokers see what needs attention without managing every administrative step.",
@@ -240,10 +237,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "PropertyMe",
     category: "Property Management",
     directoryCategory: "Real Estate",
-    primaryKeyword: "propertyme virtual assistant",
-    metaTitle: "Hire PropertyMe Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource PropertyMe maintenance workflows, tenant administration, work orders, contractor follow-up and property management data entry.",
+    primaryKeyword: "propertyme virtual assistant philippines",
+    metaTitle: "PropertyMe Virtual Assistant Philippines",
+    metaDescription: "Hire a PropertyMe Virtual Assistant in the Philippines for day-to-day platform administration and workflow support from vetted Filipino remote professionals.",
     h1: "Keep PropertyMe Maintenance Jobs Moving From Request to Completion",
     intro:
       "A PropertyMe Virtual Assistant can turn incoming maintenance requests into organised jobs, work orders and follow-up queues. Your property managers retain authority over tenancy decisions, spending approvals and compliance matters.",
@@ -301,10 +297,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Console Cloud",
     category: "Property Management",
     directoryCategory: "Real Estate",
-    primaryKeyword: "console cloud virtual assistant",
-    metaTitle: "Hire Console Cloud Virtual Assistant Philippines",
-    metaDescription:
-      "Get Console Cloud support for tenant requests, property records, maintenance jobs, contractor coordination and portfolio administration.",
+    primaryKeyword: "console cloud virtual assistant philippines",
+    metaTitle: "Console Cloud Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Console Cloud Virtual Assistants for property data updates, tenant administration. Get support from vetted Filipino remote professionals.",
     h1: "Keep Console Cloud Property Workflows Up to Date Every Day",
     intro:
       "Property managers need accurate records and visible task queues before they can manage a portfolio properly. A Console Cloud Virtual Assistant maintains routine property, tenant and maintenance administration while local managers handle decisions and exceptions.",
@@ -360,10 +355,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "ServiceM8",
     category: "Trades & Field Service",
     directoryCategory: "Administrative Support",
-    primaryKeyword: "servicem8 virtual assistant",
-    metaTitle: "Hire ServiceM8 Virtual Assistant Philippines",
-    metaDescription:
-      "Hire a ServiceM8 Virtual Assistant for job setup, dispatch, quote follow-up, customer updates, completion paperwork, invoicing and workflow QA for tradies.",
+    primaryKeyword: "servicem8 virtual assistant philippines",
+    metaTitle: "ServiceM8 Virtual Assistant Philippines",
+    metaDescription: "Hire a ServiceM8 Virtual Assistant in the Philippines for day-to-day platform administration and workflow support from vetted Filipino remote professionals.",
     h1: "Keep ServiceM8 Jobs Moving From Enquiry to Payment",
     intro:
       "A ServiceM8 Virtual Assistant can run the repeatable office workflow around your field team: clean job records, accurate scheduling, quote follow-up, completion checks, invoice administration and automation QA. Your technicians and authorised managers keep technical, pricing, safety and finance decisions.",
@@ -432,10 +426,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "simPRO",
     category: "Trades & Field Service",
     directoryCategory: "Administrative Support",
-    primaryKeyword: "simpro virtual assistant",
-    metaTitle: "Hire simPRO Virtual Assistant Philippines",
-    metaDescription:
-      "Get simPRO support for job administration, scheduling, customer records, purchase orders, technician paperwork and invoicing workflows.",
+    primaryKeyword: "simpro virtual assistant philippines",
+    metaTitle: "simPRO Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based simPRO Virtual Assistants for job entry, resource scheduling. Get support from vetted Filipino remote professionals.",
     h1: "Run the simPRO Back Office Behind Your Field Team",
     intro:
       "A simPRO Virtual Assistant handles repeatable office workflows around jobs, technicians, customers and paperwork. Your operations and trade professionals retain technical, commercial and compliance authority.",
@@ -492,10 +485,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "AroFlo",
     category: "Trades & Field Service",
     directoryCategory: "Administrative Support",
-    primaryKeyword: "aroflo virtual assistant",
-    metaTitle: "Hire AroFlo Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource AroFlo task creation, scheduling, customer updates, purchase administration, technician follow-up and invoicing support.",
+    primaryKeyword: "aroflo virtual assistant philippines",
+    metaTitle: "AroFlo Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based AroFlo Virtual Assistants for task creation, scheduling, customer communication. Get support from vetted Filipino remote professionals.",
     h1: "Keep AroFlo Jobs Organised Before and After the Technician Visit",
     intro:
       "AroFlo can hold the operational workflow for busy field teams, but only when job information stays current. A Virtual Assistant can maintain task records, schedules, paperwork and invoice preparation while qualified staff retain trade authority.",
@@ -551,10 +543,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Tradify",
     category: "Trades & Field Service",
     directoryCategory: "Administrative Support",
-    primaryKeyword: "tradify virtual assistant",
-    metaTitle: "Hire Tradify Virtual Assistant Philippines",
-    metaDescription:
-      "Get Tradify support for job creation, scheduling, quote preparation, customer updates and invoicing administration.",
+    primaryKeyword: "tradify virtual assistant philippines",
+    metaTitle: "Tradify Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Tradify Virtual Assistants for customer setup, job creation, quote administration. Get support from vetted Filipino remote professionals.",
     h1: "Move Tradify Jobs From Enquiry to Invoice With Less Office Work",
     intro:
       "A Tradify Virtual Assistant can maintain the administrative workflow around quotes, jobs, appointments and invoices. Your trade team stays focused on field work and retains control of pricing, scope and technical decisions.",
@@ -611,10 +602,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Cliniko",
     category: "Allied Health",
     directoryCategory: "Dental & Healthcare",
-    primaryKeyword: "cliniko virtual assistant",
-    metaTitle: "Hire Cliniko Virtual Assistant Philippines",
-    metaDescription:
-      "Hire a Cliniko Virtual Assistant for scheduling, reminders, patient admin, secure forms, invoices, payments and allied-health front desk support.",
+    primaryKeyword: "cliniko virtual assistant philippines",
+    metaTitle: "Cliniko Virtual Assistant Philippines",
+    metaDescription: "Hire a Cliniko Virtual Assistant in the Philippines for day-to-day platform administration and workflow support from vetted Filipino remote professionals.",
     h1: "Keep Cliniko Front-Desk Work Moving Without Pulling Clinicians Into Admin",
     intro:
       "A Cliniko Virtual Assistant can handle defined non-clinical workflows such as appointment scheduling, patient record administration, reminders, secure forms, invoices, payments and routine follow-up. Clinicians retain responsibility for treatment notes, clinical decisions and patient care.",
@@ -678,10 +668,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Halaxy",
     category: "Allied Health",
     directoryCategory: "Dental & Healthcare",
-    primaryKeyword: "halaxy virtual assistant",
-    metaTitle: "Hire Halaxy Virtual Assistant Philippines",
-    metaDescription:
-      "Get Halaxy support for patient intake, appointment administration, referral tracking, invoicing, recalls and practice workflows.",
+    primaryKeyword: "halaxy virtual assistant philippines",
+    metaTitle: "Halaxy Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Halaxy Virtual Assistants for patient registration, appointment scheduling. Get support from vetted Filipino remote professionals.",
     h1: "Keep Halaxy Administration Moving Around Every Patient Visit",
     intro:
       "A Halaxy Virtual Assistant manages routine patient and practice administration before and after appointments. Clinicians retain responsibility for clinical care, advice and regulated decisions.",
@@ -736,10 +725,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Power Diary",
     category: "Allied Health",
     directoryCategory: "Dental & Healthcare",
-    primaryKeyword: "power diary virtual assistant",
-    metaTitle: "Hire Power Diary Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource Power Diary scheduling, patient administration, recalls, billing support, referral tracking and practice workflows.",
+    primaryKeyword: "power diary virtual assistant philippines",
+    metaTitle: "Power Diary Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Power Diary Virtual Assistants for appointment management, patient setup. Get support from vetted Filipino remote professionals.",
     h1: "Keep Your Power Diary Admin Queue Under Control",
     intro:
       "A Power Diary Virtual Assistant can maintain routine scheduling, records, referral dates, recalls and approved billing workflows. Clinical advice and treatment decisions remain with the qualified practitioner.",
@@ -794,10 +782,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "JobAdder",
     category: "Recruitment",
     directoryCategory: "Lead Generation & Sales",
-    primaryKeyword: "jobadder virtual assistant",
-    metaTitle: "Hire JobAdder Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource JobAdder candidate sourcing, CRM cleanup, record enrichment, screening administration and interview scheduling.",
+    primaryKeyword: "jobadder virtual assistant philippines",
+    metaTitle: "JobAdder Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based JobAdder Virtual Assistants for candidate sourcing, crm cleanup. Get support from vetted Filipino remote professionals.",
     h1: "Keep JobAdder Filled With Candidates Your Recruiters Can Actually Work",
     intro:
       "A JobAdder Virtual Assistant can build candidate lists, maintain CRM records and move administrative sourcing workflows forward. Recruiters retain responsibility for candidate assessment, client advice and hiring recommendations.",
@@ -854,10 +841,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Bullhorn",
     category: "Recruitment",
     directoryCategory: "Lead Generation & Sales",
-    primaryKeyword: "bullhorn virtual assistant",
-    metaTitle: "Hire Bullhorn Virtual Assistant Philippines",
-    metaDescription:
-      "Get Bullhorn support for candidate sourcing, database cleanup, record enrichment, outreach administration and interview coordination.",
+    primaryKeyword: "bullhorn virtual assistant philippines",
+    metaTitle: "Bullhorn Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Bullhorn Virtual Assistants for candidate sourcing, database cleanup. Get support from vetted Filipino remote professionals.",
     h1: "Turn Bullhorn Into a Cleaner, More Usable Candidate Database",
     intro:
       "A Bullhorn Virtual Assistant handles the repeatable work that keeps candidate and vacancy records usable. Recruiters retain control of assessment, selection and client-facing recruitment advice.",
@@ -911,10 +897,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Vincere",
     category: "Recruitment",
     directoryCategory: "Lead Generation & Sales",
-    primaryKeyword: "vincere virtual assistant",
-    metaTitle: "Hire Vincere Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource Vincere sourcing, candidate records, CRM cleanup, pipeline administration and interview scheduling.",
+    primaryKeyword: "vincere virtual assistant philippines",
+    metaTitle: "Vincere Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Vincere Virtual Assistants for candidate sourcing, talent mapping. Get support from vetted Filipino remote professionals.",
     h1: "Keep Vincere Pipelines Ready for Recruiter Action",
     intro:
       "A Vincere Virtual Assistant builds and maintains the administrative layer around candidate sourcing and vacancy pipelines. Recruiters keep control of qualification, client advice and placement decisions.",
@@ -969,10 +954,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "StrataMax",
     category: "Strata Management",
     directoryCategory: "Real Estate",
-    primaryKeyword: "stratamax virtual assistant",
-    metaTitle: "Hire StrataMax Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource StrataMax records, levy administration, meeting preparation, owner correspondence, arrears workflows and portfolio updates.",
+    primaryKeyword: "stratamax virtual assistant philippines",
+    metaTitle: "StrataMax Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based StrataMax Virtual Assistants for owner record updates, levy administration. Get support from vetted Filipino remote professionals.",
     h1: "Keep StrataMax Portfolios Ready for Meetings, Levies and Follow-Up",
     intro:
       "A StrataMax Virtual Assistant can maintain routine portfolio records, meeting preparation and authorised follow-up workflows. The local strata manager retains control of regulated decisions, advice and approvals.",
@@ -1026,10 +1010,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "MRI Strata Master",
     category: "Strata Management",
     directoryCategory: "Real Estate",
-    primaryKeyword: "strata master virtual assistant",
-    metaTitle: "Hire MRI Strata Master Virtual Assistant Philippines",
-    metaDescription:
-      "Get MRI Strata Master support for owner records, meeting administration, levies, arrears workflows and strata portfolio updates.",
+    primaryKeyword: "mri strata master virtual assistant philippines",
+    metaTitle: "MRI Strata Master Virtual Assistant Philippines",
+    metaDescription: "Hire a MRI Strata Master Virtual Assistant in the Philippines for reliable platform administration and workflow support.",
     h1: "Keep Strata Master Administration Current Across Every Scheme",
     intro:
       "A Strata Master Virtual Assistant handles routine production work around records, meetings, correspondence and approved arrears workflows. Local strata professionals remain responsible for management decisions and compliance.",
@@ -1083,10 +1066,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "BGL Simple Fund 360",
     category: "SMSF & Accounting",
     directoryCategory: "Bookkeeping & Finance",
-    primaryKeyword: "bgl simple fund 360 virtual assistant",
-    metaTitle: "Hire BGL Simple Fund 360 Virtual Assistant Philippines",
-    metaDescription:
-      "Outsource SMSF transaction coding, reconciliation, workpapers, document collection and audit-pack production in Simple Fund 360.",
+    primaryKeyword: "bgl simple fund 360 virtual assistant philippines",
+    metaTitle: "BGL Simple Fund 360 Virtual Assistant Philippines",
+    metaDescription: "Hire a BGL Simple Fund 360 Virtual Assistant in the Philippines for reliable platform administration and workflow support.",
     h1: "Clear More SMSF Production Work in Simple Fund 360",
     intro:
       "A Simple Fund 360 Virtual Assistant can handle defined production tasks such as coding, reconciliation, document organisation and workpaper preparation. Qualified accountants and auditors retain responsibility for review, advice and compliance decisions.",
@@ -1142,10 +1124,9 @@ export const softwarePages: SoftwareSeoPage[] = [
     software: "Class Super",
     category: "SMSF & Accounting",
     directoryCategory: "Bookkeeping & Finance",
-    primaryKeyword: "class super virtual assistant",
-    metaTitle: "Hire Class Super Virtual Assistant Philippines",
-    metaDescription:
-      "Get Class Super support for SMSF transaction coding, investment reconciliation, workpapers, document collection and audit preparation.",
+    primaryKeyword: "class super virtual assistant philippines",
+    metaTitle: "Class Super Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Class Super Virtual Assistants for smsf coding, bank reconciliation. Get support from vetted Filipino remote professionals.",
     h1: "Move More Class Super Funds Through Production Before Review",
     intro:
       "A Class Super Virtual Assistant can prepare routine accounting production work before the accountant reviews the fund. Professional judgment, tax advice, audit opinions and compliance decisions remain with qualified local professionals.",

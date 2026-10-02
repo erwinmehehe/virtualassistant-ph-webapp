@@ -42,6 +42,7 @@ const industries = parseArray("src/lib/industries.ts", "export const INDUSTRIES:
 const servicePage = source("src/app/service/[slug]/page.tsx");
 const industryPage = source("src/app/industries/[slug]/page.tsx");
 const industrySeoContent = source("src/lib/industry-seo-content.ts");
+const ogHelper = source("src/lib/og.ts");
 const blogArticle = source("src/components/blog-article.tsx");
 
 const failures = [];
@@ -105,7 +106,14 @@ for (const industry of industries) {
 }
 
 if (!/titleCaseWithAcronyms/.test(industryPage)) failures.push("industry template must preserve acronyms in generated labels");
-if (!/twitter:\s*\{\s*card:\s*"summary_large_image",\s*title,\s*description\s*\}/.test(industryPage)) failures.push("industry metadata must expose the same Twitter card fields as service pages");
+const industryUsesSharedSocialMetadata =
+  /socialMetadata\(/.test(industryPage) &&
+  /card:\s*"summary_large_image"/.test(ogHelper) &&
+  /title:\s*input\.title/.test(ogHelper) &&
+  /description:\s*input\.description/.test(ogHelper);
+if (!/twitter:\s*\{\s*card:\s*"summary_large_image",\s*title,\s*description\s*\}/.test(industryPage) && !industryUsesSharedSocialMetadata) {
+  failures.push("industry metadata must expose the same Twitter card fields as service pages");
+}
 
 for (const [serviceSlug, count] of clusterCounts) {
   // Cluster size alone is not cannibalization; the dedicated intent-overlap audit checks page-pair risk.\n  if (count > 12) warnings.push(`${serviceSlug}: ${count} blog posts in one service cluster; review whether the cluster is becoming unnecessarily broad`);

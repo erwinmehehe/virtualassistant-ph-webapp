@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { BLOG_TOPICS, blogHref, topicPosts, type BlogTopic } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 
 export function generateStaticParams() { return Object.keys(BLOG_TOPICS).map((slug) => ({ slug })); }
 
@@ -14,7 +15,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   if (!(slug in BLOG_TOPICS)) return {};
   const topic = BLOG_TOPICS[slug as BlogTopic];
-  return { title: `${topic.label} Virtual Assistant Guides`, description: topic.description, alternates: { canonical: canonicalPath(`/blog/topic/${slug}`) } };
+  const title = `${topic.label} Virtual Assistant Guides`;
+  const path = canonicalPath(`/blog/topic/${slug}`);
+  return {
+    title,
+    description: topic.description,
+    alternates: { canonical: path },
+    ...socialMetadata({
+      title,
+      description: topic.description,
+      path,
+      category: "blog",
+      eyebrow: topic.label,
+    }),
+  };
 }
 
 export default async function TopicPage({ params }: { params: Promise<{ slug: string }> }) {

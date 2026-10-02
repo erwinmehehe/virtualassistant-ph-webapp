@@ -13,6 +13,7 @@ import { money, dateShort } from "@/lib/format";
 import { isUuid, jobPublicHref } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import { organizationRef } from "@/lib/organization";
 
 async function getPublishedJob(key: string) {
@@ -64,7 +65,27 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
   const job = await getPublishedJob(id);
   if (!job) return { title: "Virtual Assistant Job", robots: { index: false, follow: false } };
   const company = publicCompanyFromJob(job);
-  return { title: `${job.title} | VA Job`, description: job.summary || `${job.title} virtual assistant opportunity${company?.company_name ? ` with ${company.company_name}` : " through VirtualAssistant.com.ph"}.`, alternates: { canonical: canonicalPath(jobPublicHref(job)) } };
+  const title = `${job.title} | VA Job`;
+  const description = job.summary || `${job.title} virtual assistant opportunity${company?.company_name ? ` with ${company.company_name}` : " through VirtualAssistant.com.ph"}.`;
+  const canonical = canonicalPath(jobPublicHref(job));
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    ...socialMetadata({
+      title,
+      description,
+      path: canonical,
+      category: "jobs",
+      eyebrow: company?.company_name || "Virtual Assistant Job",
+      points: [
+        job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Remote role",
+        job.timezone || "Schedule in listing",
+        job.min_hourly_rate ? `From ${job.min_hourly_rate}/hr` : "Pay in listing",
+        "Philippines applicants",
+      ],
+    }),
+  };
 }
 
 export default async function JobPage({ params, searchParams }: { params: Promise<{id:string}>; searchParams: Promise<Record<string,string|undefined>> }) {

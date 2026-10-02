@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 
 const authors = {
   "christ-hemsworthy": {
@@ -25,7 +26,21 @@ export function generateStaticParams() { return Object.keys(authors).map((slug) 
 export async function generateMetadata({params}:{params:Promise<{slug:string}>}): Promise<Metadata> {
   const {slug}=await params; const author=authors[slug as keyof typeof authors];
   if(!author) return {};
-  return { title: `${author.name} | Author`, description: author.bio, alternates:{canonical:canonicalPath(`/authors/${slug}`)} };
+  const title = `${author.name} | Author`;
+  const path = canonicalPath(`/authors/${slug}`);
+  return {
+    title,
+    description: author.bio,
+    alternates:{ canonical: path },
+    ...socialMetadata({
+      title,
+      description: author.bio,
+      path,
+      category: "blog",
+      eyebrow: author.title,
+      author: author.name,
+    }),
+  };
 }
 
 export default async function AuthorPage({params}:{params:Promise<{slug:string}>}) {

@@ -5,12 +5,20 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Managed Virtual Assistant vs. Direct Hire",
   description: "Compare Managed Virtual Assistant service and Direct Hire placement so you know exactly who handles recruiting, onboarding, ongoing support, and replacement.",
   keywords: ["managed virtual assistant vs direct hire", "managed virtual assistant service philippines", "direct hire virtual assistant", "dedicated virtual assistant", "dedicated virtual assistant services", "employee virtual assistant", "bpo virtual assistant"],
-  alternates: { canonical: canonicalPath("/managed-vs-direct-hire") }
+  alternates: { canonical: canonicalPath("/managed-vs-direct-hire") },
+  ...socialMetadata({
+    title: "Managed Virtual Assistant vs. Direct Hire",
+    description: "Compare Managed Virtual Assistant service and Direct Hire placement so you know exactly who handles recruiting, onboarding, ongoing support, and replacement.",
+    path: canonicalPath("/managed-vs-direct-hire"),
+    category: "hiring",
+    eyebrow: "Compare Hiring Models",
+  }),
 };
 
 const rows: [string, string, string][] = [

@@ -22,6 +22,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
 import { PublicAvatar } from "@/components/public-avatar";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 
 const HIRING_CALL_URL = "/book-client-call";
@@ -32,6 +33,14 @@ export const metadata: Metadata = {
     "Tell us the role, hours, timezone, and budget. Our recruiting team screens and matches vetted Filipino Virtual Assistants for your business.",
   keywords: ["hire a virtual assistant", "hire filipino virtual assistant", "get matched with a virtual assistant"],
   alternates: { canonical: canonicalPath("/hire") },
+  ...socialMetadata({
+    title: "Hire a Virtual Assistant from the Philippines",
+    description: "Tell us the role, hours, timezone, and budget. Our recruiting team screens and matches vetted Filipino Virtual Assistants for your business.",
+    path: canonicalPath("/hire"),
+    category: "hiring",
+    eyebrow: "Start Hiring",
+    points: ["Role & tasks","Hours & timezone","Budget","Vetted shortlist"],
+  }),
 };
 
 const screeningSteps = [

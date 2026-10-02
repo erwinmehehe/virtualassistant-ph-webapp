@@ -7,6 +7,7 @@ import { CompactPageHeader } from "@/components/compact-page-header";
 import { Band, SectionHead } from "@/components/hiring-page-sections";
 import { candidateSeoResources, SEO_RESOURCE_PAGES } from "@/lib/seo-resource-pages";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import { EDITORIAL_RESOURCE_SLUGS, EXISTING_BLOG_RESOURCE_REDIRECTS } from "@/lib/editorial-seo-guides";
 import "../homepage-sections.css";
 import "../hiring-pages.css";
@@ -15,7 +16,14 @@ import "../info-pages.css";
 export const metadata: Metadata = {
   title: "Virtual Assistant Hiring & Career Resources",
   description: "Browse role-specific Virtual Assistant hiring, task, interview, cost, and tools resources. Career and informational guides now live in the editorial blog.",
-  alternates: { canonical: canonicalPath("/resources") }
+  alternates: { canonical: canonicalPath("/resources") },
+  ...socialMetadata({
+    title: "Virtual Assistant Hiring & Career Resources",
+    description: "Browse role-specific Virtual Assistant hiring, task, interview, cost, and tools resources. Career and informational guides now live in the editorial blog.",
+    path: canonicalPath("/resources"),
+    category: "blog",
+    eyebrow: "VA Resource Library",
+  }),
 };
 
 export default function ResourcesPage() {

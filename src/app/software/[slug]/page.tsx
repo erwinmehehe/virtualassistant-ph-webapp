@@ -12,6 +12,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import { organizationRef } from "@/lib/organization";
 import { blogHref, softwareBlogPosts } from "@/lib/blog";
 import { localizeContent, localizeEnglish } from "@/lib/content-language";
+import { socialMetadata } from "@/lib/og";
 
 export function generateStaticParams() { return softwarePages.map((page) => ({ slug: page.slug })); }
 
@@ -27,7 +28,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description,
     keywords: [page.primaryKeyword, `hire ${page.software.toLowerCase()} virtual assistant`, `${page.software.toLowerCase()} outsourcing philippines`],
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description, locale: page.locale === "en-AU" ? "en_AU" : undefined }
+    ...socialMetadata({
+      title,
+      description,
+      path: canonical,
+      category: "software",
+      locale: page.locale === "en-AU" ? "en_AU" : undefined,
+      eyebrow: page.software,
+      points: page.tasks.slice(0, 4),
+    })
   };
 }
 

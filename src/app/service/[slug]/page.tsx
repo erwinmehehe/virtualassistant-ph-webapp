@@ -31,6 +31,7 @@ import { serviceSeoResources } from "@/lib/seo-resource-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata, serviceOgCategory } from "@/lib/og";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
@@ -55,8 +56,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: title },
     description,
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description, locale: page.locale === "en-AU" ? "en_AU" : undefined },
-    twitter: { card: "summary_large_image", title, description }
+    ...socialMetadata({
+      title,
+      description,
+      path: canonical,
+      category: serviceOgCategory(page.group),
+      locale: page.locale === "en-AU" ? "en_AU" : undefined,
+      eyebrow: localizedPage.name,
+      points: localizedPage.tasks.slice(0, 4),
+    })
   };
 }
 

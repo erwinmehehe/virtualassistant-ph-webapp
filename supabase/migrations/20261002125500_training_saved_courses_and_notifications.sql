@@ -58,7 +58,8 @@ create index if not exists training_notifications_user_unread_idx
 
 alter table public.training_notifications enable row level security;
 revoke all on public.training_notifications from anon;
-grant select, update on public.training_notifications to authenticated;
+grant select on public.training_notifications to authenticated;
+grant update (read_at) on public.training_notifications to authenticated;
 
 drop policy if exists "learners read own training notifications" on public.training_notifications;
 create policy "learners read own training notifications"

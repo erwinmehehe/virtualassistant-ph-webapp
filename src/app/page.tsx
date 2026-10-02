@@ -34,8 +34,10 @@ import "./homepage-sections.css";
 import "./homepage-reference-polish.css";
 import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
 
+const HOME_META_TITLE = "Virtual Assistant Philippines | Hire Vetted Filipino VAs";
+
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
+  title: { absolute: HOME_META_TITLE },
   description:
     "Virtual Assistant Philippines: hire vetted Filipino VAs matched to your role, tools, schedule and budget, with recruiter support from shortlist to hire.",
   keywords: [
@@ -48,25 +50,25 @@ export const metadata: Metadata = {
   alternates: { canonical: canonicalPath("/") },
   openGraph: {
     type: "website",
-    title: "Virtual Assistant Philippines | Vetted Filipino VA Agency",
+    title: HOME_META_TITLE,
     description:
       "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
     url: canonicalPath("/"),
     images: [
       {
-        url: canonicalUrl("/opengraph-image"),
+        url: canonicalUrl("/og/home.jpg"),
         width: 1200,
         height: 630,
-        alt: "VirtualAssistant.com.ph - hire vetted Filipino virtual assistants",
+        alt: HOME_META_TITLE,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Virtual Assistant Philippines | Vetted Filipino VA Agency",
+    title: HOME_META_TITLE,
     description:
       "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
-    images: [canonicalUrl("/twitter-image")],
+    images: [canonicalUrl("/og/home.jpg")],
   },
 };
 

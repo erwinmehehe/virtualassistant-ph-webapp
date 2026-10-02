@@ -23,7 +23,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
-import { KiroGuide } from "@/components/kiro-guide";
+import { KiroMascot } from "@/components/kiro-mascot";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { TrainingNextSteps } from "@/components/training-next-steps";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
@@ -422,14 +422,41 @@ export default async function TrainingDashboardPage({
           : <>Continue your current lesson, follow a recommended path, or choose one course from the library. Training remains separate from hiring and certificates are free.</>}
       />
 
-      <KiroGuide
-        compact
-        state="training"
-        eyebrow="Kiro · Training coach"
-        title={kiroTrainingTitle}
-        description={kiroTrainingDescription}
-        action={kiroTrainingAction}
-      />
+      <section className="training-kiro-coach" aria-labelledby="training-kiro-title">
+        <div className="training-kiro-art" aria-hidden="true">
+          <KiroMascot state="training" className="training-kiro-mascot"/>
+        </div>
+
+        <div className="training-kiro-copy">
+          <span className="training-kiro-eyebrow"><Sparkles size={13}/> Kiro · Your training coach</span>
+          <h2 id="training-kiro-title">{kiroTrainingTitle}</h2>
+          <p>{kiroTrainingDescription}</p>
+          <div className="training-kiro-actions">
+            <Link className="btn btn-primary" href={kiroTrainingAction.href}>
+              {kiroTrainingAction.label} <ArrowRight size={15}/>
+            </Link>
+            <Link className="btn" href="/workspace/training?browse=1#course-library-title">
+              Browse courses
+            </Link>
+          </div>
+        </div>
+
+        <div className="training-kiro-side">
+          <span className="training-kiro-tip-label"><Sparkles size={13}/> Kiro’s tip</span>
+          <p>
+            {resumeCourse
+              ? "Finish the course you already started before opening several new ones. Focus makes progress easier to see."
+              : isNewLearner
+                ? "Start with Foundations. After that, choose a role, software, or industry path that matches the work you want."
+                : "Build depth one useful skill at a time. Certificates are evidence of completed training, not a hiring requirement."}
+          </p>
+          <div className="training-kiro-stats" aria-label="Learning summary with Kiro">
+            <span><strong>{active.length}</strong> active</span>
+            <span><strong>{completed.length}</strong> completed</span>
+            <span><strong>{certificates.length}</strong> certificates</span>
+          </div>
+        </div>
+      </section>
 
       {error ? (
         <section className="card dashboard-section-card">

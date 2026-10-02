@@ -68,6 +68,7 @@ export function socialMetadata(input: {
     openGraph: {
       type: input.type || "website",
       url: input.path,
+      siteName: "VirtualAssistant.com.ph",
       title: input.title,
       description: input.description,
       ...(input.locale ? { locale: input.locale } : {}),

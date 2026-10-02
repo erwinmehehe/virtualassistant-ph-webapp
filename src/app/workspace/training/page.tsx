@@ -284,6 +284,7 @@ export default async function TrainingDashboardPage({
     title: course.title,
     category: course.category,
     countryFocus: course.country_focus,
+    searchTerms: course.searchTerms,
     estimatedMinutes: course.estimated_minutes,
     lessonCount: course.lessonCount,
     completedLessons: course.completedLessons,

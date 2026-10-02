@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
@@ -30,6 +31,14 @@ export const metadata: Metadata = {
     "online virtual assistant jobs philippines",
   ],
   alternates: { canonical: canonicalPath("/jobs") },
+  ...socialMetadata({
+    title: "Virtual Assistant Jobs Philippines",
+    description: "Browse remote virtual assistant jobs in the Philippines with published pay, clear role scope, and recruiter-reviewed client opportunities.",
+    path: canonicalPath("/jobs"),
+    category: "jobs",
+    eyebrow: "Remote VA Jobs",
+    points: ["Published pay","Clear role scope","Remote Philippines","Recruiter-reviewed clients"],
+  }),
 };
 
 const PAGE_SIZE = 20;

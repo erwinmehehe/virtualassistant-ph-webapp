@@ -270,7 +270,7 @@ export function TrainingDashboardOverview({
         </section>
 
         <aside className="training-reference-right">
-          <section className="training-reference-certificates" id="certificates">
+          <section className="training-reference-certificates" id="certificate-preview">
             <div className="training-reference-section-title"><h2>My Certificates</h2><a href="#certificates">View all <ArrowRight size={13}/></a></div>
             <div>
               {certificates.slice(0,3).map((course)=><article key={course.id}>

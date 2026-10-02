@@ -195,12 +195,19 @@ function percent(done: number, total: number) {
 
 export async function getTrainingDashboard(userId: string) {
   const supabase = await createClient();
-  const { data: courseData, error } = await supabase
-    .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
-    .eq("status", "published")
-    .order("recommended_order", { ascending: true })
-    .order("title");
+  const [
+    { data: authUserData },
+    { data: courseData, error },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("training_courses")
+      .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
+      .eq("status", "published")
+      .order("recommended_order", { ascending: true })
+      .order("title"),
+  ]);
+  const learnerName = String(authUserData.user?.user_metadata?.full_name || "").trim() || null;
 
   if (error) {
     return {
@@ -209,6 +216,7 @@ export async function getTrainingDashboard(userId: string) {
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
       learnerPreferences: null as TrainingLearnerPreferences | null,
       savedCourseIds: [] as string[],
+      learnerName,
       error: error.message,
     };
   }
@@ -222,6 +230,7 @@ export async function getTrainingDashboard(userId: string) {
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
       learnerPreferences: null as TrainingLearnerPreferences | null,
       savedCourseIds: [] as string[],
+      learnerName,
       error: null,
     };
   }
@@ -463,7 +472,7 @@ export async function getTrainingDashboard(userId: string) {
 
   const savedCourseIds = (savedCourseData || []).map((row) => row.course_id);
 
-  return { courses: summaries, paths, learnerProfile, learnerPreferences, savedCourseIds, error: null };
+  return { courses: summaries, paths, learnerProfile, learnerPreferences, savedCourseIds, learnerName, error: null };
 }
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {

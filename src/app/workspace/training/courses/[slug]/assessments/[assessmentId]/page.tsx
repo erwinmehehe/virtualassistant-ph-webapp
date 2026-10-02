@@ -233,7 +233,7 @@ export default async function TrainingAssessmentPage({
           <aside className="training-assessment-attempt-card">
             <span className="training-assessment-attempt-label">Attempt status</span>
             <strong>{passed ? "Complete" : retryLocked ? "Locked for review" : `Attempt ${attemptNumber}`}</strong>
-            <small>{passed ? "Your certificate is ready." : retryLocked && retryAt ? `Next attempt after ${retryAt}` : "Three attempts are available in each rolling 24-hour window."}</small>
+            <small>{passed ? "Your certificate is ready." : retryLocked && retryAt ? `Next attempt after ${retryAt}` : "3 attempts are available in a rolling 24-hour period."}</small>
           </aside>
         </div>
         <p className="training-assessment-attempt-note">

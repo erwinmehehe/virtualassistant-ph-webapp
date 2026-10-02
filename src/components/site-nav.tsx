@@ -17,6 +17,7 @@ const serviceGroups = Array.from(
 const industryLinks = INDUSTRIES.slice(0, 8);
 
 const ACCOUNT_LOGIN = "/auth/login";
+const TRAINING_BOOK_CALL = "/book-client-call";
 
 function CallCard({ title, body }: { title: string; body: string }) {
   return (
@@ -69,7 +70,7 @@ function TrainingPublicNav() {
           <Link className="va-nav-account-login" href={loginHref} aria-label="Training login" data-track="training_login_click">
             Log in
           </Link>
-          <Link className="btn btn-primary desktop-hire-cta" href="/book-client-call">
+          <Link className="btn btn-primary desktop-hire-cta" href={TRAINING_BOOK_CALL}>
             Book a Call
           </Link>
 
@@ -83,7 +84,7 @@ function TrainingPublicNav() {
               <Link href="/training">Training</Link>
               <Link href="/blog">Resources</Link>
               <Link href={loginHref} data-track="training_login_click">Training login</Link>
-              <Link href="/book-client-call">Book a Call</Link>
+              <Link href={TRAINING_BOOK_CALL}>Book a Call</Link>
             </nav>
           </details>
         </div>

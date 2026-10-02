@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { KiroMascot } from "@/components/kiro-mascot";
+import { KiroClientMascot } from "@/components/kiro-client-mascot";
 import type { KiroState } from "@/components/kiro-guide";
 
 export function KiroClientAssistant({
@@ -51,7 +51,7 @@ export function KiroClientAssistant({
       <aside className="kiro-assistant-drawer" role="dialog" aria-modal="true" aria-labelledby="kiro-assistant-title">
         <header className="kiro-assistant-head">
           <div className="kiro-assistant-identity">
-            <span className="kiro-assistant-avatar"><KiroMascot state={state}/></span>
+            <span className="kiro-assistant-avatar"><KiroClientMascot state={state}/></span>
             <div><strong id="kiro-assistant-title">Kiro</strong><span>Your VAPH hiring guide</span></div>
           </div>
           <button className="kiro-assistant-close" type="button" onClick={()=>setOpen(false)} aria-label="Close Kiro assistant"><X size={18}/></button>

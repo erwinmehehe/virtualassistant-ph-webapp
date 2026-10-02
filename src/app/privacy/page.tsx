@@ -3,11 +3,20 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "Privacy Notice",
   description: "How VirtualAssistant.com.ph handles public VA profiles, private hiring data, matching, consent, retention, and privacy rights.",
   alternates: { canonical: canonicalPath("/privacy") }
+,
+  ...socialMetadata({
+    title: "Privacy Notice",
+    description: "How VirtualAssistant.com.ph handles public VA profiles, private hiring data, matching, consent, retention, and privacy rights.",
+    path: canonicalPath("/privacy"),
+    category: "legal",
+    eyebrow: "Privacy",
+  }),
 };
 
 export default function PrivacyPage() {

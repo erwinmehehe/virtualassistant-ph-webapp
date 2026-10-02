@@ -8,82 +8,82 @@ const CATEGORY_UI: Record<OgCategory, { label: string; cards: [string, string][]
   general: {
     label: "VIRTUALASSISTANT.COM.PH",
     cards: [["Shortlist", "Vetted role-fit talent"], ["Workflow", "Clear scope and ownership"], ["Support", "Recruiter-guided hiring"], ["Start", "Structured onboarding"]],
-    footer: "Vetted Filipino talent · Role-fit before resume volume",
+    footer: "Vetted Filipino talent | Role-fit before resume volume",
   },
   admin: {
     label: "ADMIN & EXECUTIVE SUPPORT",
     cards: [["Calendar", "Schedule and meeting flow"], ["Inbox", "Triage and follow-up"], ["Task Board", "Priorities and owners"], ["Research", "Prepared decision support"]],
-    footer: "Reliable admin systems · Clear handoffs · Consistent follow-through",
+    footer: "Reliable admin systems | Clear handoffs | Consistent follow-through",
   },
   marketing: {
     label: "MARKETING & SEO SUPPORT",
     cards: [["Analytics", "Growth and channel trends"], ["Content", "Publishing workflow"], ["Search", "Keywords and rankings"], ["Engagement", "Community and reporting"]],
-    footer: "Marketing execution · SEO workflows · Measurable progress",
+    footer: "Marketing execution | SEO workflows | Measurable progress",
   },
   finance: {
     label: "BOOKKEEPING & FINANCE SUPPORT",
     cards: [["Invoices", "Billing administration"], ["Reconciliation", "Clean supporting records"], ["Expenses", "Categorised workflows"], ["Reports", "Monthly visibility"]],
-    footer: "Organised finance admin · Review-ready records · Better visibility",
+    footer: "Organised finance admin | Review-ready records | Better visibility",
   },
   technical: {
     label: "TECHNICAL & IT SUPPORT",
     cards: [["Code", "Structured implementation"], ["Terminal", "Status: SUCCESS"], ["Tickets", "Tracked technical work"], ["QA", "Checks before handoff"]],
-    footer: "Technical execution · Documented changes · Reliable handoffs",
+    footer: "Technical execution | Documented changes | Reliable handoffs",
   },
   "customer-support": {
     label: "CUSTOMER SUPPORT",
     cards: [["Inbox", "Responsive email support"], ["Live Chat", "Fast customer replies"], ["Tickets", "Queue ownership"], ["Follow-Up", "Closed support loops"]],
-    footer: "Responsive support · Clean queues · Better follow-through",
+    footer: "Responsive support | Clean queues | Better follow-through",
   },
   ecommerce: {
     label: "ECOMMERCE OPERATIONS",
     cards: [["Products", "Listings and updates"], ["Orders", "Order coordination"], ["Inventory", "Stock visibility"], ["Messages", "Customer follow-up"]],
-    footer: "Store operations · Order support · Marketplace administration",
+    footer: "Store operations | Order support | Marketplace administration",
   },
   "real-estate": {
     label: "REAL ESTATE SUPPORT",
     cards: [["Listings", "Property administration"], ["Leads", "Follow-up workflow"], ["CRM", "Clean pipeline records"], ["Calendar", "Appointments and tasks"]],
-    footer: "Lead follow-up · CRM discipline · Property workflow support",
+    footer: "Lead follow-up | CRM discipline | Property workflow support",
   },
   blog: {
     label: "VIRTUAL ASSISTANT GUIDE",
     cards: [["Key Point", "Practical decision support"], ["Checklist", "What to verify"], ["Evidence", "What matters most"], ["Next Step", "What to do from here"]],
-    footer: "Practical guidance · Clear takeaways · Philippines context",
+    footer: "Practical guidance | Clear takeaways | Philippines context",
   },
   industry: {
     label: "INDUSTRY VA GUIDE",
     cards: [["Workflow", "Industry-specific operations"], ["Tools", "Relevant systems"], ["Handoffs", "Clear responsibilities"], ["Fit", "Role-specific talent"]],
-    footer: "Industry context · Relevant workflows · Vetted Filipino talent",
+    footer: "Industry context | Relevant workflows | Vetted Filipino talent",
   },
   software: {
     label: "SOFTWARE VA GUIDE",
     cards: [["Platform", "Workflow ownership"], ["Queue", "Tasks and records"], ["Checks", "Quality controls"], ["Status", "Visible exceptions"]],
-    footer: "Software fluency · Process discipline · Reliable execution",
+    footer: "Software fluency | Process discipline | Reliable execution",
   },
   training: {
     label: "FREE VA TRAINING",
     cards: [["Lessons", "Short practical modules"], ["Exercises", "Real workflow practice"], ["Skills", "Role and software learning"], ["Certificate", "Free verified credential"]],
-    footer: "Free training · Practical exercises · Free certificates",
+    footer: "Free training | Practical exercises | Free certificates",
   },
   jobs: {
     label: "VA JOBS PHILIPPINES",
     cards: [["Role", "Clear responsibilities"], ["Pay", "Published compensation"], ["Schedule", "Working-hour context"], ["Apply", "One vetted VA profile"]],
-    footer: "Remote VA jobs · Published pay · Philippines-based applicants",
+    footer: "Remote VA jobs | Published pay | Philippines-based applicants",
   },
   hiring: {
     label: "HIRE A VIRTUAL ASSISTANT",
     cards: [["Brief", "Define the work"], ["Match", "Relevant candidates"], ["Interview", "Compare role fit"], ["Hire", "Confirm terms and start"]],
-    footer: "Role-first recruiting · Human vetting · Client choice",
+    footer: "Role-first recruiting | Human vetting | Client choice",
   },
   pricing: {
     label: "VA PRICING",
     cards: [["Scope", "Role complexity"], ["Hours", "Part-time or full-time"], ["Rate", "VA compensation"], ["Support", "Service model"]],
-    footer: "Transparent scope · Clear compensation · Terms before commitment",
+    footer: "Transparent scope | Clear compensation | Terms before commitment",
   },
   legal: {
     label: "LEGAL & COMPLIANCE",
     cards: [["Process", "Supervised admin work"], ["Documents", "Controlled handling"], ["Access", "Defined permissions"], ["Review", "Qualified judgment stays internal"]],
-    footer: "Structured legal admin · Clear boundaries · Responsible review",
+    footer: "Structured legal admin | Clear boundaries | Responsible review",
   },
 };
 
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
           {cards.map(([heading, copy], index) => (
             <div key={heading} style={{ width: index % 2 === 0 ? 222 : 204, minHeight: 145, display: "flex", flexDirection: "column", padding: "18px", borderRadius: 22, background: "rgba(255,255,255,.96)", border: "1px solid #eaecf0", boxShadow: "0 18px 42px rgba(68,76,231,.12)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ width: 39, height: 39, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", background: index === 0 ? "#eef2ff" : index === 1 ? "#f4f3ff" : index === 2 ? "#ecfdf3" : "#fff7ed", color: index === 2 ? "#067647" : "#4F46E5", fontSize: 18, fontWeight: 900 }}>{["✓","↗","●","◆"][index]}</div>
+                <div style={{ width: 39, height: 39, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", background: index === 0 ? "#eef2ff" : index === 1 ? "#f4f3ff" : index === 2 ? "#ecfdf3" : "#fff7ed", color: index === 2 ? "#067647" : "#4F46E5", fontSize: 13, fontWeight: 900 }}>{String(index + 1).padStart(2, "0")}</div>
                 <div style={{ display: "flex", color: "#98a2b3", fontSize: 11, fontWeight: 800 }}>{String(index + 1).padStart(2, "0")}</div>
               </div>
               <div style={{ display: "flex", marginTop: 15, color: "#17205a", fontSize: 19, fontWeight: 800 }}>{heading}</div>

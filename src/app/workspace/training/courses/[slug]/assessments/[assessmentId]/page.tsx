@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowRight,
   Award,
   CheckCircle2,
   Clock3,
+  Compass,
   FileCheck2,
   RefreshCw,
   ShieldCheck,
@@ -16,6 +18,7 @@ import { TrainingNextSteps } from "@/components/training-next-steps";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingAssessment, getTrainingDashboard } from "@/lib/training";
 import { recommendNextTrainingCourses } from "@/lib/training-recommendations";
+import { getTrainingPathContext } from "@/lib/training-path-context";
 import {
   assessmentQuestionSetKey,
   buildAssessmentQuestions,
@@ -80,11 +83,14 @@ export default async function TrainingAssessmentPage({
   const { userId } = await requireAuthenticatedUserFast(
     `/workspace/training/courses/${slug}/assessments/${assessmentId}`,
   );
-  const { course, assessment, attemptState, error } = await getTrainingAssessment(
-    slug,
-    assessmentId,
-    userId,
-  );
+  const [{ course, assessment, attemptState, error }, pathContext] = await Promise.all([
+    getTrainingAssessment(
+      slug,
+      assessmentId,
+      userId,
+    ),
+    getTrainingPathContext(slug, userId),
+  ]);
   if ((!course || !assessment) && !error) notFound();
 
   if (!course || !assessment) {
@@ -170,6 +176,23 @@ export default async function TrainingAssessmentPage({
       <Link className="btn btn-sm" href={courseHref}>
         <ArrowLeft size={14}/> {course.title}
       </Link>
+
+      {pathContext.primary ? (
+        <section className="card training-assessment-path-context" aria-label="Learning path context">
+          <div>
+            <span><Compass size={12}/> {pathContext.primary.isSelected ? "Your path" : "Learning path"}</span>
+            <strong>{pathContext.primary.title}</strong>
+            <small>Step {pathContext.primary.currentStep} of {pathContext.primary.totalSteps}</small>
+          </div>
+          <div className="training-assessment-path-context-next">
+            <span>After this course</span>
+            <strong>{pathContext.primary.nextCourse?.title || "This is the final course in the path"}</strong>
+          </div>
+          <Link href={`/workspace/training/paths/${pathContext.primary.slug}`}>
+            View path <ArrowRight size={12}/>
+          </Link>
+        </section>
+      ) : null}
 
       {assessmentError ? (
         <div className="alert" role="alert">

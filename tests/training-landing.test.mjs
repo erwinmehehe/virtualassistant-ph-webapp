@@ -9,7 +9,7 @@ function source(path) {
 const page = source("src/app/training/page.tsx");
 
 test("the public training page targets the search term and is indexable", () => {
-  assert.match(page, /const META_TITLE = "Free Virtual Assistant Training Philippines \| VA Courses"/);
+  assert.match(page, /const META_TITLE = "Free Virtual Assistant Training Philippines \\| Free Certificates"/);
   assert.match(page, /title: \{ absolute: META_TITLE \}/);
   assert.match(
     page,

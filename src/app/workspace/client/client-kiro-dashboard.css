@@ -1,3 +1,5 @@
+.client-kiro-legacy-header { display: none; }
+
 .client-kiro-dashboard {
   --kiro-navy: #0f1b6b;
   --kiro-indigo: #3b5bff;

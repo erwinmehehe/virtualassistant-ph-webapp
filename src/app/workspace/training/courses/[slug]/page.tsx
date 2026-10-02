@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Clock3, FileCheck2, Inbox, ListChecks, Plane } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Clock3, Compass, FileCheck2, Inbox, ListChecks, Plane } from "lucide-react";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingCourse } from "@/lib/training";
 import { startTrainingCourseAction } from "@/app/actions/training";
+import { getTrainingPathContext } from "@/lib/training-path-context";
 
 function reviewedLabel(value: string | null) {
   if (!value) return null;
@@ -37,7 +38,10 @@ function trainingCourseMark(slug: string, title: string) {
 export default async function TrainingCoursePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { userId } = await requireAuthenticatedUserFast(`/workspace/training/courses/${slug}`);
-  const { course, error } = await getTrainingCourse(slug, userId);
+  const [{ course, error }, pathContext] = await Promise.all([
+    getTrainingCourse(slug, userId),
+    getTrainingPathContext(slug, userId),
+  ]);
   if (!course && !error) notFound();
 
   if (!course) {
@@ -153,6 +157,54 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
   return (
     <div className={`dash-page role-overview training-home training-course-page${courseVariant}`}>
       <Link className="btn btn-sm training-course-back" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
+
+      {pathContext.primary ? (
+        <section className="card training-course-path-context" aria-label="Learning path context">
+          <div className="training-course-path-context-main">
+            <span className="training-course-path-context-eyebrow">
+              <Compass size={13}/> {pathContext.primary.isSelected ? "Your Australian learning path" : "Australian learning path"}
+            </span>
+            <strong>{pathContext.primary.title}</strong>
+            <small>Step {pathContext.primary.currentStep} of {pathContext.primary.totalSteps} · {pathContext.primary.completedCount} complete</small>
+          </div>
+          <div className="training-course-path-context-progress">
+            <div className="progress" aria-label={`${pathContext.primary.title}: ${pathContext.primary.progressPercent}% complete`}>
+              <span style={{ width: `${pathContext.primary.progressPercent}%` }}/>
+            </div>
+            <span>{pathContext.primary.progressPercent}%</span>
+          </div>
+          <div className="training-course-path-context-next">
+            <span>After this course</span>
+            <strong>{pathContext.primary.nextCourse?.title || "Final course in this path"}</strong>
+          </div>
+          <Link className="btn btn-sm training-course-path-context-action" href={`/workspace/training/paths/${pathContext.primary.slug}`}>
+            View path <ArrowRight size={13}/>
+          </Link>
+          {pathContext.alternatives.length ? (
+            <div className="training-course-path-context-alt">
+              <span>Also used in</span>
+              {pathContext.alternatives.map((path) => (
+                <Link href={`/workspace/training/paths/${path.slug}`} key={path.slug}>{path.title}</Link>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      ) : pathContext.alternatives.length ? (
+        <section className="card training-course-path-context is-shared" aria-label="Shared learning path context">
+          <div className="training-course-path-context-main">
+            <span className="training-course-path-context-eyebrow"><Compass size={13}/> Shared Australian course</span>
+            <strong>This course counts in more than one specialisation.</strong>
+            <small>Choose a path to see the exact sequence and what comes next.</small>
+          </div>
+          <div className="training-course-path-options">
+            {pathContext.alternatives.map((path) => (
+              <Link className="btn btn-sm" href={`/workspace/training/paths/${path.slug}`} key={path.slug}>
+                {path.title} <ArrowRight size={13}/>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="card dashboard-section-card training-course-hero">
         <div className="training-course-hero-grid">

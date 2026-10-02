@@ -17,8 +17,9 @@ test("learner home resumes the exact next lesson or automatic final check", asyn
     readFile("src/components/training-dashboard-overview.tsx", "utf8"),
   ]);
 
-  assert.match(home, /resumeCourse\.nextLesson/);
-  assert.match(home, /resumeCourse\.nextAssessment/);
+  assert.match(home, /function nextCourseHref\(course: TrainingCourseSummary\)/);
+  assert.match(home, /course\.nextLesson/);
+  assert.match(home, /course\.nextAssessment/);
   assert.match(home, /lessons\/\$\{course\.nextLesson\.id\}/);
   assert.match(home, /assessments\/\$\{course\.nextAssessment\.id\}/);
   assert.match(overview, /current\.nextHref/);

@@ -467,7 +467,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "GoHighLevel Virtual Assistant",
-        "href": "/software/gohighlevel-virtual-assistant",
+        "href": "/software/gohighlevel",
         "description": "See the commercial software-specific hiring page."
       },
       {
@@ -628,7 +628,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "HubSpot Virtual Assistant",
-        "href": "/software/hubspot-virtual-assistant",
+        "href": "/software/hubspot",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -788,7 +788,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Salesforce Virtual Assistant",
-        "href": "/software/salesforce-virtual-assistant",
+        "href": "/software/salesforce",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1100,7 +1100,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Klaviyo Virtual Assistant",
-        "href": "/software/klaviyo-virtual-assistant",
+        "href": "/software/klaviyo",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1253,7 +1253,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Xero Virtual Assistant",
-        "href": "/software/xero-virtual-assistant",
+        "href": "/software/xero",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1406,7 +1406,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "QuickBooks Virtual Assistant",
-        "href": "/software/quickbooks-virtual-assistant",
+        "href": "/software/quickbooks",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1559,7 +1559,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Canva Virtual Assistant",
-        "href": "/software/canva-virtual-assistant",
+        "href": "/software/canva",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1732,7 +1732,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Canva Virtual Assistant",
-        "href": "/software/canva-virtual-assistant",
+        "href": "/software/canva",
         "description": "See software-specific support for repeatable Canva production."
       }
     ]

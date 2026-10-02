@@ -69,11 +69,15 @@ test("training detail screens stay compact on phones", async () => {
 
 
 test("certificate navigation always lands on a real learner-dashboard section", async () => {
-  const dashboard = await readFile(dashboardPath, "utf8");
+  const [dashboard, overview] = await Promise.all([
+    readFile(dashboardPath, "utf8"),
+    readFile("src/components/training-dashboard-overview.tsx", "utf8"),
+  ]);
 
-  assert.match(dashboard, /<section id="certificates"/);
-  assert.match(dashboard, /No certificates yet\./);
-  assert.match(dashboard, /Your verified certificate will appear here automatically/);
+  assert.match(overview, /id="certificates"/);
+  assert.match(overview, /No certificates yet\./);
+  assert.match(overview, /Finish a course and pass its final check/);
+  assert.match(dashboard, /id="certificate-library"/);
 });
 
 
@@ -97,4 +101,14 @@ test("mobile course detail screens keep account and sign-out controls after hidi
 test("wide course library uses a denser three-column layout", async () => {
   const css = await readFile(cssPath, "utf8");
   assert.match(css, /@media \(min-width: 1240px\)[\s\S]*training-course-grid[\s\S]*repeat\(3, minmax\(0, 1fr\)\)/);
+});
+
+
+test("default learner dashboard keeps the reference overview compact", async () => {
+  const dashboard = await readFile(dashboardPath, "utf8");
+
+  assert.match(dashboard, /<TrainingDashboardOverview/);
+  assert.match(dashboard, /\{libraryOpen \? \(/);
+  assert.match(dashboard, /className="training-extended-library"/);
+  assert.match(dashboard, /id="course-library-title"/);
 });

@@ -171,3 +171,114 @@
     grid-template-columns:1fr 1fr;
   }
 }
+
+/* Recruiter training evidence filters */
+.matching-evidence-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px) auto;
+  gap: 10px;
+  align-items: end;
+  margin: 0 0 12px;
+}
+
+.matching-evidence-search {
+  margin: 0;
+}
+
+.matching-evidence-search .small {
+  display: block;
+  margin-top: 6px;
+}
+
+.matching-evidence-filter {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+
+.matching-evidence-filter > span {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 760;
+}
+
+.matching-evidence-filter select {
+  min-height: 40px;
+}
+
+.matching-path-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 7px;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.matching-path-evidence > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #4338ca;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.matching-path-evidence > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  max-width: 260px;
+  padding: 3px 7px;
+  border: 1px solid #dfe3ff;
+  border-radius: 999px;
+  color: #4338ca;
+  background: #f8f8ff;
+  font-size: 9.5px;
+  font-weight: 760;
+  line-height: 1.25;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.matching-path-evidence > a:hover {
+  border-color: #c7d2fe;
+  background: #eef2ff;
+}
+
+@media (max-width: 900px) {
+  .matching-evidence-controls {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 240px);
+  }
+
+  .matching-evidence-controls > .btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 620px) {
+  .matching-evidence-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .matching-evidence-filter,
+  .matching-evidence-filter select,
+  .matching-evidence-controls > .btn {
+    width: 100%;
+  }
+
+  .matching-evidence-controls > .btn {
+    grid-column: auto;
+    justify-content: center;
+  }
+
+  .matching-path-evidence {
+    display: grid;
+  }
+
+  .matching-path-evidence > a {
+    max-width: 100%;
+    border-radius: 9px;
+  }
+}
+

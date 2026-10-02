@@ -33,7 +33,6 @@ import {
   Smartphone,
   Sparkles,
   Target,
-  UsersRound,
   WalletCards,
   Workflow,
   Wrench,

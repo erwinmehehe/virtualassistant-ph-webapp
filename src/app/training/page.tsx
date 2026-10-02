@@ -284,6 +284,7 @@ export default async function TrainingPage() {
               <p className="tr-hero-lede">
                 Free online training for aspiring and experienced virtual assistants. Learn in-demand
                 skills, complete realistic lessons, and earn verified certificates you can share.
+                Training is free and completely separate from hiring.
               </p>
 
               <ul className="tr-reference-checks" aria-label="Training highlights">

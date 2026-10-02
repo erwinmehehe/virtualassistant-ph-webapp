@@ -44,7 +44,7 @@ export function KiroGuide({
   className = "",
 }: KiroGuideProps) {
   return (
-    <section
+    <div
       className={[
         styles.guide,
         compact ? styles.compact : "",
@@ -71,6 +71,6 @@ export function KiroGuide({
           <ArrowRight size={15} />
         </Link>
       ) : null}
-    </section>
+    </div>
   );
 }

@@ -50,6 +50,7 @@ test("formal handoff stays recruiter-owned until completion and then queues Clie
   assert.match(actions, /ensurePlacementHandoffAction/);
   assert.match(actions, /resolvePlacementHandoffTask/);
   assert.match(actions, /queuePlacementReadinessAutomation\(workroomId, now, room\.start_date\)/);
+  assert.match(actions, /completeAgencyChecklistByTitle\(admin, workroomId, "Assign Client Success owner", user\.id\)/);
   assert.match(handoffTask, /24 \* 60 \* 60_000/);
   assert.match(readinessTask, /48 \* 60 \* 60_000/);
   assert.match(readinessTask, /24 \* 60 \* 60_000/);

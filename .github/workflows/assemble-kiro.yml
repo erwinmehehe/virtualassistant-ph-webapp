@@ -1,0 +1,50 @@
+name: Assemble Kiro artwork
+
+on:
+  push:
+    branches:
+      - feat/kiro-rendered-client-preview-v2
+    paths:
+      - "public/brand/kiro/.chunks/**"
+      - ".github/workflows/assemble-kiro.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: assemble-kiro
+  cancel-in-progress: true
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: feat/kiro-rendered-client-preview-v2
+      - name: Wait for all chunks
+        id: chunks
+        shell: bash
+        run: |
+          count=$(find public/brand/kiro/.chunks -name '*.b64' -type f 2>/dev/null | wc -l)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" -lt 6 ]; then
+            echo "Waiting for 6 chunks; found $count."
+            exit 0
+          fi
+          cat public/brand/kiro/.chunks/*.b64 | tr -d '\n\r ' | base64 --decode > public/brand/kiro/kiro-default.webp
+          test "$(stat -c%s public/brand/kiro/kiro-default.webp)" -gt 40000
+          file public/brand/kiro/kiro-default.webp
+      - name: Commit assembled artwork
+        if: steps.chunks.outputs.count == '6'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -rf public/brand/kiro/.chunks
+          git add public/brand/kiro/kiro-default.webp public/brand/kiro/.chunks
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "fix(client): use crisp rendered Kiro artwork"
+          git push origin HEAD:feat/kiro-rendered-client-preview-v2

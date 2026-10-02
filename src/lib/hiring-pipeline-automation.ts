@@ -379,3 +379,20 @@ export async function resolveOfferPrepTask(
 ) {
   await resolveTaskPrefix(admin, jobId, OFFER_PREP_PREFIX);
 }
+
+
+export async function resolveOfferPrepIfNoProceed(
+  admin: AdminClient,
+  jobId: string,
+) {
+  const { count, error } = await admin
+    .from("candidate_interviews")
+    .select("id", { count: "exact", head: true })
+    .eq("job_id", jobId)
+    .eq("status", "completed")
+    .eq("client_decision", "proceed");
+  if (error) throw error;
+  const shouldResolve = Number(count || 0) === 0;
+  if (shouldResolve) await resolveTaskPrefix(admin, jobId, OFFER_PREP_PREFIX);
+  return shouldResolve;
+}

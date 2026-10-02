@@ -97,21 +97,27 @@ test("course cards show learning metadata, assessment state, progress, and one a
   assert.match(training, /"passed"/);
 });
 
-test("every course card gets a visible icon and color tone with a fallback", async () => {
+test("course cards use distinct typographic marks and restrained color tones instead of large repeated icons", async () => {
   const [page, css] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(cssPath, "utf8"),
   ]);
 
   assert.match(page, /function courseVisual\(course: TrainingCourseSummary\)/);
-  assert.match(page, /const CourseIcon = visual\.icon/);
-  assert.match(page, /training-course-icon/);
+  assert.match(page, /function courseMark\(course: TrainingCourseSummary\)/);
+  assert.match(page, /training-course-mark/);
+  assert.match(page, /training-course-card-v2/);
   assert.match(page, /tone-\$\{visual\.tone\}/);
-  assert.match(page, /return \{ tone: "slate", icon: BookOpenCheck \}/);
+  assert.doesNotMatch(page, /const CourseIcon = visual\.icon/);
 
   for (const tone of ["violet", "blue", "cyan", "teal", "emerald", "amber", "orange", "rose", "pink", "sky", "slate"]) {
     assert.match(css, new RegExp(`training-course-card\\.tone-${tone}`));
   }
+
+  assert.match(css, /training-course-v2-cover/);
+  assert.match(css, /training-course-v2-body/);
+  assert.match(css, /training-course-state\.is-active/);
+  assert.match(css, /training-course-state\.is-completed/);
 });
 
 test("Australian specialisation icons use distinct restrained color treatments", async () => {

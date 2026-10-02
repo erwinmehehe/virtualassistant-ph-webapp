@@ -7,10 +7,10 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("homepage metadata declares explicit OG and Twitter share images", async () => {
   const page = await read("src/app/page.tsx");
 
-  assert.match(page, /canonicalUrl\("\/opengraph-image"\)/);
+  assert.match(page, /canonicalUrl\("\/og\/home\.jpg"\)/);
   assert.match(page, /width: 1200/);
   assert.match(page, /height: 630/);
-  assert.match(page, /canonicalUrl\("\/twitter-image"\)/);
+  assert.match(page, /canonicalUrl\("\/og\/home\.jpg"\)/);
   assert.match(page, /card: "summary_large_image"/);
 });
 

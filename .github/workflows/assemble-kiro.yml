@@ -28,15 +28,15 @@ jobs:
         run: |
           count=$(find public/brand/kiro/.chunks -name '*.b64' -type f 2>/dev/null | wc -l)
           echo "count=$count" >> "$GITHUB_OUTPUT"
-          if [ "$count" -lt 6 ]; then
-            echo "Waiting for 6 chunks; found $count."
+          if [ "$count" -lt 7 ]; then
+            echo "Waiting for 7 chunks; found $count."
             exit 0
           fi
           cat public/brand/kiro/.chunks/*.b64 | tr -d '\n\r ' | base64 --decode > public/brand/kiro/kiro-default.webp
           test "$(stat -c%s public/brand/kiro/kiro-default.webp)" -gt 40000
           file public/brand/kiro/kiro-default.webp
       - name: Commit assembled artwork
-        if: steps.chunks.outputs.count == '6'
+        if: steps.chunks.outputs.count == '7'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"

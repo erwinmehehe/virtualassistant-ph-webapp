@@ -149,6 +149,11 @@ export async function completeRecruiterHandoffAction(formData: FormData) {
     if (!alreadyReady && room.start_date) {
       await queuePlacementReadinessAutomation(workroomId, now, room.start_date);
     }
+    // A legacy or long-running placement may already have overdue Day 3–30
+    // check-ins when the formal handoff is finally completed. Sweep the latest
+    // due checkpoint immediately so Client Success does not wait for the next
+    // daily maintenance run to see the recovery action.
+    await syncPlacementRetentionRecovery({ admin, workroomId });
   } catch (automationError) {
     console.error("[automation] placement readiness handoff setup failed", {
       workroomId,

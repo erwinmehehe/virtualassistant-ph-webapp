@@ -148,7 +148,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
   return <div className="dash-page role-overview client-overview client-mobile-dashboard client-kiro-dashboard">
     <DashboardDegradedNotice issues={issues}/>
-    <div className="client-kiro-legacy-header"><DashHeader kicker="Managed VA hiring" title="Your hiring progress" subtitle={<>Your recruiter manages sourcing, vetting, matching, and follow-up. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} /></div>
+    <div className="client-kiro-legacy-header client-mobile-attention client-mobile-pipeline"><DashHeader kicker="Managed VA hiring" title="Your hiring progress" subtitle={<>Your recruiter manages sourcing, vetting, matching, and follow-up. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} /></div>
 
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">This preference will be treated as a recruiter lead, not a direct marketplace hire.</p></div><Link className="btn btn-primary" href={"/workspace/client/jobs/new?talent="+encodeURIComponent(requested.slug)}>Create hiring request</Link></div>:null}
 

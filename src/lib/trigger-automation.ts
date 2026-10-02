@@ -4,15 +4,16 @@ const LEAD_SLA_TASK_ID = "vaph-lead-sla";
 const DISCOVERY_OUTCOME_TASK_ID = "vaph-discovery-outcome";
 const PROPOSAL_CLOSING_TASK_ID = "vaph-proposal-closing";
 const PROPOSAL_VIEWED_TASK_ID = "vaph-proposal-viewed";
+const SHORTLIST_REVIEW_TASK_ID = "vaph-shortlist-review";
+const INTERVIEW_SCHEDULING_TASK_ID = "vaph-interview-scheduling";
+const INTERVIEW_FEEDBACK_TASK_ID = "vaph-interview-feedback";
 
 export async function queueLeadSlaAutomation(leadId: string) {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
-  const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
-
   // Automation is opt-in. Lead capture remains fully functional until the
   // Trigger.dev project and callback secret are configured together.
-  if (triggerSecret.length < 20 || callbackSecret.length < 32) {
-    return { queued: false as const, reason: "not_configured" as const };
+  if (!triggerAutomationsActive()) {
+    return { queued: false as const, reason: "not_active" as const };
   }
 
   try {
@@ -60,15 +61,14 @@ export async function queueDiscoveryOutcomeAutomation(
   durationMinutes = 30,
 ) {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
-  const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
   const scheduledMs = new Date(scheduledAt).getTime();
 
   if (!Number.isFinite(scheduledMs)) {
     return { queued: false as const, reason: "invalid_schedule" as const };
   }
 
-  if (triggerSecret.length < 20 || callbackSecret.length < 32) {
-    return { queued: false as const, reason: "not_configured" as const };
+  if (!triggerAutomationsActive()) {
+    return { queued: false as const, reason: "not_active" as const };
   }
 
   const scheduleKey = String(scheduledMs);
@@ -117,7 +117,7 @@ export async function queueDiscoveryOutcomeAutomation(
 }
 
 
-export function proposalAutomationConfigured() {
+export function triggerAutomationsActive() {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
   const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
   return (
@@ -125,6 +125,10 @@ export function proposalAutomationConfigured() {
     triggerSecret.length >= 20 &&
     callbackSecret.length >= 32
   );
+}
+
+export function proposalAutomationConfigured() {
+  return triggerAutomationsActive();
 }
 
 async function queueTriggerTask(args: {
@@ -135,10 +139,8 @@ async function queueTriggerTask(args: {
   subjectId: string;
 }) {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
-  const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
-
-  if (triggerSecret.length < 20 || callbackSecret.length < 32) {
-    return { queued: false as const, reason: "not_configured" as const };
+  if (!triggerAutomationsActive()) {
+    return { queued: false as const, reason: "not_active" as const };
   }
 
   try {
@@ -221,5 +223,72 @@ export async function queueProposalViewedAutomation(
     idempotencyKey: `proposal-viewed-${proposalId}-${viewKey}`,
     logLabel: "proposal viewed",
     subjectId: proposalId,
+  });
+}
+
+
+export async function queueShortlistReviewAutomation(
+  jobId: string,
+  releasedAt: string,
+) {
+  const releasedMs = new Date(releasedAt).getTime();
+  if (!Number.isFinite(releasedMs)) {
+    return { queued: false as const, reason: "invalid_released_at" as const };
+  }
+  const releaseKey = String(releasedMs);
+  return queueTriggerTask({
+    taskId: SHORTLIST_REVIEW_TASK_ID,
+    payload: {
+      jobId,
+      releasedAt: new Date(releasedMs).toISOString(),
+    },
+    idempotencyKey: `shortlist-review-${jobId}-${releaseKey}`,
+    logLabel: "shortlist review",
+    subjectId: jobId,
+  });
+}
+
+export async function queueInterviewSchedulingAutomation(
+  interviewId: string,
+  requestedAt: string,
+) {
+  const requestedMs = new Date(requestedAt).getTime();
+  if (!Number.isFinite(requestedMs)) {
+    return { queued: false as const, reason: "invalid_requested_at" as const };
+  }
+  const requestKey = String(requestedMs);
+  return queueTriggerTask({
+    taskId: INTERVIEW_SCHEDULING_TASK_ID,
+    payload: {
+      interviewId,
+      requestedAt: new Date(requestedMs).toISOString(),
+    },
+    idempotencyKey: `interview-scheduling-${interviewId}-${requestKey}`,
+    logLabel: "interview scheduling",
+    subjectId: interviewId,
+  });
+}
+
+export async function queueInterviewFeedbackAutomation(
+  interviewId: string,
+  scheduledAt: string,
+  durationMinutes = 30,
+) {
+  const scheduledMs = new Date(scheduledAt).getTime();
+  if (!Number.isFinite(scheduledMs)) {
+    return { queued: false as const, reason: "invalid_scheduled_at" as const };
+  }
+  const scheduleKey = String(scheduledMs);
+  const safeDuration = Math.max(15, Math.min(120, Number(durationMinutes || 30)));
+  return queueTriggerTask({
+    taskId: INTERVIEW_FEEDBACK_TASK_ID,
+    payload: {
+      interviewId,
+      scheduledAt: new Date(scheduledMs).toISOString(),
+      durationMinutes: safeDuration,
+    },
+    idempotencyKey: `interview-feedback-${interviewId}-${scheduleKey}`,
+    logLabel: "interview feedback",
+    subjectId: interviewId,
   });
 }

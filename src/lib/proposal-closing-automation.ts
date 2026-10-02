@@ -52,8 +52,8 @@ export async function resolveProposalClosingArtifacts(
       updated_at: now,
       snoozed_until: null,
     })
-    .eq("subject_type", "proposal")
-    .eq("subject_id", proposalId)
+    .eq("subject_type", "lead")
+    .eq("subject_id", leadId)
     .eq("status", "todo")
     .ilike("title", "Proposal close%");
 
@@ -113,8 +113,8 @@ export async function ensureProposalClosingTask(args: {
   const { data: existing } = await args.admin
     .from("recruiter_tasks")
     .select("id")
-    .eq("subject_type", "proposal")
-    .eq("subject_id", args.proposalId)
+    .eq("subject_type", "lead")
+    .eq("subject_id", args.leadId)
     .eq("status", "todo")
     .ilike("title", "Proposal close%")
     .limit(1)
@@ -143,8 +143,8 @@ export async function ensureProposalClosingTask(args: {
       title: content.title,
       description: content.description,
       assignee_id: assigneeId,
-      subject_type: "proposal",
-      subject_id: args.proposalId,
+      subject_type: "lead",
+      subject_id: args.leadId,
       href,
       priority,
       status: "todo",

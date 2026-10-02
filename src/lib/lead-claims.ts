@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchLabel } from "@/lib/matching";
 import { sendVaMatchEmail } from "@/lib/match-email";
+import { queueShortlistReviewAutomation } from "@/lib/trigger-automation";
 
 const HIRING_LEAD_SOURCES = [
   "service_match_request",
@@ -69,6 +70,15 @@ async function releaseInvitedShortlists(admin: ReturnType<typeof createAdminClie
       actor_id: null,
       metadata: { va_ids: vaIds, client_id: userId }
     });
+
+    try {
+      await queueShortlistReviewAutomation(jobId, releasedAt);
+    } catch (automationError) {
+      console.error("[automation] claimed shortlist review queue failed", {
+        jobId,
+        error: automationError instanceof Error ? automationError.message : String(automationError),
+      });
+    }
 
     const strongMatches = proposed.filter((row: any) => Number(row.match_score || 0) >= 60);
     if (strongMatches.length) {

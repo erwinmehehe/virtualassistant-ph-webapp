@@ -15,7 +15,7 @@ test("new hiring leads queue the durable SLA workflow without making lead captur
   assert.match(helper, /api\.trigger\.dev\/api\/v1\/tasks/);
   assert.match(helper, /vaph-lead-sla/);
   assert.match(helper, /idempotencyKey: `lead-sla-\$\{leadId\}`/);
-  assert.match(helper, /reason: "not_configured"/);
+  assert.match(helper, /reason: "not_active"/);
   assert.match(helper, /AbortSignal\.timeout\(2500\)/);
 });
 

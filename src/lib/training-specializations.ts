@@ -84,3 +84,10 @@ export function getAustraliaSpecialization(slug: string) {
 export function isAustraliaSpecializationSlug(value: string): value is AustraliaSpecializationSlug {
   return AUSTRALIA_SPECIALIZATIONS.some((item) => item.slug === value);
 }
+
+
+export function getAustraliaSpecializationsForCourse(courseSlug: string) {
+  return AUSTRALIA_SPECIALIZATIONS.filter((item) =>
+    item.courses.some((slug) => slug === courseSlug)
+  );
+}

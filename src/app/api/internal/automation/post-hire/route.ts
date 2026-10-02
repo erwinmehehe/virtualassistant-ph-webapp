@@ -6,6 +6,7 @@ import {
   ensurePlacementReadinessAction,
   resolveOfferClientConfirmationArtifacts,
   resolvePlacementHandoffTask,
+  resolvePlacementReadinessArtifacts,
   resolvePlacementReadinessIfReady,
 } from "@/lib/post-hire-automation";
 import {
@@ -285,7 +286,7 @@ export async function POST(request: Request) {
       String(room.placement_stage || ""),
     )
   ) {
-    await resolvePlacementReadinessIfReady(admin, room.id);
+    await resolvePlacementReadinessArtifacts(admin, room.id);
     return NextResponse.json({
       ok: true,
       done: true,

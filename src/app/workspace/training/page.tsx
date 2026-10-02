@@ -334,6 +334,7 @@ export default async function TrainingDashboardPage({
       : null,
   }));
   const referenceRecommendedSlug =
+    (isNewLearner && foundationsCourse ? foundationsCourse.slug : null) ||
     nextRecommended?.slug ||
     postCompletionPrimary?.slug ||
     notStarted[0]?.slug ||

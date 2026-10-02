@@ -244,6 +244,41 @@
 }
 
 
+.talent-path-preview {
+  display: grid;
+  gap: 5px;
+  margin-top: 13px;
+  padding: 10px 11px;
+  border: 1px solid #dfe3ff;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 94% 8%, rgba(79,70,229,.08), transparent 32%),
+    #fafaff;
+}
+
+.talent-path-preview-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #4338ca;
+  font-size: .66rem;
+  font-weight: 850;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+
+.talent-path-preview > strong {
+  color: #101828;
+  font-size: .76rem;
+  line-height: 1.35;
+}
+
+.talent-path-preview > small {
+  color: #667085;
+  font-size: .64rem;
+  line-height: 1.4;
+}
+
 .talent-training-preview {
   display: grid;
   gap: 8px;

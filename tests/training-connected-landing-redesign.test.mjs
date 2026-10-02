@@ -45,22 +45,22 @@ test("training landing does not render a second disconnected navigation bar", as
   assert.match(css, /scroll-margin-top: 96px/);
 });
 
-test("hero uses the approved Kiro training coach visual instead of the old process box", async () => {
+test("hero uses a product-like learning path preview instead of the old dark process box", async () => {
   const [page, css] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(cssPath, "utf8"),
   ]);
 
-  assert.match(page, /tr-reference-kiro/);
-  assert.match(page, /KiroMascot state="welcome" withLaptop/);
-  assert.match(page, /Hi! I’m Kiro/);
-  assert.match(page, /TrainingPublicCourseGrid/);
-  assert.match(page, /Popular Training Courses/);
+  assert.match(page, /tr-path-preview/);
+  assert.match(page, /Recommended learning path/);
+  assert.match(page, /Virtual Assistant Foundations/);
+  assert.match(page, /heroCourses\.map/);
+  assert.match(page, /Pass the final check and receive a verified certificate/);
   assert.doesNotMatch(page, /tr-flow-card/);
 
-  assert.match(css, /\.tr-reference-kiro \{/);
-  assert.match(css, /\.tr-popular-grid \{/);
-  assert.match(css, /\.tr-reference-meet-kiro \{/);
+  assert.match(css, /\.tr-path-preview \{/);
+  assert.match(css, /\.tr-path-chips \{/);
+  assert.match(css, /\.tr-path-outcome \{/);
   assert.doesNotMatch(css, /\.tr-flow-card \{/);
 });
 

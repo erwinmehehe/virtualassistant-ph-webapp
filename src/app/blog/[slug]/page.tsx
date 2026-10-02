@@ -8,6 +8,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso, archiveUpdatedIso } from "@/lib/archive";
 import { ArchiveArticle } from "@/components/archive-article";
 import { organizationRef } from "@/lib/organization";
+import { socialMetadata } from "@/lib/og";
 
 export function generateStaticParams() {
   return [
@@ -27,13 +28,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: { absolute: archived.metaTitle || archived.title },
       description: archived.metaDescription || archived.excerpt.slice(0, 160),
       alternates: { canonical: canonicalPath(`/blog/${archived.slug}`) },
-      openGraph: {
-        type: "article",
+      ...socialMetadata({
         title: archived.metaTitle || archived.title,
         description: archived.metaDescription || archived.excerpt.slice(0, 160),
+        path: canonicalPath(`/blog/${archived.slug}`),
+        category: "blog",
+        type: "article",
         publishedTime: archivePublishedIso(archived),
-        ...(archiveUpdated ? { modifiedTime: archiveUpdated } : {})
-      }
+        ...(archiveUpdated ? { modifiedTime: archiveUpdated } : {}),
+        eyebrow: archived.tag,
+        author: "VirtualAssistant.com.ph Editorial Team",
+      })
     };
   }
   const hasMeaningfulUpdate = post.updatedAt !== post.publishedAt;
@@ -41,13 +46,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: post.metaTitle },
     description: post.description,
     alternates: { canonical: canonicalPath(blogHref(post)) },
-    openGraph: {
-      type: "article",
-      title: post.title,
+    ...socialMetadata({
+      title: post.metaTitle,
       description: post.description,
+      path: canonicalPath(blogHref(post)),
+      category: "blog",
+      type: "article",
       publishedTime: post.publishedAt,
-      ...(hasMeaningfulUpdate ? { modifiedTime: post.updatedAt } : {})
-    }
+      ...(hasMeaningfulUpdate ? { modifiedTime: post.updatedAt } : {}),
+      eyebrow: post.clusterLabel,
+      author: post.author,
+      points: post.faqs.slice(0, 4).map((faq) => faq.question),
+    })
   };
 }
 

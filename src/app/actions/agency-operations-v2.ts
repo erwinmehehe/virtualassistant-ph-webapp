@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { queuePlacementReadinessAutomation } from "@/lib/trigger-automation";
 import { ensurePlacementHandoffAction, resolvePlacementHandoffTask, resolvePlacementReadinessIfReady } from "@/lib/post-hire-automation";
+import { syncPlacementRetentionRecovery } from "@/lib/placement-retention-automation";
 
 const PLACEMENT_STAGES = new Set(["pre_start","launch","active","recovery","replacement","ended"]);
 const SIGNALS = new Set(["green","yellow","red"]);
@@ -225,6 +226,15 @@ export async function submitPlacementPulseAction(formData: FormData) {
   if (error) throw error;
   await notifyClientSuccessForPulse({ admin, room, job, checkin, signal, source });
   await admin.rpc("recompute_placement_health", { p_workroom_id: room.id });
+  try {
+    await syncPlacementRetentionRecovery({ admin, workroomId: room.id, checkinId });
+  } catch (automationError) {
+    console.error("[automation] placement retention pulse sync failed", {
+      workroomId: room.id,
+      checkinId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
 
   await writeRecruiterActivity({
     subjectType: "job",
@@ -293,6 +303,15 @@ export async function recordPlacementCheckinAction(formData: FormData) {
   if (clientSignal) await notifyClientSuccessForPulse({ admin, room, job, checkin, signal: clientSignal, source: "client" });
   if (vaSignal) await notifyClientSuccessForPulse({ admin, room, job, checkin, signal: vaSignal, source: "va" });
   await admin.rpc("recompute_placement_health", { p_workroom_id: workroomId });
+  try {
+    await syncPlacementRetentionRecovery({ admin, workroomId, checkinId });
+  } catch (automationError) {
+    console.error("[automation] placement retention staff sync failed", {
+      workroomId,
+      checkinId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
 
   await writeRecruiterActivity({ subjectType: "job", subjectId: job.id, action: "placement_checkin_recorded", description: `${String(checkin.checkpoint).replace("day", "Day ")} placement check-in recorded`, actorId: user.id, metadata: { workroom_id: workroomId, client_signal: clientSignal || null, va_signal: vaSignal || null } });
   revalidatePath(`/workspace/client-success/${workroomId}`);

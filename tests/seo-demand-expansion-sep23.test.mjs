@@ -92,7 +92,7 @@ test("Technical Virtual Assistant is a separate service from IT support", () => 
 
   assert.ok(technical);
   assert.ok(it);
-  assert.equal(technical.primaryKeyword, "technical virtual assistant");
+  assert.equal(technical.primaryKeyword, "technical virtual assistant philippines");
   assert.match(JSON.stringify(technical), /Zapier|Make|automation|integration|CRM/i);
   assert.match(JSON.stringify(it), /helpdesk|ticket|account|device|IT/i);
   assert.notEqual(technical.focus, it.focus);

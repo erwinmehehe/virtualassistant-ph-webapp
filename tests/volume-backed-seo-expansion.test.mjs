@@ -147,8 +147,8 @@ test("distinct email management and event planning demand has canonical service 
   const keywords = new Map(services.map((page) => [page.primaryKeyword.toLowerCase(), page.slug]));
 
   for (const expected of [
-    { slug: "email-management-virtual-assistant", keyword: "email management virtual assistant" },
-    { slug: "event-planning-virtual-assistant", keyword: "event planning virtual assistant" },
+    { slug: "email-management-virtual-assistant", keyword: "email management virtual assistant philippines" },
+    { slug: "event-planning-virtual-assistant", keyword: "event planning virtual assistant philippines" },
   ]) {
     const page = services.find((item) => item.slug === expected.slug);
     assert.ok(page, `missing canonical service page ${expected.slug}`);
@@ -234,7 +234,7 @@ test("secondary service demand deepens existing canonical pages", () => {
   const checks = [
     ["admin-inbox", "email-management-virtual-assistant"],
     ["recruitment-hr", "human resources virtual assistant"],
-    ["project-coordination", "project management virtual assistant"],
+    ["project-coordination", "project management virtual assistant philippines"],
   ];
   for (const [slug, phrase] of checks) {
     const page = services.find((item) => item.slug === slug);
@@ -279,23 +279,23 @@ test("remaining AU US PH volume gaps have one canonical owner", () => {
 test("covered role pages use the strongest volume-backed canonical phrase", () => {
   const services = parseArray("src/lib/service-pages.ts", "export const SERVICE_PAGES: ServiceSeoPage[] = ");
   const expected = new Map([
-    ["admin-inbox", "administrative virtual assistant"],
-    ["digital-marketing-virtual-assistant", "virtual marketing assistant"],
-    ["social-media", "social media virtual assistant"],
-    ["accounting-virtual-assistant", "accounting virtual assistant"],
-    ["it-virtual-assistant", "it support virtual assistant"],
-    ["research-data", "data entry virtual assistant"],
-    ["graphic-design", "graphic design virtual assistant"],
-    ["recruitment-hr", "hr virtual assistant"],
-    ["project-coordination", "project management virtual assistant"],
-    ["personal-assistant", "virtual personal assistant"],
-    ["phone-receptionist", "virtual receptionist"],
-    ["property-management-virtual-assistant", "property management virtual assistant"],
-    ["crm", "crm virtual assistant"],
-    ["email-marketing", "email marketing virtual assistant"],
-    ["wordpress", "wordpress virtual assistant"],
-    ["video-editing", "video editing virtual assistant"],
-    ["operations", "operations virtual assistant"],
+    ["admin-inbox", "administrative virtual assistant philippines"],
+    ["digital-marketing-virtual-assistant", "virtual marketing assistant philippines"],
+    ["social-media", "social media virtual assistant philippines"],
+    ["accounting-virtual-assistant", "accounting virtual assistant philippines"],
+    ["it-virtual-assistant", "it support virtual assistant philippines"],
+    ["research-data", "data entry virtual assistant philippines"],
+    ["graphic-design", "graphic design virtual assistant philippines"],
+    ["recruitment-hr", "hr virtual assistant philippines"],
+    ["project-coordination", "project management virtual assistant philippines"],
+    ["personal-assistant", "virtual personal assistant philippines"],
+    ["phone-receptionist", "virtual receptionist philippines"],
+    ["property-management-virtual-assistant", "property management virtual assistant philippines"],
+    ["crm", "crm virtual assistant philippines"],
+    ["email-marketing", "email marketing virtual assistant philippines"],
+    ["wordpress", "wordpress virtual assistant philippines"],
+    ["video-editing", "video editing virtual assistant philippines"],
+    ["operations", "operations virtual assistant philippines"],
   ]);
 
   for (const [slug, keyword] of expected) {

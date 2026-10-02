@@ -72,6 +72,11 @@
 .sp-pills { display: flex; flex-wrap: wrap; gap: .5rem; }
 .sp-pills span { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .8rem; border: 1px solid var(--hs-line); border-radius: 999px; background: #fff; color: #344054; font-size: .85rem; font-weight: 650; }
 .sp-pills svg { color: var(--hs-faint); }
+.sp-software-links { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .8rem; margin-top: 1rem; }
+.sp-software-links > span { color: var(--hs-muted); font-size: .8rem; font-weight: 750; }
+.sp-software-links a { display: inline-flex; align-items: center; gap: .3rem; color: var(--hs-brand); font-size: .86rem; font-weight: 700; text-decoration: none; }
+.sp-software-links a:hover { text-decoration: underline; }
+
 
 /* ---------- Steps ---------- */
 .sp-root .sp-steps-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }

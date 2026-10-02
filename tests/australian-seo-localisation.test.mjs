@@ -183,7 +183,11 @@ const newAuSoftware = [
   "agentbox",
   "property-tree",
   "ailo",
-  "myob"
+  "myob",
+  "winbeat",
+  "insight",
+  "lumary",
+  "splose"
 ];
 
 const forbiddenAmericanSpellings = /\b(organization|organizations|organize|organized|organizing|prioritize|prioritized|prioritization|specialize|specialized|specialization|authorized|authorization|optimize|optimized|optimization|analyze|analyzed|behavior|labor|fulfillment|enrollment|canceled|modeling|modeled)\b/i;
@@ -283,7 +287,7 @@ test("Australian SEO templates render AU English and Australian market metadata"
 
   assert.match(serviceRoute, /locale: page\.locale === "en-AU" \? "en_AU" : undefined/);
   assert.match(serviceRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);
-  assert.match(serviceRoute, /titleTail="in the Philippines"/);
+  assert.match(serviceRoute, /titleLead=\{serviceMetaTitle\(s\)\}/);
 
   assert.match(industryRoute, /locale: industry\.locale === "en-AU" \? "en_AU" : undefined/);
   assert.match(industryRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);

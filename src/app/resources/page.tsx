@@ -17,7 +17,6 @@ export const metadata: Metadata = {
   title: "Virtual Assistant Hiring & Career Resources",
   description: "Browse role-specific Virtual Assistant hiring, task, interview, cost, and tools resources. Career and informational guides now live in the editorial blog.",
   alternates: { canonical: canonicalPath("/resources") }
-,
   ...socialMetadata({
     title: "Virtual Assistant Hiring & Career Resources",
     description: "Browse role-specific Virtual Assistant hiring, task, interview, cost, and tools resources. Career and informational guides now live in the editorial blog.",

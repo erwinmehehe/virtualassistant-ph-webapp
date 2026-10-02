@@ -1,4 +1,4 @@
-import { canonicalUrl } from "@/lib/seo-url";
+import { siteOrigin } from "@/lib/seo-url";
 
 export type OgCategory =
   | "general"
@@ -39,7 +39,7 @@ export function ogImageUrl(input: {
   for (const point of (input.points || []).slice(0, 4)) {
     params.append("point", clean(point, 54));
   }
-  return canonicalUrl(`/api/og?${params.toString()}`);
+  return `${siteOrigin()}/api/og?${params.toString()}`;
 }
 
 export function socialMetadata(input: {

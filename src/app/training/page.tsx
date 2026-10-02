@@ -28,6 +28,7 @@ import {
 } from "@/lib/public-training";
 import { trainingJoinHref } from "@/lib/training-intent";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
+import { KiroMascot } from "@/components/kiro-mascot";
 import "../training-landing.css";
 
 export const dynamic = "force-dynamic";
@@ -272,7 +273,18 @@ export default async function TrainingPage() {
               </p>
             </div>
 
-            <aside className="tr-path-preview" aria-label="Training learning path preview">
+            <aside className="tr-path-preview tr-kiro-path-preview" aria-label="Training learning path preview">
+              <div className="tr-kiro-path-intro">
+                <div className="tr-kiro-path-art" aria-hidden="true">
+                  <KiroMascot state="training" className="tr-kiro-path-mascot"/>
+                </div>
+                <div className="tr-kiro-path-copy">
+                  <span className="tr-kiro-label"><Sparkles size={13}/> Kiro · Your training coach</span>
+                  <strong>Not sure where to begin?</strong>
+                  <p>I’ll point you to the right starting course, then help you build one practical skill at a time.</p>
+                </div>
+              </div>
+
               <div className="tr-path-preview-head">
                 <div>
                   <span>Recommended learning path</span>
@@ -344,6 +356,25 @@ export default async function TrainingPage() {
             <div>
               <strong>Free</strong>
               <span>courses + certificates</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="tr-kiro-guide-band" aria-label="Kiro training guidance">
+          <div className="container tr-kiro-guide-inner">
+            <div className="tr-kiro-guide-art" aria-hidden="true">
+              <KiroMascot state="welcome" className="tr-kiro-guide-mascot"/>
+            </div>
+            <div className="tr-kiro-guide-copy">
+              <span className="tr-kicker">Meet Kiro</span>
+              <h2>Your guide through free VA training.</h2>
+              <p>Kiro helps you choose what to learn next, reminds you where you left off, and points you toward a role, software, or industry path after Foundations.</p>
+            </div>
+            <div className="tr-kiro-guide-actions">
+              <Link className="tr-btn tr-btn-primary" href={trainingJoinHref("virtual-assistant-foundations")} data-track="training_kiro_foundations_click">
+                Start with Foundations <ArrowRight size={16}/>
+              </Link>
+              <a className="tr-btn tr-btn-secondary" href="#course-library">See all courses</a>
             </div>
           </div>
         </section>

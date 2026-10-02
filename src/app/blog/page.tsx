@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   title: "Virtual Assistant Hiring & Management Blog",
   description: "Practical guides for hiring, pricing, onboarding, and managing virtual assistants from the Philippines, plus role-specific advice for SEO, medical, legal, ecommerce, real estate, and more.",
   alternates: { canonical: canonicalPath("/blog") }
-,
   ...socialMetadata({
     title: "Virtual Assistant Hiring & Management Blog",
     description: "Practical guides for hiring, pricing, onboarding, and managing virtual assistants from the Philippines, plus role-specific advice for SEO, medical, legal, ecommerce, real estate, and more.",

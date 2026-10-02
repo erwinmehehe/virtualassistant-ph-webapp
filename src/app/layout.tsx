@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Analytics } from "@/components/analytics";
+import { socialMetadata } from "@/lib/og";
 import "./globals.css";
 import "./operations.css";
 import "./marketing-refresh.css";
@@ -22,11 +23,15 @@ import "./hiring-brief-form.css";
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
+const DEFAULT_META_TITLE = "Hire Vetted Filipino Virtual Assistants | VirtualAssistant.com.ph";
+const DEFAULT_META_DESCRIPTION =
+  "Hire vetted virtual assistants from the Philippines. Browse screened talent or send a role brief and get help shortlisting the right fit.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"),
   applicationName: "VirtualAssistant.com.ph",
-  title: { default: "Hire Vetted Filipino Virtual Assistants | VirtualAssistant.com.ph", template: "%s | VirtualAssistant.com.ph" },
-  description: "Hire vetted virtual assistants from the Philippines. Browse screened talent or send a role brief and get help shortlisting the right fit.",
+  title: { default: DEFAULT_META_TITLE, template: "%s | VirtualAssistant.com.ph" },
+  description: DEFAULT_META_DESCRIPTION,
   authors: [{ name: "VirtualAssistant.com.ph" }],
   creator: "VirtualAssistant.com.ph",
   publisher: "VirtualAssistant.com.ph",
@@ -37,25 +42,13 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }]
   },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    siteName: "VirtualAssistant.com.ph",
-    title: "Hire Vetted Filipino Virtual Assistants",
-    description: "Skip the open-marketplace resume pile. Meet screened Filipino Virtual Assistants and move from role brief to hire with a clearer process.",
-    images: [{
-      url: "/opengraph-image",
-      width: 1200,
-      height: 630,
-      alt: "VirtualAssistant.com.ph - vetted Filipino virtual assistants"
-    }]
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Hire Vetted Filipino Virtual Assistants",
-    description: "Meet screened Filipino Virtual Assistants and move from role brief to hire with a clearer process.",
-    images: ["/twitter-image"]
-  },
+  ...socialMetadata({
+    title: DEFAULT_META_TITLE,
+    description: DEFAULT_META_DESCRIPTION,
+    path: "/",
+    category: "hiring",
+    eyebrow: "Vetted Filipino Virtual Assistants",
+  }),
   ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {})
 };
 

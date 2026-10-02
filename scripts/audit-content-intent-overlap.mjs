@@ -139,6 +139,10 @@ for (let left = 0; left < blogs.length; left += 1) {
   }
 }
 
+const INTENTIONAL_COMPARISON_BRIDGES = new Set([
+  "medical-receptionist-vs-medical-va|medical-receptionist"
+]);
+
 const candidates = [];
 
 for (const post of blogs) {
@@ -155,7 +159,10 @@ for (const post of blogs) {
     const family = blogFamily(post);
     const distinctFamily = ["cost","interview","tasks","job-description","training","tools","role-definition","hiring"].includes(family);
     const targetHref = `/service/${service.slug}`;
-    const comparisonBridge = post.intent === "comparison" && (post.internalLinks || []).some((link) => link.href === targetHref);
+    const comparisonBridge = post.intent === "comparison" && (
+      (post.internalLinks || []).some((link) => link.href === targetHref) ||
+      INTENTIONAL_COMPARISON_BRIDGES.has(`${post.slug}|${service.slug}`)
+    );
 
     let reason = null;
     if (!sameCluster && !comparisonBridge) reason = "high lexical overlap outside declared service cluster";

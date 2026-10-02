@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, Target } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, Compass, Target } from "lucide-react";
 import { TrainingLessonIntegrityGate } from "@/components/training-lesson-integrity-gate";
 import { TrainingChecklistBlock, TrainingTemplateBlock } from "@/components/training-practice-blocks";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingLesson, type LessonContentBlock, type TrainingAssessment } from "@/lib/training";
 import { buildLessonCheckpoint, lessonActiveSecondsRequired } from "@/lib/training-integrity";
+import { getTrainingPathContext } from "@/lib/training-path-context";
 
 function contentBlocks(value: unknown): LessonContentBlock[] {
   return Array.isArray(value) ? value as LessonContentBlock[] : [];
@@ -133,7 +134,10 @@ export default async function TrainingLessonPage({
     ? lessonCompletionErrorCopy[query.lesson_error] || null
     : null;
   const { userId } = await requireAuthenticatedUserFast(`/workspace/training/courses/${slug}/lessons/${lessonId}`);
-  const { course, lesson, engagement, error } = await getTrainingLesson(slug, lessonId, userId);
+  const [{ course, lesson, engagement, error }, pathContext] = await Promise.all([
+    getTrainingLesson(slug, lessonId, userId),
+    getTrainingPathContext(slug, userId),
+  ]);
   if ((!course || !lesson) && !error) notFound();
 
   if (!course || !lesson) {
@@ -368,6 +372,37 @@ export default async function TrainingLessonPage({
         </article>
 
         <aside className="training-player-sidebar">
+          {pathContext.primary ? (
+            <section className="card training-player-path-context" aria-label="Learning path context">
+              <span className="training-player-path-eyebrow">
+                <Compass size={12}/> {pathContext.primary.isSelected ? "Your path" : "Learning path"}
+              </span>
+              <strong>{pathContext.primary.title}</strong>
+              <small>Step {pathContext.primary.currentStep} of {pathContext.primary.totalSteps}</small>
+              <div className="training-player-path-progress">
+                <div className="progress"><span style={{ width: `${pathContext.primary.progressPercent}%` }}/></div>
+                <span>{pathContext.primary.progressPercent}%</span>
+              </div>
+              <div className="training-player-path-next">
+                <span>After this course</span>
+                <strong>{pathContext.primary.nextCourse?.title || "Path complete after this course"}</strong>
+              </div>
+              <Link className="training-player-path-link" href={`/workspace/training/paths/${pathContext.primary.slug}`}>
+                View full path <ArrowRight size={12}/>
+              </Link>
+            </section>
+          ) : pathContext.alternatives.length ? (
+            <section className="card training-player-path-context is-shared" aria-label="Shared learning path context">
+              <span className="training-player-path-eyebrow"><Compass size={12}/> Shared course</span>
+              <strong>Used in multiple Australian paths</strong>
+              <div className="training-player-path-options">
+                {pathContext.alternatives.map((path) => (
+                  <Link href={`/workspace/training/paths/${path.slug}`} key={path.slug}>{path.title}</Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <details className="card training-player-outline" open>
             <summary>
               <span>

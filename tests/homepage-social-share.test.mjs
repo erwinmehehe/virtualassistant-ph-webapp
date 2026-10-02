@@ -4,25 +4,31 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage metadata declares explicit OG and Twitter share images", async () => {
-  const page = await read("src/app/page.tsx");
+test("homepage metadata declares dynamic OG and Twitter share images", async () => {
+  const [page, helper] = await Promise.all([
+    read("src/app/page.tsx"),
+    read("src/lib/og.ts"),
+  ]);
 
-  assert.match(page, /canonicalUrl\("\/opengraph-image"\)/);
-  assert.match(page, /width: 1200/);
-  assert.match(page, /height: 630/);
-  assert.match(page, /canonicalUrl\("\/twitter-image"\)/);
-  assert.match(page, /card: "summary_large_image"/);
+  assert.match(page, /HOME_META_TITLE = "Virtual Assistant Philippines \\| Hire Vetted Filipino VAs"/);
+  assert.match(page, /socialMetadata\(/);
+  assert.match(page, /category: "hiring"/);
+  assert.match(helper, /\/api\/og\?/);
+  assert.match(helper, /width: 1200/);
+  assert.match(helper, /height: 630/);
+  assert.match(helper, /alt: input\.title/);
+  assert.match(helper, /card: "summary_large_image"/);
 });
 
-test("site share image is light branded and conversion focused", async () => {
-  const image = await read("src/app/opengraph-image.tsx");
-  const twitter = await read("src/app/twitter-image.tsx");
+test("site share generator is light branded and conversion focused", async () => {
+  const image = await read("src/app/api/og/route.tsx");
 
-  assert.match(image, /Hire Vetted/);
-  assert.match(image, /Filipino VAs/);
-  assert.match(image, /Recruiter-screened/);
-  assert.match(image, /Flexible remote hiring/);
+  assert.match(image, /linear-gradient\(135deg,#ffffff/);
+  assert.match(image, /VirtualAssistant/);
+  assert.match(image, /#4F46E5/);
+  assert.match(image, /Brief/);
+  assert.match(image, /Match/);
+  assert.match(image, /Interview/);
+  assert.match(image, /Hire/);
   assert.match(image, /width: 1200, height: 630/);
-  assert.doesNotMatch(image, /background: "#0b1b34"/);
-  assert.match(twitter, /import OpengraphImage/);
 });

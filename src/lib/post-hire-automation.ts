@@ -352,17 +352,17 @@ export async function ensurePlacementReadinessAction(args: {
   };
 }
 
-export async function resolvePlacementReadinessIfReady(
+export async function resolvePlacementReadinessArtifacts(
   admin: AdminClient,
   workroomId: string,
 ) {
   const { data: room, error } = await admin
     .from("workrooms")
-    .select("id,job_id,client_id,va_id,placement_ready_at")
+    .select("id,job_id,client_id,va_id")
     .eq("id", workroomId)
     .maybeSingle();
   if (error) throw error;
-  if (!room?.placement_ready_at) return false;
+  if (!room) return false;
 
   await resolveTaskPrefix(admin, room.job_id, READINESS_PREFIX);
   const now = new Date().toISOString();
@@ -380,5 +380,20 @@ export async function resolvePlacementReadinessIfReady(
       .is("done_at", null);
     if (notificationError) throw notificationError;
   }
+  return true;
+}
+
+export async function resolvePlacementReadinessIfReady(
+  admin: AdminClient,
+  workroomId: string,
+) {
+  const { data: room, error } = await admin
+    .from("workrooms")
+    .select("placement_ready_at")
+    .eq("id", workroomId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!room?.placement_ready_at) return false;
+  await resolvePlacementReadinessArtifacts(admin, workroomId);
   return true;
 }

@@ -17,6 +17,8 @@ import {
 import { logoutAction } from "@/app/actions/auth";
 import type { Role } from "@/lib/types";
 import { TrainingDashboardSearch } from "@/components/training-dashboard-search";
+import { markAllTrainingNotificationsReadAction, openTrainingNotificationAction } from "@/app/actions/training-notifications";
+import type { TrainingShellNotification } from "@/lib/training-shell-data";
 
 const roleHome: Record<Role, string> = {
   client: "/workspace/client",
@@ -53,16 +55,22 @@ function NavIcon({ children }: { children: React.ReactNode }) {
 
 export function TrainingShell({
   profile,
+  learnerName,
+  notifications,
+  unreadCount,
   children,
 }: {
   profile?: { role?: string | null; full_name?: string | null } | null;
+  learnerName?: string | null;
+  notifications: TrainingShellNotification[];
+  unreadCount: number;
   children: React.ReactNode;
 }) {
   const role = isRole(profile?.role) ? profile.role : null;
   const workspaceHref = role ? roleHome[role] : null;
   const workspaceLabel = role ? roleWorkspaceLabel[role] : "Workspace";
   const accountHref = role ? "/workspace/account" : "/workspace/training/account";
-  const name = profile?.full_name || "Training learner";
+  const name = profile?.full_name || learnerName || "Training learner";
   const avatar = initials(name);
   const roleLabel = role === "va" ? "VA learner" : role === "admin" ? "Training preview" : "Training account";
   const today = new Intl.DateTimeFormat("en-US", {
@@ -164,10 +172,28 @@ export function TrainingShell({
 
             <div className="training-reference-topbar-actions">
               <details className="training-reference-notifications">
-                <summary aria-label="Open training notifications"><Bell size={17}/></summary>
-                <div>
-                  <strong>Training notifications</strong>
-                  <p>You’re all caught up. Course progress updates appear here.</p>
+                <summary aria-label="Open training notifications">
+                  <Bell size={17}/>
+                  {unreadCount ? <span>{Math.min(unreadCount, 9)}</span> : null}
+                </summary>
+                <div className="training-reference-notification-panel">
+                  <div className="training-reference-notification-head">
+                    <strong>Training notifications</strong>
+                    {unreadCount ? <form action={markAllTrainingNotificationsReadAction}><button type="submit">Mark all read</button></form> : null}
+                  </div>
+                  {notifications.length ? <div className="training-reference-notification-list">
+                    {notifications.map((notification) => <form action={openTrainingNotificationAction} key={notification.id}>
+                      <input type="hidden" name="notification_id" value={notification.id}/>
+                      <button className={notification.readAt ? "" : "is-unread"} type="submit">
+                        <span className="training-reference-notification-dot" aria-hidden="true"/>
+                        <span>
+                          <strong>{notification.title}</strong>
+                          {notification.body ? <small>{notification.body}</small> : null}
+                          <em>{new Intl.DateTimeFormat("en-PH",{month:"short",day:"numeric",timeZone:"Asia/Manila"}).format(new Date(notification.createdAt))}</em>
+                        </span>
+                      </button>
+                    </form>)}
+                  </div> : <p>You’re all caught up. New course and certificate updates will appear here.</p>}
                 </div>
               </details>
 

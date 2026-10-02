@@ -35,7 +35,7 @@ test("shared client card exposes useful shortlist facts but not recruiter-only o
 
 test("invite handoff persists exactly the selected VA ids and releases only that recorded invite after claim", () => {
   assert.match(matchingAction, /const selected = \[\.\.\.new Set\(formData\.getAll\("va_id"\)/);
-  assert.match(matchingAction, /metadata: \{ va_ids: selected, lead_id: inviteLead\.id \}/);
+  assert.match(matchingAction, /metadata: \{ va_ids: selected, lead_id: inviteLead\.id,/);
   assert.match(leadClaims, /invite\.metadata\.va_ids/);
   assert.match(leadClaims, /\.eq\("shortlist_status", "proposed"\)/);
   assert.match(leadClaims, /\.in\("va_id", invitedIds\)/);

@@ -18,10 +18,12 @@ test("unlinked lead roles offer an invite path instead of a dead client-release 
 test("invite mode saves the exact selected VAs and sends a secure claim link", () => {
   assert.match(matchingAction, /\["save", "release", "invite"\]/);
   assert.match(matchingAction, /client_review_invited/);
-  assert.match(matchingAction, /metadata: \{ va_ids: selected, lead_id: inviteLead\.id \}/);
+  assert.match(matchingAction, /metadata: \{ va_ids: selected, lead_id: inviteLead\.id,/);
   assert.match(matchingAction, /\/auth\/join\/client\?/);
   assert.match(matchingAction, /firstName,/);
   assert.match(matchingAction, /Review my shortlist/);
+  assert.match(matchingAction, /invite_sent_at: now/);
+  assert.match(matchingAction, /email_reason: delivery\.reason \|\| "email_unavailable"/);
   assert.match(matchingAction, /teamLabel: "Hiring team"/);
   assert.match(matchingAction, /senderName: "VirtualAssistant\.com\.ph Hiring Team"/);
   assert.match(matchingAction, /contacted VirtualAssistant\.com\.ph about hiring support/);

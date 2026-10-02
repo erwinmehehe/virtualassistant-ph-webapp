@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CalendarCheck, ChevronDown, Menu } from "lucide-react";
+import { ArrowRight, CalendarCheck, ChevronDown, Menu, Search } from "lucide-react";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { trainingJoinHref, trainingLoginHref } from "@/lib/training-intent";
@@ -26,6 +26,69 @@ function CallCard({ title, body }: { title: string; body: string }) {
       <p>{body}</p>
       <Link href="/hire" data-track="nav_hiring_brief_click">Start a hiring brief <ArrowRight size={14} aria-hidden="true" /></Link>
     </aside>
+  );
+}
+
+function TrainingPublicNav() {
+  const joinHref = trainingJoinHref();
+  const loginHref = trainingLoginHref();
+
+  return (
+    <header className="site-header va-site-nav training-reference-nav">
+      <div className="container site-nav">
+        <Link className="brand training-reference-brand" href="/" aria-label="VAPH home">
+          VAPH
+        </Link>
+
+        <nav className="nav-links training-reference-links" aria-label="Primary training navigation">
+          <Link href="/hire">For Clients</Link>
+          <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
+          <details className="va-nav-menu">
+            <summary>Services <ChevronDown size={13} aria-hidden="true"/></summary>
+            <div className="va-nav-panel">
+              <Link href="/services">All services</Link>
+              <Link href="/find-talent">Find a VA</Link>
+              <Link href="/pricing">Pricing</Link>
+            </div>
+          </details>
+          <Link className="is-active" href="/training" aria-current="page">Training</Link>
+          <details className="va-nav-menu">
+            <summary>Resources <ChevronDown size={13} aria-hidden="true"/></summary>
+            <div className="va-nav-panel">
+              <Link href="/blog">Blog</Link>
+              <Link href="/how-vetting-works">How it works</Link>
+              <Link href="/faq">FAQ</Link>
+            </div>
+          </details>
+        </nav>
+
+        <div className="nav-actions training-reference-actions">
+          <a className="training-reference-search" href="#popular-training-courses" aria-label="Search training courses">
+            <Search size={17}/>
+          </a>
+          <Link className="va-nav-account-login" href={loginHref} aria-label="Training login" data-track="training_login_click">
+            Log in
+          </Link>
+          <Link className="btn btn-primary desktop-hire-cta" href="/book-client-call">
+            Book a Call
+          </Link>
+
+          <details className="va-mobile-drawer">
+            <summary className="btn" aria-label="Training navigation menu"><Menu size={18}/><span>Menu</span></summary>
+            <nav className="va-mobile-panel" aria-label="Mobile training navigation">
+              <Link className="mobile-menu-primary" href={joinHref} data-track="training_account_click">Start free training</Link>
+              <Link href="/hire">For Clients</Link>
+              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
+              <Link href="/services">Services</Link>
+              <Link href="/training">Training</Link>
+              <Link href="/blog">Resources</Link>
+              <Link href={loginHref} data-track="training_login_click">Training login</Link>
+              <Link href="/book-client-call">Book a Call</Link>
+            </nav>
+          </details>
+        </div>
+      </div>
+    </header>
   );
 }
 
@@ -135,6 +198,10 @@ export function SiteNav({
 } = {}) {
   if (mode === "training") {
     return <TrainingNav courseSlug={trainingCourseSlug} current={trainingCurrent}/>;
+  }
+
+  if (actionContext === "training") {
+    return <TrainingPublicNav />;
   }
 
   const isTrainingContext = actionContext === "training";

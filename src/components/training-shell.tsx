@@ -92,11 +92,11 @@ export function TrainingShell({
 
         <nav className="app-nav app-nav-desktop training-reference-sidebar-nav" aria-label="Training navigation">
           <div className="sidebar-label">Training</div>
-          <Link href="/workspace/training#training-dashboard-overview">
+          <Link className="is-active" href="/workspace/training" aria-current="page">
             <NavIcon><Home size={17}/></NavIcon>
             <span>Dashboard</span>
           </Link>
-          <Link className="is-active" href="/workspace/training" aria-current="page">
+          <Link href="/workspace/training#my-courses">
             <NavIcon><GraduationCap size={17}/></NavIcon>
             <span>My Training</span>
           </Link>

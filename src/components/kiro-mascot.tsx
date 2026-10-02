@@ -3,9 +3,10 @@ import type { KiroState } from "./kiro-guide";
 type KiroMascotProps = {
   state?: KiroState;
   className?: string;
+  withLaptop?: boolean;
 };
 
-export function KiroMascot({ state = "welcome", className }: KiroMascotProps) {
+export function KiroMascot({ state = "welcome", className, withLaptop = false }: KiroMascotProps) {
   const isThinking = state === "thinking";
   const isSuccess = state === "success";
   const isWelcome = state === "welcome";
@@ -124,6 +125,16 @@ export function KiroMascot({ state = "welcome", className }: KiroMascotProps) {
           <path d="M45 28v12c10 7 22 7 33 0V28" fill="#233caa" />
           <path d="M88 23v19" stroke="#172879" strokeWidth="3" strokeLinecap="round" />
           <circle cx="88" cy="44" r="3" fill="#f3a32f" />
+        </g>
+      ) : null}
+
+      {withLaptop ? (
+        <g>
+          <path d="M63 83h43l-5 27H61Z" fill="#263a91" />
+          <path d="M67 87h34l-3.6 19H64Z" fill="#405fd2" />
+          <path d="M76 93h10l5 5-5 5H76l-5-5Z" fill="#ffffff" opacity=".92" />
+          <path d="M55 110h52l7 4H50Z" fill="#14225f" />
+          <path d="M54 110h54" stroke="#7088eb" strokeWidth="2" strokeLinecap="round" />
         </g>
       ) : null}
     </svg>

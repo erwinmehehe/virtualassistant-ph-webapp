@@ -234,7 +234,7 @@ export function MatchingCandidateTable({
         <input type="search" placeholder={`Search ${pool.length} candidates by name, role, skill, course, or path...`} value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search candidates" />
         {query || trainingFilter !== "all"
           ? <div className="small muted">{filtered.length} of {pool.length} candidates match the current search and evidence filter.</div>
-          : <div className="small muted">Training is supporting evidence only and does not change the match score or client-readiness gate.</div>}
+          : <div className="small muted">Showing the strongest client-ready candidates first. Training is supporting evidence only and does not change the match score or client-readiness gate.</div>}
       </div>
       <label className="matching-evidence-filter">
         <span>Training evidence</span>

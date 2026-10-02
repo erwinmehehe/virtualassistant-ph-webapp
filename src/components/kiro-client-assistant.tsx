@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { KiroMascot, type KiroState } from "@/components/kiro-mascot";
+import { KiroMascot } from "@/components/kiro-mascot";
+import type { KiroState } from "@/components/kiro-guide";
 
 export function KiroClientAssistant({
   state = "welcome",

@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   description: "Learn how VirtualAssistant.com.ph recruits, screens, matches, and supports Filipino Virtual Assistant placements.",
   keywords: ["about virtualassistant.com.ph", "filipino virtual assistant agency", "virtual assistant vetting process"],
   alternates: { canonical: canonicalPath("/about") }
-,
   ...socialMetadata({
     title: "About VirtualAssistant.com.ph",
     description: "Learn how VirtualAssistant.com.ph recruits, screens, matches, and supports Filipino Virtual Assistant placements.",

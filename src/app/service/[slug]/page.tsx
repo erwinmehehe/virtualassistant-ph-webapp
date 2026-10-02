@@ -30,7 +30,7 @@ import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import { serviceSeoResources } from "@/lib/seo-resource-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
-import { canonicalPath } from "@/lib/seo-url";
+import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
@@ -38,6 +38,20 @@ import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcrony
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
 
 export const revalidate = 3600;
+
+const SERVICE_OG_IMAGES: Record<string, string> = {
+  seo: "/og/seo.jpg",
+  "executive-virtual-assistant": "/og/executive.jpg",
+  bookkeeping: "/og/bookkeeping.jpg",
+  "customer-service": "/og/customer-support.jpg",
+  "social-media": "/og/social-media.jpg",
+  ecommerce: "/og/ecommerce.jpg",
+  "real-estate": "/og/real-estate.jpg",
+};
+
+function serviceOgImage(slug: string) {
+  return SERVICE_OG_IMAGES[slug] || `/service/${slug}/og`;
+}
 
 export function generateStaticParams() {
   return SERVICE_PAGES.map((page) => ({ slug: page.slug }));
@@ -51,12 +65,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const localizedPage = localizeContent(page, page.locale);
   const title = localizeEnglish(serviceMetaTitle(localizedPage), page.locale);
   const description = localizeEnglish(serviceMetaDescription(localizedPage), page.locale);
+  const imageUrl = canonicalUrl(serviceOgImage(page.slug));
   return {
     title: { absolute: title },
     description,
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description, locale: page.locale === "en-AU" ? "en_AU" : undefined },
-    twitter: { card: "summary_large_image", title, description }
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title,
+      description,
+      locale: page.locale === "en-AU" ? "en_AU" : undefined,
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: title }],
+    },
+    twitter: { card: "summary_large_image", title, description, images: [imageUrl] }
   };
 }
 

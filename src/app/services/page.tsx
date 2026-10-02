@@ -5,14 +5,30 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { SERVICE_PAGES } from "@/lib/service-pages";
-import { canonicalPath } from "@/lib/seo-url";
+import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { createClient } from "@/lib/supabase/server";
 
+const SERVICES_META_TITLE = "Virtual Assistant Services Philippines | VA Roles";
+const SERVICES_META_DESCRIPTION = "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.";
+
 export const metadata: Metadata = {
-  title: "Virtual Assistant Services Philippines | VA Roles",
-  description: "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.",
+  title: SERVICES_META_TITLE,
+  description: SERVICES_META_DESCRIPTION,
   keywords: ["virtual assistant services philippines", "hire filipino virtual assistant", "virtual assistant specialties", "outsourcing services philippines"],
-  alternates: { canonical: canonicalPath("/services") }
+  alternates: { canonical: canonicalPath("/services") },
+  openGraph: {
+    type: "website",
+    url: canonicalPath("/services"),
+    title: SERVICES_META_TITLE,
+    description: SERVICES_META_DESCRIPTION,
+    images: [{ url: canonicalUrl("/og/services.jpg"), width: 1200, height: 630, alt: SERVICES_META_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SERVICES_META_TITLE,
+    description: SERVICES_META_DESCRIPTION,
+    images: [canonicalUrl("/og/services.jpg")],
+  }
 };
 
 const SERVICE_CATEGORIES: { id: string; label: string; description: string; groups: string[] }[] = [

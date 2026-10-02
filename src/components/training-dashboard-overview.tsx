@@ -26,6 +26,7 @@ export type TrainingDashboardCourseItem = {
   title: string;
   category: "foundation" | "software" | "industry" | "skill";
   countryFocus: string | null;
+  searchTerms: string[];
   estimatedMinutes: number;
   lessonCount: number;
   completedLessons: number;
@@ -114,7 +115,10 @@ export function TrainingDashboardOverview({
     const base=tab==="completed"?completed:tab==="not-started"?notStarted:inProgress;
     if(!normalizedQuery) return base;
     return base.filter((course)=>
-      [course.title,course.category,course.countryFocus||""].join(" ").toLowerCase().includes(normalizedQuery)
+      [course.title,course.category,course.countryFocus||"",...course.searchTerms]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery)
     );
   },[completed,inProgress,notStarted,normalizedQuery,tab]);
 

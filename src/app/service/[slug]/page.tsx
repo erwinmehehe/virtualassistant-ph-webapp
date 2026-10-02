@@ -574,6 +574,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const copy = localizeContent(experienceCopy(s), s.locale);
   const related = localizeContent(s.relatedSlugs.map(servicePageBySlug).filter(Boolean), s.locale);
   const relatedIndustries = localizeContent(INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(s.slug)).slice(0, 4), s.locale);
+  const relatedSoftware = softwarePagesForTools(s.tools).slice(0, 6);
   const guides = localizeContent(serviceBlogPosts(s.slug, 6), s.locale);
   const seoResources = localizeContent(serviceSeoResources(s.slug).slice(0, 5), s.locale);
   const priorityGuides = localizeContent(seoPriorityLinksForService(s.slug), s.locale);
@@ -608,7 +609,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       "@context": "https://schema.org",
       "@type": "Service",
       "@id": `${pageUrl}#service`,
-      name: isAu ? `Hire ${article} ${s.name} for Australian businesses` : `Hire ${article} ${s.name} in the Philippines`,
+      name: serviceMetaTitle(s),
       serviceType: s.name,
       url: pageUrl,
       description: serviceMetaDescription(s),

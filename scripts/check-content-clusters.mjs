@@ -105,7 +105,7 @@ for (const industry of industries) {
 }
 
 if (!/titleCaseWithAcronyms/.test(industryPage)) failures.push("industry template must preserve acronyms in generated labels");
-if (!/twitter:\s*\{\s*card:\s*"summary_large_image",\s*title,\s*description\s*\}/.test(industryPage)) failures.push("industry metadata must expose the same Twitter card fields as service pages");
+if (!/socialMetadata\s*\(\s*\{[\s\S]*?title,[\s\S]*?description,[\s\S]*?category:\s*"industry"/.test(industryPage)) failures.push("industry metadata must expose dynamic Twitter and Open Graph fields through socialMetadata");
 
 for (const [serviceSlug, count] of clusterCounts) {
   // Cluster size alone is not cannibalization; the dedicated intent-overlap audit checks page-pair risk.\n  if (count > 12) warnings.push(`${serviceSlug}: ${count} blog posts in one service cluster; review whether the cluster is becoming unnecessarily broad`);

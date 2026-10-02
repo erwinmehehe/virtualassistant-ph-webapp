@@ -12,6 +12,7 @@ import {
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
+import { DashHeader } from "@/components/dash-ui";
 import { KiroMascot } from "@/components/kiro-mascot";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
@@ -147,6 +148,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
   return <div className="dash-page role-overview client-overview client-mobile-dashboard client-kiro-dashboard">
     <DashboardDegradedNotice issues={issues}/>
+    <div className="client-kiro-legacy-header"><DashHeader kicker="Managed VA hiring" title="Your hiring progress" subtitle={<>Your recruiter manages sourcing, vetting, matching, and follow-up. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} /></div>
 
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">This preference will be treated as a recruiter lead, not a direct marketplace hire.</p></div><Link className="btn btn-primary" href={"/workspace/client/jobs/new?talent="+encodeURIComponent(requested.slug)}>Create hiring request</Link></div>:null}
 
@@ -189,12 +191,12 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
             <strong>{discoveryBooking.discovery_outcome==="no_show"?"Rebook your discovery call":discoveryBooking.discovery_cancelled_at||discoveryBooking.discovery_outcome==="cancelled"?"Your previous call was cancelled":discoveryBooking.discovery_scheduled_at?"Scheduled for "+new Intl.DateTimeFormat("en-PH",{dateStyle:"medium",timeStyle:"short",timeZone}).format(new Date(discoveryBooking.discovery_scheduled_at)):"Manage your discovery call"}</strong>
           </div>
           <div className="row wrap">
-            <form action={openClientDiscoveryBookingAction}><button className="btn btn-primary" type="submit">{discoveryBooking.discovery_outcome==="no_show"||discoveryBooking.discovery_cancelled_at||discoveryBooking.discovery_outcome==="cancelled"?"Rebook call":"Manage call"}</button></form>
+            <form action={openClientDiscoveryBookingAction}><button className="btn btn-primary" type="submit">{discoveryBooking.discovery_outcome==="no_show"||discoveryBooking.discovery_cancelled_at||discoveryBooking.discovery_outcome==="cancelled"?"Rebook call":"Manage / reschedule call"}</button></form>
             {discoveryBooking.discovery_meeting_url&&discoveryBooking.discovery_scheduled_at&&!discoveryBooking.discovery_cancelled_at&&discoveryBooking.discovery_outcome!=="no_show"?<a className="btn" href={discoveryBooking.discovery_meeting_url} target="_blank" rel="noreferrer">Join Google Meet</a>:null}
           </div>
         </section>:null}
 
-        <section className="client-kiro-progress" aria-label="Hiring progress">
+        <section className="client-kiro-progress client-mobile-workflow" aria-label="Hiring progress">
           {progressLabels.map((label,index)=>{
             const done=index<currentAction.step;
             const active=index===currentAction.step;
@@ -283,7 +285,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
           </div>
           <p>Your main point of contact for this hire. Message them whenever you need context or a decision explained.</p>
           <div className="client-kiro-rail-actions">
-            <Link className="btn" href="/workspace/client/messages"><MessageCircle size={15}/> Message recruiter</Link>
+            <Link className="btn" href="/workspace/client/messages"><MessageCircle size={15}/> Message your recruiter</Link>
             <Link className="btn" href="/workspace/client/interviews"><CalendarDays size={15}/> Interviews</Link>
           </div>
         </section>

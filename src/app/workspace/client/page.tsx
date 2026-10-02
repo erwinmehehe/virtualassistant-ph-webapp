@@ -6,14 +6,13 @@ import {
   Check,
   CheckCircle2,
   MessageCircle,
-  Sparkles,
   UserRoundCheck,
 } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { DashHeader } from "@/components/dash-ui";
-import { KiroMascot } from "@/components/kiro-mascot";
+import { KiroClientMascot } from "@/components/kiro-client-mascot";
 import { KiroClientAssistant } from "@/components/kiro-client-assistant";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
@@ -170,7 +169,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
       <main className="client-kiro-main">
         <section className="client-kiro-hero" aria-labelledby="client-kiro-current-action">
           <div className="client-kiro-hero-visual" aria-hidden="true">
-            <KiroMascot state={kiroState} className="client-kiro-hero-mascot"/>
+            <KiroClientMascot state={kiroState} className="client-kiro-hero-mascot"/>
           </div>
           <div className="client-kiro-hero-copy">
             <span className="client-kiro-eyebrow">Kiro · Your VAPH Guide</span>
@@ -180,10 +179,6 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
               <Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link>
               <KiroClientAssistant state={kiroState} currentTitle={currentAction.title} currentCopy={currentAction.copy} currentHref={currentAction.href} currentLabel={currentAction.label} recruiterName={recruiterName}/>
             </div>
-          </div>
-          <div className="client-kiro-tip">
-            <div><Sparkles size={17}/><strong>Kiro’s tip</strong></div>
-            <p>{pipeline.shortlisted?"Compare experience, availability, and evidence before scheduling interviews.":jobCount?"Your recruiter owns sourcing. You only need to step in when a decision is ready.":"A clear role brief gives your recruiter the strongest starting point."}</p>
           </div>
         </section>
 
@@ -243,7 +238,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
               </article>;
             })}
           </div>:<div className="client-kiro-empty">
-            <KiroMascot state={jobCount?"thinking":"welcome"} className="client-kiro-empty-mascot"/>
+            <KiroClientMascot state={jobCount?"thinking":"welcome"} className="client-kiro-empty-mascot"/>
             <div><strong>{candidateDetailsVisible?"Your recruiter is preparing the shortlist.":"Candidate profiles will appear here when they are ready for client review."}</strong><p>{jobCount?"We are screening for fit, evidence, rate, schedule, and availability.":"Start a hiring request and Kiro will guide you through the next step."}</p></div>
             <Link className="btn btn-primary" href={jobCount?"/workspace/client/jobs":"/workspace/client/jobs/new"}>{jobCount?"View role":"Start hiring"}</Link>
           </div>}
@@ -304,7 +299,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
         </section>
 
         <section className="client-kiro-rail-card client-kiro-help">
-          <div className="client-kiro-help-art" aria-hidden="true"><KiroMascot state="training" className="client-kiro-help-mascot"/></div>
+          <div className="client-kiro-help-art" aria-hidden="true"><KiroClientMascot state="training" className="client-kiro-help-mascot"/></div>
           <h2>Need help understanding the process?</h2>
           <p>Ask Kiro anything about hiring, timelines, or what happens next.</p>
           <KiroClientAssistant state={kiroState} currentTitle={currentAction.title} currentCopy={currentAction.copy} currentHref={currentAction.href} currentLabel={currentAction.label} recruiterName={recruiterName} fullWidth className="btn-primary"/>

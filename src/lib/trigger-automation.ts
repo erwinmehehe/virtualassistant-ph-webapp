@@ -10,8 +10,6 @@ const INTERVIEW_FEEDBACK_TASK_ID = "vaph-interview-feedback";
 
 export async function queueLeadSlaAutomation(leadId: string) {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
-  const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
-
   // Automation is opt-in. Lead capture remains fully functional until the
   // Trigger.dev project and callback secret are configured together.
   if (!triggerAutomationsActive()) {
@@ -63,7 +61,6 @@ export async function queueDiscoveryOutcomeAutomation(
   durationMinutes = 30,
 ) {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
-  const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
   const scheduledMs = new Date(scheduledAt).getTime();
 
   if (!Number.isFinite(scheduledMs)) {
@@ -142,8 +139,6 @@ async function queueTriggerTask(args: {
   subjectId: string;
 }) {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
-  const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
-
   if (!triggerAutomationsActive()) {
     return { queued: false as const, reason: "not_active" as const };
   }

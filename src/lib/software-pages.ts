@@ -35,6 +35,22 @@ export type SoftwareSeoPage = {
   relatedIndustrySlugs: string[];
 };
 
+export function softwareSeoTitle(page: SoftwareSeoPage) {
+  return `${page.software} Virtual Assistant Philippines`;
+}
+
+export function softwareSeoDescription(page: SoftwareSeoPage) {
+  const taskList = page.tasks.slice(0, 3).join(", ");
+  const shortTaskList = page.tasks.slice(0, 2).join(" and ");
+  const full = `Hire Philippines-based ${page.software} Virtual Assistants for ${taskList}. Get workflow support from vetted Filipino remote professionals.`;
+  if (full.length <= 160) return full;
+  return `Hire Philippines-based ${page.software} Virtual Assistants for ${shortTaskList}. Get support from vetted Filipino remote professionals.`;
+}
+
+export function softwareSeoH1(page: SoftwareSeoPage) {
+  return softwareSeoTitle(page);
+}
+
 export const softwarePages: SoftwareSeoPage[] = [
   // --- 1. ApplyOnline ---
   {

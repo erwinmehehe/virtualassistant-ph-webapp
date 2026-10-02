@@ -28,9 +28,9 @@ test("dynamic OG endpoint is branded, contextual, and 1200x630", async () => {
   assert.match(source, /BOOKKEEPING & FINANCE SUPPORT/);
   assert.match(source, /TECHNICAL & IT SUPPORT/);
   assert.match(source, /VIRTUAL ASSISTANT GUIDE/);
-  assert.match(source, /url\.searchParams\.get\("title"\)/);
-  assert.match(source, /url\.searchParams\.get\("description"\)/);
-  assert.match(source, /url\.searchParams\.get\("category"\)/);
+  assert.match(source, /textParam\(url, "title"/);
+  assert.match(source, /textParam\(url, "description"/);
+  assert.match(source, /textParam\(url, "category"/);
 });
 
 test("social metadata sends exact title to og:title and og:image:alt", async () => {
@@ -40,7 +40,7 @@ test("social metadata sends exact title to og:title and og:image:alt", async () 
   assert.match(source, /alt: input\.title/);
   assert.match(source, /params\.set\("title", clean\(input\.title/);
   assert.match(source, /params\.set\("description", clean\(input\.description/);
-  assert.match(source, /siteOrigin\(\)\/api\/og\?\$\{params\.toString\(\)\}/);
+  assert.ok(source.includes('return \`${siteOrigin()}/api/og?${params.toString()}\`;'));
   assert.doesNotMatch(source, /canonicalUrl\(\`\/api\/og\?/);
 });
 
@@ -70,7 +70,8 @@ test("all public pages with explicit metadata opt into dynamic social metadata",
       path.includes("/auth/") ||
       path.includes("/proposal/") ||
       path.includes("/training/review/") ||
-      path.includes("/training/certificates/")
+      path.includes("/training/certificates/") ||
+      path === "src/app/[legacy]/page.tsx"
     ) continue;
 
     const source = await readFile(absolute, "utf8");

@@ -23,6 +23,7 @@ import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
 import { localizeContent, localizeEnglish, titleCaseWithAcronyms } from "@/lib/content-language";
 import { industryTalentFilters } from "@/lib/industry-talent-mappings";
+import { socialMetadata } from "@/lib/og";
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -38,8 +39,15 @@ export async function generateMetadata({ params }: { params: Promise<{slug:strin
     description,
     keywords: [industry.primaryKeyword, title.toLowerCase(), `virtual assistant services for ${industry.label.toLowerCase()}`],
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description, locale: industry.locale === "en-AU" ? "en_AU" : undefined },
-    twitter: { card: "summary_large_image", title, description }
+    ...socialMetadata({
+      title,
+      description,
+      path: canonical,
+      category: "industry",
+      locale: industry.locale === "en-AU" ? "en_AU" : undefined,
+      eyebrow: industry.label,
+      points: industry.workflows.slice(0, 4),
+    })
   };
 }
 

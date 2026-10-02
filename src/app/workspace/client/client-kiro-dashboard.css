@@ -1,3 +1,162 @@
+
+.workspace-role-client .app-topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.workspace-role-client .client-topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 690px);
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #e5e9f3;
+  border-radius: 12px;
+  color: #7b84a5;
+  background: linear-gradient(180deg,#f9faff,#f5f7fc);
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.workspace-role-client .client-topbar-search:hover {
+  border-color: #d7def5;
+  color: #4452af;
+  background: #f8f9ff;
+}
+
+.workspace-role-client .client-topbar-search svg {
+  flex: 0 0 auto;
+  color: #6676c8;
+}
+
+.workspace-role-client .client-topbar-search span {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-role-client .client-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.workspace-role-client .client-topbar-notifications {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid #e5e8f1;
+  border-radius: 12px;
+  color: #28357d;
+  background: #fff;
+  box-shadow: 0 5px 14px rgba(15,27,107,.05);
+}
+
+.workspace-role-client .client-topbar-account {
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr);
+  gap: 9px;
+  align-items: center;
+  min-width: 150px;
+  padding: 4px 7px 4px 4px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.workspace-role-client .client-topbar-account:hover {
+  background: #f7f8fc;
+}
+
+.workspace-role-client .client-topbar-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  color: #2639a8;
+  background: #eef1ff;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.workspace-role-client .client-topbar-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.workspace-role-client .client-topbar-account-copy strong,
+.workspace-role-client .client-topbar-account-copy small {
+  display: block;
+}
+
+.workspace-role-client .client-topbar-account-copy strong {
+  overflow: hidden;
+  color: #131a4e;
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-role-client .client-topbar-account-copy small {
+  margin-top: 2px;
+  color: #848cab;
+  font-size: 9.5px;
+}
+
+.workspace-role-client .client-topbar-title-contract {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .workspace-role-client .app-topbar-inner {
+    gap: 8px;
+  }
+
+  .workspace-role-client .client-topbar-search {
+    min-height: 38px;
+    padding-inline: 11px;
+  }
+
+  .workspace-role-client .client-topbar-search span {
+    font-size: 0;
+  }
+
+  .workspace-role-client .client-topbar-search span::after {
+    content: "Search";
+    font-size: 11px;
+  }
+
+  .workspace-role-client .client-topbar-account-copy {
+    display: none;
+  }
+
+  .workspace-role-client .client-topbar-account {
+    grid-template-columns: 36px;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .workspace-role-client .client-topbar-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .workspace-role-client .client-topbar-notifications {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 .client-kiro-legacy-header { display: none; }
 
 .client-kiro-dashboard {

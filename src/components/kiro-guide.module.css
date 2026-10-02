@@ -49,19 +49,8 @@
   display: block;
   width: 96px;
   height: 96px;
-  background-image: url("/brand/kiro/kiro-states.webp");
-  background-repeat: no-repeat;
-  background-size: 600% 100%;
-  background-position-y: center;
   filter: drop-shadow(0 7px 9px rgba(15, 27, 107, 0.11));
 }
-
-.welcome { background-position-x: 0%; }
-.thinking { background-position-x: 20%; }
-.success { background-position-x: 40%; }
-.reminder { background-position-x: 60%; }
-.attention { background-position-x: 80%; }
-.training { background-position-x: 100%; }
 
 .copy {
   position: relative;

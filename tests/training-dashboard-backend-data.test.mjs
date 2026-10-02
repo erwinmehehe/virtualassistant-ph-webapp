@@ -29,10 +29,11 @@ test("training dashboard uses backend saved courses instead of localStorage", as
 });
 
 test("training topbar notifications read and mutate backend learner notifications", async () => {
-  const [shell, action, migration] = await Promise.all([
+  const [shell, action, migration, lockMigration] = await Promise.all([
     readFile(shellPath, "utf8"),
     readFile(notificationActionPath, "utf8"),
     readFile(migrationPath, "utf8"),
+    readFile("supabase/migrations/20261002131500_lock_training_notification_content.sql", "utf8"),
   ]);
 
   assert.match(shell, /notifications\.map/);

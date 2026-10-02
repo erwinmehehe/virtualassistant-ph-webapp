@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath } from "@/lib/seo-url";
 import { organizationRef } from "@/lib/organization";
 import { VA_RATE_REPORT_2026 as report } from "@/lib/va-rate-report-2026";
+import { socialMetadata } from "@/lib/og";
 import styles from "./report.module.css";
 
 const TITLE = "Virtual Assistant Rate & Skills Report Philippines 2026";
@@ -15,17 +16,16 @@ export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: canonicalPath("/research/virtual-assistant-rates-philippines-2026") },
-  openGraph: {
-    type: "article",
+  ...socialMetadata({
     title: TITLE,
     description: DESCRIPTION,
-    url: canonicalPath("/research/virtual-assistant-rates-philippines-2026")
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION
-  }
+    path: canonicalPath("/research/virtual-assistant-rates-philippines-2026"),
+    category: "blog",
+    type: "article",
+    eyebrow: "2026 First-Party VA Data",
+    author: "VirtualAssistant.com.ph Editorial Team",
+    points: ["Preferred USD hourly rates", "Years of experience", "Top specialties", "Skills and tools"],
+  }),
 };
 
 function money(value: number) {

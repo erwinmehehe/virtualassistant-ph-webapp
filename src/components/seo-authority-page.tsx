@@ -7,6 +7,7 @@ import { CompactPageHeader } from "@/components/compact-page-header";
 import { Band, CtaBand, FaqBlock, LinkTiles, SectionHead } from "@/components/hiring-page-sections";
 import { canonicalPath } from "@/lib/seo-url";
 import type { SeoAuthorityPage } from "@/lib/seo-authority-pages";
+import { socialMetadata } from "@/lib/og";
 import "@/app/homepage-sections.css";
 import "@/app/hiring-pages.css";
 import "@/app/info-pages.css";
@@ -19,8 +20,14 @@ export function authorityMetadata(page: SeoAuthorityPage): Metadata {
     description: page.metaDescription,
     keywords: page.keywords,
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title: page.metaTitle, description: page.metaDescription },
-    twitter: { card: "summary_large_image", title: page.metaTitle, description: page.metaDescription }
+    ...socialMetadata({
+      title: page.metaTitle,
+      description: page.metaDescription,
+      path: canonical,
+      category: "hiring",
+      eyebrow: page.eyebrow,
+      points: page.sections.slice(0, 4).map((section) => section.heading),
+    })
   };
 }
 

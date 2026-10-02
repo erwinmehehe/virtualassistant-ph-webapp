@@ -209,6 +209,13 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
     released_at: null,
   }));
 
+  if (["invite", "release"].includes(mode)) {
+    const weakMatches = rows.filter((row) => Number(row.match_score || 0) < 60);
+    if (weakMatches.length) {
+      return fail("Client-facing shortlists require 60%+ matches. Replace weaker candidates before sending.");
+    }
+  }
+
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
   if (error) return fail("Could not prepare the internal shortlist. Please try again.");
 

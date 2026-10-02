@@ -84,7 +84,7 @@ export async function GET(
               fontWeight: 700,
             }}
           >
-            <span style={{ color: "#5b45df", marginRight: 10 }}>●●</span>
+            <span style={{ color: "#5b45df", marginRight: 10, fontWeight: 900 }}>VA</span>
             VirtualAssistant.com.ph
           </div>
 
@@ -237,7 +237,7 @@ export async function GET(
                       fontSize: 12,
                     }}
                   >
-                    ✓
+                    OK
                   </span>
                   {task}
                 </div>

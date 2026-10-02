@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireRoleFast } from "@/lib/auth";
+import { requireAnyRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { writeAdminAudit } from "@/lib/admin-audit";
 
@@ -28,6 +28,13 @@ function siteUrl() {
   return raw.replace(/\/$/, "");
 }
 
+function returnPath(role: "admin" | "recruiter", status: "sent" | "granted" | "exists") {
+  if (role === "recruiter") return `/workspace/recruiter/team?recruiter_invite=${status}`;
+  return status === "granted"
+    ? "/workspace/admin/users?recruiter_access=granted"
+    : `/workspace/admin/users?recruiter_invite=${status}`;
+}
+
 async function findAuthUserByEmail(
   admin: ReturnType<typeof createAdminClient>,
   email: string,
@@ -44,7 +51,8 @@ async function findAuthUserByEmail(
 }
 
 export async function inviteRecruiterAction(formData: FormData) {
-  const session = await requireRoleFast("admin");
+  const session = await requireAnyRoleFast(["admin", "recruiter"]);
+  const actorRole = session.profile.role as "admin" | "recruiter";
   const email = normalizeEmail(formData.get("email"));
   const fullName = normalizeName(formData.get("full_name"));
   const admin = createAdminClient();
@@ -59,8 +67,19 @@ export async function inviteRecruiterAction(formData: FormData) {
       .maybeSingle();
 
     if (profileLoadError) throw profileLoadError;
-    if (existingProfile?.role === "admin" || existingUser.app_metadata?.role === "admin") {
+    const existingRole = existingProfile?.role || existingUser.app_metadata?.role || null;
+
+    if (existingRole === "admin") {
       throw new Error("This email already belongs to an Admin account.");
+    }
+
+    if (existingRole === "recruiter") {
+      revalidatePath("/workspace/recruiter/team");
+      redirect(returnPath(actorRole, "exists"));
+    }
+
+    if (actorRole !== "admin") {
+      throw new Error("This email already has a VAPH account. Ask an Admin to change an existing account to Recruiter.");
     }
 
     const { error: authError } = await admin.auth.admin.updateUserById(existingUser.id, {
@@ -88,11 +107,12 @@ export async function inviteRecruiterAction(formData: FormData) {
       action: "recruiter_access_granted",
       targetType: "user",
       targetId: existingUser.id,
-      metadata: { email, full_name: fullName, source: "admin_users_invite" },
+      metadata: { email, full_name: fullName, source: "admin_users_invite", actor_role: actorRole },
     });
 
     revalidatePath("/workspace/admin/users");
-    redirect("/workspace/admin/users?recruiter_access=granted");
+    revalidatePath("/workspace/recruiter/team");
+    redirect(returnPath(actorRole, "granted"));
   }
 
   const redirectTo = `${siteUrl()}/auth/callback?next=%2Fworkspace%2Frecruiter%2Ftoday`;
@@ -135,9 +155,10 @@ export async function inviteRecruiterAction(formData: FormData) {
     action: "recruiter_invited",
     targetType: "user",
     targetId: invitedUser.id,
-    metadata: { email, full_name: fullName },
+    metadata: { email, full_name: fullName, source: actorRole === "admin" ? "admin_users_invite" : "recruiter_team_invite", actor_role: actorRole },
   });
 
   revalidatePath("/workspace/admin/users");
-  redirect("/workspace/admin/users?recruiter_invite=sent");
+  revalidatePath("/workspace/recruiter/team");
+  redirect(returnPath(actorRole, "sent"));
 }

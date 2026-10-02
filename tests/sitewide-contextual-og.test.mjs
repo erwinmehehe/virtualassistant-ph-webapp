@@ -59,6 +59,7 @@ test("major conversion and trust pages no longer rely on root OG fallback", asyn
     "src/app/how-vetting-works/page.tsx",
     "src/app/for-virtual-assistants/page.tsx",
     "src/app/jobs/page.tsx",
+    "src/app/jobs/[id]/page.tsx",
     "src/app/managed-vs-direct-hire/page.tsx",
     "src/app/book-client-call/page.tsx",
     "src/app/faq/page.tsx",

@@ -7793,3 +7793,19 @@
     width: 100%;
   }
 }
+
+
+.training-extended-library {
+  display: grid;
+  gap: 14px;
+}
+
+#training-dashboard-overview,
+#my-courses,
+#learning-path,
+#saved-courses,
+#certificates,
+#course-library-title,
+#certificate-library {
+  scroll-margin-top: 92px;
+}

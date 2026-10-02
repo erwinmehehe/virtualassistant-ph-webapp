@@ -7,6 +7,7 @@ import { MarketingHero } from "@/components/marketing-hero";
 import { Band, CtaBand, SectionHead } from "@/components/hiring-page-sections";
 import { softwarePages } from "@/lib/software-pages";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import "../homepage-sections.css";
 import "../hiring-pages.css";
 import "../info-pages.css";
@@ -16,6 +17,14 @@ export const metadata: Metadata = {
   description: "Browse Virtual Assistant software and platform experience for human VAs across CRM, property, accounting, healthcare, trades, recruitment, design, and more.",
   keywords: ["virtual assistant software", "virtual assistant tools", "virtual assistant by software", "software-specific virtual assistant philippines", "hire virtual assistant for my platform"],
   alternates: { canonical: canonicalPath("/software") }
+,
+  ...socialMetadata({
+    title: "Virtual Assistant Software & Platform Experience",
+    description: "Browse Virtual Assistant software and platform experience for human VAs across CRM, property, accounting, healthcare, trades, recruitment, design, and more.",
+    path: canonicalPath("/software"),
+    category: "software",
+    eyebrow: "Software-specific VA Hiring",
+  }),
 };
 
 function slugify(value: string) {

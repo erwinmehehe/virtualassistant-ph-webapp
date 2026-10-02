@@ -25,6 +25,7 @@ import {
 import { DashHeader } from "@/components/dash-ui";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { TrainingNextSteps } from "@/components/training-next-steps";
+import { TrainingSaveCourseButton } from "@/components/training-save-course-button";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
 import { vaCategoryLabel } from "@/lib/constants";
@@ -188,9 +189,11 @@ function courseStateLabel(mode: "active" | "completed" | "not-started") {
 function CourseCard({
   course,
   mode,
+  saved,
 }: {
   course: TrainingCourseSummary;
   mode: "active" | "completed" | "not-started";
+  saved: boolean;
 }) {
   const visual = courseVisual(course);
   const action = mode === "active" ? (
@@ -220,10 +223,13 @@ function CourseCard({
       <div className="training-course-v2-cover">
         <div className="training-course-v2-cover-top">
           <span className="training-course-kind">{course.category === "skill" ? "Role skill" : course.category}</span>
-          <span className={`training-course-state is-${mode}`}>
-            {mode === "completed" ? <CheckCircle2 size={12}/> : null}
-            {courseStateLabel(mode)}
-          </span>
+          <div className="training-course-v2-cover-actions">
+            <TrainingSaveCourseButton courseId={course.id} initialSaved={saved}/>
+            <span className={`training-course-state is-${mode}`}>
+              {mode === "completed" ? <CheckCircle2 size={12}/> : null}
+              {courseStateLabel(mode)}
+            </span>
+          </div>
         </div>
         <div className="training-course-v2-cover-bottom">
           <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span>
@@ -272,7 +278,7 @@ export default async function TrainingDashboardPage({
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
   const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
-  const { courses, learnerProfile, learnerPreferences, error } = await getTrainingDashboard(userId);
+  const { courses, learnerProfile, learnerPreferences, savedCourseIds, error } = await getTrainingDashboard(userId);
 
   const active = courses
     .filter((course) => course.enrolled && !course.completedAt)
@@ -531,7 +537,7 @@ export default async function TrainingDashboardPage({
             </div>
           </div>
           <div className="training-course-grid">
-            {active.map((course) => <CourseCard course={course} mode="active" key={course.id} />)}
+            {active.map((course) => <CourseCard course={course} mode="active" saved={savedCourseIds.includes(course.id)} key={course.id} />)}
           </div>
         </section>
       ) : null}
@@ -659,7 +665,7 @@ export default async function TrainingDashboardPage({
             </div>
           </div>
           <div className="training-course-grid">
-            {completed.slice(0, 4).map((course) => <CourseCard course={course} mode="completed" key={course.id} />)}
+            {completed.slice(0, 4).map((course) => <CourseCard course={course} mode="completed" saved={savedCourseIds.includes(course.id)} key={course.id} />)}
           </div>
         </section>
       ) : null}
@@ -697,7 +703,7 @@ export default async function TrainingDashboardPage({
 
             {filteredNotStarted.length ? (
               <div className="training-course-grid">
-                {filteredNotStarted.map((course) => <CourseCard course={course} mode="not-started" key={course.id} />)}
+                {filteredNotStarted.map((course) => <CourseCard course={course} mode="not-started" saved={savedCourseIds.includes(course.id)} key={course.id} />)}
               </div>
             ) : (
               <div className="dashboard-caught-up">

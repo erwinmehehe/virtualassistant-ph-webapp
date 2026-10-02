@@ -617,27 +617,32 @@ export default async function TrainingDashboardPage({
                     <span className="small">{allComplete ? "Path finished" : pathStarted ? "Next step" : "First step"}</span>
                     <strong>{allComplete ? "Everything in this path is complete" : next?.title || "More courses are being prepared"}</strong>
                   </div>
-                  {allComplete && reviewCourse ? (
-                    <Link className="btn btn-sm training-specialization-start" href={`/workspace/training/courses/${reviewCourse.slug}`}>
-                      Review path
+                  <div className="training-specialization-actions">
+                    <Link className="btn btn-sm training-specialization-view" href={`/workspace/training/paths/${specialization.slug}`}>
+                      View path
                     </Link>
-                  ) : next ? (
-                    pathSelected && next.enrolled ? (
-                      <Link className="btn btn-sm btn-primary" href={nextCourseHref(next)}>
-                        Continue path <ArrowRight size={14} />
+                    {allComplete && reviewCourse ? (
+                      <Link className="btn btn-sm training-specialization-start" href={`/workspace/training/paths/${specialization.slug}`}>
+                        Review path
                       </Link>
-                    ) : (
-                      <form action={selectAustraliaSpecializationAction}>
-                        <input type="hidden" name="specialization_slug" value={specialization.slug} />
-                        <button
-                          className={`btn btn-sm ${pathSelected ? "btn-primary" : "training-specialization-start"}`}
-                          type="submit"
-                        >
-                          {actionLabel} <ArrowRight size={14} />
-                        </button>
-                      </form>
-                    )
-                  ) : null}
+                    ) : next ? (
+                      pathSelected && next.enrolled ? (
+                        <Link className="btn btn-sm btn-primary" href={nextCourseHref(next)}>
+                          Continue <ArrowRight size={14} />
+                        </Link>
+                      ) : (
+                        <form action={selectAustraliaSpecializationAction}>
+                          <input type="hidden" name="specialization_slug" value={specialization.slug} />
+                          <button
+                            className={`btn btn-sm ${pathSelected ? "btn-primary" : "training-specialization-start"}`}
+                            type="submit"
+                          >
+                            {actionLabel} <ArrowRight size={14} />
+                          </button>
+                        </form>
+                      )
+                    ) : null}
+                  </div>
                 </div>
               </article>
             );

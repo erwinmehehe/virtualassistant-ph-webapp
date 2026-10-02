@@ -217,3 +217,11 @@ test("course and Australian path metadata use consistent colored pills", async (
   assert.match(css, /training-specialization-meta-item\.is-courses/);
   assert.match(css, /training-specialization-meta-item\.is-status/);
 });
+
+
+test("specialisation cards link to dedicated path pages", async () => {
+  const page = await readFile(pagePath, "utf8");
+
+  assert.match(page, /\/workspace\/training\/paths\/\$\{specialization\.slug\}/);
+  assert.match(page, /View path/);
+});

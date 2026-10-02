@@ -88,7 +88,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
     {params.setup==="complete"?<div className="success-banner" role="status"><strong>Quick setup saved.</strong> Your profile is now {completion.score}% complete. Follow the next action below and finish the remaining items in smaller steps.</div>:null}
     <div className="va-dashboard-head"><DashHeader title="VA dashboard" subtitle="Keep your profile current and manage applications, interviews, offers, and placements." actions={<Link className="dash-btn dash-btn-dark va-dashboard-find-jobs" href="/workspace/va/jobs">Find jobs</Link>}/></div>
 
-    <KiroGuide compact state={kiroState} eyebrow="Kiro · VA guide" title={nextAction.title} description={nextAction.copy} action={{href:nextAction.href,label:nextAction.label}} />
+    <KiroGuide compact state={kiroState} eyebrow="Kiro · Next step" title={nextAction.title} description={nextAction.copy} action={{href:nextAction.href,label:nextAction.label}} />
 
     <div className="va-status-strip">
       <Link className="status-summary-item" href="/workspace/va/profile"><div className="row-between"><span>Your profile</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`${completion.next.label} is still incomplete.`:"Profile complete"}</small></Link>

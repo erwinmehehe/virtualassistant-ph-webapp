@@ -18,6 +18,10 @@ import {
   Smartphone,
   Sparkles,
   WalletCards,
+  CircleCheckBig,
+  Clock,
+  Trophy,
+  UserRoundSearch,
 } from "lucide-react";
 import { TrainingSiteHeader } from "@/components/training-site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -29,6 +33,7 @@ import {
 import { trainingJoinHref } from "@/lib/training-intent";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import { KiroMascot } from "@/components/kiro-mascot";
+import { TrainingPublicCourseGrid } from "@/components/training-public-course-grid";
 import "../training-landing.css";
 
 export const dynamic = "force-dynamic";
@@ -178,6 +183,47 @@ export default async function TrainingPage() {
   const australiaCourseCount = australiaCourses.length || 11;
   const foundationDuration = foundation ? duration(foundation.estimated_minutes) : "3h 40m";
 
+  const popularCourseKeywords = [
+    "virtual assistant foundations",
+    "australian",
+    "xero",
+    "canva",
+    "client communication",
+    "email",
+    "social media",
+    "operations",
+  ];
+  const popularPicked: PublicTrainingCourse[] = [];
+  const usedPopular = new Set<string>();
+  for (const keyword of popularCourseKeywords) {
+    const match = publishedCourses.find((course) =>
+      !usedPopular.has(course.id) &&
+      (course.title.toLowerCase().includes(keyword) || course.slug.toLowerCase().includes(keyword.replaceAll(" ", "-"))),
+    );
+    if (match) {
+      popularPicked.push(match);
+      usedPopular.add(match.id);
+    }
+  }
+  for (const course of publishedCourses) {
+    if (popularPicked.length >= 8) break;
+    if (!usedPopular.has(course.id)) {
+      popularPicked.push(course);
+      usedPopular.add(course.id);
+    }
+  }
+  const popularCourses = popularPicked.map((course) => ({
+    id: course.id,
+    slug: course.slug,
+    title: course.title,
+    summary: course.summary,
+    category: course.category,
+    countryFocus: course.country_focus,
+    lessonCount: course.lesson_count,
+    estimatedMinutes: course.estimated_minutes,
+    href: trainingJoinHref(course.slug),
+  }));
+
   const schema = [
     {
       "@context": "https://schema.org",
@@ -222,24 +268,30 @@ export default async function TrainingPage() {
           dangerouslySetInnerHTML={{ __html: safeJson(schema) }}
         />
 
-        <section className="tr-hero" data-training-hero>
+        <section className="tr-hero tr-reference-hero" data-training-hero>
           <div className="container tr-hero-grid">
             <div className="tr-hero-copy">
               <span className="tr-eyebrow">
                 <GraduationCap size={15}/>
-                Free VA training · {totalCourseCount} courses available
+                FREE TRAINING FOR FILIPINO VAs
               </span>
 
               <h1>
-                Build practical VA skills.
-                <span>Earn verified certificates.</span>
+                Build skills. Get hired.
+                <span>Grow your future.</span>
               </h1>
 
               <p className="tr-hero-lede">
-                Learn through text-first lessons, practise real VA workflows, and prove what you
-                understood through checkpoints and a randomized final check. Training is free,
-                self-paced, and completely separate from hiring.
+                Free online training for aspiring and experienced virtual assistants. Learn in-demand
+                skills, complete realistic lessons, and earn verified certificates you can share.
               </p>
+
+              <ul className="tr-reference-checks" aria-label="Training highlights">
+                <li><CircleCheckBig size={16}/> 100% free</li>
+                <li><CircleCheckBig size={16}/> Industry-relevant skills</li>
+                <li><CircleCheckBig size={16}/> Certificates you can share</li>
+                <li><CircleCheckBig size={16}/> Designed for global opportunities</li>
+              </ul>
 
               <div className="tr-cta-row">
                 <Link
@@ -248,21 +300,15 @@ export default async function TrainingPage() {
                   data-track="training_account_click"
                   data-cta-position="hero"
                 >
-                  Start free training <ArrowRight size={17}/>
+                  Start Learning Now <ArrowRight size={17}/>
                 </Link>
                 <a
                   className="tr-btn tr-btn-secondary"
-                  href="#course-library"
+                  href="#popular-training-courses"
                   data-track="training_learning_paths_click"
                 >
-                  Browse {totalCourseCount} courses
+                  Explore All Courses
                 </a>
-              </div>
-
-              <div className="tr-hero-proofline">
-                <span><Check size={14}/> No course or certificate fees</span>
-                <span><Check size={14}/> Mobile-friendly</span>
-                <span><Check size={14}/> Progress saved automatically</span>
               </div>
 
               <p className="tr-login-note">
@@ -273,65 +319,14 @@ export default async function TrainingPage() {
               </p>
             </div>
 
-            <aside className="tr-path-preview tr-kiro-path-preview" aria-label="Training learning path preview">
-              <div className="tr-kiro-path-intro">
-                <div className="tr-kiro-path-art" aria-hidden="true">
-                  <KiroMascot state="training" className="tr-kiro-path-mascot"/>
-                </div>
-                <div className="tr-kiro-path-copy">
-                  <span className="tr-kiro-label"><Sparkles size={13}/> Kiro · Your training coach</span>
-                  <strong>Not sure where to begin?</strong>
-                  <p>I’ll point you to the right starting course, then help you build one practical skill at a time.</p>
-                </div>
+            <aside className="tr-reference-kiro" aria-label="Meet Kiro, your training coach">
+              <div className="tr-reference-speech">
+                <strong>Hi! I’m Kiro 👋</strong>
+                <span>Your training coach.</span>
+                <p>I’ll guide you every step of the way.</p>
               </div>
-
-              <div className="tr-path-preview-head">
-                <div>
-                  <span>Recommended learning path</span>
-                  <strong>Start broad, then specialise.</strong>
-                </div>
-                <span className="tr-path-free"><Sparkles size={13}/> Free</span>
-              </div>
-
-              <div className="tr-path-featured">
-                <span className="tr-path-featured-icon"><GraduationCap size={22}/></span>
-                <div>
-                  <span>01 · Start here</span>
-                  <strong>Virtual Assistant Foundations</strong>
-                  <p>Build the communication, admin, research, QA, and escalation habits every VA needs.</p>
-                  <div className="tr-path-featured-meta">
-                    <span><Clock3 size={13}/>{foundationDuration}</span>
-                    <span><BookOpenCheck size={13}/>{foundation?.lesson_count || 10} lessons</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="tr-path-next">
-                <div className="tr-path-next-head">
-                  <span>02 · Pick the work you want to do</span>
-                  <small>Role, software, or industry</small>
-                </div>
-                <div className="tr-path-chips">
-                  {heroCourses.length ? heroCourses.map((course) => {
-                    const { Icon } = courseVisual(course);
-                    return <span key={course.id}><Icon size={14}/>{course.title}</span>;
-                  }) : (
-                    <>
-                      <span><BriefcaseBusiness size={14}/>Executive VA</span>
-                      <span><BookOpenCheck size={14}/>Customer Support</span>
-                      <span><Globe2 size={14}/>SEO</span>
-                      <span><WalletCards size={14}/>Bookkeeping tools</span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="tr-path-outcome">
-                <span className="tr-path-outcome-icon"><Award size={18}/></span>
-                <div>
-                  <span>03 · Prove completion</span>
-                  <strong>Pass the final check and receive a verified certificate.</strong>
-                </div>
+              <div className="tr-reference-kiro-art" aria-hidden="true">
+                <KiroMascot state="welcome" withLaptop className="tr-reference-kiro-mascot"/>
               </div>
             </aside>
           </div>
@@ -339,43 +334,46 @@ export default async function TrainingPage() {
 
         <TrainingMobileCta href={JOIN_HREF}/>
 
-        <section className="tr-proof-strip" aria-label="Training catalogue summary">
-          <div className="container tr-proof-grid">
-            <div>
-              <strong>{totalCourseCount}</strong>
-              <span>courses available</span>
-            </div>
-            <div>
-              <strong>{globalCourseCount}</strong>
-              <span>global VA courses</span>
-            </div>
-            <div>
-              <strong>{australiaCourseCount}</strong>
-              <span>Australia courses</span>
-            </div>
-            <div>
-              <strong>Free</strong>
-              <span>courses + certificates</span>
-            </div>
+        <section className="tr-reference-values" aria-label="Why train with VAPH">
+          <div className="container tr-reference-value-grid">
+            <article><span><BookOpenCheck size={19}/></span><div><strong>Practical lessons</strong><p>Real tools, real tasks</p></div></article>
+            <article><span><Clock size={19}/></span><div><strong>Learn at your own pace</strong><p>Short, focused lessons</p></div></article>
+            <article><span><Trophy size={19}/></span><div><strong>Free certificates</strong><p>Verified course completion</p></div></article>
+            <article><span><UserRoundSearch size={19}/></span><div><strong>Career opportunities</strong><p>Build skills for global work</p></div></article>
           </div>
         </section>
 
-        <section className="tr-kiro-guide-band" aria-label="Kiro training guidance">
-          <div className="container tr-kiro-guide-inner">
-            <div className="tr-kiro-guide-art" aria-hidden="true">
-              <KiroMascot state="welcome" className="tr-kiro-guide-mascot"/>
+        <section className="tr-section tr-popular-section" id="popular-training-courses">
+          <div className="container">
+            <div className="tr-reference-section-head">
+              <div>
+                <span className="tr-kicker">Course library</span>
+                <h2>Popular Training Courses</h2>
+                <p>Start with practical, certificate-backed courses designed around real Virtual Assistant work.</p>
+              </div>
+              <a href="#course-library">View all courses <ArrowRight size={14}/></a>
             </div>
-            <div className="tr-kiro-guide-copy">
+
+            <TrainingPublicCourseGrid courses={popularCourses} initialLimit={8}/>
+          </div>
+        </section>
+
+        <section className="tr-reference-meet-kiro" aria-label="Meet Kiro">
+          <div className="container tr-reference-meet-inner">
+            <div className="tr-reference-meet-art" aria-hidden="true">
+              <KiroMascot state="training" withLaptop className="tr-reference-meet-mascot"/>
+            </div>
+            <div className="tr-reference-meet-copy">
               <span className="tr-kicker">Meet Kiro</span>
-              <h2>Your guide through free VA training.</h2>
-              <p>Kiro helps you choose what to learn next, reminds you where you left off, and points you toward a role, software, or industry path after Foundations.</p>
+              <h2>Your AI training coach.</h2>
+              <p>Kiro helps you choose the right courses, understand what to learn next, and stay focused on practical skills.</p>
             </div>
-            <div className="tr-kiro-guide-actions">
-              <Link className="tr-btn tr-btn-primary" href={trainingJoinHref("virtual-assistant-foundations")} data-track="training_kiro_foundations_click">
-                Start with Foundations <ArrowRight size={16}/>
-              </Link>
-              <a className="tr-btn tr-btn-secondary" href="#course-library">See all courses</a>
-            </div>
+            <ul>
+              <li><CheckCircle2 size={15}/> Recommends the best next course</li>
+              <li><CheckCircle2 size={15}/> Explains lessons in simpler terms</li>
+              <li><CheckCircle2 size={15}/> Keeps you focused on progress</li>
+              <li><CheckCircle2 size={15}/> Celebrates completed training</li>
+            </ul>
           </div>
         </section>
 

@@ -6154,12 +6154,12 @@
 .training-reference-hero {
   position: relative;
   display: grid;
-  grid-template-columns: 190px minmax(0,1fr) minmax(190px,240px);
-  gap: 20px;
+  grid-template-columns: 210px minmax(0,1fr) minmax(190px,240px);
+  gap: 22px;
   align-items: center;
-  min-height: 215px;
+  min-height: 226px;
   overflow: hidden;
-  padding: 17px 18px 17px 10px;
+  padding: 18px 18px 18px 12px;
   border-color: #dfe4fa;
   background:
     radial-gradient(circle at 11% 26%,rgba(111,211,255,.22),transparent 28%),
@@ -6169,17 +6169,17 @@
 
 .training-reference-hero-art {
   display: grid;
-  min-height: 180px;
-  place-items: end center;
-  overflow: hidden;
+  min-height: 194px;
+  place-items: center;
+  overflow: visible;
 }
 
 .training-reference-hero-mascot {
-  width: 182px;
-  height: 182px;
-  transform: translateY(10px) scale(1.08);
-  transform-origin: bottom center;
-  filter: drop-shadow(0 14px 18px rgba(15,27,107,.14));
+  width: 198px;
+  height: 198px;
+  transform: translateY(4px);
+  transform-origin: center;
+  filter: drop-shadow(0 16px 22px rgba(15,27,107,.16));
 }
 
 .training-reference-hero-copy {
@@ -6917,9 +6917,9 @@
 }
 
 .training-reference-kiro-help-mascot {
-  width: 78px;
-  height: 78px;
-  transform: translateY(5px);
+  width: 84px;
+  height: 84px;
+  transform: translateY(3px);
 }
 
 .training-reference-kiro-help strong {
@@ -7085,8 +7085,8 @@
   }
 
   .training-reference-hero-mascot {
-    width: 145px;
-    height: 145px;
+    width: 154px;
+    height: 154px;
   }
 
   .training-reference-progress {
@@ -7169,9 +7169,9 @@
   }
 
   .training-reference-hero-mascot {
-    width: 88px;
-    height: 88px;
-    transform: none;
+    width: 94px;
+    height: 94px;
+    transform: translateY(2px);
   }
 
   .training-reference-hero-copy h2 {

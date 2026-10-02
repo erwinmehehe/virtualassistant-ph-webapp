@@ -11,7 +11,7 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getHomepageFeaturedVas } from "@/lib/homepage-data";
-import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
+import { canonicalPath } from "@/lib/seo-url";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import {
   FaqSection,

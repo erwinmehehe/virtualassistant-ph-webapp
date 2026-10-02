@@ -1,6 +1,6 @@
 # Agency release readiness
-Reviewed 2026-10-02 UTC against production main `634618ff1167f798c06ba4d13b0b80004d3ec013` and the connected production Supabase project.
-Decision: HOLD final launch sign-off. Database and deployment evidence are current; backup/recovery evidence, environment/Auth/email checks, and the full production hiring journey still need operator/QA evidence.
+Reviewed 2026-10-03 (Asia/Manila) against production app-code baseline `7259220cbd15ef9ee66ed5a2735dec1e10cbd148`, the connected production Supabase project, and the production runtime checks recorded below. Documentation/test-only release commits after this baseline do not change the application runtime under test.
+Decision: HOLD final launch sign-off. Core database acceptance, live intake, email delivery, Google Meet booking, scheduler, and public proposal rendering are verified; backup/recovery, strict environment/callback verification, browser Auth handoff, the full proposal lifecycle, and final privacy/regression sign-off remain open.
 
 ## 2026-10-02 production refresh
 - Production Vercel deployment `dpl_HjUZfp2ArGZC8vJx4wiW4zwqACkH` is READY for main SHA `634618ff1167f798c06ba4d13b0b80004d3ec013` and is aliased to `virtualassistant.com.ph` and `www.virtualassistant.com.ph`.

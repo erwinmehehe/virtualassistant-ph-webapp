@@ -150,6 +150,41 @@ function courseVisual(course: TrainingCourseSummary) {
   return { tone: "slate", icon: BookOpenCheck };
 }
 
+function courseMark(course: TrainingCourseSummary) {
+  const slug = course.slug.toLowerCase();
+  if (slug === "virtual-assistant-foundations") return "VA";
+  if (slug.includes("seo")) return "SEO";
+  if (slug.includes("ndis")) return "NDIS";
+  if (slug.includes("xero")) return "XERO";
+  if (slug.includes("myob")) return "MYOB";
+  if (slug.includes("cliniko")) return "CLIN";
+  if (slug.includes("servicem8")) return "S8";
+  if (slug.includes("hubspot")) return "HUB";
+  if (slug.includes("canva")) return "CAN";
+  if (slug.includes("real-estate") || slug.includes("property")) return "PROP";
+  if (slug.includes("bookkeeping") || slug.includes("payroll")) return "FIN";
+  if (slug.includes("customer-support")) return "CS";
+  if (slug.includes("executive")) return "EA";
+  if (slug.includes("operations")) return "OPS";
+  if (slug.includes("project-management")) return "PM";
+  if (slug.includes("social-media")) return "SOC";
+  if (slug.includes("marketing")) return "MKT";
+  if (slug.includes("sales") || slug.includes("lead-generation")) return "SALES";
+
+  const words = course.title
+    .replace(/virtual assistant/gi, "")
+    .replace(/[^a-z0-9 ]/gi, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "VA";
+}
+
+function courseStateLabel(mode: "active" | "completed" | "not-started") {
+  if (mode === "active") return "In progress";
+  if (mode === "completed") return "Completed";
+  return "Not started";
+}
+
 function CourseCard({
   course,
   mode,
@@ -158,7 +193,6 @@ function CourseCard({
   mode: "active" | "completed" | "not-started";
 }) {
   const visual = courseVisual(course);
-  const CourseIcon = visual.icon;
   const action = mode === "active" ? (
     <Link
       className="btn btn-sm btn-primary"
@@ -182,41 +216,49 @@ function CourseCard({
   );
 
   return (
-    <article className={`training-course-card tone-${visual.tone}`}>
-      <div className="training-course-card-top">
-        <div className="training-course-card-heading">
-          <span className="training-course-icon" aria-hidden="true"><CourseIcon size={19} /></span>
-          <div className="training-course-card-copy">
-            <div className="training-course-eyebrow">
-              <span>{course.category === "skill" ? "Role" : course.category}</span>
-              {course.country_focus ? <span>{course.country_focus}</span> : null}
+    <article className={`training-course-card training-course-card-v2 tone-${visual.tone}`}>
+      <div className="training-course-v2-cover">
+        <div className="training-course-v2-cover-top">
+          <span className="training-course-kind">{course.category === "skill" ? "Role skill" : course.category}</span>
+          <span className={`training-course-state is-${mode}`}>
+            {mode === "completed" ? <CheckCircle2 size={12}/> : null}
+            {courseStateLabel(mode)}
+          </span>
+        </div>
+        <div className="training-course-v2-cover-bottom">
+          <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span>
+          {course.country_focus ? <span className="training-course-market">{course.country_focus}</span> : <span className="training-course-market">Global</span>}
+        </div>
+      </div>
+
+      <div className="training-course-v2-body">
+        <div className="training-course-card-copy">
+          <h3>{course.title}</h3>
+          <p>{course.summary || "Practical training with realistic examples, exercises, handoffs, and QA checks."}</p>
+        </div>
+
+        <div className="training-course-meta">
+          <span className="training-course-meta-item is-lessons"><BookOpenCheck size={14} /> {course.lessonCount} lessons</span>
+          <span className="training-course-meta-item is-duration"><Clock3 size={14} /> {duration(course.estimated_minutes)}</span>
+          <span className={`training-course-meta-item ${assessmentMetaClass(course)}`}><FileCheck2 size={14} /> {assessmentLabel(course)}</span>
+        </div>
+
+        {mode !== "not-started" ? (
+          <div className="training-course-progress">
+            <div className="row-between">
+              <span>{mode === "completed" ? "Completed" : remainingLearningLabel(course)}</span>
+              <strong>{course.progressPercent}%</strong>
             </div>
-            <h3>{course.title}</h3>
-            <p>{course.summary || "Practical training with realistic examples, exercises, handoffs, and QA checks."}</p>
+            <div className="progress" aria-label={`${course.title} ${course.progressPercent}% complete`}>
+              <span style={{ width: `${course.progressPercent}%` }} />
+            </div>
           </div>
-        </div>
-        {mode === "completed" ? <CheckCircle2 className="training-course-complete-icon" size={20} /> : null}
+        ) : (
+          <p className="training-course-v2-start-note">Open the course overview before you begin. Progress is saved automatically.</p>
+        )}
+
+        <div className="training-course-card-action">{action}</div>
       </div>
-
-      <div className="training-course-meta">
-        <span className="training-course-meta-item is-lessons"><BookOpenCheck size={14} /> {course.lessonCount} lessons</span>
-        <span className="training-course-meta-item is-duration"><Clock3 size={14} /> {duration(course.estimated_minutes)}</span>
-        <span className={`training-course-meta-item ${assessmentMetaClass(course)}`}><FileCheck2 size={14} /> {assessmentLabel(course)}</span>
-      </div>
-
-      {mode !== "not-started" ? (
-        <div className="training-course-progress">
-          <div className="row-between">
-            <span>{mode === "completed" ? "Completed" : remainingLearningLabel(course)}</span>
-            <strong>{course.progressPercent}%</strong>
-          </div>
-          <div className="progress" aria-label={`${course.title} ${course.progressPercent}% complete`}>
-            <span style={{ width: `${course.progressPercent}%` }} />
-          </div>
-        </div>
-      ) : null}
-
-      <div className="training-course-card-action">{action}</div>
     </article>
   );
 }

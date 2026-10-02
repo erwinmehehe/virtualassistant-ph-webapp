@@ -88,3 +88,23 @@ test("CRO redesign stays compact and responsive across course library and certif
   assert.match(css, /@media \(max-width: 640px\)/);
   assert.match(css, /overflow-wrap: anywhere/);
 });
+
+
+test("public course cards use distinct typographic covers instead of repeated category icons", async () => {
+  const [page, css] = await Promise.all([
+    readFile(pagePath, "utf8"),
+    readFile(cssPath, "utf8"),
+  ]);
+
+  assert.match(page, /function courseMark\(course: PublicTrainingCourse\)/);
+  assert.match(page, /function courseDescriptor\(course: PublicTrainingCourse\)/);
+  assert.match(page, /tr-course-card-v2/);
+  assert.match(page, /tr-course-mark/);
+  assert.match(page, /tr-course-cover-note/);
+  assert.match(page, /Certificate/);
+
+  assert.match(css, /\/\* Course cards v2 \*\//);
+  assert.match(css, /\.tr-course-cover/);
+  assert.match(css, /\.tr-course-card-v2 \.tr-course-card-meta/);
+  assert.match(css, /\.tr-course-card-v2 \.tr-course-cta/);
+});

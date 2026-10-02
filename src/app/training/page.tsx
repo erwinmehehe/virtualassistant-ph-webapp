@@ -68,36 +68,84 @@ function courseVisual(course: PublicTrainingCourse) {
   return { Icon: BookOpenCheck, tone: "skill" };
 }
 
+function courseMark(course: PublicTrainingCourse) {
+  const slug = course.slug.toLowerCase();
+  if (slug === "virtual-assistant-foundations") return "VA";
+  if (slug.includes("seo")) return "SEO";
+  if (slug.includes("ndis")) return "NDIS";
+  if (slug.includes("xero")) return "XERO";
+  if (slug.includes("myob")) return "MYOB";
+  if (slug.includes("cliniko")) return "CLIN";
+  if (slug.includes("servicem8")) return "S8";
+  if (slug.includes("hubspot")) return "HUB";
+  if (slug.includes("canva")) return "CAN";
+  if (slug.includes("real-estate") || slug.includes("property")) return "PROP";
+  if (slug.includes("bookkeeping") || slug.includes("payroll")) return "FIN";
+  if (slug.includes("customer-support")) return "CS";
+  if (slug.includes("executive")) return "EA";
+  if (slug.includes("operations")) return "OPS";
+  if (slug.includes("project-management")) return "PM";
+  if (slug.includes("social-media")) return "SOC";
+  if (slug.includes("marketing")) return "MKT";
+  if (slug.includes("sales") || slug.includes("lead-generation")) return "SALES";
+
+  const words = course.title
+    .replace(/virtual assistant/gi, "")
+    .replace(/[^a-z0-9 ]/gi, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "VA";
+}
+
+function courseDescriptor(course: PublicTrainingCourse) {
+  if (course.slug === "virtual-assistant-foundations") return "Best first course";
+  if (course.country_focus === "Australia") return "Australian client workflow";
+  if (course.category === "software") return "Software workflow";
+  if (course.category === "industry") return "Industry workflow";
+  return "Practical role training";
+}
+
 function CourseCard({ course, position }: { course: PublicTrainingCourse; position: string }) {
-  const { Icon, tone } = courseVisual(course);
+  const { tone } = courseVisual(course);
   const recommended = course.slug === "virtual-assistant-foundations";
   const joinHref = trainingJoinHref(course.slug);
 
   return (
-    <article className={`tr-course-card tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
-      <div className="tr-course-card-top">
-        <span className="tr-course-icon"><Icon size={19}/></span>
-        <span className="tr-course-live"><CheckCircle2 size={12}/> Available</span>
-      </div>
-      <div className="tr-course-card-copy">
-        {recommended ? <span className="tr-course-recommended">Recommended first</span> : null}
-        <h3>{course.title}</h3>
-        {course.summary ? <p className="tr-course-summary">{course.summary}</p> : null}
-        <div className="tr-course-card-meta">
-          <span>{categoryLabel(course.category)}</span>
-          <span>{course.lesson_count} lessons</span>
-          <span>{duration(course.estimated_minutes)}</span>
+    <article className={`tr-course-card tr-course-card-v2 tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
+      <div className="tr-course-cover">
+        <div className="tr-course-cover-top">
+          <span className="tr-course-type">{categoryLabel(course.category)}</span>
+          <span className="tr-course-live"><CheckCircle2 size={12}/> Available</span>
+        </div>
+        <div className="tr-course-cover-main">
+          <span className="tr-course-mark" aria-hidden="true">{courseMark(course)}</span>
+          <span className="tr-course-cover-note">{courseDescriptor(course)}</span>
         </div>
       </div>
-      <Link
-        className="tr-course-cta"
-        href={joinHref}
-        data-track="training_course_interest_click"
-        data-course-slug={course.slug}
-        data-cta-position={position}
-      >
-        {recommended ? "Start Foundations" : "Start this course"} <ArrowRight size={13}/>
-      </Link>
+
+      <div className="tr-course-card-body">
+        <div className="tr-course-card-copy">
+          {recommended ? <span className="tr-course-recommended">Recommended first</span> : null}
+          <h3>{course.title}</h3>
+          {course.summary ? <p className="tr-course-summary">{course.summary}</p> : null}
+        </div>
+
+        <div className="tr-course-card-meta">
+          <span><BookOpenCheck size={13}/>{course.lesson_count} lessons</span>
+          <span><Clock3 size={13}/>{duration(course.estimated_minutes)}</span>
+          <span><Award size={13}/>Certificate</span>
+        </div>
+
+        <Link
+          className="tr-course-cta"
+          href={joinHref}
+          data-track="training_course_interest_click"
+          data-course-slug={course.slug}
+          data-cta-position={position}
+        >
+          {recommended ? "Start Foundations" : "Start this course"} <ArrowRight size={13}/>
+        </Link>
+      </div>
     </article>
   );
 }

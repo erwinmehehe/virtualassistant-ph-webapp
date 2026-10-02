@@ -27,6 +27,7 @@ export type TrainingDashboardCourseItem = {
   category: "foundation" | "software" | "industry" | "skill";
   countryFocus: string | null;
   searchTerms: string[];
+  searchEntries: Array<{ title: string; href: string }>;
   estimatedMinutes: number;
   lessonCount: number;
   completedLessons: number;
@@ -89,6 +90,7 @@ export function TrainingDashboardOverview({
   const [kiroOpen,setKiroOpen]=useState(false);
   const [kiroQuestion,setKiroQuestion]=useState("");
   const [kiroReply,setKiroReply]=useState<{answer:string;actionLabel:string|null;actionHref:string|null}|null>(null);
+  const [kiroError,setKiroError]=useState<string|null>(null);
   const [savingCourse,startSavingCourse]=useTransition();
   const [askingKiro,startAskingKiro]=useTransition();
 
@@ -114,6 +116,20 @@ export function TrainingDashboardOverview({
       window.removeEventListener("vaph-training-ask-kiro",askHandler);
     };
   },[]);
+
+  useEffect(()=>{
+    if(!kiroOpen)return;
+    const previousOverflow=document.body.style.overflow;
+    const closeOnEscape=(event:KeyboardEvent)=>{
+      if(event.key==="Escape")setKiroOpen(false);
+    };
+    document.body.style.overflow="hidden";
+    window.addEventListener("keydown",closeOnEscape);
+    return()=>{
+      document.body.style.overflow=previousOverflow;
+      window.removeEventListener("keydown",closeOnEscape);
+    };
+  },[kiroOpen]);
 
   const completed=courses.filter((course)=>Boolean(course.completedAt));
   const inProgress=courses.filter((course)=>course.enrolled&&!course.completedAt);
@@ -149,7 +165,7 @@ export function TrainingDashboardOverview({
 
   function matchingLesson(course:TrainingDashboardCourseItem) {
     if(!normalizedQuery)return null;
-    return course.searchTerms.find((term)=>term.toLowerCase().includes(normalizedQuery))||null;
+    return course.searchEntries.find((entry)=>entry.title.toLowerCase().includes(normalizedQuery))||null;
   }
 
   function courseStatus(course:TrainingDashboardCourseItem) {
@@ -202,13 +218,19 @@ export function TrainingDashboardOverview({
     const question=(questionOverride ?? kiroQuestion).trim();
     if(question.length<2)return;
     setKiroQuestion(question);
+    setKiroError(null);
     startAskingKiro(async()=>{
-      const result=await askTrainingKiroAction({question});
-      setKiroReply({
-        answer: result.answer,
-        actionLabel: result.actionLabel,
-        actionHref: result.actionHref,
-      });
+      try {
+        const result=await askTrainingKiroAction({question});
+        setKiroReply({
+          answer: result.answer,
+          actionLabel: result.actionLabel,
+          actionHref: result.actionHref,
+        });
+      } catch {
+        setKiroReply(null);
+        setKiroError("Kiro could not answer just now. Your training progress is safe. Try again in a moment.");
+      }
     });
   }
 
@@ -292,7 +314,7 @@ export function TrainingDashboardOverview({
       <section className="training-reference-path" id="learning-path">
         <div className="training-reference-section-title">
           <h2>My Learning Path</h2>
-          <a href="#course-library-title">View full path <ArrowRight size={13}/></a>
+          <Link href="/workspace/training?browse=1#course-library-title">View full path <ArrowRight size={13}/></Link>
         </div>
         <ol>
           {stages.map((stage,index)=><li className={stage.done?"is-done":stage.active?"is-current":""} key={stage.label}>
@@ -322,18 +344,20 @@ export function TrainingDashboardOverview({
           <div className="training-reference-course-list">
             {filtered.slice(0,normalizedQuery?8:4).map((course)=>{
               const lessonMatch=matchingLesson(course);
+              const resultHref=lessonMatch&&course.enrolled?lessonMatch.href:course.nextHref;
+              const resultLabel=lessonMatch&&course.enrolled?"Open lesson":course.completedAt?"Review":course.enrolled?"Continue":"Open";
               return <article className={normalizedQuery?"is-search-result":""} key={course.id}>
               <div className="training-reference-list-icon">{initials(course.title)}</div>
               <div className="training-reference-list-copy">
                 <strong>{course.title}</strong>
                 <span>{course.lessonCount} lessons · {fmtDuration(course.estimatedMinutes)}</span>
                 {normalizedQuery?<span className="training-reference-result-status">{courseStatus(course)}</span>:null}
-                {lessonMatch?<span className="training-reference-lesson-match"><Search size={11}/> Lesson match: {lessonMatch}</span>:null}
+                {lessonMatch?<span className="training-reference-lesson-match"><Search size={11}/> Lesson match: {lessonMatch.title}</span>:null}
                 {course.enrolled&&!course.completedAt?<div><i style={{width:course.progressPercent+"%"}}/></div>:null}
               </div>
               {course.enrolled&&!course.completedAt?<strong className="training-reference-list-percent">{course.progressPercent}%</strong>:null}
               <button className={"training-reference-save "+(saved.includes(course.id)?"is-saved":"")} type="button" onClick={()=>toggleSaved(course.id)} disabled={savingCourse} aria-label={(saved.includes(course.id)?"Unsave ":"Save ")+course.title}><Bookmark size={15}/></button>
-              <Link className="btn btn-sm" href={course.nextHref}>{course.completedAt?"Review":course.enrolled?"Continue":"Open"} <ArrowRight size={13}/></Link>
+              <Link className="btn btn-sm" href={resultHref}>{resultLabel} <ArrowRight size={13}/></Link>
             </article>;
             })}
             {!filtered.length?<div className="training-reference-empty"><Search size={18}/><div><strong>{query?"No courses or lessons matched your search.":"No courses in this view."}</strong><span>{query?"Try a course title, lesson topic, software, or skill.":"Switch tabs or browse the full course library."}</span></div></div>:null}
@@ -386,6 +410,7 @@ export function TrainingDashboardOverview({
               </div>
             </form>
 
+            {kiroError?<div className="training-kiro-error" role="status">{kiroError}</div>:null}
             {kiroReply?<div className="training-kiro-reply" aria-live="polite">
               <span><Sparkles size={13}/> Kiro</span>
               <p>{kiroReply.answer}</p>

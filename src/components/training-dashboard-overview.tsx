@@ -92,12 +92,23 @@ export function TrainingDashboardOverview({
   const [askingKiro,startAskingKiro]=useTransition();
 
   useEffect(()=>{
-    const handler=(event:Event)=>{
+    const searchHandler=(event:Event)=>{
       const custom=event as CustomEvent<{query?:string}>;
       setQuery(custom.detail?.query||"");
     };
-    window.addEventListener("vaph-training-search",handler);
-    return()=>window.removeEventListener("vaph-training-search",handler);
+    const askHandler=(event:Event)=>{
+      const custom=event as CustomEvent<{question?:string}>;
+      const question=String(custom.detail?.question||"").trim();
+      if(!question)return;
+      setKiroOpen(true);
+      askKiro(question);
+    };
+    window.addEventListener("vaph-training-search",searchHandler);
+    window.addEventListener("vaph-training-ask-kiro",askHandler);
+    return()=>{
+      window.removeEventListener("vaph-training-search",searchHandler);
+      window.removeEventListener("vaph-training-ask-kiro",askHandler);
+    };
   },[]);
 
   const completed=courses.filter((course)=>Boolean(course.completedAt));

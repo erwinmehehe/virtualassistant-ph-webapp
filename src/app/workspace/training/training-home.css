@@ -7516,3 +7516,129 @@
   cursor: wait;
   opacity: .65;
 }
+
+
+/* Backend-grounded Ask Kiro */
+.training-kiro-quick-prompts {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.training-kiro-quick-prompts button {
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid #dfe4f3;
+  border-radius: 999px;
+  color: #4452b8;
+  background: #fff;
+  font: inherit;
+  font-size: 8.8px;
+  font-weight: 740;
+  cursor: pointer;
+}
+
+.training-kiro-quick-prompts button:hover {
+  border-color: #cfd6ff;
+  background: #f5f7ff;
+}
+
+.training-kiro-question {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #e5e9f2;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.training-kiro-question label {
+  color: #626d8e;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.training-kiro-question > div {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 6px;
+}
+
+.training-kiro-question input {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid #dfe4ef;
+  border-radius: 9px;
+  outline: 0;
+  color: #172057;
+  background: #fbfcff;
+  font: inherit;
+  font-size: 10px;
+}
+
+.training-kiro-question input:focus {
+  border-color: #aeb9ff;
+  box-shadow: 0 0 0 3px #eef1ff;
+}
+
+.training-kiro-question button {
+  min-width: 64px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: #243aa8;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.training-kiro-question button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.training-kiro-reply {
+  border-color: #d8defa !important;
+  background:
+    radial-gradient(circle at 95% 0%, rgba(220,203,255,.22), transparent 32%),
+    linear-gradient(145deg,#fbfdff,#f5f7ff) !important;
+}
+
+.training-kiro-reply > p {
+  margin-top: 8px;
+  color: #4f5b81;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.training-kiro-reply .btn {
+  width: 100%;
+  min-height: 36px;
+  margin-top: 11px;
+  justify-content: center;
+  font-size: 9px;
+}
+
+.training-kiro-dialog > footer small {
+  display: block;
+  color: #858da8;
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+
+@media (max-width: 430px) {
+  .training-kiro-quick-prompts {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  .training-kiro-quick-prompts button {
+    width: 100%;
+  }
+}

@@ -3432,7 +3432,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "group": "Home Services",
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "hire hvac virtual assistant philippines",
-    "metaTitle": "Hvac Virtual Assistant Philippines",
+    "metaTitle": "HVAC Virtual Assistant Philippines",
     "metaDescription": "Hire a vetted HVAC Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
     "intro": "Hire a HVAC Virtual Assistant in the Philippines to handle inbound lead intake, service scheduling, and dispatch support. Run the role from the service board so enquiries, schedules, quotes, job status, and customer follow-up do not get lost between the office and field team.",
     "focus": "dispatch, booking, customer, and office support for HVAC companies",

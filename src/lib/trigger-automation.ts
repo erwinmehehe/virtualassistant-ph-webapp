@@ -7,6 +7,9 @@ const PROPOSAL_VIEWED_TASK_ID = "vaph-proposal-viewed";
 const SHORTLIST_REVIEW_TASK_ID = "vaph-shortlist-review";
 const INTERVIEW_SCHEDULING_TASK_ID = "vaph-interview-scheduling";
 const INTERVIEW_FEEDBACK_TASK_ID = "vaph-interview-feedback";
+const OFFER_CLIENT_CONFIRMATION_TASK_ID = "vaph-offer-client-confirmation";
+const PLACEMENT_HANDOFF_TASK_ID = "vaph-placement-handoff";
+const PLACEMENT_READINESS_TASK_ID = "vaph-placement-readiness";
 
 export async function queueLeadSlaAutomation(leadId: string) {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
@@ -290,5 +293,71 @@ export async function queueInterviewFeedbackAutomation(
     idempotencyKey: `interview-feedback-${interviewId}-${scheduleKey}`,
     logLabel: "interview feedback",
     subjectId: interviewId,
+  });
+}
+
+
+export async function queueOfferClientConfirmationAutomation(
+  offerId: string,
+  acceptedAt: string,
+) {
+  const acceptedMs = new Date(acceptedAt).getTime();
+  if (!Number.isFinite(acceptedMs)) {
+    return { queued: false as const, reason: "invalid_accepted_at" as const };
+  }
+  const acceptedKey = String(acceptedMs);
+  return queueTriggerTask({
+    taskId: OFFER_CLIENT_CONFIRMATION_TASK_ID,
+    payload: {
+      offerId,
+      acceptedAt: new Date(acceptedMs).toISOString(),
+    },
+    idempotencyKey: `offer-client-confirmation-${offerId}-${acceptedKey}`,
+    logLabel: "offer client confirmation",
+    subjectId: offerId,
+  });
+}
+
+export async function queuePlacementHandoffAutomation(
+  workroomId: string,
+  createdAt: string,
+) {
+  const createdMs = new Date(createdAt).getTime();
+  if (!Number.isFinite(createdMs)) {
+    return { queued: false as const, reason: "invalid_created_at" as const };
+  }
+  const createdKey = String(createdMs);
+  return queueTriggerTask({
+    taskId: PLACEMENT_HANDOFF_TASK_ID,
+    payload: {
+      workroomId,
+      createdAt: new Date(createdMs).toISOString(),
+    },
+    idempotencyKey: `placement-handoff-${workroomId}-${createdKey}`,
+    logLabel: "placement handoff",
+    subjectId: workroomId,
+  });
+}
+
+export async function queuePlacementReadinessAutomation(
+  workroomId: string,
+  handoffAt: string,
+  startDate: string,
+) {
+  const handoffMs = new Date(handoffAt).getTime();
+  if (!Number.isFinite(handoffMs) || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+    return { queued: false as const, reason: "invalid_readiness_state" as const };
+  }
+  const handoffKey = String(handoffMs);
+  return queueTriggerTask({
+    taskId: PLACEMENT_READINESS_TASK_ID,
+    payload: {
+      workroomId,
+      handoffAt: new Date(handoffMs).toISOString(),
+      startDate,
+    },
+    idempotencyKey: `placement-readiness-${workroomId}-${handoffKey}-${startDate}`,
+    logLabel: "placement readiness",
+    subjectId: workroomId,
   });
 }

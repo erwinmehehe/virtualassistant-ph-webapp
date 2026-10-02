@@ -63,6 +63,26 @@ Three durable tasks cover the next conversion stage:
 - legacy daily shortlist and interview reminders remain active until `TRIGGER_AUTOMATIONS_ACTIVE=1`
 
 
+## Offer to Client Success handoff
+
+Three durable tasks cover the post-interview conversion and launch handoff:
+
+- `vaph-offer-client-confirmation` checks a VA-accepted offer after 4 hours and again at 24 hours
+- unresolved client confirmation creates one recruiter closing task and an in-app client reminder; it escalates to urgent at 24 hours
+- `vaph-placement-handoff` checks a confirmed placement at 24 hours and escalates an incomplete recruiter-to-Client-Success handoff
+- confirmed hires create the handoff task immediately, even when Trigger.dev is not active
+- assigning a Client Success owner updates that same handoff task instead of creating a duplicate
+- formal handoff closes recruiter ownership and starts `vaph-placement-readiness`
+- placement readiness checks at 48 hours and 24 hours before the agreed start date
+- after handoff, readiness work belongs only to the assigned Client Success owner, with an active admin as the fallback
+- client and VA checklist items remain owned by those participants; Client Success coordinates rather than completing their items
+- checklist changes recompute `placement_ready_at`, and completed readiness clears stale tasks and reminders
+- no post-hire Trigger workflow automatically emails a client
+- legacy client-confirmation cron reminders remain active until `TRIGGER_AUTOMATIONS_ACTIVE=1`
+
+## Activate
+
+
 1. Create a Trigger.dev project.
 2. Set `TRIGGER_PROJECT_REF` locally in this package.
 3. Add the same 32+ character `AUTOMATION_CALLBACK_SECRET` to Vercel and Trigger.dev.

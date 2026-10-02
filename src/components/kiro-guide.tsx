@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
+import { KiroMascot } from "./kiro-mascot";
 import styles from "./kiro-guide.module.css";
 
 export type KiroState =
@@ -51,8 +52,8 @@ export function KiroGuide({
       ].filter(Boolean).join(" ")}
       data-kiro-state={state}
     >
-      <div className={styles.visual} aria-hidden="true">
-        <span className={`${styles.mascot} ${styles[state]}`} />
+      <div className={styles.visual}>
+        <KiroMascot state={state} className={styles.mascot} />
       </div>
 
       <div className={styles.copy}>

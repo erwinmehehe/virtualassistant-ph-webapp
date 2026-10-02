@@ -140,6 +140,7 @@ export async function completeRecruiterHandoffAction(formData: FormData) {
   const now = new Date().toISOString();
   const { error } = await admin.from("workrooms").update({ handoff_completed_at: now, handoff_completed_by: user.id, handoff_notes: notes }).eq("id", workroomId);
   if (error) throw error;
+  await completeAgencyChecklistByTitle(admin, workroomId, "Assign Client Success owner", user.id);
   await completeAgencyChecklistByTitle(admin, workroomId, "Complete recruiter to Client Success handoff", user.id);
   try {
     await resolvePlacementHandoffTask(admin, job.id);

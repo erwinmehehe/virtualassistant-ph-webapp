@@ -15,6 +15,13 @@ const capabilitySigningSecret = process.env.CAPABILITY_SIGNING_SECRET?.trim() ||
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || "";
 const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim() || "";
 const resendWebhookSecret = process.env.RESEND_WEBHOOK_SECRET?.trim() || "";
+const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
+const automationCallbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
+const triggerAutomationsActive = process.env.TRIGGER_AUTOMATIONS_ACTIVE?.trim() || "";
+const triggerAutomationConfigured =
+  triggerSecret.length >= 20 &&
+  automationCallbackSecret.length >= 32 &&
+  triggerAutomationsActive === "1";
 
 const checks = [
   {
@@ -75,6 +82,17 @@ const checks = [
     name: "RESEND_WEBHOOK_SECRET",
     ok: resendWebhookSecret.length >= 16,
     detail: resendWebhookSecret.length >= 16 ? "configured" : "missing or unexpectedly short"
+  },
+  {
+    name: "TRIGGER_AUTOMATIONS",
+    ok: triggerAutomationConfigured,
+    detail: triggerAutomationConfigured
+      ? "active with Trigger.dev and callback secrets configured"
+      : triggerAutomationsActive !== "1"
+        ? "inactive; set TRIGGER_AUTOMATIONS_ACTIVE=1 only after Trigger.dev tasks and both secrets are deployed"
+        : triggerSecret.length < 20
+          ? "active flag is set but TRIGGER_SECRET_KEY is missing or unexpectedly short"
+          : "active flag is set but AUTOMATION_CALLBACK_SECRET is missing or shorter than 32 characters"
   }
 ];
 

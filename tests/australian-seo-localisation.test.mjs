@@ -150,27 +150,27 @@ const newAuIndustries = [
 ];
 
 const existingAuSoftware = [
-  "applyonline-virtual-assistant",
-  "salestrekker-virtual-assistant",
-  "brokerengine-virtual-assistant",
-  "propertyme-virtual-assistant",
-  "console-cloud-virtual-assistant",
-  "servicem8-virtual-assistant",
-  "simpro-virtual-assistant",
-  "aroflo-virtual-assistant",
-  "tradify-virtual-assistant",
-  "cliniko-virtual-assistant",
-  "halaxy-virtual-assistant",
-  "power-diary-virtual-assistant",
-  "jobadder-virtual-assistant",
-  "bullhorn-virtual-assistant",
-  "vincere-virtual-assistant",
-  "stratamax-virtual-assistant",
-  "strata-master-virtual-assistant",
-  "bgl-simple-fund-360-virtual-assistant",
-  "class-super-virtual-assistant",
-  "revit-virtual-assistant",
-  "xero-virtual-assistant"
+  "applyonline",
+  "salestrekker",
+  "brokerengine",
+  "propertyme",
+  "console-cloud",
+  "servicem8",
+  "simpro",
+  "aroflo",
+  "tradify",
+  "cliniko",
+  "halaxy",
+  "power-diary",
+  "jobadder",
+  "bullhorn",
+  "vincere",
+  "stratamax",
+  "strata-master",
+  "bgl-simple-fund-360",
+  "class-super",
+  "revit",
+  "xero"
 ];
 
 const newAuSoftware = [

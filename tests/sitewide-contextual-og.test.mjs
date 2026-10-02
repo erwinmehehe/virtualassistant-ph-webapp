@@ -10,7 +10,7 @@ test("shared contextual OG metadata uses exact titles for image alt text", async
   assert.match(source, /alt: input\.title/);
   assert.match(source, /title: input\.title/);
   assert.match(source, /card: "summary_large_image"/);
-  assert.match(source, /siteOrigin\(\)\/api\/og/);
+  assert.ok(source.includes('return `${siteOrigin()}/api/og?${params.toString()}`;'));
 });
 
 test("dynamic OG renderer is contextual, 1200x630, and font-safe", async () => {
@@ -99,7 +99,7 @@ test("existing polished homepage, services and training OGs stay intact", async 
     read("src/app/service/[slug]/page.tsx"),
     read("src/app/training/page.tsx"),
   ]);
-  assert.match(home, /\/og\/home\.jpg/);
+  assert.match(home, /\/opengraph-image/);
   assert.match(services, /\/og\/services\.jpg/);
   assert.match(service, /serviceOgImage/);
   assert.match(training, /\/training\/opengraph-image/);

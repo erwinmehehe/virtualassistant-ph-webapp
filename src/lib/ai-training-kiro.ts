@@ -156,59 +156,64 @@ export async function answerTrainingKiro(userId: string, questionInput: string):
     };
   });
 
-  const response = await fetch(AI_GATEWAY_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: process.env.AI_TRAINING_KIRO_MODEL?.trim() || DEFAULT_MODEL,
-      stream: false,
-      messages: [
-        {
-          role: "system",
-          content: [
-            "You are Kiro, the VAPH training coach.",
-            "Answer only from the supplied learner and course data. Never invent course progress, certificates, lessons, hiring outcomes, or eligibility.",
-            "Training is free and separate from hiring. Never imply that finishing training guarantees a job, improves hiring priority, or is required to be hired.",
-            "Be concise, warm, and practical. Prefer the learner's current unfinished course before recommending a new one.",
-            "Return valid JSON only with answer, actionLabel, and actionHref. Keep answer under 120 words.",
-            "actionHref must be one of the exact hrefs provided in the course data, /workspace/training, /workspace/training#saved-courses, /workspace/training?browse=1#course-library-title, or null.",
-          ].join(" "),
-        },
-        {
-          role: "user",
-          content: JSON.stringify({
-            question,
-            learner: {
-              primaryCategory: dashboard.learnerProfile?.primaryCategory || null,
-              australiaSpecialization: dashboard.learnerPreferences?.australiaSpecialization || null,
-              savedCourseCount: dashboard.savedCourseIds?.length || 0,
+  let response: Response;
+  try {
+    response = await fetch(AI_GATEWAY_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: process.env.AI_TRAINING_KIRO_MODEL?.trim() || DEFAULT_MODEL,
+        stream: false,
+        messages: [
+          {
+            role: "system",
+            content: [
+              "You are Kiro, the VAPH training coach.",
+              "Answer only from the supplied learner and course data. Never invent course progress, certificates, lessons, hiring outcomes, or eligibility.",
+              "Training is free and separate from hiring. Never imply that finishing training guarantees a job, improves hiring priority, or is required to be hired.",
+              "Be concise, warm, and practical. Prefer the learner's current unfinished course before recommending a new one.",
+              "Return valid JSON only with answer, actionLabel, and actionHref. Keep answer under 120 words.",
+              "actionHref must be one of the exact hrefs provided in the course data, /workspace/training, /workspace/training#saved-courses, /workspace/training?browse=1#course-library-title, or null.",
+            ].join(" "),
+          },
+          {
+            role: "user",
+            content: JSON.stringify({
+              question,
+              learner: {
+                primaryCategory: dashboard.learnerProfile?.primaryCategory || null,
+                australiaSpecialization: dashboard.learnerPreferences?.australiaSpecialization || null,
+                savedCourseCount: dashboard.savedCourseIds?.length || 0,
+              },
+              courses: courseContext,
+            }),
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "kiro_training_answer",
+            schema: {
+              type: "object",
+              properties: {
+                answer: { type: "string" },
+                actionLabel: { type: ["string","null"] },
+                actionHref: { type: ["string","null"] },
+              },
+              required: ["answer","actionLabel","actionHref"],
+              additionalProperties: false,
             },
-            courses: courseContext,
-          }),
-        },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "kiro_training_answer",
-          schema: {
-            type: "object",
-            properties: {
-              answer: { type: "string" },
-              actionLabel: { type: ["string","null"] },
-              actionHref: { type: ["string","null"] },
-            },
-            required: ["answer","actionLabel","actionHref"],
-            additionalProperties: false,
           },
         },
-      },
-    }),
-    signal: AbortSignal.timeout(10_000),
-  });
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    return fallback;
+  }
 
   if (!response.ok) return fallback;
 

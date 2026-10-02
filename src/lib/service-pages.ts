@@ -871,6 +871,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "Lever",
       "Workable",
       "BambooHR",
+      "Employment Hero",
       "Google Workspace",
       "Calendly",
       "Slack"
@@ -3957,6 +3958,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "Bluebeam",
       "Planswift",
       "Buildxact",
+      "Groundplan",
       "Simpro",
       "AroFlo",
       "Google Sheets"

@@ -5,7 +5,7 @@ import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { ArrowRight, BadgeCheck, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { softwarePages, getSoftwarePage } from "@/lib/software-pages";
+import { softwarePages, getSoftwarePage, softwareSeoDescription, softwareSeoH1, softwareSeoTitle } from "@/lib/software-pages";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { industryBySlug } from "@/lib/industries";
 import { canonicalPath } from "@/lib/seo-url";
@@ -21,12 +21,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const page = getSoftwarePage(slug);
   if (!page) return {};
   const canonical = canonicalPath(`/software/${page.slug}`);
-  const title = localizeEnglish(page.metaTitle, page.locale);
-  const description = localizeEnglish(page.metaDescription, page.locale);
+  const title = localizeEnglish(softwareSeoTitle(page), page.locale);
+  const description = localizeEnglish(softwareSeoDescription(page), page.locale);
   return {
     title: { absolute: title },
     description,
-    keywords: [page.primaryKeyword, `hire ${page.software.toLowerCase()} virtual assistant`, `${page.software.toLowerCase()} outsourcing philippines`],
+    keywords: [softwareSeoTitle(page).toLowerCase(), page.primaryKeyword, `hire ${page.software.toLowerCase()} virtual assistant philippines`, `${page.software.toLowerCase()} outsourcing philippines`],
     alternates: { canonical },
     ...socialMetadata({
       title,
@@ -54,8 +54,8 @@ function softwareLongFormCopy(page: (typeof softwarePages)[number]) {
   const workflowD = page.workflows[page.workflows.length - 1] || "close the administration";
 
   return {
-    overview: `A ${page.software} virtual assistant is most useful when the software is already central to the way your team works and the administrative load inside it keeps growing. The role is not simply “someone who knows ${page.software}.” The better brief is a defined operating responsibility: keep ${taskA}, ${taskB}, ${taskC}, and related records moving according to your process. That means the Virtual Assistant needs to understand where work enters the system, which fields or documents matter, what a complete record looks like, and which exceptions must be escalated instead of guessed.`,
-    specialist: `Software familiarity can shorten onboarding, but process discipline is what makes the hire valuable. A strong ${page.software} Virtual Assistant should be able to explain the sequence behind the work, not just point to buttons or menus. Ask how they would move from “${workflowA}” to “${workflowB},” how they would check that “${workflowC}” is complete, and what they would do before “${workflowD}.” That conversation reveals whether the candidate can operate inside a repeatable workflow, maintain clean records, communicate blockers, and protect your team from silent administrative errors.`,
+    overview: `A Philippines-based ${page.software} virtual assistant is most useful when the software is already central to the way your team works and the administrative load inside it keeps growing. The role is not simply “someone who knows ${page.software}.” The better brief is a defined operating responsibility: keep ${taskA}, ${taskB}, ${taskC}, and related records moving according to your process. That means the Virtual Assistant needs to understand where work enters the system, which fields or documents matter, what a complete record looks like, and which exceptions must be escalated instead of guessed.`,
+    specialist: `Software familiarity can shorten onboarding, but process discipline is what makes the hire valuable. A strong Philippines-based ${page.software} Virtual Assistant should be able to explain the sequence behind the work, not just point to buttons or menus. Ask how they would move from “${workflowA}” to “${workflowB},” how they would check that “${workflowC}” is complete, and what they would do before “${workflowD}.” That conversation reveals whether the candidate can operate inside a repeatable workflow, maintain clean records, communicate blockers, and protect your team from silent administrative errors.`,
     delegation: `Before delegating live work, write down the source of truth for each task. Identify who can create or change records, which approvals are required, what naming conventions to use, where supporting documents belong, and how the Virtual Assistant should record a handoff. For ${page.software}, this is especially important because one incomplete update can affect scheduling, billing, reporting, customer communication, or another team member’s next action. A simple checklist is often enough: inputs received, required fields checked, supporting information attached, status updated, exception noted, and next owner identified.`,
     weekOne: `In the first week, keep the scope narrow. Give the Virtual Assistant a guided tour of your ${page.software} setup, your terminology, user permissions, and the handful of workflows that happen most often. Use redacted or low-risk examples where possible. Have the Virtual Assistant shadow several completed cases, then repeat the same process with supervision. The goal is not speed yet. It is consistency: the candidate should understand what “done” means in your business, where information comes from, and when they must stop and ask rather than making an assumption.`,
     weekTwo: `During the second week, move the Virtual Assistant onto a controlled production queue. Assign a predictable group of tasks such as ${page.tasks.slice(0, 4).join(", ")}. Review a sample of completed work daily and correct process gaps while they are still small. At this stage, managers should look for record accuracy, complete notes, timely follow-up, and whether the Virtual Assistant is using the agreed escalation rules. If the same mistake happens twice, improve the checklist or training material instead of relying on memory and verbal reminders.`,
@@ -86,17 +86,20 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const talentHref = `/find-talent?category=${encodeURIComponent(page.directoryCategory)}`;
   const matchService = relatedServices.find((service) => service?.directoryCategory === page.directoryCategory) || relatedServices[0];
   const matchExample = `Run our ${page.software} workflow: ${page.tasks.slice(0, 3).join(", ")}, and flag anything that needs a decision.`;
+  const seoTitle = localizeEnglish(softwareSeoTitle(page), page.locale);
+  const seoDescription = localizeEnglish(softwareSeoDescription(page), page.locale);
+  const seoH1 = localizeEnglish(softwareSeoH1(page), page.locale);
   const longForm = localizeContent(softwareLongFormCopy(page), page.locale);
 
   const faqs = localizeContent([
-    { q: `Can a virtual assistant actually run ${page.software}?`, a: `Yes, once trained on your specific workflow. Common ${page.software} tasks include ${page.tasks.slice(0, 5).join(", ")}. Scope the role around what you actually need before hiring.` },
+    { q: `Can a virtual assistant in the Philippines actually run ${page.software}?`, a: `Yes. A Philippines-based Virtual Assistant can run defined ${page.software} administration once trained on your specific workflow. Common ${page.software} tasks include ${page.tasks.slice(0, 5).join(", ")}. Scope the role around what you actually need before hiring.` },
     { q: `What should stay with my local team instead of the Virtual Assistant?`, a: page.hiringNotes[page.hiringNotes.length - 1] || "Regulated advice, final approvals, and compliance decisions should stay with the appropriately licensed or authorised local professional." },
     { q: `Who is this best for?`, a: `${titleCase(page.bestFor.join(", "))} typically get the most value from a ${page.software} Virtual Assistant.` },
     { q: `How is this different from a generic virtual assistant?`, a: `A ${page.software} Virtual Assistant is trained on this specific platform from day one, so onboarding is faster and the role can start on real production work sooner instead of learning the system from scratch.` }
   ], page.locale);
 
   const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: page.h1, url: pageUrl, description: page.metaDescription, provider: organizationRef(base), areaServed: isAu ? "Australia" : "Worldwide" },
+    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoH1, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: isAu ? "Australia" : "Worldwide" },
     { "@context": "https://schema.org", "@type": "FAQPage", "@id": `${pageUrl}#faq`, mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },
@@ -113,8 +116,9 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
       <div className="specialty-hero-grid service-conversion-hero-grid">
         <div className="public-page-head service-conversion-copy">
           <span className="badge">{page.category}</span>
-          <h1 className="public-page-title" style={{ marginTop: 12 }}>{page.h1}</h1>
+          <h1 className="public-page-title" style={{ marginTop: 12 }}>{seoH1}</h1>
           <p className="public-lede service-hero-lede">{page.intro}</p>
+          <p className="muted small">Hire a Philippines-based {page.software} Virtual Assistant for trained, repeatable administrative support inside your existing workflow.</p>
 
           <div className="service-hero-proof" aria-label="Hiring benefits">
             <span><BadgeCheck size={16}/>Approved talent</span>
@@ -166,14 +170,14 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
     </div></section>
 
     <section className="section software-depth-section"><div className="container software-reading-width">
-      <div className="section-head"><div className="kicker">Role design</div><h2>What a {page.software} virtual assistant should actually own.</h2></div>
+      <div className="section-head"><div className="kicker">Role design</div><h2>What a {page.software} virtual assistant in the Philippines should actually own.</h2></div>
       <p>{longForm.overview}</p>
       <p>{longForm.specialist}</p>
       <div className="software-callout"><strong>Start with ownership, not a software keyword.</strong><p>{longForm.delegation}</p></div>
     </div></section>
 
     <section className="section section-white"><div className="container">
-      <div className="section-head"><div className="kicker">First 30 days</div><h2>A practical onboarding plan for {page.software} support.</h2><p>Increase access and independence only after the Virtual Assistant demonstrates accuracy on the previous stage.</p></div>
+      <div className="section-head"><div className="kicker">First 30 days</div><h2>A practical onboarding plan for a Philippines-based {page.software} Virtual Assistant.</h2><p>Increase access and independence only after the Virtual Assistant demonstrates accuracy on the previous stage.</p></div>
       <div className="software-onboarding-grid">
         <article><span>Week 1</span><h3>Learn the process</h3><p>{longForm.weekOne}</p></article>
         <article><span>Week 2</span><h3>Run a controlled queue</h3><p>{longForm.weekTwo}</p></article>
@@ -192,7 +196,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
     </div></section>
 
     <section className="section section-white"><div className="container software-reading-width">
-      <div className="section-head"><div className="kicker">Staffing model</div><h2>Part-time or full-time {page.software} Virtual Assistant?</h2></div>
+      <div className="section-head"><div className="kicker">Staffing model</div><h2>Part-time or full-time {page.software} Virtual Assistant in the Philippines?</h2></div>
       <p>{longForm.capacity}</p>
       <div className="software-fit-grid">
         <article><h3>When this role is a good fit</h3><p>{longForm.fit}</p></article>
@@ -214,7 +218,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
     </div></section> : null}
 
 
-    <section className="section"><div className="container faq-narrow"><div className="section-head specialty-section-head"><h2>{page.software} virtual assistant questions.</h2></div>
+    <section className="section"><div className="container faq-narrow"><div className="section-head specialty-section-head"><h2>{page.software} Virtual Assistant Philippines questions.</h2></div>
       <div className="faq-list">{faqs.map((faq) => <details className="faq-item" key={faq.q}><summary>{faq.q}</summary><p>{faq.a}</p></details>)}</div>
     </div></section>
   </main><SiteFooter/></>;

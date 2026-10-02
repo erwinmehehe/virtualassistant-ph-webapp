@@ -20,6 +20,28 @@ function assessmentPassed(assessment: TrainingAssessment) {
   );
 }
 
+function trainingCourseMark(slug: string, title: string) {
+  const value = slug.toLowerCase();
+  if (value === "virtual-assistant-foundations") return "VA";
+  if (value.includes("seo")) return "SEO";
+  if (value.includes("ndis")) return "NDIS";
+  if (value.includes("xero")) return "XERO";
+  if (value.includes("myob")) return "MYOB";
+  if (value.includes("cliniko")) return "CLIN";
+  if (value.includes("servicem8")) return "S8";
+  if (value.includes("real-estate") || value.includes("property")) return "PROP";
+  if (value.includes("bookkeeping") || value.includes("payroll")) return "FIN";
+  if (value.includes("customer-support")) return "CS";
+  if (value.includes("executive")) return "EA";
+  if (value.includes("operations")) return "OPS";
+  if (value.includes("project-management")) return "PM";
+  if (value.includes("social-media")) return "SOC";
+  if (value.includes("marketing")) return "MKT";
+  if (value.includes("sales") || value.includes("lead-generation")) return "SALES";
+  const words = title.replace(/virtual assistant/gi, "").replace(/[^a-z0-9 ]/gi, " ").split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "VA";
+}
+
 function LessonContent({ value }: { value: unknown }) {
   const blocks = contentBlocks(value);
   if (!blocks.length) {
@@ -165,6 +187,7 @@ export default async function TrainingLessonPage({
     engagement?.checkpointPassedAt &&
     engagement.checkpointKey === checkpoint.checkpointKey,
   );
+  const courseMark = trainingCourseMark(course.slug, course.title);
 
   const playerVariant = course.slug === "virtual-assistant-foundations"
     ? " training-foundations-player"
@@ -233,21 +256,28 @@ export default async function TrainingLessonPage({
         </div>
       ) : null}
 
-      <section className="card training-player-progress" aria-label="Course progress">
-        <div className="training-player-progress-copy">
-          <div>
-            <span className="small muted">{currentModule ? currentModule.title : course.title}</span>
-            <strong>Lesson {lessonIndex + 1} of {course.lessonCount}</strong>
+      <section className="card training-player-progress training-player-progress-v2" aria-label="Course progress">
+        <div className="training-player-progress-mark" aria-hidden="true">{courseMark}</div>
+        <div className="training-player-progress-main">
+          <div className="training-player-progress-copy">
+            <div>
+              <span className="small muted">{course.title}</span>
+              <strong>{currentModule ? currentModule.title : "Course progress"}</strong>
+              <small>Lesson {lessonIndex + 1} of {course.lessonCount}</small>
+            </div>
+            <span className="training-player-progress-value">{lessonProgress}%</span>
           </div>
-          <span className="training-player-progress-value">{lessonProgress}%</span>
+          <div className="progress"><span style={{ width: `${lessonProgress}%` }}/></div>
         </div>
-        <div className="progress"><span style={{ width: `${lessonProgress}%` }}/></div>
       </section>
 
       <div className="training-player-layout">
         <article className="card dashboard-section-card training-player-content">
           <div className="training-player-lesson-head">
-            <div className="dash-kicker">Lesson {lessonIndex + 1}</div>
+            <div className="training-player-lesson-position">
+              <span className="dash-kicker">Lesson {lessonIndex + 1}</span>
+              <span>{currentModule ? `Module ${currentModule.position}` : "Course lesson"}</span>
+            </div>
             <h1>{lesson.title}</h1>
             {lesson.summary ? <p>{lesson.summary}</p> : null}
             <div className="row wrap">
@@ -338,7 +368,7 @@ export default async function TrainingLessonPage({
         </article>
 
         <aside className="training-player-sidebar">
-          <details className="card training-player-outline">
+          <details className="card training-player-outline" open>
             <summary>
               <span>
                 <strong>{currentModule ? currentModule.title : "Course progress"}</strong>

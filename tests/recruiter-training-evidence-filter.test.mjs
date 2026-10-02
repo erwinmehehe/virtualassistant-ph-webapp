@@ -13,7 +13,7 @@ test("recruiter matching receives completed learning paths as supporting evidenc
   assert.match(staff, /completedTrainingSpecializations/);
   assert.match(staff, /const trainingCredentials=trainingByUser\.get\(va\.user_id\)\|\|\[\]/);
   assert.match(staff, /const trainingPaths=completedTrainingSpecializations\(trainingCredentials\)/);
-  assert.match(staff, /trainingCredentials,trainingPaths/);
+  assert.match(staff, /trainingCredentials:trainingByUser\.get\(va\.user_id\)\|\|\[\],trainingPaths/);
 });
 
 test("candidate table can search and filter verified training without changing shortlist rules", async () => {

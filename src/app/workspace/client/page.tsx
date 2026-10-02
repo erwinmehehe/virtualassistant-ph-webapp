@@ -5,6 +5,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { DashHeader } from "@/components/dash-ui";
+import { KiroGuide } from "@/components/kiro-guide";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
@@ -56,6 +57,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
         : jobCount
           ? {title:"Your recruiter is working the role",copy:"We are screening the vetted VA pool and will only send people ready for your review.",href:"/workspace/client/jobs",label:"View role progress",step:1}
           : {title:"Tell us who you need",copy:"Share the work in your own words. We will turn it into a clear hiring brief and manage the search.",href:"/workspace/client/jobs/new",label:"Start hiring",step:0};
+  const kiroState = pipeline.offered ? "attention" : pipeline.interview ? "reminder" : pipeline.shortlisted ? "success" : jobCount ? "thinking" : "welcome";
 
   return <div className="dash-page role-overview client-overview client-mobile-dashboard">
     <DashboardDegradedNotice issues={issues}/>
@@ -84,7 +86,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
       </div>
     </section>:null}
 
-    <section className="workflow-progress card client-mobile-workflow" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We recruit & vet","Review shortlist","Interview","Confirm & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><div className="workflow-current"><div><span className="small">Current action</span><h2>{currentAction.title}</h2><p>{currentAction.copy}</p><small className="muted">{currentAction.step===1?"Waiting on your recruiter":currentAction.step>=2?"Waiting on you":""}</small></div><Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link></div></section>
+    <section className="workflow-progress card client-mobile-workflow" aria-label="Hiring progress"><div className="workflow-steps">{["Tell us what you need","We recruit & vet","Review shortlist","Interview","Confirm & start"].map((label,index)=><div className={`workflow-step ${index<currentAction.step?"done":index===currentAction.step?"current":""}`} key={label}><span>{index<currentAction.step?"✓":index+1}</span><strong>{label}</strong></div>)}</div><KiroGuide compact state={kiroState} title={currentAction.title} description={currentAction.copy} action={{href:currentAction.href,label:currentAction.label}} /></section>
 
     <section className="card dashboard-section-card client-mobile-attention"><div className="dashboard-section-head"><div><h2>Needs your attention</h2><p>No raw applicants or internal recruiter tasks appear here. Only client decisions do.</p></div>{attention.length?<span className="badge badge-warning">{attention.length} action{attention.length===1?"":"s"}</span>:<span className="badge badge-success">All caught up</span>}</div>{attention.length?<div className="attention-grid">{attention.slice(0,6).map((item)=>{const Icon=item.icon;return <Link className="attention-card" href={item.href} key={item.title}><div className="attention-count">{item.count}</div><div><div className="row"><Icon size={16}/><strong>{item.title}</strong></div><p>{item.copy}</p></div><ArrowRight size={16}/></Link>})}</div>:<div className="dashboard-caught-up"><UserRoundCheck size={22}/><div><strong>No hiring decision is waiting on you.</strong><p>Your recruiter owns the next step until a shortlist, interview, offer, or placement issue needs your input.</p></div></div>}</section>
 

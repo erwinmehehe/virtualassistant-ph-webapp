@@ -45,7 +45,23 @@ Two durable tasks work together:
 - the existing 2-day client reminder email remains in maintenance
 - legacy recruiter proposal reminders remain active until `TRIGGER_AUTOMATIONS_ACTIVE=1`
 
-## Activate
+
+## Shortlist and interview conversion
+
+Three durable tasks cover the next conversion stage:
+
+- `vaph-shortlist-review` checks released shortlists at 24 hours and 48 hours
+- unresolved client decisions create one recruiter follow-up task that escalates to urgent at 48 hours
+- the client also receives an in-app shortlist reminder; no automatic client email is sent by this workflow
+- `vaph-interview-scheduling` checks a client-requested interview after 4 hours and again at 24 hours
+- scheduling or cancelling the interview clears stale scheduling work
+- `vaph-interview-feedback` starts from the scheduled interview time, waits until two hours after the interview ends, and asks for Proceed, Hold, or Pass
+- missing feedback escalates to urgent 24 hours after the interview
+- reschedules invalidate older feedback runs by comparing the current `scheduled_at`
+- Proceed immediately creates a recruiter `Prepare placement offer` task
+- creating the placement offer clears the offer-preparation task
+- legacy daily shortlist and interview reminders remain active until `TRIGGER_AUTOMATIONS_ACTIVE=1`
+
 
 1. Create a Trigger.dev project.
 2. Set `TRIGGER_PROJECT_REF` locally in this package.

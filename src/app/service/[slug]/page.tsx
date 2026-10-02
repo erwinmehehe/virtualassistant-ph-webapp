@@ -36,6 +36,7 @@ import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
 import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
+import { serviceOgCategory, socialMetadata } from "@/lib/og";
 
 export const revalidate = 3600;
 
@@ -55,8 +56,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: title },
     description,
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description, locale: page.locale === "en-AU" ? "en_AU" : undefined },
-    twitter: { card: "summary_large_image", title, description }
+    ...socialMetadata({
+      title,
+      description,
+      path: canonical,
+      category: serviceOgCategory(page.group),
+      locale: page.locale === "en-AU" ? "en_AU" : undefined,
+      eyebrow: page.group,
+      points: localizedPage.tasks.slice(0, 4),
+    })
   };
 }
 

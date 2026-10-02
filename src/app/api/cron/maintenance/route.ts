@@ -282,7 +282,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
         repeatDays: 2
       })) offerNudges++;
     }
-    if (offer.status === "pending_client" && offer.va_accepted_at && new Date(offer.va_accepted_at).getTime() <= Date.now() - 24 * 60 * 60 * 1000) {
+    if (!durableHiringAutomation && offer.status === "pending_client" && offer.va_accepted_at && new Date(offer.va_accepted_at).getTime() <= Date.now() - 24 * 60 * 60 * 1000) {
       if (await sendWorkflowReminder(admin, {
         subjectType: "job",
         subjectId: offer.job_id,

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { DashHeader } from "@/components/dash-ui";
+import { KiroGuide } from "@/components/kiro-guide";
 import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withServerTiming } from "@/lib/server-timing";
@@ -529,15 +530,15 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     />
     <RecruiterOperationsNav current="today" taskCount={openTasks} notificationCount={unreadNotifications}/>
 
-    <section className={`${styles.nextAction} ${primaryAction.count ? styles.nextActionOpen : styles.nextActionClear}`} aria-labelledby="recruiter-next-action">
-      <span className={styles.nextActionIcon}>{primaryAction.icon}</span>
-      <div className={styles.nextActionCopy}>
-        <span>Next up{primaryAction.count ? ` · ${primaryAction.count} waiting` : ""}</span>
-        <h2 id="recruiter-next-action">{primaryAction.title}</h2>
-        <p>{primaryAction.copy}</p>
-      </div>
-      <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
-    </section>
+    <KiroGuide
+      compact
+      className={styles.kiroBriefing}
+      state={primaryAction.count ? "attention" : "success"}
+      eyebrow="Kiro · Recruiter briefing"
+      title={primaryAction.title}
+      description={primaryAction.copy}
+      action={{ href: primaryAction.href, label: primaryAction.cta }}
+    />
 
     <section id="sales-closing" className={styles.closingCommandCenter} aria-labelledby="sales-closing-heading">
       <div className={styles.closingCommandHead}>

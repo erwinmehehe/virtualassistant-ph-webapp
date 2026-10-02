@@ -9,7 +9,7 @@ import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recordProductEvent } from "@/lib/product-events";
 import { queueInterviewSchedulingAutomation } from "@/lib/trigger-automation";
-import { resolveShortlistReviewIfComplete } from "@/lib/hiring-pipeline-automation";
+import { resolveInterviewSchedulingIfClear, resolveShortlistReviewIfComplete } from "@/lib/hiring-pipeline-automation";
 
 const CLIENT_DECISIONS = new Set(["interested", "interview", "hold", "pass"]);
 const HOLD_REASONS = new Set(["need_more_information", "comparing_candidates", "rate_concern", "schedule_timezone_concern", "team_approval", "other"]);
@@ -284,6 +284,14 @@ export async function clientShortlistDecisionAction(formData: FormData) {
       .eq("status", "requested")
       .is("scheduled_at", null);
     await resolveVaInterviewRequestNotification(admin, vaId, job.title);
+    try {
+      await resolveInterviewSchedulingIfClear(admin, jobId);
+    } catch (automationError) {
+      console.error("[automation] interview scheduling cleanup failed", {
+        jobId,
+        error: automationError instanceof Error ? automationError.message : String(automationError),
+      });
+    }
   }
 
   await recordProductEvent("client_shortlist_decision", {

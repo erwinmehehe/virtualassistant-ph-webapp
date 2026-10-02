@@ -57,3 +57,29 @@ test("legacy software URLs permanently redirect to clean slugs", async () => {
   assert.match(config, /destination: `\/software\/\$\{slug\}`/);
   assert.match(config, /permanent: true/);
 });
+
+
+test("software redirect registry covers every canonical software slug", async () => {
+  const software = await readFile(softwarePath, "utf8");
+  const config = await readFile("next.config.ts", "utf8");
+  const slugs = [...software.matchAll(/^\s*slug:\s*"([^"]+)"/gm)].map((match) => match[1]);
+  const redirectMatch = config.match(/const SOFTWARE_SLUG_REDIRECTS = \[([^\]]+)\] as const;/);
+  assert.ok(redirectMatch, "software legacy redirect registry is missing");
+  const redirects = [...redirectMatch[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+
+  assert.deepEqual(redirects, slugs, "legacy software redirects must stay in lockstep with canonical software pages");
+});
+
+test("software pages remain discoverable from the hub, sitemap, static params, and canonical metadata", async () => {
+  const hub = await readFile("src/app/software/page.tsx", "utf8");
+  const route = await readFile(routePath, "utf8");
+  const sitemap = await readFile("src/app/sitemap.ts", "utf8");
+
+  assert.match(hub, /softwarePages\.map|pages\.map/);
+  assert.match(hub, /href=\{\`\/software\/\$\{page\.slug\}\`\}/);
+  assert.match(route, /generateStaticParams\(\)/);
+  assert.match(route, /softwarePages\.map\(\(page\) => \(\{ slug: page\.slug \}\)\)/);
+  assert.match(route, /canonicalPath\(\`\/software\/\$\{page\.slug\}\`\)/);
+  assert.match(sitemap, /softwarePages\.map\(\(page\) => \(\{/);
+  assert.match(sitemap, /url: \`\$\{base\}\/software\/\$\{page\.slug\}\`/);
+});

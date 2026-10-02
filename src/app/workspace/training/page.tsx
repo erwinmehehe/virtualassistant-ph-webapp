@@ -323,6 +323,8 @@ export default async function TrainingDashboardPage({
         </section>
       ) : null}
 
+      {libraryOpen ? (
+        <div className="training-extended-library">
       {!isNewLearner ? (
         <div className="training-home-stats" aria-label="Learning summary">
           <span><strong>{active.length}</strong> active</span>
@@ -611,7 +613,7 @@ export default async function TrainingDashboardPage({
         )}
       </section>
 
-      <section id="certificates" className="card dashboard-section-card training-certificates-card">
+      <section id="certificate-library" className="card dashboard-section-card training-certificates-card">
         <div className="training-section-heading">
           <div>
             <span className="small">Credentials</span>
@@ -652,6 +654,8 @@ export default async function TrainingDashboardPage({
           </div>
         )}
       </section>
+        </div>
+      ) : null}
     </div>
   );
 }

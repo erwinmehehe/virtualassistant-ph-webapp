@@ -25,7 +25,6 @@ export const metadata: Metadata = {
   description: "Contact VirtualAssistant.com.ph about hiring a Virtual Assistant, account support, partnerships, privacy, or general questions.",
   keywords: ["contact virtualassistant.com.ph", "virtual assistant support"],
   alternates: { canonical: canonicalPath("/contact") },
-,
   ...socialMetadata({
     title: "Contact VirtualAssistant.com.ph",
     description: "Contact VirtualAssistant.com.ph about hiring a Virtual Assistant, account support, partnerships, privacy, or general questions.",

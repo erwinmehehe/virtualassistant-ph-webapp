@@ -9,6 +9,8 @@ import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement"
 import { runVaAddressResumeBackfill } from "@/lib/va-address-backfill";
 import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
 import { proposalAutomationConfigured, triggerAutomationsActive } from "@/lib/trigger-automation";
+import { syncPlacementRetentionRecovery } from "@/lib/placement-retention-automation";
+import { ensurePlacementHandoffAction } from "@/lib/post-hire-automation";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -309,6 +311,83 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
   return { recruiterNudges, client24h, client48h, vaNudges, interviewScheduleNudges, offerNudges };
 }
 
+async function runPlacementHandoffRecovery(admin: ReturnType<typeof createAdminClient>) {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: rooms, error } = await admin
+    .from("workrooms")
+    .select("id,job_id,client_success_owner_id,created_at")
+    .eq("status", "active")
+    .is("handoff_completed_at", null)
+    .lte("created_at", cutoff)
+    .limit(200);
+  if (error) throw error;
+  if (!rooms?.length) return { checked: 0, escalated: 0 };
+
+  const jobIds = [...new Set(rooms.map((room: any) => room.job_id).filter(Boolean))];
+  const { data: jobs, error: jobError } = await admin
+    .from("jobs")
+    .select("id,title,recruiter_id")
+    .in("id", jobIds);
+  if (jobError) throw jobError;
+  const jobMap = new Map((jobs || []).map((job: any) => [String(job.id), job]));
+
+  let escalated = 0;
+  for (const room of rooms as any[]) {
+    const job: any = jobMap.get(String(room.job_id));
+    if (!job) continue;
+    const result = await ensurePlacementHandoffAction({
+      admin,
+      workroomId: room.id,
+      job,
+      clientSuccessOwnerId: room.client_success_owner_id,
+      urgent: true,
+    });
+    if (!("reason" in result && result.reason === "no_active_recruiter")) escalated++;
+  }
+
+  return { checked: rooms.length, escalated };
+}
+
+async function runPlacementRetentionRecovery(admin: ReturnType<typeof createAdminClient>) {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: checkins, error } = await admin
+    .from("placement_checkins")
+    .select("id,workroom_id,due_at,checkpoint")
+    .in("checkpoint", ["day3", "day7", "day14", "day30"])
+    .lte("due_at", new Date().toISOString())
+    .gte("due_at", daysAgo(45))
+    .order("due_at", { ascending: false })
+    .limit(500);
+  if (error) throw error;
+
+  const latestByRoom = new Map<string, any>();
+  for (const row of checkins || []) {
+    if (!latestByRoom.has(String(row.workroom_id))) {
+      latestByRoom.set(String(row.workroom_id), row);
+    }
+  }
+
+  let synced = 0;
+  let overdueCandidates = 0;
+  for (const row of latestByRoom.values()) {
+    if (row.due_at <= cutoff) overdueCandidates++;
+    const result = await syncPlacementRetentionRecovery({
+      admin,
+      workroomId: row.workroom_id,
+      checkinId: row.id,
+    });
+    if (["urgent_recovery", "review_concern", "response_overdue", "healthy"].includes(String(result.action))) {
+      synced++;
+    }
+  }
+
+  return {
+    roomsChecked: latestByRoom.size,
+    overdueCandidates,
+    synced,
+  };
+}
+
 async function runTrainingResumeNudges(admin: ReturnType<typeof createAdminClient>) {
   const inactivityCutoff = daysAgo(3);
   const { data: enrollmentData } = await admin
@@ -467,6 +546,115 @@ async function runTalentHealthNudges(admin: ReturnType<typeof createAdminClient>
     })) sent++;
   }
   return { staleChecked: stale.length, sent };
+}
+
+async function runClientClaimFollowups(admin: ReturnType<typeof createAdminClient>) {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: inviteRows, error: inviteError } = await admin
+    .from("recruiter_activity")
+    .select("subject_id,metadata,created_at")
+    .eq("subject_type", "job")
+    .eq("action", "client_review_invited")
+    .gte("created_at", daysAgo(14))
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (inviteError) throw inviteError;
+
+  const latestByJob = new Map<string, any>();
+  for (const row of inviteRows || []) {
+    if (!latestByJob.has(String(row.subject_id))) latestByJob.set(String(row.subject_id), row);
+  }
+
+  const eligibleInvites = [...latestByJob.values()].filter((row: any) => {
+    const sentAt = String(row.metadata?.invite_sent_at || row.created_at || "");
+    return sentAt && sentAt <= cutoff;
+  });
+  if (!eligibleInvites.length) return { checked: latestByJob.size, eligible: 0, sent: 0 };
+
+  const jobIds = eligibleInvites.map((row: any) => String(row.subject_id));
+  const { data: jobs, error: jobsError } = await admin
+    .from("jobs")
+    .select("id,title,lead_id,client_id")
+    .in("id", jobIds);
+  if (jobsError) throw jobsError;
+  const jobMap = new Map((jobs || []).map((job: any) => [String(job.id), job]));
+
+  const leadIds = [...new Set((jobs || []).map((job: any) => String(job.lead_id || "")).filter(Boolean))];
+  const [{ data: leads, error: leadsError }, { data: priorFollowups, error: priorError }] = await Promise.all([
+    leadIds.length
+      ? admin.from("lead_intake").select("id,name,email,client_id").in("id", leadIds)
+      : Promise.resolve({ data: [] as any[], error: null }),
+    admin.from("recruiter_activity")
+      .select("subject_id")
+      .eq("subject_type", "job")
+      .eq("action", "client_review_invite_followup_sent")
+      .in("subject_id", jobIds),
+  ]);
+  if (leadsError) throw leadsError;
+  if (priorError) throw priorError;
+  const leadMap = new Map((leads || []).map((lead: any) => [String(lead.id), lead]));
+  const alreadyFollowedUp = new Set((priorFollowups || []).map((row: any) => String(row.subject_id)));
+
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  let sent = 0;
+  for (const invite of eligibleInvites as any[]) {
+    const job: any = jobMap.get(String(invite.subject_id));
+    if (!job || job.client_id || alreadyFollowedUp.has(String(job.id)) || !job.lead_id) continue;
+    const lead: any = leadMap.get(String(job.lead_id));
+    if (!lead?.email || lead.client_id) continue;
+
+    const params = new URLSearchParams({
+      lead: String(lead.id),
+      next: `/workspace/client/jobs/${job.id}`,
+    });
+    const claimUrl = `${appUrl}/auth/join/client?${params.toString()}`;
+    const firstName = String(lead.name || "there").trim().split(/\s+/)[0] || "there";
+
+    let delivery;
+    try {
+      delivery = await sendTransactionalEventEmail({
+        to: lead.email,
+        firstName,
+        subject: `Your VA shortlist is ready when you are: ${job.title}`,
+        heading: "Your recruiter shortlist is waiting",
+        body: "We have recruiter-reviewed Virtual Assistants ready for you. Create or link your Client account with the same email address to open the private shortlist and choose your next step.",
+        href: claimUrl,
+        hrefLabel: "Review my shortlist",
+        senderName: "VirtualAssistant.com.ph Hiring Team",
+        teamLabel: "Hiring team",
+        footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support.",
+        eventType: "client_shortlist_claim_followup",
+        idempotencyKey: `client-shortlist-claim-followup-${job.id}-${lead.id}`,
+        priority: "standard",
+      });
+    } catch (error) {
+      console.error("[client-shortlist-claim-followup] email failed", {
+        jobId: job.id,
+        leadId: lead.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      continue;
+    }
+
+    if (!delivery.sent) continue;
+    sent++;
+    const now = new Date().toISOString();
+    await admin.from("recruiter_activity").insert({
+      subject_type: "job",
+      subject_id: job.id,
+      action: "client_review_invite_followup_sent",
+      description: "Sent the one-time client account-claim follow-up for the prepared shortlist",
+      actor_id: null,
+      metadata: { lead_id: lead.id, invite_sent_at: invite.metadata?.invite_sent_at || invite.created_at },
+    });
+    await admin
+      .from("lead_intake")
+      .update({ next_follow_up_at: now, stage_updated_at: now })
+      .eq("id", lead.id)
+      .is("client_id", null);
+  }
+
+  return { checked: latestByJob.size, eligible: eligibleInvites.length, sent };
 }
 
 async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>) {
@@ -713,15 +901,18 @@ export async function GET(request: Request) {
   // the same lifecycle state during this maintenance run.
   const expiredJobResult = await runMaintenanceTask("expired job cleanup", () => runExpiredJobCleanup(admin));
 
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult, addressBackfillResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, handoffRecoveryResult, retentionRecoveryResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, clientClaimFollowupResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult, addressBackfillResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
     runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin)),
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
+    runMaintenanceTask("placement handoff recovery", () => runPlacementHandoffRecovery(admin)),
+    runMaintenanceTask("placement retention recovery", () => runPlacementRetentionRecovery(admin)),
     runMaintenanceTask("recruiter notification hygiene", () => runRecruiterNotificationHygiene(admin)),
     runMaintenanceTask("training resume nudges", () => runTrainingResumeNudges(admin)),
     runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
+    runMaintenanceTask("client shortlist claim follow-up", () => runClientClaimFollowups(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
     runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
     runMaintenanceTask("PayMongo reconciliation", () => reconcilePaymongoPayments(75)),
@@ -729,5 +920,5 @@ export async function GET(request: Request) {
     runMaintenanceTask("VA address resume backfill", () => runVaAddressResumeBackfill(8))
   ]);
   const trainingLaunchResult = await runMaintenanceTask("VA training launch announcement", () => sendVaTrainingAnnouncementBatch(20));
-  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, addressBackfill: addressBackfillResult, trainingLaunchAnnouncement: trainingLaunchResult });
+  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementHandoffRecovery: handoffRecoveryResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, clientClaimFollowups: clientClaimFollowupResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, addressBackfill: addressBackfillResult, trainingLaunchAnnouncement: trainingLaunchResult });
 }

@@ -17,7 +17,7 @@ test("public training hero sells the live product instead of the old roadmap con
   assert.match(page, /100% free/);
   assert.match(page, /Certificates you can share/);
   assert.match(page, /Training is free and completely separate from hiring/);
-  assert.match(page, /Kiro · Your training coach/);
+  assert.match(page, /Hi! I’m Kiro/);
   assert.doesNotMatch(page, /courses mapped/);
   assert.doesNotMatch(page, /First course being prepared/);
 });

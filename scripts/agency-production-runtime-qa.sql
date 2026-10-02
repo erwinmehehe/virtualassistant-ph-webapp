@@ -318,7 +318,7 @@ set managed_result = public.accept_lead_proposal_atomic(
   )
 );
 
-do $
+do $managed$
 declare q vaph_release_qa_extended%rowtype;
 begin
   select * into q from vaph_release_qa_extended limit 1;
@@ -360,7 +360,7 @@ begin
     raise exception 'Managed-service candidate access was not provisioned';
   end if;
 end
-$;
+$managed$;
 
 insert into public.lead_intake (
   id, name, email, service, company, timezone, message, source_page,
@@ -407,7 +407,7 @@ set failure_result = public.accept_lead_proposal_atomic(
   jsonb_build_object('title', 'Failure-path Administrative Virtual Assistant')
 );
 
-do $
+do $failure$
 declare q vaph_release_qa_extended%rowtype;
 begin
   select * into q from vaph_release_qa_extended limit 1;
@@ -430,7 +430,7 @@ begin
     raise exception 'Invalid-client failure left partial hiring state';
   end if;
 end
-$;
+$failure$;
 
 select jsonb_build_object(
   'atomic_acceptance', 'passed',

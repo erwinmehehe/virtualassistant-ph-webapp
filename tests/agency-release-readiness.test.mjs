@@ -24,13 +24,15 @@ test("agency production preflight is read-only and returns one complete JSON res
 test("release readiness records current production and preserves unresolved runtime gates", async () => {
   const readiness = await readFile("AGENCY_RELEASE_READINESS.md", "utf8");
 
-  assert.match(readiness, /634618ff1167f798c06ba4d13b0b80004d3ec013/);
-  assert.match(readiness, /dpl_HjUZfp2ArGZC8vJx4wiW4zwqACkH/);
-  assert.match(readiness, /dpl_3JzTir6NYJxF3TTzYEqMviLpXn6d/);
+  assert.match(readiness, /038f318838727e4a6f8abbb01346e0a93e2c16f1/);
+  assert.match(readiness, /dpl_HYMbthfBsQK3o7LPcgSMEAA6oo82/);
+  assert.match(readiness, /dpl_2HE99v4t4CL428TtwTxo9zhDA6Mw/);
   assert.match(readiness, /Accepted active roles missing paid\/comped candidate access: 0/);
   assert.match(readiness, /Accepted proposals missing a linked role or accepted commercials: 0/);
-  assert.match(readiness, /Production currently has 0 proposal rows/);
-  assert.match(readiness, /Backup\/recovery evidence: pending/);
-  assert.match(readiness, /Runtime Auth\/email and full hiring-journey evidence: pending/);
+  assert.match(readiness, /both `curated_placement` and `managed_service`/);
+  assert.match(readiness, /29 sent, 29 delivered, 0 failed, 0 bounced, and 0 complained/);
+  assert.match(readiness, /Supabase Free/);
+  assert.match(readiness, /Backup\/recovery evidence: BLOCKED/);
+  assert.match(readiness, /Browser Auth\/workspace and remaining proposal-response lifecycle: pending/);
   assert.match(readiness, /Go\/no-go: HOLD/);
 });

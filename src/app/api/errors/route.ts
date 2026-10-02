@@ -21,7 +21,12 @@ export async function POST(request: Request) {
       role: profile?.role || null,
       user_id: user?.id || null,
       user_agent: request.headers.get("user-agent")?.slice(0, 500) || null,
-      metadata: { source: "next_error_boundary" }
+      metadata: {
+        source: "next_error_boundary",
+        release_sha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null,
+        deployment_environment: process.env.VERCEL_ENV?.trim() || process.env.NODE_ENV || null,
+        deployment_host: process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() || process.env.VERCEL_URL?.trim() || null,
+      }
     });
     return NextResponse.json({ ok: true });
   } catch {

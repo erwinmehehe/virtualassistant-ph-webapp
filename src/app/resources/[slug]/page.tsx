@@ -12,6 +12,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import "@/app/homepage-sections.css";
 import "@/app/hiring-pages.css";
 import "@/app/info-pages.css";
+import { socialMetadata } from "@/lib/og";
 
 export function generateStaticParams() {
   return SEO_RESOURCE_PAGES.map((page) => ({ slug: page.slug }));
@@ -27,8 +28,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: page.metaDescription,
     keywords: page.keywords,
     alternates: { canonical },
-    openGraph: { type: "article", url: canonical, title: page.metaTitle, description: page.metaDescription },
-    twitter: { card: "summary_large_image", title: page.metaTitle, description: page.metaDescription }
+    ...socialMetadata({
+      title: page.metaTitle,
+      description: page.metaDescription,
+      path: canonical,
+      category: page.audience === "candidate" ? "training" : "blog",
+      type: "article",
+      eyebrow: page.clusterLabel,
+      points: page.sections.slice(0, 4).map((section) => section.heading),
+    })
   };
 }
 

@@ -6,6 +6,8 @@
   --kiro-lavender: #dccbff;
   position: relative;
   display: grid;
+  width: 100%;
+  margin: 14px 0 18px;
   grid-template-columns: 108px minmax(0, 1fr) auto;
   align-items: center;
   gap: 18px;

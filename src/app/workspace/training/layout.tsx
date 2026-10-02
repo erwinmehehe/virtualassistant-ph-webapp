@@ -1,5 +1,6 @@
 import { requireTrainingAccessFast } from "@/lib/auth";
 import { TrainingShell } from "@/components/training-shell";
+import { getTrainingShellData } from "@/lib/training-shell-data";
 import "./training-home.css";
 
 export const metadata = {
@@ -8,6 +9,16 @@ export const metadata = {
 };
 
 export default async function TrainingLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await requireTrainingAccessFast();
-  return <TrainingShell profile={profile}>{children}</TrainingShell>;
+  const { userId, profile } = await requireTrainingAccessFast();
+  const shellData = await getTrainingShellData(userId);
+  return (
+    <TrainingShell
+      profile={profile}
+      learnerName={shellData.authName}
+      notifications={shellData.notifications}
+      unreadCount={shellData.unreadCount}
+    >
+      {children}
+    </TrainingShell>
+  );
 }

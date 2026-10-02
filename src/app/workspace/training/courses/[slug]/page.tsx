@@ -12,6 +12,28 @@ function reviewedLabel(value: string | null) {
   return `Last reviewed ${new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric" }).format(date)}`;
 }
 
+function trainingCourseMark(slug: string, title: string) {
+  const value = slug.toLowerCase();
+  if (value === "virtual-assistant-foundations") return "VA";
+  if (value.includes("seo")) return "SEO";
+  if (value.includes("ndis")) return "NDIS";
+  if (value.includes("xero")) return "XERO";
+  if (value.includes("myob")) return "MYOB";
+  if (value.includes("cliniko")) return "CLIN";
+  if (value.includes("servicem8")) return "S8";
+  if (value.includes("real-estate") || value.includes("property")) return "PROP";
+  if (value.includes("bookkeeping") || value.includes("payroll")) return "FIN";
+  if (value.includes("customer-support")) return "CS";
+  if (value.includes("executive")) return "EA";
+  if (value.includes("operations")) return "OPS";
+  if (value.includes("project-management")) return "PM";
+  if (value.includes("social-media")) return "SOC";
+  if (value.includes("marketing")) return "MKT";
+  if (value.includes("sales") || value.includes("lead-generation")) return "SALES";
+  const words = title.replace(/virtual assistant/gi, "").replace(/[^a-z0-9 ]/gi, " ").split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "VA";
+}
+
 export default async function TrainingCoursePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { userId } = await requireAuthenticatedUserFast(`/workspace/training/courses/${slug}`);
@@ -116,20 +138,55 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                                                     ? " training-work-course training-australian-bookkeeping-course"
                                                     : "";
   const hasPracticalFinal = course.assessments.some((assessment) => assessment.assessment_type === "practical");
+  const courseMark = trainingCourseMark(course.slug, course.title);
+  const courseState = course.completedAt ? "Completed" : course.enrolled ? "In progress" : "Not started";
+  const nextStepLabel = !course.enrolled
+    ? "Start first lesson"
+    : course.completedAt && credentialHref
+      ? "View certificate"
+      : nextLesson
+        ? course.lessonCount - course.completedLessons === 1 ? "Finish last lesson" : "Continue lesson"
+        : nextAssessment
+          ? "Start final check"
+          : "Course overview";
 
   return (
     <div className={`dash-page role-overview training-home training-course-page${courseVariant}`}>
       <Link className="btn btn-sm training-course-back" href="/workspace/training"><ArrowLeft size={14}/> My learning</Link>
 
       <section className="card dashboard-section-card training-course-hero">
-        <div className="dash-kicker">{course.category}{course.country_focus ? ` · ${course.country_focus}` : ""}</div>
-        <h1>{course.title}</h1>
-        <p className="training-course-summary">{course.summary}</p>
+        <div className="training-course-hero-grid">
+          <div className="training-course-hero-main">
+            <div className="dash-kicker">{course.category}{course.country_focus ? ` · ${course.country_focus}` : ""}</div>
+            <h1>{course.title}</h1>
+            <p className="training-course-summary">{course.summary}</p>
 
-        <div className="row wrap training-course-meta-row">
-          <span className="badge"><Clock3 size={13}/> {course.lessonCount} lessons</span>
-          {reviewLabel ? <span className="badge">{reviewLabel}</span> : null}
-          {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
+            <div className="row wrap training-course-meta-row">
+              <span className="badge"><Clock3 size={13}/> {course.lessonCount} lessons</span>
+              <span className="badge">{course.modules.length} modules</span>
+              {reviewLabel ? <span className="badge">{reviewLabel}</span> : null}
+              {course.reviewed_by ? <span className="badge">Reviewed by {course.reviewed_by}</span> : null}
+            </div>
+          </div>
+
+          <aside className="training-course-identity" aria-label="Course status">
+            <div className="training-course-identity-top">
+              <span className="training-course-identity-mark">{courseMark}</span>
+              <span className={`training-course-identity-state is-${course.completedAt ? "complete" : course.enrolled ? "active" : "new"}`}>{courseState}</span>
+            </div>
+            <div className="training-course-identity-progress">
+              <div>
+                <span>Course progress</span>
+                <strong>{course.progressPercent}%</strong>
+              </div>
+              <div className="progress"><span style={{ width: `${course.progressPercent}%` }}/></div>
+              <small>{course.completedLessons} of {course.lessonCount} lessons complete</small>
+            </div>
+            <div className="training-course-identity-next">
+              <span>Next step</span>
+              <strong>{nextStepLabel}</strong>
+            </div>
+          </aside>
         </div>
 
         {isFoundationsCourse ? (
@@ -562,6 +619,9 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
               <h2>{module.title}</h2>
               {module.summary ? <p>{module.summary}</p> : null}
             </div>
+            <span className="training-module-progress">
+              {module.lessons.filter((lesson) => lesson.completed).length}/{module.lessons.length} complete
+            </span>
           </div>
           <div className="dash-actions training-module-lessons">
             {module.lessons.map((lesson) => {
@@ -582,7 +642,10 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
                   <span className="dash-action-copy training-lesson-copy">
                     <span className="dash-action-title"><strong>{lesson.title}</strong></span>
                     <span className="training-lesson-summary">{lesson.summary || "Detailed lesson with examples and practical application."}</span>
-                    <span className="training-lesson-meta"><Clock3 size={12}/>{lesson.estimated_minutes} min{isNextLesson ? " · Next lesson" : lesson.completed ? " · Completed" : ""}</span>
+                    <span className="training-lesson-meta"><Clock3 size={12}/>{lesson.estimated_minutes} min</span>
+                    <span className={`training-lesson-state ${isNextLesson ? "is-next" : lesson.completed ? "is-complete" : ""}`}>
+                      {isNextLesson ? "Up next" : lesson.completed ? "Completed" : "Not started"}
+                    </span>
                   </span>
                   <ArrowRight className="training-lesson-arrow" size={16}/>
                 </Link>

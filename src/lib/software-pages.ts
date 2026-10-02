@@ -5,6 +5,7 @@ export type SoftwareSeoPage = {
   locale?: "en-AU";
   name: string;
   software: string;
+  aliases?: string[];
   category: string;
   directoryCategory:
     | "Administrative Support"
@@ -1658,8 +1659,106 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["accountants-cpas","accounting-firms-month-end","small-business"]
   }
 
+,
+{
+    slug: "winbeat",
+    locale: "en-AU",
+    name: "WinBEAT Virtual Assistant",
+    software: "WinBEAT",
+    aliases: ["Ebix WinBEAT"],
+    category: "Insurance Broking",
+    directoryCategory: "Bookkeeping & Finance",
+    primaryKeyword: "winbeat virtual assistant philippines",
+    metaTitle: "WinBEAT Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based WinBEAT Virtual Assistants for policy records, renewals, document administration and broker workflow support.",
+    h1: "Keep WinBEAT Renewal and Policy Administration Current",
+    intro: "A WinBEAT Virtual Assistant can maintain approved client and policy records, prepare renewal administration, organise documents and keep follow-up visible while licensed advice, coverage recommendations and final approvals stay with authorised brokers.",
+    focus: "winbeat insurance broking administration",
+    workflows: ["review the approved renewal worklist","update client and policy records","organise renewal documents","record approved insurer and client follow-up","prepare broker review items","maintain correspondence and notes","track outstanding actions","escalate advice or coverage decisions"],
+    tasks: ["client record updates","policy administration","renewal preparation","document administration","broker follow-up support","correspondence logging","exception tracking"],
+    bestFor: ["general insurance brokerages","commercial insurance brokers","insurance broking networks"],
+    outcomes: ["Renewal records stay more current.","Outstanding client and insurer actions remain visible.","Brokers spend less time on repeatable system administration."],
+    hiringNotes: ["Use documented renewal and record-maintenance procedures.","Limit access to assigned client and policy work.","Keep insurance advice, coverage decisions, recommendations and regulated approvals with authorised brokers."],
+    relatedServiceSlugs: ["insurance-broker-renewal-virtual-assistant","insurance-virtual-assistant","admin-inbox"],
+    relatedIndustrySlugs: ["insurance-broker-renewal-desk","insurance-agencies"]
+  },
+{
+    slug: "insight",
+    locale: "en-AU",
+    name: "INSIGHT Virtual Assistant",
+    software: "INSIGHT",
+    aliases: ["Ebix INSIGHT"],
+    category: "Insurance Broking",
+    directoryCategory: "Bookkeeping & Finance",
+    primaryKeyword: "insight virtual assistant philippines",
+    metaTitle: "INSIGHT Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based INSIGHT Virtual Assistants for client records, renewal administration, documents and broker workflow support.",
+    h1: "Keep INSIGHT Broker Administration Ready for Review",
+    intro: "An INSIGHT Virtual Assistant can support defined broking administration such as client-record maintenance, renewal preparation, document organisation and approved follow-up while licensed advice and final insurance decisions remain with authorised staff.",
+    focus: "insight insurance broker administration",
+    workflows: ["review the assigned administration queue","update approved client and policy information","prepare renewal records","organise supporting documents","record correspondence and follow-up","track outstanding actions","prepare broker review items","escalate regulated decisions"],
+    tasks: ["client record maintenance","renewal administration","document organisation","follow-up tracking","correspondence logging","broker review preparation","exception reporting"],
+    bestFor: ["insurance brokerages","commercial broking teams","insurance administration teams"],
+    outcomes: ["Broker records stay easier to trust.","Renewal administration moves with fewer hidden follow-ups.","Regulated decisions remain clearly separated from delegated administration."],
+    hiringNotes: ["Define the fields and documents the role may update.","Use individual accounts and least-privilege access where supported.","Keep insurance advice, product recommendations and final approvals with authorised brokers."],
+    relatedServiceSlugs: ["insurance-broker-renewal-virtual-assistant","insurance-virtual-assistant","admin-inbox"],
+    relatedIndustrySlugs: ["insurance-broker-renewal-desk","insurance-agencies"]
+  },
+{
+    slug: "lumary",
+    locale: "en-AU",
+    name: "Lumary Virtual Assistant",
+    software: "Lumary",
+    category: "NDIS & Care Management",
+    directoryCategory: "Dental & Healthcare",
+    primaryKeyword: "lumary virtual assistant philippines",
+    metaTitle: "Lumary Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Lumary Virtual Assistants for participant records, service administration, scheduling support and follow-up.",
+    h1: "Keep Lumary Participant and Service Administration Current",
+    intro: "A Lumary Virtual Assistant can maintain approved participant records, service administration, scheduling support, document follow-up and operational queues while care decisions, incidents, safeguarding and compliance accountability stay with qualified local staff.",
+    focus: "lumary participant and service administration",
+    workflows: ["review assigned participant and service queues","update approved participant information","maintain service administration records","support scheduling updates","follow up approved documents and notes","track incomplete administration","prepare exception queues","escalate care or compliance decisions"],
+    tasks: ["participant record administration","service administration","scheduling support","document follow-up","record updates","exception reporting","routine workflow follow-up"],
+    bestFor: ["NDIS providers","aged-care providers","community care organisations"],
+    outcomes: ["Participant administration stays more current.","Routine follow-up is easier to track.","Managers receive clearer exceptions instead of hidden administration backlogs."],
+    hiringNotes: ["Limit access to the participants and workflows the role actually needs.","Document escalation rules for incidents, safeguarding and sensitive care issues.","Keep clinical, care and compliance decisions with qualified responsible staff."],
+    relatedServiceSlugs: ["ndis-rostering","ndis-billing-virtual-assistant","aged-care"],
+    relatedIndustrySlugs: ["ndis-providers","aged-care-providers"]
+  },
+{
+    slug: "splose",
+    locale: "en-AU",
+    name: "Splose Virtual Assistant",
+    software: "Splose",
+    category: "Allied Health",
+    directoryCategory: "Dental & Healthcare",
+    primaryKeyword: "splose virtual assistant philippines",
+    metaTitle: "Splose Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Splose Virtual Assistants for scheduling, patient records, referrals, billing administration and recalls.",
+    h1: "Keep Splose Practice Administration Moving Around Every Appointment",
+    intro: "A Splose Virtual Assistant can support non-clinical practice workflows such as scheduling, patient records, referral administration, billing support, recalls and routine follow-up while clinical judgement and treatment decisions stay with qualified practitioners.",
+    focus: "splose allied health practice administration",
+    workflows: ["review the practice administration queue","create or update approved patient records","book and update appointments","record referral administration","prepare approved billing information","run recall and follow-up lists","track incomplete administration","escalate clinical or privacy exceptions"],
+    tasks: ["appointment scheduling","patient record administration","referral tracking","billing administration","recall follow-up","document administration","practice workflow updates"],
+    bestFor: ["allied health clinics","physiotherapy practices","occupational therapy practices","speech pathology clinics","psychology practices"],
+    outcomes: ["Scheduling and referral records stay more current.","Routine billing and recall work remains visible.","Clinicians spend less time maintaining non-clinical administration."],
+    hiringNotes: ["Use minimum necessary patient access.","Keep clinical notes, treatment decisions and sensitive complaints with qualified practitioners.","Document privacy, billing and escalation rules before live work."],
+    relatedServiceSlugs: ["allied-health-referral-billing-virtual-assistant","medical-virtual-assistant","medical-billing-virtual-assistant"],
+    relatedIndustrySlugs: ["allied-health-referral-billing","healthcare-dental"]
+  }
 
 ];
+
+function normalizedSoftwareTool(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+export function softwarePagesForTools(tools: string[]) {
+  const normalizedTools = new Set(tools.map(normalizedSoftwareTool));
+  return softwarePages.filter((page) =>
+    [page.software, ...(page.aliases || [])].some((name) => normalizedTools.has(normalizedSoftwareTool(name)))
+  );
+}
 
 export const softwarePagesBySlug = Object.fromEntries(
   softwarePages.map((page) => [page.slug, page])

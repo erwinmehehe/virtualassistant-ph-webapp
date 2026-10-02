@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { AlertTriangle, ArrowDown, ArrowUp, CheckCircle2, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, CheckCircle2, Compass, ShieldAlert } from "lucide-react";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { matchLabel } from "@/lib/matching";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
@@ -35,6 +35,12 @@ type Row = {
     credentialCode: string;
     courseTitle: string;
     courseSlug: string;
+  }>;
+  trainingPaths?: Array<{
+    slug: string;
+    title: string;
+    courseCount: number;
+    completedAt: string;
   }>;
 };
 
@@ -91,6 +97,7 @@ export function MatchingCandidateTable({
   canInviteClient: boolean;
 }) {
   const [query, setQuery] = useState("");
+  const [trainingFilter, setTrainingFilter] = useState<"all" | "verified" | "path">("all");
   const [showAll, setShowAll] = useState(false);
   const [showClientPreview, setShowClientPreview] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<string[]>(
@@ -106,16 +113,32 @@ export function MatchingCandidateTable({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return pool;
     return pool.filter((row) => {
-      const haystack = [row.account?.full_name,row.va.headline,row.va.primary_category,...(row.va.categories || []),...(row.va.skills || []),...(row.trainingCredentials || []).map((credential) => credential.courseTitle),...(row.hardFailures||[]),...(row.evidenceGaps||[])].filter(Boolean).join(" ").toLowerCase();
+      if (trainingFilter === "verified" && !(row.trainingCredentials || []).length) return false;
+      if (trainingFilter === "path" && !(row.trainingPaths || []).length) return false;
+      if (!q) return true;
+
+      const haystack = [
+        row.account?.full_name,
+        row.va.headline,
+        row.va.primary_category,
+        ...(row.va.categories || []),
+        ...(row.va.skills || []),
+        ...(row.trainingCredentials || []).map((credential) => credential.courseTitle),
+        ...(row.trainingPaths || []).map((path) => path.title),
+        ...(row.hardFailures || []),
+        ...(row.evidenceGaps || []),
+      ].filter(Boolean).join(" ").toLowerCase();
+
       return haystack.includes(q);
     });
-  }, [pool, query]);
+  }, [pool, query, trainingFilter]);
 
   const defaultRows = filtered.filter((row) => row.clientReady || ["proposed", "released"].includes(String(row.shortlist?.shortlist_status || "")));
   const visible = query || showAll ? filtered : defaultRows.slice(0, 20);
   const clientReadyCount = pool.filter((row) => row.clientReady).length;
+  const verifiedTrainingCount = pool.filter((row) => (row.trainingCredentials || []).length > 0).length;
+  const completedPathCount = pool.filter((row) => (row.trainingPaths || []).length > 0).length;
   const selectedRows = selectedOrder.map((id) => pool.find((row) => String(row.va.user_id) === id)).filter(Boolean) as Row[];
   const selectedCount = selectedOrder.length;
 
@@ -206,12 +229,22 @@ export function MatchingCandidateTable({
       </div>
     </section> : null}
 
-    <div className="row-between wrap" style={{ margin: "0 0 12px", gap: 10 }}>
-      <div className="field" style={{ margin: 0, flex: "1 1 340px" }}>
-        <input type="search" placeholder={`Search ${pool.length} candidates by name, category, or skill...`} value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search candidates" />
-        {query ? <div className="small muted" style={{ marginTop: 6 }}>{filtered.length} of {pool.length} candidates match.</div> : <div className="small muted" style={{ marginTop: 6 }}>Showing the strongest client-ready candidates first.</div>}
+    <div className="matching-evidence-controls">
+      <div className="field matching-evidence-search">
+        <input type="search" placeholder={`Search ${pool.length} candidates by name, role, skill, course, or path...`} value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search candidates" />
+        {query || trainingFilter !== "all"
+          ? <div className="small muted">{filtered.length} of {pool.length} candidates match the current search and evidence filter.</div>
+          : <div className="small muted">Training is supporting evidence only and does not change the match score or client-readiness gate.</div>}
       </div>
-      {!query && pool.length > 20 ? <button className="btn btn-sm" type="button" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show top 20" : `Show all ${pool.length}`}</button> : null}
+      <label className="matching-evidence-filter">
+        <span>Training evidence</span>
+        <select value={trainingFilter} onChange={(event) => setTrainingFilter(event.target.value as "all" | "verified" | "path")}>
+          <option value="all">All candidates</option>
+          <option value="verified">Verified training ({verifiedTrainingCount})</option>
+          <option value="path">Completed learning path ({completedPathCount})</option>
+        </select>
+      </label>
+      {!query && trainingFilter === "all" && pool.length > 20 ? <button className="btn btn-sm" type="button" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show top 20" : `Show all ${pool.length}`}</button> : null}
     </div>
 
     <div className="table-wrap responsive-table matching-table" style={{maxHeight:"none",overflowX:"auto",overflowY:"visible"}}><table>
@@ -230,6 +263,7 @@ export function MatchingCandidateTable({
           <td data-label="Select"><label className="compare-check"><input type="checkbox" name="va_id" value={vaId} checked={checked} disabled={alreadyReleased || selectionBlocked || (!checked && selectedCount >= 5)} onChange={(event) => toggleSelected(vaId,event.currentTarget.checked)}/><span className="sr-only">{alreadyReleased ? "Already sent" : "Select"} {row.account?.full_name || "VA"}</span></label></td>
           <td data-label="Rank"><strong>#{index + 1}</strong></td>
           <td data-label="VA"><strong>{row.account?.full_name || "VA candidate"}</strong><div className="small muted">{row.va.headline || row.va.primary_category || "Virtual Assistant"}</div><div className="pill-list compact-pills">{mergeUniqueStrings(row.va.primary_category, row.va.categories).slice(0, 2).map((x: string, i: number) => <span className="badge" key={`${x}-${i}`}>{x}</span>)}</div>
+            {(row.trainingPaths || []).length ? <div className="matching-path-evidence" aria-label="Completed learning paths"><span><Compass size={12}/> Completed path:</span>{(row.trainingPaths || []).slice(0,2).map((path) => <Link key={path.slug} href={`/workspace/training/paths/${path.slug}`}>{path.title}</Link>)}</div> : null}
             {(row.trainingCredentials || []).length ? <div className="pill-list compact-pills" style={{marginTop:6}} aria-label="Verified training"><span className="small muted" style={{marginRight:2}}>Training:</span>{(row.trainingCredentials || []).slice(0,3).map((credential) => <span className="badge badge-success" key={credential.credentialCode}>✓ {trainingBadgeLabel(credential.courseTitle)}</span>)}{(row.trainingCredentials || []).length > 3 ? <span className="badge">+{(row.trainingCredentials || []).length - 3}</span> : null}</div> : null}
             {hardBlocked?<div className="alert" style={{marginTop:8,padding:10}}><div className="row"><ShieldAlert size={15}/><strong>Hard requirement failed</strong></div>{(row.hardFailures||[]).map((failure)=><small key={failure} style={{display:"block",marginTop:4}}>• {failure}</small>)}</div>:readinessBlocked?<div className="info-banner" style={{marginTop:8,padding:10}}><div className="row"><AlertTriangle size={15}/><strong>Not client-ready yet</strong></div>{(row.readinessGaps||["Complete talent readiness"]).map((gap)=><small key={gap} style={{display:"block",marginTop:4}}>• {gap}</small>)}</div>:<div className="match-reasons"><span>Why this VA matches:</span>{matchReasons(row).length?matchReasons(row).map((reason)=><small key={reason}>✓ {reason}</small>):<small>Review profile evidence</small>}</div>}
             {(row.evidenceGaps||[]).length?<div className="small" style={{marginTop:8}}><strong><AlertTriangle size={13}/> Verify before sending:</strong>{(row.evidenceGaps||[]).map((gap)=><span key={gap} style={{display:"block"}}>• {gap}</span>)}</div>:null}

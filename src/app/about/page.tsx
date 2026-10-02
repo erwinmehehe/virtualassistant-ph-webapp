@@ -5,12 +5,20 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 
 export const metadata: Metadata = {
   title: "About VirtualAssistant.com.ph",
   description: "Learn how VirtualAssistant.com.ph recruits, screens, matches, and supports Filipino Virtual Assistant placements.",
   keywords: ["about virtualassistant.com.ph", "filipino virtual assistant agency", "virtual assistant vetting process"],
-  alternates: { canonical: canonicalPath("/about") }
+  alternates: { canonical: canonicalPath("/about") },
+  ...socialMetadata({
+    title: "About VirtualAssistant.com.ph",
+    description: "Learn how VirtualAssistant.com.ph recruits, screens, matches, and supports Filipino Virtual Assistant placements.",
+    path: canonicalPath("/about"),
+    category: "hiring",
+    eyebrow: "About VirtualAssistant.com.ph",
+  }),
 };
 
 export default function AboutPage() {

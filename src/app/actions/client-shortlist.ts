@@ -8,6 +8,8 @@ import { matchAssessment } from "@/lib/matching";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recordProductEvent } from "@/lib/product-events";
+import { queueInterviewSchedulingAutomation } from "@/lib/trigger-automation";
+import { resolveShortlistReviewIfComplete } from "@/lib/hiring-pipeline-automation";
 
 const CLIENT_DECISIONS = new Set(["interested", "interview", "hold", "pass"]);
 const HOLD_REASONS = new Set(["need_more_information", "comparing_candidates", "rate_concern", "schedule_timezone_concern", "team_approval", "other"]);
@@ -208,6 +210,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
 
   let interviewCreated = false;
   let interviewId: string | null = null;
+  let interviewRequestedAt: string | null = null;
   if (decision === "interview") {
     const { data: existingInterview, error: existingInterviewError } = await admin
       .from("candidate_interviews")
@@ -226,7 +229,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
         client_id: user.id,
         shortlist_candidate_id: shortlist.id,
         status: "requested"
-      }).select("id").single();
+      }).select("id,created_at").single();
 
       if (interviewError?.code === "23505") {
         const { data: concurrentInterview, error: concurrentError } = await admin
@@ -242,6 +245,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
         throw interviewError;
       } else {
         interviewId = createdInterview?.id || null;
+        interviewRequestedAt = createdInterview?.created_at || null;
         interviewCreated = true;
       }
     }
@@ -259,6 +263,18 @@ export async function clientShortlistDecisionAction(formData: FormData) {
       });
     }
     await admin.from("jobs").update({ hiring_stage: "interviewing", hiring_stage_entered_at: now }).eq("id", jobId).in("hiring_stage", ["client_review", "internal_review"]);
+
+    if (interviewCreated && interviewId && interviewRequestedAt) {
+      try {
+        await queueInterviewSchedulingAutomation(interviewId, interviewRequestedAt);
+      } catch (automationError) {
+        console.error("[automation] interview scheduling queue failed", {
+          interviewId,
+          jobId,
+          error: automationError instanceof Error ? automationError.message : String(automationError),
+        });
+      }
+    }
   } else if (shortlist.client_decision === "interview") {
     await admin
       .from("candidate_interviews")
@@ -295,6 +311,14 @@ export async function clientShortlistDecisionAction(formData: FormData) {
     await writeRecruiterActivity({ subjectType: "va", subjectId: vaId, action: `client_shortlist_${decision}`, description: `Client ${label} for ${job.title}`, actorId: user.id, metadata: { job_id: jobId, reason: decisionNote, interview_id: interviewId } });
   } catch {}
   await resolveClientShortlistFollowups(admin, user.id, jobId);
+  try {
+    await resolveShortlistReviewIfComplete(admin, jobId);
+  } catch (automationError) {
+    console.error("[automation] shortlist review cleanup failed", {
+      jobId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
 
   const notificationTitle = decision === "interview"
     ? "Client requested an interview"
@@ -428,6 +452,14 @@ export async function clientRequestMoreOptionsAction(formData: FormData) {
   });
 
   await resolveClientShortlistFollowups(admin, user.id, jobId, true);
+  try {
+    await resolveShortlistReviewIfComplete(admin, jobId, true);
+  } catch (automationError) {
+    console.error("[automation] shortlist review force cleanup failed", {
+      jobId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
 
   revalidatePath("/workspace/client/candidates");
   revalidatePath(`/workspace/client/jobs/${jobId}`);

@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { archiveStaleRolesAction, hideIncompletePublicProfilesAction, repairVaRecordsAction } from "@/app/actions/recruiter";
 import { dateShort } from "@/lib/format";
 
-type ErrorEventRow = { id: string; message: string | null; path: string | null; role: string | null; created_at: string };
+type ErrorEventRow = { id: string; message: string | null; path: string | null; role: string | null; metadata: Record<string, unknown> | null; created_at: string };
 type FailedEmailRow = { id: string; event_type: string | null; recipient: string | null; error_message: string | null; created_at: string };
 import { getRuntimeSetupStatus } from "@/lib/env-status";
 import { PUBLIC_VA_MIN_COMPLETION } from "@/lib/public-visibility";
@@ -36,8 +36,8 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "va"),
     admin.from("va_profiles").select("user_id", { count: "exact", head: true }),
     admin.rpc("admin_health_summary"),
-    admin.from("app_error_events").select("id", { count: "exact", head: true }).is("resolved_at", null),
-    admin.from("app_error_events").select("id,message,path,role,created_at").is("resolved_at", null).order("created_at", { ascending: false }).limit(20),
+    admin.from("app_error_events").select("id,metadata", { count: "exact" }).is("resolved_at", null),
+    admin.from("app_error_events").select("id,message,path,role,metadata,created_at").is("resolved_at", null).order("created_at", { ascending: false }).limit(20),
     admin.from("payments").select("id", { count: "exact", head: true }).in("status", ["failed", "disputed"]),
     admin.from("outbound_email_events").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()),
     admin.from("outbound_email_events").select("id,event_type,recipient,error_message,created_at").eq("status", "failed").order("created_at", { ascending: false }).limit(10),
@@ -50,6 +50,12 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     admin.from("lead_proposals").select("id", { count: "exact", head: true }).eq("status", "sent").lt("expires_at", now)
   ]);
 
+  const unresolvedErrorRows = ((errorsRes.data || []) as Array<{ id: string; metadata: Record<string, unknown> | null }>);
+  const currentReleaseSha = runtime.deployment.commitSha || "";
+  const currentReleaseErrors = currentReleaseSha
+    ? unresolvedErrorRows.filter((row) => String(row.metadata?.release_sha || "") === currentReleaseSha).length
+    : 0;
+  const historicalUnresolvedErrors = unresolvedErrorRows.length - currentReleaseErrors;
   const vaAccounts = vaAccountsRes.count || 0;
   const vaProfiles = vaProfilesRes.count || 0;
   const summary = (summaryRes.data || {}) as Record<string, number>;
@@ -89,7 +95,8 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     ["Roles without candidates", rolesWithoutCandidates, "Active roles needing matching", rolesWithoutCandidates === 0],
     ["Orphaned applications", orphanedApplications, "Application job/VA references should stay valid", orphanedApplications === 0],
     [`Public profiles below ${PUBLIC_VA_MIN_COMPLETION}%`, incompletePublicRes.count || 0, "Should be hidden", (incompletePublicRes.count || 0) === 0],
-    ["Unresolved app errors", errorsRes.count || 0, "Captured by internal error monitor", (errorsRes.count || 0) === 0],
+    ["Current release app errors", currentReleaseErrors, currentReleaseSha ? `Tagged to ${currentReleaseSha.slice(0, 8)}` : "Deployment SHA unavailable", currentReleaseErrors === 0],
+    ["Historical unresolved app errors", historicalUnresolvedErrors, "Older releases; review separately without blocking the active release", true],
     ["Failed emails (30d)", failedEmailsRes.count || 0, "Review Resend/domain configuration", (failedEmailsRes.count || 0) === 0],
     ["Failed / disputed payments", failedPaymentsRes.count || 0, "Requires finance review", (failedPaymentsRes.count || 0) === 0]
   ] as const;

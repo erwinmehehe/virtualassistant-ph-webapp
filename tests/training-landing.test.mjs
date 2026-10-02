@@ -59,19 +59,22 @@ test("the VA page never leads with the client CTA", () => {
 
 
 test("training social metadata is page-specific and Course schema follows production release state", () => {
-  assert.match(page, /\/training\/opengraph-image/);
+  assert.match(page, /socialMetadata\(/);
+  assert.match(page, /category: "training"/);
+  assert.match(page, /title: META_TITLE/);
+  assert.match(page, /description: META_DESCRIPTION/);
   assert.match(page, /getPublicTrainingOverview/);
   assert.match(page, /\.\.\.\(foundation \? \[\{/);
   assert.match(page, /"@type": "Course"/);
   const publicTraining = source("src/lib/public-training.ts");
   const trainingAdmin = source("src/app/actions/training-admin.ts");
+  const og = source("src/app/api/og/route.tsx");
   assert.match(publicTraining, /getPublicTrainingOverview/);
   assert.match(publicTraining, /status === "published"/);
   assert.match(publicTraining, /revalidate: 300/);
   assert.match(trainingAdmin, /revalidateTag\("public-training"\)/);
-  const og = source("src/app/training/opengraph-image.tsx");
-  assert.match(og, /Learn the work\./);
-  assert.match(og, /Show what you can do\./);
+  assert.match(og, /FREE VA TRAINING/);
+  assert.match(og, /Free verified credential/);
 });
 
 test("candidate education pages route readers into training instead of buyer CTAs", () => {

@@ -10,6 +10,7 @@ import { PUBLIC_VA_MIN_EXPERIENCE } from "@/lib/public-routing";
 import { uniqueStrings } from "@/lib/collections";
 import { searchPublicTalent } from "@/lib/talent-search";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import { getTrainingCredentialsForUsers } from "@/lib/training-credentials";
 import "../cro-hiring-tools.css";
 
@@ -18,6 +19,14 @@ export const metadata: Metadata = {
   description: "Browse recruiter-reviewed Filipino virtual assistants with at least two years of experience, then tell us the role and we will build your shortlist.",
   keywords: ["vetted virtual assistants philippines", "hire filipino virtual assistant", "browse virtual assistants", "filipino va directory"],
   alternates: { canonical: canonicalPath("/find-talent") }
+,
+  ...socialMetadata({
+    title: "Browse Vetted Filipino Virtual Assistants",
+    description: "Browse recruiter-reviewed Filipino virtual assistants with at least two years of experience, then tell us the role and we will build your shortlist.",
+    path: canonicalPath("/find-talent"),
+    category: "hiring",
+    eyebrow: "Vetted Filipino Talent",
+  }),
 };
 
 const TALENT_PAGE_SIZE = 24;

@@ -54,7 +54,7 @@ const roleResourceConsolidationRedirects = ROLE_RESOURCE_CONSOLIDATIONS.flatMap(
   return core.flatMap((redirect) => [redirect, { ...redirect, source: redirect.source + "/" }]);
 });
 
-const SOFTWARE_SLUG_REDIRECTS = ["applyonline","salestrekker","brokerengine","propertyme","console-cloud","servicem8","simpro","aroflo","tradify","cliniko","halaxy","power-diary","jobadder","bullhorn","vincere","stratamax","strata-master","bgl-simple-fund-360","class-super","revit","canva","gohighlevel","salesforce","hubspot","xero","klaviyo","quickbooks"] as const;
+const SOFTWARE_SLUG_REDIRECTS = ["applyonline","salestrekker","brokerengine","propertyme","console-cloud","servicem8","simpro","aroflo","tradify","cliniko","halaxy","power-diary","jobadder","bullhorn","vincere","stratamax","strata-master","bgl-simple-fund-360","class-super","revit","canva","gohighlevel","salesforce","hubspot","xero","klaviyo","quickbooks","shiftcare","best-practice-premier","xplan","pexa","leap","vaultre","agentbox","property-tree","ailo","myob","winbeat","insight","lumary","splose","buildxact","employment-hero","nookal"] as const;
 
 const softwareSlugRedirects = SOFTWARE_SLUG_REDIRECTS.flatMap((slug) => [
   { source: `/software/${slug}-virtual-assistant`, destination: `/software/${slug}`, permanent: true },

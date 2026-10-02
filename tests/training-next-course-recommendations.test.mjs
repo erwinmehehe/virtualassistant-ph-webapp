@@ -57,7 +57,8 @@ test("My learning uses the latest completed course as the continuation signal", 
   assert.match(source, /const latestCompleted = completed\[0\] \|\| null/);
   assert.match(source, /recommendNextTrainingCourses/);
   assert.match(source, /currentSlug: latestCompleted\.slug/);
-  assert.match(source, /Next after \{latestCompleted\.title\}/);
+  assert.match(source, /postCompletionPrimary\?\.slug/);
+  assert.match(source, /referenceRecommendedSlug/);
   assert.match(source, /!active\.length && latestCompleted && postCompletion\?\.courses\.length/);
   assert.match(source, /TrainingNextSteps/);
 });

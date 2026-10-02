@@ -162,6 +162,14 @@ function navToneFor(label: string, href: string) {
   return "indigo";
 }
 
+const clientDisplayLabel: Record<string,string> = {
+  "/workspace/client": "Client Dashboard",
+  "/workspace/client/jobs": "My Hire",
+  "/workspace/client/candidates": "Candidates",
+  "/workspace/client/payments": "Billing",
+  "/workspace/account": "Settings",
+};
+
 function Badge({ count }: { count: number }) {
   if (!count) return null;
   return <span className="nav-badge" aria-label={`${count} unread`}>{count > 99 ? "99+" : count}</span>;
@@ -212,6 +220,7 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
   );
   const renderItem = ([label, href, Icon]: NavItem, mobile = false) => {
     const active = activeFor(pathname, href);
+    const visibleLabel = role === "client" ? (clientDisplayLabel[href] || label) : label;
     return (
       <Link
         prefetch={false}
@@ -224,7 +233,7 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
         <span className={`app-nav-icon nav-tone-${navToneFor(label, href)}`} aria-hidden="true">
           <Icon size={mobile ? 17 : 16} />
         </span>
-        <span>{label}</span>
+        <span>{visibleLabel}</span>
         <Badge count={badges[href] || 0} />
       </Link>
     );

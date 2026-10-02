@@ -18,11 +18,10 @@ import {
   Megaphone,
   Search,
   ShoppingBag,
-  Sparkles,
   Target,
   Wrench,
 } from "lucide-react";
-import { DashHeader } from "@/components/dash-ui";
+import { TrainingDashboardOverview } from "@/components/training-dashboard-overview";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { TrainingNextSteps } from "@/components/training-next-steps";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
@@ -229,8 +228,8 @@ export default async function TrainingDashboardPage({
   const params = await searchParams;
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
   const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
-  const { userId } = await requireAuthenticatedUserFast("/workspace/training");
-  const { courses, learnerProfile, learnerPreferences, error } = await getTrainingDashboard(userId);
+  const { userId, profile } = await requireAuthenticatedUserFast("/workspace/training");
+  const { courses, learnerProfile, learnerPreferences, savedCourseIds, learnerName, error } = await getTrainingDashboard(userId);
 
   const active = courses
     .filter((course) => course.enrolled && !course.completedAt)
@@ -278,115 +277,43 @@ export default async function TrainingDashboardPage({
     : null;
   const postCompletionPrimary = postCompletion?.courses[0] || null;
 
-  return (
-    <div className="dash-page role-overview training-home">
-      {resumeCourse ? (
-        <section className="training-resume-card" aria-labelledby="continue-learning-title">
-          <div className="training-resume-icon"><Sparkles size={20} /></div>
-          <div className="training-resume-copy">
-            <span className="small">Continue where you left off</span>
-            <h2 id="continue-learning-title">{resumeCourse.title}</h2>
-            {resumeCourse.nextLesson ? (
-              <p>
-                {resumeCourse.lessonCount - resumeCourse.completedLessons === 1 ? (
-                  <>One lesson left: <strong>{resumeCourse.nextLesson.title}</strong></>
-                ) : (
-                  <>Next lesson: <strong>{resumeCourse.nextLesson.title}</strong></>
-                )}
-                <span> · {resumeCourse.nextLesson.estimatedMinutes} min</span>
-              </p>
-            ) : resumeCourse.nextAssessment ? (
-              <p><strong>Lessons complete.</strong> Your final check is ready now.</p>
-            ) : (
-              <p>Your course is ready to reopen.</p>
-            )}
-          </div>
-          <Link
-            className="btn btn-primary training-resume-action"
-            href={nextCourseHref(resumeCourse)}
-            data-track={resumeCourse.nextAssessment ? "training_assessment_open" : "training_resume_next"}
-            data-course-slug={resumeCourse.slug}
-          >
-            {nextCourseLabel(resumeCourse)} <ArrowRight size={15} />
-          </Link>
-        </section>
-      ) : isNewLearner && foundationsCourse ? (
-        <section className="training-resume-card training-start-card" aria-labelledby="start-learning-title">
-          <div className="training-resume-icon"><GraduationCap size={20} /></div>
-          <div className="training-resume-copy">
-            <span className="small">Start here</span>
-            <h2 id="start-learning-title">Virtual Assistant Foundations</h2>
-            <p>Build the client communication, workflow, boundaries, handoff, and QA habits that every specialisation uses.</p>
-          </div>
-          <form action={startTrainingCourseAction}>
-            <input type="hidden" name="course_id" value={foundationsCourse.id} />
-            <button className="btn btn-primary training-resume-action" type="submit" data-track="training_foundations_start">
-              Start VA Foundations <ArrowRight size={15} />
-            </button>
-          </form>
-        </section>
-      ) : postCompletionPrimary && latestCompleted ? (
-        <section className="training-resume-card" aria-labelledby="continue-learning-title">
-          <div className="training-resume-icon"><Compass size={20} /></div>
-          <div className="training-resume-copy">
-            <span className="small">Next after {latestCompleted.title}</span>
-            <h2 id="continue-learning-title">{postCompletionPrimary.title}</h2>
-            <p>{postCompletion?.reason}</p>
-          </div>
-          {postCompletionPrimary.enrolled ? (
-            <Link
-              className="btn btn-primary training-resume-action"
-              href={`/workspace/training/courses/${postCompletionPrimary.slug}`}
-              data-track="training_recommendation_click"
-              data-course-slug={postCompletionPrimary.slug}
-              data-cta-position="dashboard_resume"
-            >
-              Continue <ArrowRight size={15} />
-            </Link>
-          ) : (
-            <form action={startTrainingCourseAction}>
-              <input type="hidden" name="course_id" value={postCompletionPrimary.id} />
-              <button
-                className="btn btn-primary training-resume-action"
-                type="submit"
-                data-track="training_recommendation_click"
-                data-course-slug={postCompletionPrimary.slug}
-                data-cta-position="dashboard_resume"
-              >
-                Start next <ArrowRight size={15} />
-              </button>
-            </form>
-          )}
-        </section>
-      ) : nextRecommended ? (
-        <section className="training-resume-card" aria-labelledby="continue-learning-title">
-          <div className="training-resume-icon"><Compass size={20} /></div>
-          <div className="training-resume-copy">
-            <span className="small">Your next course</span>
-            <h2 id="continue-learning-title">{nextRecommended.title}</h2>
-            <p>{specialty ? `Recommended from your ${vaCategoryLabel(specialty)} profile.` : "Start with the path that builds the strongest general VA foundation."}</p>
-          </div>
-          {nextRecommended.enrolled ? (
-            <Link className="btn btn-primary training-resume-action" href={nextCourseHref(nextRecommended)}>
-              Continue <ArrowRight size={15} />
-            </Link>
-          ) : (
-            <form action={startTrainingCourseAction}>
-              <input type="hidden" name="course_id" value={nextRecommended.id} />
-              <button className="btn btn-primary training-resume-action" type="submit">
-                Start next <ArrowRight size={15} />
-              </button>
-            </form>
-          )}
-        </section>
-      ) : null}
+  const firstName = String(profile?.full_name || learnerName || "there").trim().split(/\s+/)[0] || "there";
+  const referenceCourses = courses.map((course) => ({
+    id: course.id,
+    slug: course.slug,
+    title: course.title,
+    category: course.category,
+    countryFocus: course.country_focus,
+    searchTerms: course.searchTerms,
+    estimatedMinutes: course.estimated_minutes,
+    lessonCount: course.lessonCount,
+    completedLessons: course.completedLessons,
+    progressPercent: course.progressPercent,
+    enrolled: course.enrolled,
+    completedAt: course.completedAt,
+    nextHref: nextCourseHref(course),
+    nextLabel: nextCourseLabel(course),
+    nextLessonTitle: course.nextLesson?.title || null,
+    nextLessonMinutes: course.nextLesson?.estimatedMinutes || null,
+    certificate: course.certificate
+      ? { code: course.certificate.credential_code, issuedAt: course.certificate.issued_at }
+      : null,
+  }));
+  const referenceRecommendedSlug =
+    (isNewLearner && foundationsCourse ? foundationsCourse.slug : null) ||
+    nextRecommended?.slug ||
+    postCompletionPrimary?.slug ||
+    notStarted[0]?.slug ||
+    null;
 
-      <DashHeader
-        kicker="Free learning for Filipino VAs"
-        title="My learning"
-        subtitle={isNewLearner
-          ? <>Start with the foundations, then choose a role or Australian client specialisation when you are ready. Training is free and separate from hiring.</>
-          : <>Continue your current lesson, follow a recommended path, or choose one course from the library. Training remains separate from hiring and certificates are free.</>}
+  return (
+    <div className="dash-page role-overview training-home" id="training-dashboard-overview">
+      <TrainingDashboardOverview
+        firstName={firstName}
+        courses={referenceCourses}
+        currentCourseSlug={resumeCourse?.slug || null}
+        recommendedCourseSlug={referenceRecommendedSlug}
+        initialSavedCourseIds={savedCourseIds}
       />
 
       {error ? (
@@ -396,6 +323,8 @@ export default async function TrainingDashboardPage({
         </section>
       ) : null}
 
+      {libraryOpen ? (
+        <div className="training-extended-library">
       {!isNewLearner ? (
         <div className="training-home-stats" aria-label="Learning summary">
           <span><strong>{active.length}</strong> active</span>
@@ -625,7 +554,7 @@ export default async function TrainingDashboardPage({
             <p>Browse standalone role, software, and industry courses. Australian courses stay in the specialisation paths above so they are not duplicated here.</p>
           </div>
           {libraryOpen ? (
-            <Link className="btn btn-sm training-library-toggle" href="/workspace/training#course-library-title">
+            <Link className="btn btn-sm training-library-toggle" href="/workspace/training">
               Hide library
             </Link>
           ) : null}
@@ -684,7 +613,7 @@ export default async function TrainingDashboardPage({
         )}
       </section>
 
-      <section id="certificates" className="card dashboard-section-card training-certificates-card">
+      <section id="certificate-library" className="card dashboard-section-card training-certificates-card">
         <div className="training-section-heading">
           <div>
             <span className="small">Credentials</span>
@@ -725,6 +654,8 @@ export default async function TrainingDashboardPage({
           </div>
         )}
       </section>
+        </div>
+      ) : null}
     </div>
   );
 }

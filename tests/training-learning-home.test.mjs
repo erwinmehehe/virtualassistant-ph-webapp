@@ -9,16 +9,19 @@ const certificateActionsPath = "src/components/training-certificate-actions.tsx"
 const recommendationsPath = "src/lib/training-recommendations.ts";
 
 test("training home resumes the learner at the exact next lesson or assessment", async () => {
-  const [page, training] = await Promise.all([
+  const [page, training, overview] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(trainingPath, "utf8"),
+    readFile("src/components/training-dashboard-overview.tsx", "utf8"),
   ]);
 
-  assert.match(page, /Continue where you left off/);
-  assert.match(page, /resumeCourse\.nextLesson/);
+  assert.match(page, /function nextCourseHref\(course: TrainingCourseSummary\)/);
+  assert.match(page, /course\.nextLesson/);
   assert.match(page, /lessons\/\$\{course\.nextLesson\.id\}/);
-  assert.match(page, /resumeCourse\.nextAssessment/);
+  assert.match(page, /course\.nextAssessment/);
   assert.match(page, /assessments\/\$\{course\.nextAssessment\.id\}/);
+  assert.match(overview, /current\.nextHref/);
+  assert.match(overview, /current\.nextLabel/);
 
   assert.match(training, /select\("lesson_id,completed_at"\)/);
   assert.match(training, /nextLesson:/);
@@ -71,11 +74,9 @@ test("brand-new learners get one clear Foundations start before path detail", as
 
   assert.match(page, /isNewLearner = active\.length === 0 && completed\.length === 0/);
   assert.match(page, /foundationsCourse/);
-  assert.match(page, /Start here/);
-  assert.match(page, /Start VA Foundations/);
-  assert.match(page, /training_foundations_start/);
+  assert.match(page, /isNewLearner && foundationsCourse \? foundationsCourse\.slug : null/);
+  assert.match(page, /referenceRecommendedSlug/);
   assert.match(page, /recommendedCourses\.length && !isNewLearner/);
-  assert.match(page, /!isNewLearner \? \(/);
 });
 
 test("course cards show learning metadata, assessment state, progress, and one action area", async () => {
@@ -182,14 +183,14 @@ test("training home has a dedicated compact mobile layout for 375 and 390 pixel 
 test("training home makes the last lesson and ready final check explicit", async () => {
   const page = await readFile(pagePath, "utf8");
 
+  const overview = await readFile("src/components/training-dashboard-overview.tsx", "utf8");
   assert.match(page, /1 lesson left/);
-  assert.match(page, /One lesson left:/);
   assert.match(page, /Lessons complete · final check ready/);
-  assert.match(page, /Your final check is ready now/);
   assert.match(page, /Finish last lesson/);
   assert.match(page, /Start final check/);
-  assert.match(page, /course\.nextAssessment \? "training_assessment_open" : "training_course_continue"/);
-  assert.match(page, /resumeCourse\.nextAssessment \? "training_assessment_open" : "training_resume_next"/);
+  assert.match(page, /course\.nextAssessment/);
+  assert.match(overview, /current\.nextLabel/);
+  assert.match(overview, /current\.nextLessonTitle/);
 });
 
 

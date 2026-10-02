@@ -11,7 +11,7 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
 
   const { data: course } = await admin
     .from("training_courses")
-    .select("id,slug,status")
+    .select("id,slug,title,status")
     .eq("id", courseId)
     .eq("status", "published")
     .maybeSingle();
@@ -101,17 +101,19 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
 
   const { data: existingCertificate } = await admin
     .from("training_certificates")
-    .select("id")
+    .select("id,credential_code")
     .eq("user_id", userId)
     .eq("course_id", courseId)
     .maybeSingle();
 
   let certificateIssued = false;
+  let certificate = existingCertificate || null;
   if (!existingCertificate) {
-    const { error } = await admin
+    const credentialCode = completionCredentialCode();
+    const { data: insertedCertificate, error } = await admin
       .from("training_certificates")
       .insert({
-        credential_code: completionCredentialCode(),
+        credential_code: credentialCode,
         user_id: userId,
         course_id: courseId,
         issued_at: completedAt,
@@ -119,12 +121,39 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
           credential_type: "certificate_of_completion",
           public_profile_visible: false,
         },
-      });
+      })
+      .select("id,credential_code")
+      .maybeSingle();
 
     if (error && error.code !== "23505") {
       throw new Error("Course completion was saved, but the certificate could not be issued.");
     }
     certificateIssued = !error;
+    certificate = insertedCertificate || null;
+  }
+
+  if (newlyCompleted) {
+    await admin.from("training_notifications").upsert({
+      user_id: userId,
+      type: "course_completed",
+      title: "Course completed",
+      body: `${course.title} is complete. Your progress has been saved.`,
+      href: `/workspace/training/courses/${course.slug}`,
+      source_key: `course-completed:${course.id}`,
+      created_at: completedAt,
+    }, { onConflict: "user_id,source_key" });
+  }
+
+  if (certificateIssued && certificate?.credential_code) {
+    await admin.from("training_notifications").upsert({
+      user_id: userId,
+      type: "certificate_issued",
+      title: "Certificate ready",
+      body: `Your ${course.title} certificate is ready to view and share.`,
+      href: `/training/certificates/${certificate.credential_code}`,
+      source_key: `certificate:${certificate.id}`,
+      created_at: completedAt,
+    }, { onConflict: "user_id,source_key" });
   }
 
   return { completed: true, newlyCompleted, certificateIssued };

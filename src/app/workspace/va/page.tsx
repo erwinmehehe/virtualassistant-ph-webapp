@@ -12,6 +12,7 @@ import { publishVaProfileAction } from "@/app/actions/profile";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { DashHeader } from "@/components/dash-ui";
+import { KiroGuide } from "@/components/kiro-guide";
 import { VETTING_PROFILE_MIN } from "@/lib/constants";
 import { getVaDashboardSummary } from "@/lib/va-dashboard";
 import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
@@ -66,7 +67,13 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
   }else{
     nextAction={title:"Your vetted profile is ready",copy:"Your profile is ready. Keep your availability and rate current while you browse roles.",href:"/workspace/va/jobs",label:"Browse roles",icon:BriefcaseBusiness};
   }
-  const NextIcon=nextAction.icon;
+  const kiroState = recruiterRequests.length || pipeline.offered
+    ? "attention"
+    : pipeline.interview || pendingInvites
+      ? "reminder"
+      : completion.score < 100 || !vetted
+        ? "thinking"
+        : "success";
 
   const steps=[
     ...completion.items.slice(0,4).map((x)=>({label:x.label,done:x.done,href:x.href,description:undefined})),
@@ -81,7 +88,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
     {params.setup==="complete"?<div className="success-banner" role="status"><strong>Quick setup saved.</strong> Your profile is now {completion.score}% complete. Follow the next action below and finish the remaining items in smaller steps.</div>:null}
     <div className="va-dashboard-head"><DashHeader title="VA dashboard" subtitle="Keep your profile current and manage applications, interviews, offers, and placements." actions={<Link className="dash-btn dash-btn-dark va-dashboard-find-jobs" href="/workspace/va/jobs">Find jobs</Link>}/></div>
 
-    <section className="dashboard-next-action" aria-labelledby="va-next-action-title"><div className="dashboard-next-icon"><NextIcon size={24}/></div><div><span className="small">Next step</span><h2 id="va-next-action-title">{nextAction.title}</h2><p>{nextAction.copy}</p></div><Link className="btn btn-primary" href={nextAction.href}>{nextAction.label}<ArrowRight size={16}/></Link></section>
+    <KiroGuide compact state={kiroState} eyebrow="Kiro · Next step" title={nextAction.title} description={nextAction.copy} action={{href:nextAction.href,label:nextAction.label}} />
 
     <div className="va-status-strip">
       <Link className="status-summary-item" href="/workspace/va/profile"><div className="row-between"><span>Your profile</span><strong>{completion.score}%</strong></div><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`${completion.next.label} is still incomplete.`:"Profile complete"}</small></Link>

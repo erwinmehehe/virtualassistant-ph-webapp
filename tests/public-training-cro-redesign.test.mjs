@@ -9,12 +9,15 @@ const publicTrainingPath = "src/lib/public-training.ts";
 test("public training hero sells the live product instead of the old roadmap concept", async () => {
   const page = await readFile(pagePath, "utf8");
 
-  assert.match(page, /Free VA training · \{totalCourseCount\} courses available/);
-  assert.match(page, /Build practical VA skills\./);
-  assert.match(page, /Earn verified certificates\./);
-  assert.match(page, /Browse \{totalCourseCount\} courses/);
-  assert.match(page, /No course or certificate fees/);
-  assert.match(page, /Progress saved automatically/);
+  assert.match(page, /FREE TRAINING FOR FILIPINO VAs/);
+  assert.match(page, /Build skills\. Get hired\./);
+  assert.match(page, /Grow your future\./);
+  assert.match(page, /Start Learning Now/);
+  assert.match(page, /Explore All Courses/);
+  assert.match(page, /100% free/);
+  assert.match(page, /Certificates you can share/);
+  assert.match(page, /Training is free and completely separate from hiring/);
+  assert.match(page, /Hi! I’m Kiro/);
   assert.doesNotMatch(page, /courses mapped/);
   assert.doesNotMatch(page, /First course being prepared/);
 });
@@ -78,10 +81,10 @@ test("FAQ reflects current training records and hiring boundaries", async () => 
 test("CRO redesign stays compact and responsive across course library and certificate proof", async () => {
   const css = await readFile(cssPath, "utf8");
 
-  assert.match(css, /\.tr-proof-grid/);
-  assert.match(css, /\.tr-course-grid/);
-  assert.match(css, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
-  assert.match(css, /\.tr-completion-grid/);
+  assert.match(css, /\.tr-reference-value-grid/);
+  assert.match(css, /\.tr-popular-grid/);
+  assert.match(css, /grid-template-columns: repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.tr-reference-meet-kiro/);
   assert.match(css, /\.tr-certificate-preview/);
   assert.match(css, /@media \(max-width: 1080px\)/);
   assert.match(css, /@media \(max-width: 840px\)/);

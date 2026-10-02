@@ -7,12 +7,24 @@ import { CompactPageHeader } from "@/components/compact-page-header";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
 import { createClient } from "@/lib/supabase/server";
+import { socialMetadata } from "@/lib/og";
+
+const SERVICES_META_TITLE = "Virtual Assistant Services Philippines | VA Roles";
+const SERVICES_META_DESCRIPTION = "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.";
 
 export const metadata: Metadata = {
-  title: "Virtual Assistant Services Philippines | VA Roles",
-  description: "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.",
+  title: SERVICES_META_TITLE,
+  description: SERVICES_META_DESCRIPTION,
   keywords: ["virtual assistant services philippines", "hire filipino virtual assistant", "virtual assistant specialties", "outsourcing services philippines"],
-  alternates: { canonical: canonicalPath("/services") }
+  alternates: { canonical: canonicalPath("/services") },
+  ...socialMetadata({
+    title: SERVICES_META_TITLE,
+    description: SERVICES_META_DESCRIPTION,
+    path: canonicalPath("/services"),
+    category: "hiring",
+    eyebrow: "Virtual Assistant Services",
+    points: ["Admin & Executive", "Sales & Customer", "Marketing & Creative", "Finance & Ecommerce"],
+  }),
 };
 
 const SERVICE_CATEGORIES: { id: string; label: string; description: string; groups: string[] }[] = [

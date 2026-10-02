@@ -9,6 +9,7 @@ import { INDUSTRIES, type IndustryPage } from "@/lib/industries";
 import { industryMetaDescription, industrySeoTitle } from "@/lib/industry-seo-content";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import "../homepage-sections.css";
 import "../hiring-pages.css";
 import "../info-pages.css";
@@ -18,6 +19,14 @@ export const metadata: Metadata = {
   description: "Explore Virtual Assistant services by industry, including legal, healthcare, real estate, finance, construction, ecommerce, home services and more.",
   keywords: ["virtual assistant services by industry", "industry-specific virtual assistant services", "hire virtual assistant for my industry"],
   alternates: { canonical: canonicalPath("/industries") }
+,
+  ...socialMetadata({
+    title: "Virtual Assistant Services by Industry",
+    description: "Explore Virtual Assistant services by industry, including legal, healthcare, real estate, finance, construction, ecommerce, home services and more.",
+    path: canonicalPath("/industries"),
+    category: "industry",
+    eyebrow: "Industry-specific VA Support",
+  }),
 };
 
 function capitalise(value: string) {

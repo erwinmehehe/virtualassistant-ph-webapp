@@ -425,7 +425,7 @@ begin
      )
      or exists (
        select 1 from public.lead_intake
-       where id = q.failure_lead_id and crm_stage <> 'qualified'
+       where id = q.failure_lead_id and (crm_stage <> 'terms_sent' or status <> 'new' or client_id is not null or job_id is not null)
      ) then
     raise exception 'Invalid-client failure left partial hiring state';
   end if;

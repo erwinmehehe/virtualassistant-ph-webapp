@@ -15,7 +15,6 @@ export const metadata: Metadata = {
   description: "Choose a time for a 30-minute Virtual Assistant discovery call.",
   alternates: { canonical: canonicalPath("/book-client-call") },
   robots: { index: false, follow: true },
-,
   ...socialMetadata({
     title: "Book a Discovery Call",
     description: "Choose a time for a 30-minute Virtual Assistant discovery call.",

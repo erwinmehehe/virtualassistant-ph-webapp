@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import { KiroMascot } from "@/components/kiro-mascot";
 
 export type TrainingDashboardCourseItem = {
@@ -172,7 +173,7 @@ export function TrainingDashboardOverview({
       </section>
 
       <section className="training-reference-progress" aria-label="Overall training progress">
-        <div className="training-reference-gauge" style={{"--progress":overallProgress} as React.CSSProperties}>
+        <div className="training-reference-gauge" style={{"--progress":overallProgress} as CSSProperties}>
           <span>{overallProgress}%</span>
         </div>
         <div className="training-reference-progress-copy">

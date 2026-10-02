@@ -4,17 +4,17 @@ import { ArrowRight, CalendarDays, LifeBuoy, Plus, Sparkles, UserRoundCheck } fr
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
-import { DashHeader } from "@/components/dash-ui";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
 import { openClientDiscoveryBookingAction } from "@/app/actions/booking";
+import { Kiro } from "@/components/kiro";
 
 type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof Sparkles};
 
 export default async function ClientDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
-  const {userId}=await requireRoleFast("client");
+  const {userId,profile}=await requireRoleFast("client");
   const supabase=await createClient();
   const requestedPromise=params.talent
     ? supabase.from("public_va_directory").select("slug,full_name,headline,primary_category").eq("slug",params.talent).maybeSingle()
@@ -47,6 +47,9 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     {label:"Confirm a placement",description:"After interview and final terms, confirm the VA and start the managed workroom.",done:Boolean(hires),href:"/workspace/client/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);
+  const firstName=String(profile.full_name||"there").trim().split(/\\s+/)[0]||"there";
+  const localHour=Number(new Intl.DateTimeFormat("en-US",{hour:"2-digit",hour12:false,timeZone:company?.timezone||"Asia/Manila"}).format(new Date()));
+  const greeting=localHour<12?"Good morning":localHour<18?"Good afternoon":"Good evening";
   const currentAction=pipeline.offered
     ? {title:`${pipeline.offered} final offer${pipeline.offered===1?"":"s"} in progress`,copy:"Open the offer and complete the final confirmation step.",href:"/workspace/client/offers",label:"Review offers",step:4}
     : pipeline.interview
@@ -61,7 +64,26 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     <DashboardDegradedNotice issues={issues}/>
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">This preference will be treated as a recruiter lead, not a direct marketplace hire.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create hiring request</Link></div>:null}
 
-    <div className="client-mobile-dashboard-head"><DashHeader kicker="Managed VA hiring" title="Your hiring progress" subtitle={<>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} actions={<Link className="dash-btn dash-btn-dark" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link>}/></div>
+    <header className="client-kiro-greeting">
+      <div>
+        <h1>{greeting}, {firstName}!</h1>
+        <p>Here’s what’s happening with your hire.</p>
+      </div>
+    </header>
+
+    <section className="client-kiro-rendered-hero" aria-labelledby="client-kiro-current-action">
+      <div className="client-kiro-rendered-art" aria-hidden="true">
+        <Kiro className="client-kiro-rendered-image" priority/>
+      </div>
+      <div className="client-kiro-rendered-copy">
+        <span className="client-kiro-rendered-eyebrow">Kiro · Your VAPH Guide</span>
+        <h2 id="client-kiro-current-action">{currentAction.title}</h2>
+        <p>{currentAction.copy}</p>
+        <div className="client-kiro-rendered-actions">
+          <Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link>
+        </div>
+      </div>
+    </section>
 
     <section className="client-concierge-strip client-mobile-concierge"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/messages"><LifeBuoy size={16}/> Message your recruiter</Link></section>
 

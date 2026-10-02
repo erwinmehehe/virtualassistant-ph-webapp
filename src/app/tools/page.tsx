@@ -5,8 +5,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 
-export const metadata: Metadata={title:"Free Virtual Assistant Hiring Tools",description:"Free VA cost, budget, job description, and role-finder tools for businesses hiring virtual assistants from the Philippines.",alternates:{canonical:canonicalPath("/tools")}};
+export const metadata: Metadata={title:"Free Virtual Assistant Hiring Tools",description:"Free VA cost, budget, job description, and role-finder tools for businesses hiring virtual assistants from the Philippines.",alternates:{canonical:canonicalPath("/tools")},...socialMetadata({ title: "Free Virtual Assistant Hiring Tools", description: "Free VA cost, budget, job description, and role-finder tools for businesses hiring virtual assistants from the Philippines.", path: canonicalPath("/tools"), category: "hiring", eyebrow: "Free VA Planning Tools", points: ["Cost calculator", "Budget calculator", "Job description generator", "Role finder"] })};
 const tools=[
   [Calculator,"VA Cost Calculator","Estimate monthly VA cost and compare it with a local hourly cost.","/tools/virtual-assistant-cost-calculator"],
   [WalletCards,"Hourly to Monthly Calculator","Turn an hourly VA rate into weekly, monthly, and annual budget estimates.","/tools/virtual-assistant-hourly-to-monthly-calculator"],

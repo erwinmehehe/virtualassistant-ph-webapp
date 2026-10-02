@@ -37,6 +37,7 @@ import "../../hiring-pages.css";
 import { organizationRef } from "@/lib/organization";
 import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
+import { softwarePagesForTools } from "@/lib/software-pages";
 
 export const revalidate = 3600;
 
@@ -640,9 +641,8 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       <HiringHero
         crumbs={[{ href: "/", label: "Home" }, { href: "/services", label: "Services" }, { label: s.name }]}
         eyebrow={isAu ? `Philippines-based ${roleName(s.name)} support` : `Filipino ${roleName(s.name)} VAs`}
-        titleLead={`Hire ${article}`}
-        titleAccent={s.name}
-        titleTail="in the Philippines"
+        titleLead={serviceMetaTitle(s)}
+        titleAccent=""
         lede={copy.hero}
         tasks={s.tasks.slice(0, 6).map(toTitle)}
         tools={s.tools}
@@ -785,6 +785,10 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
             <div>
               <SectionHead kicker="Tools and skills" title={copy.toolsTitle} lede="Software familiarity matters, but process judgment matters more. Ask candidates to explain what they completed inside the tool, how they checked accuracy, and what they escalated."/>
               <div className="sp-pills">{uniqueStrings(s.tools).map((tool, index) => <span key={`${String(tool)}-${index}`}><Wrench size={13} aria-hidden="true"/>{tool}</span>)}</div>
+              {relatedSoftware.length ? <div className="sp-software-links" aria-label="Software hiring guides">
+                <span>Software hiring guides</span>
+                {relatedSoftware.map((software) => <Link key={software.slug} href={`/software/${software.slug}`}>{software.software} Virtual Assistant <ArrowRight size={13}/></Link>)}
+              </div> : null}
             </div>
             <aside className="sp-panel">
               <span className="sp-panel-label">Skills to evaluate</span>

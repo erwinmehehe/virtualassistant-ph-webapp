@@ -15,9 +15,10 @@ test("training home resumes the learner at the exact next lesson or assessment",
     readFile("src/components/training-dashboard-overview.tsx", "utf8"),
   ]);
 
-  assert.match(page, /resumeCourse\.nextLesson/);
+  assert.match(page, /function nextCourseHref\(course: TrainingCourseSummary\)/);
+  assert.match(page, /course\.nextLesson/);
   assert.match(page, /lessons\/\$\{course\.nextLesson\.id\}/);
-  assert.match(page, /resumeCourse\.nextAssessment/);
+  assert.match(page, /course\.nextAssessment/);
   assert.match(page, /assessments\/\$\{course\.nextAssessment\.id\}/);
   assert.match(overview, /current\.nextHref/);
   assert.match(overview, /current\.nextLabel/);
@@ -187,7 +188,7 @@ test("training home makes the last lesson and ready final check explicit", async
   assert.match(page, /Lessons complete · final check ready/);
   assert.match(page, /Finish last lesson/);
   assert.match(page, /Start final check/);
-  assert.match(page, /resumeCourse\.nextAssessment/);
+  assert.match(page, /course\.nextAssessment/);
   assert.match(overview, /current\.nextLabel/);
   assert.match(overview, /current\.nextLessonTitle/);
 });

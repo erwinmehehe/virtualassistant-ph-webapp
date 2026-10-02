@@ -12,6 +12,8 @@ import { sendTransactionalEventEmail } from "@/lib/email";
 import { VETTING_SCORECARD_PASS } from "@/lib/constants";
 import { recordProductEvent } from "@/lib/product-events";
 import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
+import { queueInterviewFeedbackAutomation } from "@/lib/trigger-automation";
+import { ensureOfferPrepAction, resolveInterviewFeedbackIfClear, resolveInterviewSchedulingIfClear, resolveOfferPrepIfNoProceed, resolveOfferPrepTask } from "@/lib/hiring-pipeline-automation";
 
 const SCREEN_RESULTS = new Set(["client_ready", "needs_development", "role_specific", "do_not_present"]);
 const INTERVIEW_DECISIONS = new Set(["proceed", "hold", "pass"]);
@@ -317,6 +319,21 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   if (row.application_id) await admin.from("applications").update({ status: "interview", updated_at: now }).eq("id", row.application_id);
   await admin.from("jobs").update({ hiring_stage: "interviewing", hiring_stage_entered_at: now }).eq("id", row.job_id).in("hiring_stage", ["client_review", "internal_review"]);
 
+  try {
+    await resolveInterviewSchedulingIfClear(admin, row.job_id);
+    await queueInterviewFeedbackAutomation(
+      interviewId,
+      scheduledAt.toISOString(),
+      duration,
+    );
+  } catch (automationError) {
+    console.error("[automation] interview feedback queue failed", {
+      interviewId,
+      jobId: row.job_id,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
+
   const when = formatDateTimeInTimeZone(scheduledAt.toISOString(), timezone);
   const interviewTitle = jobTitle || "client role";
   await Promise.all([
@@ -391,6 +408,18 @@ export async function cancelCandidateInterviewAction(formData: FormData) {
   if (row.calendar_event_id) { try { await cancelGoogleMeetDiscoveryMeeting(row.calendar_event_id); } catch {} }
   const cancelledAt = new Date().toISOString();
   await admin.from("candidate_interviews").update({ status: "cancelled", cancelled_at: cancelledAt, updated_at: cancelledAt }).eq("id", interviewId);
+  try {
+    await Promise.all([
+      resolveInterviewSchedulingIfClear(admin, row.job_id),
+      resolveInterviewFeedbackIfClear(admin, row.job_id),
+    ]);
+  } catch (automationError) {
+    console.error("[automation] cancelled interview cleanup failed", {
+      interviewId,
+      jobId: row.job_id,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   const cancelJob = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
   const cancelTitle = cancelJob?.title || "client role";
   await Promise.all([
@@ -428,7 +457,7 @@ export async function submitCandidateInterviewFeedbackAction(formData: FormData)
   const feedback = text(formData.get("feedback"), 3000);
   const reason = text(formData.get("feedback_reason"), 300);
   const admin = createAdminClient();
-  const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title)").eq("id", interviewId).eq("client_id", user.id).maybeSingle();
+  const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title,recruiter_id)").eq("id", interviewId).eq("client_id", user.id).maybeSingle();
   if (!row) throw new Error("Interview not found.");
   const now = new Date().toISOString();
   await admin.from("candidate_interviews").update({ status: "completed", completed_at: row.completed_at || now, client_decision: decision, client_feedback: feedback, client_feedback_reason: reason, client_feedback_at: now, updated_at: now }).eq("id", interviewId);
@@ -454,6 +483,28 @@ export async function submitCandidateInterviewFeedbackAction(formData: FormData)
     if (recruiters?.length) await admin.from("notifications").insert(recruiters.map((r: any) => ({ user_id: r.id, title: "Client wants to proceed after interview", body: `${Array.isArray(row.jobs) ? row.jobs[0]?.title : row.jobs?.title || "Role"}: prepare the offer and confirm final terms.`, href: `/workspace/recruiter/roles/${row.job_id}#interviews`, type: "interview", priority: "high" })));
   }
   await writeRecruiterActivity({ subjectType: "job", subjectId: row.job_id, action: `interview_${decision}`, description: `Client interview decision: ${decision}`, actorId: user.id, metadata: { va_id: row.va_id, feedback, reason } });
+  try {
+    await resolveInterviewFeedbackIfClear(admin, row.job_id);
+    const automationJob = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
+    if (decision === "proceed") {
+      await ensureOfferPrepAction({
+        admin,
+        job: {
+          id: row.job_id,
+          title: automationJob?.title || "Client role",
+          recruiter_id: automationJob?.recruiter_id || null,
+        },
+      });
+    } else {
+      await resolveOfferPrepIfNoProceed(admin, row.job_id);
+    }
+  } catch (automationError) {
+    console.error("[automation] interview feedback next action failed", {
+      interviewId,
+      jobId: row.job_id,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   revalidatePath("/workspace/client/interviews"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${row.job_id}`);
   redirect("/workspace/client/interviews?feedback_saved=1");
 }
@@ -585,6 +636,15 @@ export async function createPlacementOfferAction(formData: FormData) {
     actorId: user.id,
     metadata: { va_id: vaId, offer_id: offerId, interview_id: proceedInterview.id, hourly_rate: hourlyRate, weekly_hours: weeklyHours, start_date: startDate }
   });
+  try {
+    await resolveOfferPrepTask(admin, jobId);
+  } catch (automationError) {
+    console.error("[automation] offer prep cleanup failed", {
+      jobId,
+      offerId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath("/workspace/recruiter/roles");
   revalidatePath("/workspace/recruiter/today");

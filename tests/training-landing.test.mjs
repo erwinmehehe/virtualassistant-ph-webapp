@@ -9,8 +9,12 @@ function source(path) {
 const page = source("src/app/training/page.tsx");
 
 test("the public training page targets the search term and is indexable", () => {
-  assert.match(page, /const META_TITLE = "Free Virtual Assistant Training Philippines \| VA Courses"/);
+  assert.match(page, /const META_TITLE = "Free Virtual Assistant Training Philippines \\| Free Certificates"/);
   assert.match(page, /title: \{ absolute: META_TITLE \}/);
+  assert.match(
+    page,
+    /Free virtual assistant training with certificate in the Philippines\. Learn practical VA skills online, complete courses, and earn certificates at no cost\./,
+  );
   assert.match(page, /virtual assistant training philippines/i);
   assert.match(page, /canonicalPath\("\/training"\)/);
   // It must be in the sitemap, or nobody finds the one public door.

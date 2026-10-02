@@ -4,19 +4,20 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("default public metadata includes branded Open Graph and Twitter imagery", async () => {
-  const [layout, og, twitter] = await Promise.all([
+test("default public metadata uses the branded dynamic Open Graph generator", async () => {
+  const [layout, og, helper] = await Promise.all([
     read("src/app/layout.tsx"),
-    read("src/app/opengraph-image.tsx"),
-    read("src/app/twitter-image.tsx"),
+    read("src/app/api/og/route.tsx"),
+    read("src/lib/og.ts"),
   ]);
 
   assert.match(layout, /lang="en-US"/);
-  assert.match(layout, /url: "\/opengraph-image"/);
-  assert.match(layout, /images: \["\/twitter-image"\]/);
-  assert.match(og, /1200/);
-  assert.match(og, /630/);
-  assert.match(twitter, /OpengraphImage/);
+  assert.match(layout, /socialMetadata\(/);
+  assert.match(layout, /DEFAULT_META_TITLE/);
+  assert.match(og, /width: 1200, height: 630/);
+  assert.match(og, /#4F46E5/);
+  assert.match(helper, /alt: input\.title/);
+  assert.match(helper, /summary_large_image/);
 });
 
 test("public Core Web Vitals are measured without losing CLS precision", async () => {

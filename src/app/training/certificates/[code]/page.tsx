@@ -28,6 +28,19 @@ function duration(minutes: number) {
   return rest ? `${hours} hr ${rest} min` : `${hours} hours`;
 }
 
+function certificateMark(title: string) {
+  const value = title.toLowerCase();
+  if (value.includes("seo")) return "SEO";
+  if (value.includes("ndis")) return "NDIS";
+  if (value.includes("xero")) return "XERO";
+  if (value.includes("myob")) return "MYOB";
+  if (value.includes("cliniko")) return "CLIN";
+  if (value.includes("servicem8")) return "S8";
+  if (value.includes("virtual assistant foundations")) return "VA";
+  const words = title.replace(/virtual assistant/gi, "").replace(/[^a-z0-9 ]/gi, " ").split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "VA";
+}
+
 export default async function TrainingCredentialVerificationPage({
   params,
 }: {
@@ -44,19 +57,56 @@ export default async function TrainingCredentialVerificationPage({
           <div className="credential-kicker"><ShieldCheck size={15}/> Certificate of completion</div>
 
           {credential ? (
-            <section className="credential-card credential-valid">
-              <div className="credential-status-icon"><CheckCircle2 size={28}/></div>
-              <div>
-                <span className="credential-status">Verified</span>
-                <h1>{credential.courseTitle}</h1>
-                <p>{credential.courseSummary || "This certificate confirms completion of a VirtualAssistant.com.ph training course."}</p>
+            <section className="credential-card credential-valid credential-certificate">
+              <div className="credential-certificate-frame">
+                <header className="credential-certificate-head">
+                  <div className="credential-brand">
+                    <span className="credential-brand-mark" aria-hidden="true">VA</span>
+                    <div>
+                      <strong>VirtualAssistant.com.ph</strong>
+                      <small>Free skills training</small>
+                    </div>
+                  </div>
+                  <div className="credential-verified-pill"><CheckCircle2 size={14}/> Verified credential</div>
+                </header>
 
-                <dl className="credential-facts">
-                  <div><dt>Credential</dt><dd>{credential.credentialCode}</dd></div>
-                  <div><dt>Issued</dt><dd>{issuedDate(credential.issuedAt)}</dd></div>
-                  <div><dt>Course length</dt><dd>{duration(credential.estimatedMinutes)}</dd></div>
-                  <div><dt>Status</dt><dd>Verified</dd></div>
-                </dl>
+                <div className="credential-certificate-body">
+                  <div className="credential-course-mark" aria-hidden="true">{certificateMark(credential.courseTitle)}</div>
+                  <span className="credential-status">Certificate of completion</span>
+                  <h1>{credential.courseTitle}</h1>
+                  <p>{credential.courseSummary || "This certificate confirms completion of a VirtualAssistant.com.ph training course."}</p>
+
+                  <div className="credential-certificate-rule" aria-hidden="true"/>
+
+                  <dl className="credential-facts">
+                    <div><dt>Credential</dt><dd>{credential.credentialCode}</dd></div>
+                    <div><dt>Issued</dt><dd>{issuedDate(credential.issuedAt)}</dd></div>
+                    <div><dt>Course length</dt><dd>{duration(credential.estimatedMinutes)}</dd></div>
+                    <div><dt>Status</dt><dd><span className="credential-verified-text"><CheckCircle2 size={13}/> Verified</span></dd></div>
+                  </dl>
+
+                  <div className="credential-certificate-foot">
+                    <div className="credential-seal">
+                      <ShieldCheck size={21}/>
+                      <span>Verified</span>
+                    </div>
+                    <div className="credential-signature">
+                      <span>Issued by</span>
+                      <strong>VirtualAssistant.com.ph Training</strong>
+                      <small>Verification is available at this public credential URL.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <aside className="credential-side-panel">
+                <div className="credential-side-status">
+                  <div className="credential-status-icon"><CheckCircle2 size={24}/></div>
+                  <div>
+                    <span>Verification status</span>
+                    <strong>Verified</strong>
+                  </div>
+                </div>
 
                 <div className="credential-print-actions">
                   <TrainingCertificateActions
@@ -77,7 +127,7 @@ export default async function TrainingCredentialVerificationPage({
                 <Link className="credential-link" href="/training">
                   Explore training <ArrowRight size={14}/>
                 </Link>
-              </div>
+              </aside>
             </section>
           ) : (
             <section className="credential-card credential-invalid">

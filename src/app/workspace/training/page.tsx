@@ -554,7 +554,7 @@ export default async function TrainingDashboardPage({
             <p>Browse standalone role, software, and industry courses. Australian courses stay in the specialisation paths above so they are not duplicated here.</p>
           </div>
           {libraryOpen ? (
-            <Link className="btn btn-sm training-library-toggle" href="/workspace/training#course-library-title">
+            <Link className="btn btn-sm training-library-toggle" href="/workspace/training">
               Hide library
             </Link>
           ) : null}

@@ -229,7 +229,7 @@ export default async function TrainingDashboardPage({
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
   const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
   const { userId, profile } = await requireAuthenticatedUserFast("/workspace/training");
-  const { courses, learnerProfile, learnerPreferences, savedCourseIds, error } = await getTrainingDashboard(userId);
+  const { courses, learnerProfile, learnerPreferences, savedCourseIds, learnerName, error } = await getTrainingDashboard(userId);
 
   const active = courses
     .filter((course) => course.enrolled && !course.completedAt)
@@ -277,7 +277,7 @@ export default async function TrainingDashboardPage({
     : null;
   const postCompletionPrimary = postCompletion?.courses[0] || null;
 
-  const firstName = String(profile?.full_name || "there").trim().split(/\s+/)[0] || "there";
+  const firstName = String(profile?.full_name || learnerName || "there").trim().split(/\s+/)[0] || "there";
   const referenceCourses = courses.map((course) => ({
     id: course.id,
     slug: course.slug,

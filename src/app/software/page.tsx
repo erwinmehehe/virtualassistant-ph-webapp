@@ -17,7 +17,6 @@ export const metadata: Metadata = {
   description: "Browse Virtual Assistant software and platform experience for human VAs across CRM, property, accounting, healthcare, trades, recruitment, design, and more.",
   keywords: ["virtual assistant software", "virtual assistant tools", "virtual assistant by software", "software-specific virtual assistant philippines", "hire virtual assistant for my platform"],
   alternates: { canonical: canonicalPath("/software") }
-,
   ...socialMetadata({
     title: "Virtual Assistant Software & Platform Experience",
     description: "Browse Virtual Assistant software and platform experience for human VAs across CRM, property, accounting, healthcare, trades, recruitment, design, and more.",

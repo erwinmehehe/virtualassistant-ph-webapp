@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { VaCostCalculator } from "@/components/va-tools";
 import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import { Band, CheckList, CtaBand, SectionHead, Steps } from "@/components/hiring-page-sections";
 import "../homepage-sections.css";
 import "../hiring-pages.css";
@@ -13,7 +14,7 @@ import "../info-pages.css";
 import "./pricing-page.css";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", keywords: ["virtual assistant pricing philippines", "virtual assistant pricing", "virtual assistant service cost", "how much does a virtual assistant cost", "virtual assistant rates", "affordable virtual assistant", "cheap virtual assistant"] , alternates: { canonical: canonicalPath("/pricing") }};
+export const metadata: Metadata = { title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", keywords: ["virtual assistant pricing philippines", "virtual assistant pricing", "virtual assistant service cost", "how much does a virtual assistant cost", "virtual assistant rates", "affordable virtual assistant", "cheap virtual assistant"] , alternates: { canonical: canonicalPath("/pricing") }, ...socialMetadata({ title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", path: canonicalPath("/pricing"), category: "pricing", eyebrow: "Virtual Assistant Pricing", points: ["Role scope", "Hours & schedule", "VA compensation", "Managed vs direct hire"] }) };
 
 const FEE_INCLUSIONS = [
   { icon: ClipboardList, label: "Role review and hiring brief" },

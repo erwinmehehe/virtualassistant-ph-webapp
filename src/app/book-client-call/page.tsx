@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ClientBookingForm } from "@/components/client-booking-form";
 import { buildDiscoverySlotDays, formatDiscoverySlot } from "@/lib/discovery-booking";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import { createAdminClient } from "@/lib/supabase/admin";
 import "./booking.css";
 
@@ -14,6 +15,14 @@ export const metadata: Metadata = {
   description: "Choose a time for a 30-minute Virtual Assistant discovery call.",
   alternates: { canonical: canonicalPath("/book-client-call") },
   robots: { index: false, follow: true },
+,
+  ...socialMetadata({
+    title: "Book a Discovery Call",
+    description: "Choose a time for a 30-minute Virtual Assistant discovery call.",
+    path: canonicalPath("/book-client-call"),
+    category: "hiring",
+    eyebrow: "Discovery Call",
+  }),
 };
 
 export const dynamic = "force-dynamic";

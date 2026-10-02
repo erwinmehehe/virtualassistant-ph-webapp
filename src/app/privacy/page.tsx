@@ -8,8 +8,7 @@ import { socialMetadata } from "@/lib/og";
 export const metadata: Metadata = {
   title: "Privacy Notice",
   description: "How VirtualAssistant.com.ph handles public VA profiles, private hiring data, matching, consent, retention, and privacy rights.",
-  alternates: { canonical: canonicalPath("/privacy") }
-,
+  alternates: { canonical: canonicalPath("/privacy") },
   ...socialMetadata({
     title: "Privacy Notice",
     description: "How VirtualAssistant.com.ph handles public VA profiles, private hiring data, matching, consent, retention, and privacy rights.",

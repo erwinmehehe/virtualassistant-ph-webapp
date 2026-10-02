@@ -6,7 +6,6 @@ import {
   BadgeCheck,
   BookOpenCheck,
   BriefcaseBusiness,
-  Check,
   CheckCircle2,
   ChevronDown,
   Clock3,
@@ -16,7 +15,6 @@ import {
   MapPinned,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   WalletCards,
   CircleCheckBig,
   Clock,
@@ -174,10 +172,6 @@ export default async function TrainingPage() {
   const australiaCourses = publishedCourses.filter((course) => course.country_focus === "Australia");
   const foundation =
     publishedCourses.find((course) => course.slug === "virtual-assistant-foundations") || null;
-  const heroCourses = globalCourses
-    .filter((course) => course.slug !== "virtual-assistant-foundations")
-    .slice(0, 4);
-
   const totalCourseCount = publishedCourses.length || 26;
   const globalCourseCount = globalCourses.length || 15;
   const australiaCourseCount = australiaCourses.length || 11;

@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
+import { queuePlacementReadinessAutomation } from "@/lib/trigger-automation";
+import { ensurePlacementHandoffAction, resolvePlacementHandoffTask, resolvePlacementReadinessIfReady } from "@/lib/post-hire-automation";
 
 const PLACEMENT_STAGES = new Set(["pre_start","launch","active","recovery","replacement","ended"]);
 const SIGNALS = new Set(["green","yellow","red"]);
@@ -105,6 +107,19 @@ export async function assignClientSuccessOwnerAction(formData: FormData) {
     });
   }
   await writeRecruiterActivity({ subjectType: "job", subjectId: job.id, action: "client_success_owner_assigned", description: `Client Success owner assigned to ${owner.full_name || "agency teammate"}`, actorId: user.id, metadata: { workroom_id: workroomId, client_success_owner_id: ownerId, at: now } });
+  try {
+    await ensurePlacementHandoffAction({
+      admin,
+      workroomId,
+      job,
+      clientSuccessOwnerId: ownerId,
+    });
+  } catch (automationError) {
+    console.error("[automation] placement handoff task update failed", {
+      workroomId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   revalidatePath("/workspace/client-success");
   revalidatePath(`/workspace/client-success/${workroomId}`);
   revalidatePath("/workspace/recruiter/today");
@@ -126,6 +141,18 @@ export async function completeRecruiterHandoffAction(formData: FormData) {
   const { error } = await admin.from("workrooms").update({ handoff_completed_at: now, handoff_completed_by: user.id, handoff_notes: notes }).eq("id", workroomId);
   if (error) throw error;
   await completeAgencyChecklistByTitle(admin, workroomId, "Complete recruiter to Client Success handoff", user.id);
+  try {
+    await resolvePlacementHandoffTask(admin, job.id);
+    const alreadyReady = await resolvePlacementReadinessIfReady(admin, workroomId);
+    if (!alreadyReady && room.start_date) {
+      await queuePlacementReadinessAutomation(workroomId, now, room.start_date);
+    }
+  } catch (automationError) {
+    console.error("[automation] placement readiness handoff setup failed", {
+      workroomId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   if (room.client_success_owner_id !== user.id) {
     await admin.from("notifications").insert({
       user_id: room.client_success_owner_id,
@@ -160,6 +187,14 @@ export async function toggleAgencyChecklistAction(formData: FormData) {
   const { error } = await admin.from("workroom_checklist").update(patch).eq("id", checklistId);
   if (error) throw error;
   await admin.rpc("recompute_placement_readiness", { p_workroom_id: workroomId });
+  try {
+    await resolvePlacementReadinessIfReady(admin, workroomId);
+  } catch (automationError) {
+    console.error("[automation] placement readiness cleanup failed", {
+      workroomId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   await writeRecruiterActivity({ subjectType: "job", subjectId: job.id, action: currentlyDone ? "placement_readiness_reopened" : "placement_readiness_completed", description: `${item.title}: ${currentlyDone ? "reopened" : "completed"}`, actorId: user.id, metadata: { workroom_id: workroomId, checklist_id: checklistId } });
   revalidatePath(`/workspace/client-success/${workroomId}`);
   revalidatePath("/workspace/client-success");

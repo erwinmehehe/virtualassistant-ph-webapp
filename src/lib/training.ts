@@ -208,6 +208,7 @@ export async function getTrainingDashboard(userId: string) {
       paths: [] as TrainingLearningPathSummary[],
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
       learnerPreferences: null as TrainingLearnerPreferences | null,
+      savedCourseIds: [] as string[],
       error: error.message,
     };
   }
@@ -220,6 +221,7 @@ export async function getTrainingDashboard(userId: string) {
       paths: [] as TrainingLearningPathSummary[],
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
       learnerPreferences: null as TrainingLearnerPreferences | null,
+      savedCourseIds: [] as string[],
       error: null,
     };
   }
@@ -252,6 +254,7 @@ export async function getTrainingDashboard(userId: string) {
     { data: assessmentData },
     { data: learnerProfileData },
     { data: learnerPreferencesData },
+    { data: savedCourseData },
   ] = await Promise.all([
     supabase
       .from("training_enrollments")
@@ -286,6 +289,11 @@ export async function getTrainingDashboard(userId: string) {
       .select("australia_specialization,australia_selected_at")
       .eq("user_id", userId)
       .maybeSingle(),
+    supabase
+      .from("training_saved_courses")
+      .select("course_id")
+      .eq("user_id", userId)
+      .in("course_id", courseIds),
   ]);
 
   const enrollments = new Map(
@@ -453,7 +461,9 @@ export async function getTrainingDashboard(userId: string) {
       }
     : null;
 
-  return { courses: summaries, paths, learnerProfile, learnerPreferences, error: null };
+  const savedCourseIds = (savedCourseData || []).map((row) => row.course_id);
+
+  return { courses: summaries, paths, learnerProfile, learnerPreferences, savedCourseIds, error: null };
 }
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {

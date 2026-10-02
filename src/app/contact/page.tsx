@@ -15,6 +15,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { submitContactAction } from "@/app/actions/leads";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import { BrowserTimeZoneField } from "@/components/browser-timezone-field";
 import "./contact.css";
@@ -24,6 +25,14 @@ export const metadata: Metadata = {
   description: "Contact VirtualAssistant.com.ph about hiring a Virtual Assistant, account support, partnerships, privacy, or general questions.",
   keywords: ["contact virtualassistant.com.ph", "virtual assistant support"],
   alternates: { canonical: canonicalPath("/contact") },
+,
+  ...socialMetadata({
+    title: "Contact VirtualAssistant.com.ph",
+    description: "Contact VirtualAssistant.com.ph about hiring a Virtual Assistant, account support, partnerships, privacy, or general questions.",
+    path: canonicalPath("/contact"),
+    category: "general",
+    eyebrow: "Contact",
+  }),
 };
 
 const ROUTES = [

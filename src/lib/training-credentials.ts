@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { AUSTRALIA_SPECIALIZATIONS } from "@/lib/training-specializations";
 
 export type TrainingCredential = {
   id: string;
@@ -99,6 +100,38 @@ export async function getTrainingCredentialsForUser(
   return byUser.get(userId) || [];
 }
 
+
+export type CompletedTrainingSpecialization = {
+  slug: string;
+  title: string;
+  courseCount: number;
+  completedAt: string;
+};
+
+export function completedTrainingSpecializations(
+  credentials: TrainingCredential[],
+): CompletedTrainingSpecialization[] {
+  const bySlug = new Map(credentials.map((credential) => [credential.courseSlug, credential]));
+
+  return AUSTRALIA_SPECIALIZATIONS.flatMap((specialization) => {
+    const supporting = specialization.courses
+      .map((slug) => bySlug.get(slug))
+      .filter((credential): credential is TrainingCredential => Boolean(credential));
+
+    if (supporting.length !== specialization.courses.length) return [];
+
+    const issuedAt = supporting
+      .map((credential) => credential.issuedAt)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+
+    return [{
+      slug: specialization.slug,
+      title: specialization.title,
+      courseCount: specialization.courses.length,
+      completedAt: issuedAt,
+    }];
+  });
+}
 
 export type PublicTrainingCredential = {
   credentialCode: string;

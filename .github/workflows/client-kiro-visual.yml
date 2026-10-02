@@ -1,0 +1,62 @@
+name: Client Kiro visual QA
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "public/brand/kiro/**"
+      - "src/components/kiro.tsx"
+      - "src/components/client-kiro-hero.tsx"
+      - "src/app/workspace/client/page.tsx"
+      - "src/app/workspace/client/client-mobile.css"
+      - "src/app/visual/client-kiro/**"
+      - "scripts/client-kiro-visual.mjs"
+      - ".github/workflows/client-kiro-visual.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: client-kiro-visual-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start isolated client Kiro preview
+        env:
+          CLIENT_KIRO_VISUAL_FIXTURE: "1"
+        run: |
+          npm run dev -- --hostname 127.0.0.1 > /tmp/client-kiro-preview.log 2>&1 &
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:3000/visual/client-kiro > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/client-kiro-preview.log
+          exit 1
+      - name: Capture client Kiro desktop and mobile
+        env:
+          VISUAL_BASE_URL: http://127.0.0.1:3000
+        run: node scripts/client-kiro-visual.mjs
+      - name: Upload client Kiro screenshots
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: client-kiro-visual-${{ github.event.pull_request.number }}
+          path: artifacts/client-kiro-visual
+          if-no-files-found: error
+          retention-days: 2

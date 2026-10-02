@@ -54,6 +54,13 @@ const roleResourceConsolidationRedirects = ROLE_RESOURCE_CONSOLIDATIONS.flatMap(
   return core.flatMap((redirect) => [redirect, { ...redirect, source: redirect.source + "/" }]);
 });
 
+const SOFTWARE_SLUG_REDIRECTS = ["applyonline","salestrekker","brokerengine","propertyme","console-cloud","servicem8","simpro","aroflo","tradify","cliniko","halaxy","power-diary","jobadder","bullhorn","vincere","stratamax","strata-master","bgl-simple-fund-360","class-super","revit","canva","gohighlevel","salesforce","hubspot","xero","klaviyo","quickbooks"] as const;
+
+const softwareSlugRedirects = SOFTWARE_SLUG_REDIRECTS.flatMap((slug) => [
+  { source: `/software/${slug}-virtual-assistant`, destination: `/software/${slug}`, permanent: true },
+  { source: `/software/${slug}-virtual-assistant/`, destination: `/software/${slug}`, permanent: true },
+]);
+
 const allowUnsafeEval = process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "";
 
 const contentSecurityPolicy = [
@@ -119,6 +126,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       ...roleResourceConsolidationRedirects,
+      ...softwareSlugRedirects,
       // Recruiter workspace consolidation. Keep the legacy pages intact for safe rollback/testing,
       // but route people to the canonical destinations at runtime.
       { source: "/workspace/recruiter/leads", destination: "/workspace/recruiter/crm", permanent: false },

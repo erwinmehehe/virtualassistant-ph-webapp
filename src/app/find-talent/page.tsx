@@ -11,7 +11,7 @@ import { uniqueStrings } from "@/lib/collections";
 import { searchPublicTalent } from "@/lib/talent-search";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
-import { getTrainingCredentialsForUsers } from "@/lib/training-credentials";
+import { completedTrainingSpecializations, getTrainingCredentialsForUsers } from "@/lib/training-credentials";
 import "../cro-hiring-tools.css";
 
 export const metadata: Metadata = {
@@ -106,12 +106,23 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
       <div className="directory-result-head"><div><strong>{totalResults} approved profile{totalResults === 1 ? "" : "s"}</strong><span className="small muted">{q && semanticSearchActive ? "Search combines meaning, skills, tools, and your structured filters. " : ""}These are talent examples. Your recruiter confirms current fit and availability before presenting anyone to you.</span></div></div>
       {pageVas.length ? <><div className="talent-directory-grid">{pageVas.map((va:any)=>{
         const skills = uniqueStrings(va.skills).slice(0,3);
-        const publicTraining = (publicTrainingByUser.get(String(va.user_id)) || []).slice(0, 2);
+        const allPublicTraining = publicTrainingByUser.get(String(va.user_id)) || [];
+        const publicTraining = allPublicTraining.slice(0, 2);
+        const completedPublicPaths = completedTrainingSpecializations(allPublicTraining).slice(0, 1);
         return <article className="talent-market-card" key={va.user_id}>
           <div className="talent-market-head"><PublicAvatar name={va.full_name} src={va.avatar_url}/><div><div className="talent-name-row"><h2>{va.full_name}</h2><span className="verified-dot" title="Recruiter reviewed"><CheckCircle2 size={15}/></span></div><p>{va.headline || va.primary_category || "Virtual Assistant"}</p></div></div>
           <div className="talent-market-meta"><span><strong>{va.years_experience} yrs</strong> experience</span><span><strong>{va.weekly_hours || "Flexible"}</strong>{va.weekly_hours ? " hrs/week" : " availability"}</span></div>
           <p className="talent-market-summary">{va.bio ? `${va.bio.slice(0,155)}${va.bio.length>155?"…":""}` : "Review this profile for experience, skills, tools, and schedule fit. Our recruiter confirms the final match before client introduction."}</p>
           {skills.length ? <div className="talent-skill-preview">{skills.map((skill,index)=><span key={`${String(skill)}-${index}`}>{skill}</span>)}</div> : null}
+          {completedPublicPaths.length ? (
+            <div className="talent-path-preview" aria-label="Completed public learning path">
+              <span className="talent-path-preview-label"><BadgeCheck size={13}/> Completed learning path</span>
+              {completedPublicPaths.map((path) => (
+                <strong key={path.slug}>{path.title}</strong>
+              ))}
+              <small>Based only on training certificates this candidate chose to show publicly.</small>
+            </div>
+          ) : null}
           {publicTraining.length ? (
             <div className="talent-training-preview" aria-label="Public training certificates">
               <span className="talent-training-label"><BadgeCheck size={13}/> Verified training</span>

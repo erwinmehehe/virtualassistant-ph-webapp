@@ -1,10 +1,12 @@
 import Link from "next/link";
 import {
+  Award,
   BadgeCheck,
   BookOpenCheck,
   BriefcaseBusiness,
   Calculator,
   CalendarDays,
+  Compass,
   ExternalLink,
   Eye,
   EyeOff,
@@ -20,7 +22,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { updateTrainingCertificateVisibilityAction } from "@/app/actions/training-credentials";
-import type { TrainingCredential } from "@/lib/training-credentials";
+import { completedTrainingSpecializations, type TrainingCredential } from "@/lib/training-credentials";
 
 function issuedLabel(value: string) {
   return new Intl.DateTimeFormat("en-PH", {
@@ -79,6 +81,8 @@ export function TrainingCredentials({
 }) {
   if (!credentials.length && !showEmpty) return null;
 
+  const completedPaths = completedTrainingSpecializations(credentials);
+
   const intro =
     audience === "recruiter"
       ? "Platform-issued course completions that can be independently verified."
@@ -109,6 +113,34 @@ export function TrainingCredentials({
           </span>
         ) : null}
       </div>
+
+      {completedPaths.length ? (
+        <div className="training-specialization-evidence">
+          <div className="training-specialization-evidence-head">
+            <span><Compass size={13}/> Completed learning paths</span>
+            <small>Calculated from verified course completions</small>
+          </div>
+          <div className="training-specialization-evidence-list">
+            {completedPaths.map((path) => (
+              <article className="training-specialization-evidence-item" key={path.slug}>
+                <span className="training-specialization-evidence-icon"><Award size={17}/></span>
+                <div>
+                  <strong>{path.title}</strong>
+                  <span>{path.courseCount} verified courses · Completed {issuedLabel(path.completedAt)}</span>
+                </div>
+                {selfService ? (
+                  <Link href={"/workspace/training/paths/" + path.slug}>
+                    Review path <ExternalLink size={12}/>
+                  </Link>
+                ) : null}
+              </article>
+            ))}
+          </div>
+          <p className="training-specialization-evidence-note">
+            Learning-path completion confirms the listed training sequence only. It does not verify employment history, client experience, or role suitability.
+          </p>
+        </div>
+      ) : null}
 
       {credentials.length ? (
         <div className="training-credential-list">

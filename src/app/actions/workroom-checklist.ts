@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSessionProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolvePlacementReadinessIfReady } from "@/lib/post-hire-automation";
 
 export async function toggleOwnedChecklistAction(formData:FormData){
   const {user,profile}=await getSessionProfile();
@@ -18,6 +19,15 @@ export async function toggleOwnedChecklistAction(formData:FormData){
   if(item.owner_role!==profile.role)throw new Error(`This onboarding item belongs to the ${item.owner_role}.`);
   const {error:updateError}=await admin.from("workroom_checklist").update({completed_at:done?null:new Date().toISOString(),completed_by:done?null:user.id}).eq("id",id);
   if(updateError)throw updateError;
+  await admin.rpc("recompute_placement_readiness",{p_workroom_id:item.workroom_id});
+  try{
+    await resolvePlacementReadinessIfReady(admin,item.workroom_id);
+  }catch(automationError){
+    console.error("[automation] placement readiness participant cleanup failed",{
+      workroomId:item.workroom_id,
+      error:automationError instanceof Error?automationError.message:String(automationError),
+    });
+  }
   revalidatePath("/workspace/client/workroom");
   revalidatePath("/workspace/va/workroom");
 }

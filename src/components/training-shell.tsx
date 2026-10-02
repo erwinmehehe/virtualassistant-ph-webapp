@@ -64,7 +64,7 @@ export function TrainingShell({
   const accountHref = role ? "/workspace/account" : "/workspace/training/account";
   const name = profile?.full_name || "Training learner";
   const avatar = initials(name);
-  const roleLabel = role === "va" ? "Virtual Assistant" : role === "admin" ? "Admin preview" : "Learner";
+  const roleLabel = role === "va" ? "VA learner" : role === "admin" ? "Training preview" : "Training account";
   const today = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     month: "short",
@@ -77,17 +77,18 @@ export function TrainingShell({
     <div className={`app-shell dashboard-shell training-shell training-reference-shell training-role-${role || "unknown"}`}>
       <aside className="app-sidebar training-reference-sidebar">
         <div className="app-sidebar-brand">
-          <Link className="training-reference-logo" href="/training" aria-label="VAPH Training home">
-            VAPH
+          <Link className="training-reference-logo" href="/training" aria-label="Go to public Training home">
+            VAPH<span className="sr-only">VirtualAssistant.com.ph · Training</span>
           </Link>
         </div>
 
         <nav className="app-nav app-nav-desktop training-reference-sidebar-nav" aria-label="Training navigation">
+          <div className="sidebar-label">Training</div>
           <Link href="/workspace/training#training-dashboard-overview">
             <NavIcon><Home size={17}/></NavIcon>
             <span>Dashboard</span>
           </Link>
-          <Link className="is-active" href="/workspace/training#my-courses" aria-current="page">
+          <Link className="is-active" href="/workspace/training" aria-current="page">
             <NavIcon><GraduationCap size={17}/></NavIcon>
             <span>My Training</span>
           </Link>
@@ -113,14 +114,14 @@ export function TrainingShell({
           </Link>
         </nav>
 
-        <nav className="app-nav-mobile training-reference-mobile-nav" aria-label="Mobile training navigation">
+        <nav className="app-nav-mobile training-shell-mobile-nav training-reference-mobile-nav" aria-label="Mobile training navigation">
           <Link href="/workspace/training#training-dashboard-overview">
             <NavIcon><Home size={17}/></NavIcon>
-            <span>Dashboard</span>
+            <span>Learning</span>
           </Link>
-          <Link href="/workspace/training#my-courses" aria-current="page">
+          <Link href="/workspace/training?browse=1#course-library-title">
             <NavIcon><GraduationCap size={17}/></NavIcon>
-            <span>Training</span>
+            <span>Courses</span>
           </Link>
           <Link href="/workspace/training#certificates">
             <NavIcon><Award size={17}/></NavIcon>
@@ -135,15 +136,16 @@ export function TrainingShell({
               <Link href="/workspace/training?browse=1#course-library-title"><BookOpen size={16}/>Course Library</Link>
               <Link href="/workspace/training#learning-path"><Route size={16}/>Learning Path</Link>
               <Link href="/workspace/training#saved-courses"><Bookmark size={16}/>Saved Courses</Link>
-              <Link href={accountHref}><Settings size={16}/>Settings</Link>
+              <Link href={accountHref}><Settings size={16}/>Account settings</Link>
               <Link href="/training"><BookOpenCheck size={16}/>Public training</Link>
               {workspaceHref ? <Link href={workspaceHref}>{workspaceLabel}</Link> : null}
-              <form action={logoutAction}><button type="submit"><LogOut size={16}/>Sign out</button></form>
+              <form action={logoutAction}><button className="training-mobile-logout" type="submit"><LogOut size={16}/><span>Sign out</span></button></form>
             </div>
           </details>
         </nav>
 
         <div className="sidebar-footer training-reference-sidebar-footer">
+          <div className="sidebar-label">Account & site</div>
           <Link className="training-reference-sidebar-account" href={accountHref}>
             <span>{avatar}</span>
             <div><strong>{name}</strong><small>{roleLabel}</small></div>
@@ -174,12 +176,12 @@ export function TrainingShell({
                 <span>{today}</span>
               </div>
 
-              <details className="training-reference-profile">
+              <details className="training-reference-profile training-detail-account-menu">
                 <summary aria-label="Open training profile menu">
                   <span className="training-reference-profile-avatar">{avatar}</span>
                   <span className="training-reference-profile-copy"><strong>{name}</strong><small>{roleLabel}</small></span>
                 </summary>
-                <div className="training-reference-profile-menu">
+                <div className="training-reference-profile-menu training-detail-account-panel">
                   <Link href={accountHref}>Settings</Link>
                   {workspaceHref ? <Link href={workspaceHref}>{workspaceLabel}</Link> : null}
                   <Link href="/training">Public training home</Link>

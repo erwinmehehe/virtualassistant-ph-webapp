@@ -7407,3 +7407,112 @@
     max-height: calc(100vh - 155px);
   }
 }
+
+
+/* Backend-backed training notifications */
+.training-reference-notification-panel {
+  width: min(340px, calc(100vw - 28px)) !important;
+  padding: 10px !important;
+}
+
+.training-reference-notification-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 2px 8px;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.training-reference-notification-head > strong {
+  color: #172057;
+  font-size: 10.5px;
+}
+
+.training-reference-notification-head button {
+  padding: 0;
+  border: 0;
+  color: #4252bd;
+  background: transparent;
+  font: inherit;
+  font-size: 8.5px;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.training-reference-notification-list {
+  display: grid;
+  gap: 3px;
+  margin-top: 6px;
+}
+
+.training-reference-notification-list form {
+  margin: 0;
+}
+
+.training-reference-notification-list form > button {
+  display: grid;
+  grid-template-columns: 8px minmax(0,1fr);
+  gap: 8px;
+  width: 100%;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 9px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.training-reference-notification-list form > button:hover {
+  background: #f7f8ff;
+}
+
+.training-reference-notification-list form > button.is-unread {
+  background: #f4f6ff;
+}
+
+.training-reference-notification-dot {
+  width: 7px;
+  height: 7px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: #d4d9e8;
+}
+
+.training-reference-notification-list button.is-unread .training-reference-notification-dot {
+  background: #4f46e5;
+  box-shadow: 0 0 0 3px #e8eaff;
+}
+
+.training-reference-notification-list button > span:last-child,
+.training-reference-notification-list button strong,
+.training-reference-notification-list button small,
+.training-reference-notification-list button em {
+  display: block;
+}
+
+.training-reference-notification-list button strong {
+  color: #172057;
+  font-size: 9.5px;
+}
+
+.training-reference-notification-list button small {
+  margin-top: 3px;
+  color: #6f7897;
+  font-size: 8.7px;
+  line-height: 1.4;
+}
+
+.training-reference-notification-list button em {
+  margin-top: 4px;
+  color: #9aa2b8;
+  font-size: 7.8px;
+  font-style: normal;
+}
+
+.training-reference-save:disabled {
+  cursor: wait;
+  opacity: .65;
+}

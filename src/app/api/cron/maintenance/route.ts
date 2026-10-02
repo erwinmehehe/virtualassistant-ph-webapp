@@ -10,6 +10,7 @@ import { runVaAddressResumeBackfill } from "@/lib/va-address-backfill";
 import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
 import { proposalAutomationConfigured, triggerAutomationsActive } from "@/lib/trigger-automation";
 import { syncPlacementRetentionRecovery } from "@/lib/placement-retention-automation";
+import { ensurePlacementHandoffAction } from "@/lib/post-hire-automation";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -308,6 +309,43 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
     if (await sendWorkflowReminder(admin, { subjectType: "application", subjectId: application.id, recipientId: application.va_id, action: "application_follow_up", email: true, title: "Your application has an update waiting", body: `Your application is still in the ${application.status} stage. Check the role and messages for any next steps.`, href: "/workspace/va/applications" })) vaNudges++;
   }
   return { recruiterNudges, client24h, client48h, vaNudges, interviewScheduleNudges, offerNudges };
+}
+
+async function runPlacementHandoffRecovery(admin: ReturnType<typeof createAdminClient>) {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: rooms, error } = await admin
+    .from("workrooms")
+    .select("id,job_id,client_success_owner_id,created_at")
+    .eq("status", "active")
+    .is("handoff_completed_at", null)
+    .lte("created_at", cutoff)
+    .limit(200);
+  if (error) throw error;
+  if (!rooms?.length) return { checked: 0, escalated: 0 };
+
+  const jobIds = [...new Set(rooms.map((room: any) => room.job_id).filter(Boolean))];
+  const { data: jobs, error: jobError } = await admin
+    .from("jobs")
+    .select("id,title,recruiter_id")
+    .in("id", jobIds);
+  if (jobError) throw jobError;
+  const jobMap = new Map((jobs || []).map((job: any) => [String(job.id), job]));
+
+  let escalated = 0;
+  for (const room of rooms as any[]) {
+    const job: any = jobMap.get(String(room.job_id));
+    if (!job) continue;
+    const result = await ensurePlacementHandoffAction({
+      admin,
+      workroomId: room.id,
+      job,
+      clientSuccessOwnerId: room.client_success_owner_id,
+      urgent: true,
+    });
+    if (!("reason" in result && result.reason === "no_active_recruiter")) escalated++;
+  }
+
+  return { checked: rooms.length, escalated };
 }
 
 async function runPlacementRetentionRecovery(admin: ReturnType<typeof createAdminClient>) {
@@ -754,12 +792,13 @@ export async function GET(request: Request) {
   // the same lifecycle state during this maintenance run.
   const expiredJobResult = await runMaintenanceTask("expired job cleanup", () => runExpiredJobCleanup(admin));
 
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, retentionRecoveryResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult, addressBackfillResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, handoffRecoveryResult, retentionRecoveryResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult, addressBackfillResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
     runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin)),
     runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
+    runMaintenanceTask("placement handoff recovery", () => runPlacementHandoffRecovery(admin)),
     runMaintenanceTask("placement retention recovery", () => runPlacementRetentionRecovery(admin)),
     runMaintenanceTask("recruiter notification hygiene", () => runRecruiterNotificationHygiene(admin)),
     runMaintenanceTask("training resume nudges", () => runTrainingResumeNudges(admin)),
@@ -771,5 +810,5 @@ export async function GET(request: Request) {
     runMaintenanceTask("VA address resume backfill", () => runVaAddressResumeBackfill(8))
   ]);
   const trainingLaunchResult = await runMaintenanceTask("VA training launch announcement", () => sendVaTrainingAnnouncementBatch(20));
-  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, addressBackfill: addressBackfillResult, trainingLaunchAnnouncement: trainingLaunchResult });
+  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementHandoffRecovery: handoffRecoveryResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, addressBackfill: addressBackfillResult, trainingLaunchAnnouncement: trainingLaunchResult });
 }

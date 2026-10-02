@@ -9,6 +9,7 @@ import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { publicationMissingDetails } from "@/lib/job-publication";
 import { isTalentAgencyCertified } from "@/lib/talent-operations";
+import { queueShortlistReviewAutomation } from "@/lib/trigger-automation";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
@@ -442,6 +443,15 @@ export async function saveJobShortlistAction(formData: FormData) {
   }
 
   if (mode === "release" && job.client_id) {
+    try {
+      await queueShortlistReviewAutomation(jobId, now);
+    } catch (automationError) {
+      console.error("[automation] shortlist review queue failed", {
+        jobId,
+        error: automationError instanceof Error ? automationError.message : String(automationError),
+      });
+    }
+
     const [{ data: access }, { data: clientAuth }, { data: clientProfile }] = await Promise.all([
       admin.from("job_candidate_access").select("access_status").eq("job_id", jobId).maybeSingle(),
       admin.auth.admin.getUserById(job.client_id),

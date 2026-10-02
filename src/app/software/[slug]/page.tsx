@@ -86,7 +86,6 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const talentHref = `/find-talent?category=${encodeURIComponent(page.directoryCategory)}`;
   const matchService = relatedServices.find((service) => service?.directoryCategory === page.directoryCategory) || relatedServices[0];
   const matchExample = `Run our ${page.software} workflow: ${page.tasks.slice(0, 3).join(", ")}, and flag anything that needs a decision.`;
-  const seoTitle = localizeEnglish(softwareSeoTitle(page), page.locale);
   const seoDescription = localizeEnglish(softwareSeoDescription(page), page.locale);
   const seoH1 = localizeEnglish(softwareSeoH1(page), page.locale);
   const longForm = localizeContent(softwareLongFormCopy(page), page.locale);

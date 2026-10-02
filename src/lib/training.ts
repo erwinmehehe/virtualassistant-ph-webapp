@@ -108,6 +108,7 @@ export type TrainingLearnerPreferences = {
 
 export type TrainingCourseSummary = CourseRow & {
   searchTerms: string[];
+  searchEntries: Array<{ title: string; href: string }>;
   lessonCount: number;
   completedLessons: number;
   progressPercent: number;
@@ -397,6 +398,10 @@ export async function getTrainingDashboard(userId: string) {
     return {
       ...course,
       searchTerms: courseLessons.map((lesson) => lesson.title),
+      searchEntries: courseLessons.map((lesson) => ({
+        title: lesson.title,
+        href: `/workspace/training/courses/${course.slug}/lessons/${lesson.id}`,
+      })),
       lessonCount: courseLessons.length,
       completedLessons,
       progressPercent: enrollment?.completed_at

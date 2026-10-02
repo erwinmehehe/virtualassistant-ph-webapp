@@ -269,7 +269,7 @@ export function TrainingDashboardOverview({
             <Link href="/workspace/training?browse=1#course-library-title">View all <ArrowRight size={13}/></Link>
           </div>
 
-          {query?<div className="training-reference-search-state"><Search size={14}/> Filtering courses for “{query}”</div>:null}
+          {query?<div className="training-reference-search-state"><Search size={14}/> Search results for “{query}” across courses and lessons</div>:null}
 
           <div className="training-reference-tabs" role="tablist" aria-label="My course status">
             {tabs.map(([key,label])=><button type="button" role="tab" aria-selected={tab===key} className={tab===key?"is-active":""} onClick={()=>setTab(key)} key={key}>{label} ({key==="completed"?completed.length:key==="not-started"?notStarted.length:inProgress.length})</button>)}

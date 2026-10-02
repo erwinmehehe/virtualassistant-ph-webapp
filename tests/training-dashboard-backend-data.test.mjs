@@ -44,6 +44,8 @@ test("training topbar notifications read and mutate backend learner notification
   assert.match(migration, /create table if not exists public\.training_notifications/);
   assert.match(migration, /references auth\.users\(id\)/);
   assert.match(migration, /grant update \(read_at\) on public\.training_notifications to authenticated/);
+  assert.match(lockMigration, /revoke update on public\.training_notifications from authenticated/);
+  assert.match(lockMigration, /grant update \(read_at\) on public\.training_notifications to authenticated/);
 });
 
 test("course completion creates learner notifications in the backend", async () => {
@@ -67,6 +69,7 @@ test("Ask Kiro is grounded in authenticated backend training data", async () => 
 
   assert.match(action, /requireAuthenticatedUserFast/);
   assert.match(action, /answerTrainingKiro/);
+  assert.match(action, /enforceActionRateLimit\("training_kiro", userId, 30, 10\)/);
   assert.match(ai, /getTrainingDashboard\(userId\)/);
   assert.match(ai, /Training is free and separate from hiring/);
   assert.match(ai, /savedCourseIds/);
@@ -74,4 +77,18 @@ test("Ask Kiro is grounded in authenticated backend training data", async () => 
   assert.match(ai, /certificateCode/);
   assert.match(ai, /AI_GATEWAY_API_KEY/);
   assert.match(ai, /source: "fallback"/);
+  assert.match(ai, /catch \{\s*return fallback;\s*\}/);
+});
+
+test("training search is backed by course and lesson titles", async () => {
+  const [overview, page, trainingLib] = await Promise.all([
+    readFile(overviewPath, "utf8"),
+    readFile("src/app/workspace/training/page.tsx", "utf8"),
+    readFile(trainingLibPath, "utf8"),
+  ]);
+
+  assert.match(trainingLib, /searchTerms: courseLessons\.map\(\(lesson\) => lesson\.title\)/);
+  assert.match(page, /searchTerms: course\.searchTerms/);
+  assert.match(overview, /\.\.\.course\.searchTerms/);
+  assert.match(overview, /Search results for/);
 });

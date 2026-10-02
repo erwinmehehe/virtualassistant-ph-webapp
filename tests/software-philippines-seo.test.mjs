@@ -83,3 +83,27 @@ test("software pages remain discoverable from the hub, sitemap, static params, a
   assert.match(sitemap, /softwarePages\.map\(\(page\) => \(\{/);
   assert.match(sitemap, /url: \`\$\{base\}\/software\/\$\{page\.slug\}\`/);
 });
+
+
+test("new AU software pages have contextual inbound service links", async () => {
+  const services = await readFile("src/lib/service-pages.ts", "utf8");
+
+  function block(slug) {
+    const start = services.indexOf(`"slug": "${slug}"`);
+    assert.ok(start >= 0, `missing service ${slug}`);
+    const next = services.indexOf("\n  {", start + 10);
+    return services.slice(start, next > 0 ? next : services.length);
+  }
+
+  const expectations = [
+    ["construction-estimating-virtual-assistant", ["Buildxact", "Groundplan"]],
+    ["construction-virtual-assistant", ["Buildertrend", "Procore"]],
+    ["allied-health-referral-billing-virtual-assistant", ["Nookal"]],
+    ["recruitment-hr", ["Employment Hero"]],
+  ];
+
+  for (const [slug, tools] of expectations) {
+    const content = block(slug);
+    for (const tool of tools) assert.ok(content.includes(`"${tool}"`), `${slug} must link the ${tool} software guide`);
+  }
+});

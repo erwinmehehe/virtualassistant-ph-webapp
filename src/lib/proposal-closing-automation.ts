@@ -53,7 +53,7 @@ export async function resolveProposalClosingArtifacts(
       snoozed_until: null,
     })
     .eq("subject_type", "lead")
-    .eq("subject_id", proposalId)
+    .eq("subject_id", leadId)
     .eq("status", "todo")
     .ilike("title", "Proposal close%");
 

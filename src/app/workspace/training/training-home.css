@@ -7288,3 +7288,122 @@
     flex: 0 0 auto;
   }
 }
+
+
+.training-reference-notification-panel {
+  width: min(360px, calc(100vw - 28px)) !important;
+  padding: 10px !important;
+}
+
+.training-reference-notification-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 2px 8px;
+}
+
+.training-reference-notification-head > strong {
+  color: #172057;
+  font-size: 11px;
+}
+
+.training-reference-notification-head form {
+  margin: 0;
+}
+
+.training-reference-notification-head button {
+  border: 0;
+  color: #4354c8;
+  background: transparent;
+  font: inherit;
+  font-size: 8.5px;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.training-reference-notification-list {
+  display: grid;
+  gap: 5px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.training-reference-notification-list form {
+  margin: 0;
+}
+
+.training-reference-notification-list button {
+  display: grid;
+  grid-template-columns: 8px minmax(0,1fr);
+  gap: 8px;
+  width: 100%;
+  padding: 9px;
+  border: 0;
+  border-radius: 10px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.training-reference-notification-list button:hover,
+.training-reference-notification-list button.is-unread {
+  background: #f5f7ff;
+}
+
+.training-reference-notification-dot {
+  width: 6px;
+  height: 6px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.training-reference-notification-list button.is-unread .training-reference-notification-dot {
+  background: #4f46e5;
+  box-shadow: 0 0 0 3px #ecefff;
+}
+
+.training-reference-notification-list strong,
+.training-reference-notification-list small,
+.training-reference-notification-list em {
+  display: block;
+}
+
+.training-reference-notification-list strong {
+  color: #172057;
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
+.training-reference-notification-list small {
+  margin-top: 3px;
+  color: #76819f;
+  font-size: 8.5px;
+  line-height: 1.4;
+}
+
+.training-reference-notification-list em {
+  margin-top: 4px;
+  color: #9aa2b8;
+  font-size: 7.5px;
+  font-style: normal;
+}
+
+@media (max-width: 430px) {
+  .training-reference-notification-panel {
+    position: fixed !important;
+    top: 60px !important;
+    right: 10px !important;
+    left: 10px !important;
+    width: auto !important;
+    max-height: calc(100vh - 84px);
+    overflow: hidden;
+  }
+
+  .training-reference-notification-list {
+    max-height: calc(100vh - 155px);
+  }
+}

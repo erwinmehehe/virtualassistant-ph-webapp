@@ -54,7 +54,7 @@ export function softwareSeoH1(page: SoftwareSeoPage) {
 export const softwarePages: SoftwareSeoPage[] = [
   // --- 1. ApplyOnline ---
   {
-    slug: "applyonline-virtual-assistant",
+    slug: "applyonline",
     locale: "en-AU",
     name: "ApplyOnline Virtual Assistant",
     software: "ApplyOnline",
@@ -115,7 +115,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 2. Salestrekker ---
   {
-    slug: "salestrekker-virtual-assistant",
+    slug: "salestrekker",
     locale: "en-AU",
     name: "Salestrekker Virtual Assistant",
     software: "Salestrekker",
@@ -173,7 +173,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 3. BrokerEngine ---
   {
-    slug: "brokerengine-virtual-assistant",
+    slug: "brokerengine",
     locale: "en-AU",
     name: "BrokerEngine Virtual Assistant",
     software: "BrokerEngine",
@@ -231,7 +231,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 4. PropertyMe ---
   {
-    slug: "propertyme-virtual-assistant",
+    slug: "propertyme",
     locale: "en-AU",
     name: "PropertyMe Virtual Assistant",
     software: "PropertyMe",
@@ -291,7 +291,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 5. Console Cloud ---
   {
-    slug: "console-cloud-virtual-assistant",
+    slug: "console-cloud",
     locale: "en-AU",
     name: "Console Cloud Virtual Assistant",
     software: "Console Cloud",
@@ -349,7 +349,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 6. ServiceM8 ---
   {
-    slug: "servicem8-virtual-assistant",
+    slug: "servicem8",
     locale: "en-AU",
     name: "ServiceM8 Virtual Assistant",
     software: "ServiceM8",
@@ -420,7 +420,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 7. simPRO ---
   {
-    slug: "simpro-virtual-assistant",
+    slug: "simpro",
     locale: "en-AU",
     name: "simPRO Virtual Assistant",
     software: "simPRO",
@@ -479,7 +479,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 8. AroFlo ---
   {
-    slug: "aroflo-virtual-assistant",
+    slug: "aroflo",
     locale: "en-AU",
     name: "AroFlo Virtual Assistant",
     software: "AroFlo",
@@ -537,7 +537,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 9. Tradify ---
   {
-    slug: "tradify-virtual-assistant",
+    slug: "tradify",
     locale: "en-AU",
     name: "Tradify Virtual Assistant",
     software: "Tradify",
@@ -596,7 +596,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 10. Cliniko ---
   {
-    slug: "cliniko-virtual-assistant",
+    slug: "cliniko",
     locale: "en-AU",
     name: "Cliniko Virtual Assistant",
     software: "Cliniko",
@@ -662,7 +662,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 11. Halaxy ---
   {
-    slug: "halaxy-virtual-assistant",
+    slug: "halaxy",
     locale: "en-AU",
     name: "Halaxy Virtual Assistant",
     software: "Halaxy",
@@ -719,7 +719,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 12. Power Diary ---
   {
-    slug: "power-diary-virtual-assistant",
+    slug: "power-diary",
     locale: "en-AU",
     name: "Power Diary Virtual Assistant",
     software: "Power Diary",
@@ -776,7 +776,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 13. JobAdder ---
   {
-    slug: "jobadder-virtual-assistant",
+    slug: "jobadder",
     locale: "en-AU",
     name: "JobAdder Virtual Assistant",
     software: "JobAdder",
@@ -835,7 +835,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 14. Bullhorn ---
   {
-    slug: "bullhorn-virtual-assistant",
+    slug: "bullhorn",
     locale: "en-AU",
     name: "Bullhorn Virtual Assistant",
     software: "Bullhorn",
@@ -891,7 +891,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 15. Vincere ---
   {
-    slug: "vincere-virtual-assistant",
+    slug: "vincere",
     locale: "en-AU",
     name: "Vincere Virtual Assistant",
     software: "Vincere",
@@ -948,7 +948,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 16. StrataMax ---
   {
-    slug: "stratamax-virtual-assistant",
+    slug: "stratamax",
     locale: "en-AU",
     name: "StrataMax Virtual Assistant",
     software: "StrataMax",
@@ -1004,7 +1004,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 17. MRI Strata Master ---
   {
-    slug: "strata-master-virtual-assistant",
+    slug: "strata-master",
     locale: "en-AU",
     name: "MRI Strata Master Virtual Assistant",
     software: "MRI Strata Master",
@@ -1060,7 +1060,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 18. BGL Simple Fund 360 ---
   {
-    slug: "bgl-simple-fund-360-virtual-assistant",
+    slug: "bgl-simple-fund-360",
     locale: "en-AU",
     name: "BGL Simple Fund 360 Virtual Assistant",
     software: "BGL Simple Fund 360",
@@ -1118,7 +1118,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 19. Class Super ---
   {
-    slug: "class-super-virtual-assistant",
+    slug: "class-super",
     locale: "en-AU",
     name: "Class Super Virtual Assistant",
     software: "Class Super",
@@ -1175,7 +1175,7 @@ export const softwarePages: SoftwareSeoPage[] = [
 
   // --- 20. Autodesk Revit ---
   {
-    slug: "revit-virtual-assistant",
+    slug: "revit",
     locale: "en-AU",
     name: "Revit Virtual Assistant",
     software: "Autodesk Revit",
@@ -1232,7 +1232,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     ]
   },
   {
-    slug: "canva-virtual-assistant",
+    slug: "canva",
     name: "Canva Virtual Assistant",
     software: "Canva",
     category: "Marketing & Creative",
@@ -1278,7 +1278,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["ecommerce-stores", "professional-services-growth"]
   },
   {
-    slug: "gohighlevel-virtual-assistant",
+    slug: "gohighlevel",
     name: "GoHighLevel Virtual Assistant",
     software: "GoHighLevel",
     category: "CRM & Sales",
@@ -1324,7 +1324,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["professional-services-growth", "home-local-services"]
   },
   {
-    slug: "salesforce-virtual-assistant",
+    slug: "salesforce",
     name: "Salesforce Virtual Assistant",
     software: "Salesforce",
     category: "CRM & Sales",
@@ -1371,7 +1371,7 @@ export const softwarePages: SoftwareSeoPage[] = [
   }
 ,
   {
-    slug: "hubspot-virtual-assistant",
+    slug: "hubspot",
     name: "HubSpot Virtual Assistant",
     software: "HubSpot",
     category: "CRM & Sales",
@@ -1391,7 +1391,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["professional-services-growth","small-business","startups"]
   },
   {
-    slug: "xero-virtual-assistant",
+    slug: "xero",
     locale: "en-AU",
     name: "Xero Virtual Assistant",
     software: "Xero",
@@ -1412,7 +1412,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["accountants-cpas","accounting-firms-month-end","small-business"]
   },
   {
-    slug: "klaviyo-virtual-assistant",
+    slug: "klaviyo",
     name: "Klaviyo Virtual Assistant",
     software: "Klaviyo",
     category: "Email Marketing",
@@ -1432,7 +1432,7 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedIndustrySlugs: ["ecommerce-stores"]
   },
   {
-    slug: "quickbooks-virtual-assistant",
+    slug: "quickbooks",
     name: "QuickBooks Virtual Assistant",
     software: "QuickBooks",
     category: "Accounting & Bookkeeping",

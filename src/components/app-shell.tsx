@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Bell, ChevronRight, LogOut, Search, Sparkles } from "lucide-react";
+import { ChevronRight, LogOut, Sparkles } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { AppNavLinks } from "@/components/app-nav-links";
 import { WorkspaceFeedbackHygiene } from "@/components/workspace-feedback-hygiene";
@@ -79,35 +79,18 @@ export function AppShell({ role, name, avatarUrl, title, children, badges, userI
       </aside>
 
       <main className="app-main" id="main-content">
-        <div className="app-topbar">
+        {role !== "client" ? <div className="app-topbar">
           <div className="app-topbar-inner">
-            {role === "client" ? <>
-              <Link className="client-topbar-search" href="/workspace/client/candidates" aria-label="Open candidates and hiring search">
-                <Search size={16}/>
-                <span>Search candidates, roles, or ask Kiro...</span>
-              </Link>
-              <div className="client-topbar-actions">
-                <Link className="client-topbar-notifications" href="/workspace/client/notifications" aria-label="Open notifications"><Bell size={17}/></Link>
-                <Link className="client-topbar-account" href="/workspace/account" aria-label="Open account settings">
-                  <span className={`client-topbar-avatar ${avatarUrl ? "has-photo" : ""}`}>
-                    {avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async"/> : initials}
-                  </span>
-                  <span className="client-topbar-account-copy"><strong>{name || "Account"}</strong><small>Client</small></span>
-                </Link>
-              </div>
-              <div className="app-topbar-title client-topbar-title-contract">
-                <strong className="app-topbar-page-title">{title}</strong>
-              </div>
-            </> : <div className="app-topbar-title">
+            <div className="app-topbar-title">
               {title.trim().toLowerCase() === `${roleLabel.toLowerCase()} workspace`
                 ? <strong className="app-topbar-page-title">{title}</strong>
                 : <>
                     <Link className="app-topbar-workspace-home" href={workspaceHome[role]}>{roleLabel} workspace</Link>
                     <strong className="app-topbar-page-title">{title}</strong>
                   </>}
-            </div>}
+            </div>
           </div>
-        </div>
+        </div> : null}
         <div className="app-content">{children}</div>
       </main>
     </div>

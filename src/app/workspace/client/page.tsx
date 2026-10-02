@@ -8,7 +8,7 @@ import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
 import { openClientDiscoveryBookingAction } from "@/app/actions/booking";
-import { Kiro } from "@/components/kiro";
+import { ClientKiroHero } from "@/components/client-kiro-hero";
 
 type AttentionItem={title:string;copy:string;href:string;count:number;icon:typeof Sparkles};
 
@@ -47,7 +47,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     {label:"Confirm a placement",description:"After interview and final terms, confirm the VA and start the managed workroom.",done:Boolean(hires),href:"/workspace/client/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);
-  const firstName=String(profile.full_name||"there").trim().split(/\\s+/)[0]||"there";
+  const firstName=String(profile.full_name||"there").trim().split(/\s+/)[0]||"there";
   const localHour=Number(new Intl.DateTimeFormat("en-US",{hour:"2-digit",hour12:false,timeZone:company?.timezone||"Asia/Manila"}).format(new Date()));
   const greeting=localHour<12?"Good morning":localHour<18?"Good afternoon":"Good evening";
   const currentAction=pipeline.offered
@@ -64,26 +64,14 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     <DashboardDegradedNotice issues={issues}/>
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">This preference will be treated as a recruiter lead, not a direct marketplace hire.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create hiring request</Link></div>:null}
 
-    <header className="client-kiro-greeting">
-      <div>
-        <h1>{greeting}, {firstName}!</h1>
-        <p>Here’s what’s happening with your hire.</p>
-      </div>
-    </header>
-
-    <section className="client-kiro-rendered-hero" aria-labelledby="client-kiro-current-action">
-      <div className="client-kiro-rendered-art" aria-hidden="true">
-        <Kiro className="client-kiro-rendered-image" priority/>
-      </div>
-      <div className="client-kiro-rendered-copy">
-        <span className="client-kiro-rendered-eyebrow">Kiro · Your VAPH Guide</span>
-        <h2 id="client-kiro-current-action">{currentAction.title}</h2>
-        <p>{currentAction.copy}</p>
-        <div className="client-kiro-rendered-actions">
-          <Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link>
-        </div>
-      </div>
-    </section>
+    <ClientKiroHero
+      greeting={greeting}
+      firstName={firstName}
+      title={currentAction.title}
+      copy={currentAction.copy}
+      href={currentAction.href}
+      label={currentAction.label}
+    />
 
     <section className="client-concierge-strip client-mobile-concierge"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/messages"><LifeBuoy size={16}/> Message your recruiter</Link></section>
 

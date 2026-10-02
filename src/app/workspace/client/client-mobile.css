@@ -2822,3 +2822,195 @@
     margin-bottom: 1px;
   }
 }
+
+
+/* Rendered Kiro client hero
+   Artwork stays independent from UI: no SVG reconstruction, CSS poses, or fake accessories. */
+.client-kiro-greeting {
+  padding: 4px 2px 0;
+}
+
+.client-kiro-greeting h1 {
+  margin: 0;
+  color: #101652;
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1.04;
+  letter-spacing: -.045em;
+}
+
+.client-kiro-greeting p {
+  margin: 7px 0 0;
+  color: #5e688d;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.client-kiro-rendered-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(210px, 27%) minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  min-height: 224px;
+  overflow: hidden;
+  padding: 18px 30px 18px 10px;
+  border: 1px solid #dce3fb;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 10% 26%, rgba(111, 211, 255, .24), transparent 28%),
+    radial-gradient(circle at 91% 16%, rgba(220, 203, 255, .30), transparent 29%),
+    linear-gradient(135deg, #ffffff 0%, #fbfcff 52%, #f6f5ff 100%);
+  box-shadow: 0 9px 28px rgba(15, 27, 107, .045);
+}
+
+.client-kiro-rendered-hero::before {
+  content: "";
+  position: absolute;
+  left: -72px;
+  bottom: -116px;
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  background: rgba(111, 211, 255, .10);
+  pointer-events: none;
+}
+
+.client-kiro-rendered-art {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 188px;
+  place-items: end center;
+}
+
+.client-kiro-rendered-image {
+  display: block;
+  width: min(100%, 250px);
+  height: auto;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 14px 18px rgba(15, 27, 107, .13));
+}
+
+.client-kiro-rendered-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  min-width: 0;
+}
+
+.client-kiro-rendered-eyebrow {
+  color: #4057d8;
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.client-kiro-rendered-copy h2 {
+  margin: 7px 0 7px;
+  color: #111957;
+  font-size: clamp(23px, 2.25vw, 31px);
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+
+.client-kiro-rendered-copy p {
+  max-width: 650px;
+  margin: 0;
+  color: #5d688d;
+  font-size: 13.5px;
+  line-height: 1.58;
+}
+
+.client-kiro-rendered-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.client-kiro-rendered-actions .btn {
+  min-height: 42px;
+  padding-inline: 16px;
+}
+
+@media (max-width: 900px) {
+  .client-kiro-rendered-hero {
+    grid-template-columns: 180px minmax(0, 1fr);
+    min-height: 198px;
+    padding-right: 20px;
+  }
+
+  .client-kiro-rendered-art {
+    min-height: 164px;
+  }
+
+  .client-kiro-rendered-image {
+    width: min(100%, 205px);
+  }
+}
+
+@media (max-width: 680px) {
+  .client-kiro-greeting h1 {
+    font-size: 28px;
+  }
+
+  .client-kiro-greeting p {
+    font-size: 12.5px;
+  }
+
+  .client-kiro-rendered-hero {
+    grid-template-columns: 108px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 148px;
+    padding: 12px 12px 12px 7px;
+    border-radius: 15px;
+  }
+
+  .client-kiro-rendered-art {
+    min-height: 116px;
+    align-self: stretch;
+  }
+
+  .client-kiro-rendered-image {
+    width: 118px;
+    max-width: none;
+  }
+
+  .client-kiro-rendered-eyebrow {
+    font-size: 8.5px;
+    letter-spacing: .045em;
+  }
+
+  .client-kiro-rendered-copy h2 {
+    margin: 4px 0 5px;
+    font-size: 17px;
+    line-height: 1.18;
+  }
+
+  .client-kiro-rendered-copy p {
+    font-size: 10.75px;
+    line-height: 1.42;
+  }
+
+  .client-kiro-rendered-actions {
+    margin-top: 9px;
+  }
+
+  .client-kiro-rendered-actions .btn {
+    min-height: 36px;
+    padding-inline: 11px;
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-kiro-rendered-hero {
+    grid-template-columns: 94px minmax(0, 1fr);
+  }
+
+  .client-kiro-rendered-image {
+    width: 104px;
+  }
+}

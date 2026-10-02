@@ -5560,3 +5560,277 @@
     color: #be123c;
   }
 }
+
+
+/* Learner course cards v2 */
+.training-home .training-course-card.training-course-card-v2 {
+  min-height: 332px;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid #e4e7ec;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 14px 34px -28px rgba(15, 23, 42, .42);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.training-home .training-course-card.training-course-card-v2:hover {
+  transform: translateY(-3px);
+  border-color: var(--course-tone-border);
+  box-shadow: 0 24px 48px -31px rgba(15, 23, 42, .48);
+}
+
+.training-course-v2-cover {
+  position: relative;
+  min-height: 112px;
+  padding: 15px 16px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--course-tone-border);
+  background:
+    radial-gradient(circle at 90% 8%, rgba(255,255,255,.94), transparent 30%),
+    linear-gradient(145deg, var(--course-tone-soft), #fff 90%);
+}
+
+.training-course-v2-cover::after {
+  position: absolute;
+  right: -30px;
+  bottom: -56px;
+  width: 118px;
+  height: 118px;
+  border: 17px solid var(--course-tone-border);
+  border-radius: 999px;
+  opacity: .42;
+  content: "";
+}
+
+.training-course-v2-cover-top,
+.training-course-v2-cover-bottom {
+  position: relative;
+  z-index: 1;
+}
+
+.training-course-v2-cover-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.training-course-kind,
+.training-course-state,
+.training-course-market {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.training-course-kind {
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--course-tone-border);
+  color: var(--course-tone);
+  background: rgba(255, 255, 255, .76);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.training-course-state {
+  min-height: 24px;
+  gap: 4px;
+  padding: 0 8px;
+  border: 1px solid #e4e7ec;
+  color: #667085;
+  background: rgba(255,255,255,.84);
+}
+
+.training-course-state.is-active {
+  border-color: #c7d7fe;
+  color: #3538cd;
+  background: #eef4ff;
+}
+
+.training-course-state.is-completed {
+  border-color: #abefc6;
+  color: #067647;
+  background: #ecfdf3;
+}
+
+.training-course-v2-cover-bottom {
+  display: flex;
+  margin-top: 24px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.training-course-mark {
+  color: var(--course-tone);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.06em;
+}
+
+.training-course-market {
+  min-height: 22px;
+  padding: 0 7px;
+  color: #667085;
+  background: rgba(255,255,255,.72);
+}
+
+.training-course-v2-body {
+  display: flex;
+  min-height: 220px;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.training-home .training-course-card-v2 .training-course-card-copy h3 {
+  margin: 0;
+  color: #101828;
+  font-size: 15.5px;
+  font-weight: 820;
+  line-height: 1.34;
+  letter-spacing: -.02em;
+}
+
+.training-home .training-course-card-v2 .training-course-card-copy p {
+  display: -webkit-box;
+  margin: 7px 0 0;
+  overflow: hidden;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.52;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.training-home .training-course-card-v2 .training-course-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 13px;
+}
+
+.training-home .training-course-card-v2 .training-course-meta-item {
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
+  gap: 4px;
+  padding: 0 7px;
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+  color: #475467;
+  background: #f9fafb;
+  font-size: 10px;
+  font-weight: 720;
+}
+
+.training-home .training-course-card-v2 .training-course-meta-item svg {
+  color: var(--course-tone);
+}
+
+.training-home .training-course-card-v2 .training-course-progress {
+  margin-top: 15px;
+}
+
+.training-home .training-course-card-v2 .training-course-progress .row-between {
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.training-home .training-course-card-v2 .training-course-progress .row-between strong {
+  color: #344054;
+}
+
+.training-home .training-course-card-v2 .training-course-progress .progress {
+  height: 6px;
+  margin-top: 7px;
+  background: #f2f4f7;
+}
+
+.training-home .training-course-card-v2 .training-course-progress .progress > span {
+  border-radius: inherit;
+  background: var(--course-tone);
+}
+
+.training-course-v2-start-note {
+  margin: 14px 0 0;
+  color: #98a2b3;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.training-home .training-course-card-v2 .training-course-card-action {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 0;
+}
+
+.training-home .training-course-card-v2 .training-course-card-action .btn,
+.training-home .training-course-card-v2 .training-course-card-action form,
+.training-home .training-course-card-v2 .training-course-card-action form .btn {
+  width: 100%;
+}
+
+.training-home .training-course-card-v2 .training-course-card-action .btn {
+  min-height: 38px;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 780;
+}
+
+.training-home .training-course-card-v2 .training-course-card-action .btn-primary {
+  border-color: var(--course-tone);
+  background: var(--course-tone);
+}
+
+@media (min-width: 1240px) {
+  .training-home .training-course-grid {
+    gap: 12px;
+  }
+
+  .training-home .training-course-card.training-course-card-v2 {
+    min-height: 326px;
+  }
+}
+
+@media (max-width: 680px) {
+  .training-home .training-course-card.training-course-card-v2 {
+    min-height: 0;
+    padding: 0 !important;
+    border-radius: 17px;
+  }
+
+  .training-course-v2-cover {
+    min-height: 102px;
+    padding: 13px 14px;
+  }
+
+  .training-course-v2-cover-bottom {
+    margin-top: 20px;
+  }
+
+  .training-course-mark {
+    font-size: 22px;
+  }
+
+  .training-course-v2-body {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .training-home .training-course-card-v2 .training-course-meta-item {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .training-course-v2-start-note {
+    display: none;
+  }
+}

@@ -12,16 +12,20 @@ const credentialPagePath = "src/app/training/certificates/[code]/page.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
 
 test("learner home resumes the exact next lesson or automatic final check", async () => {
-  const home = await readFile(homePath, "utf8");
+  const [home, overview] = await Promise.all([
+    readFile(homePath, "utf8"),
+    readFile("src/components/training-dashboard-overview.tsx", "utf8"),
+  ]);
 
-  assert.match(home, /Continue where you left off/);
   assert.match(home, /resumeCourse\.nextLesson/);
   assert.match(home, /resumeCourse\.nextAssessment/);
   assert.match(home, /lessons\/\$\{course\.nextLesson\.id\}/);
   assert.match(home, /assessments\/\$\{course\.nextAssessment\.id\}/);
-  assert.match(home, /"Completed"/);
-  assert.match(home, /"In progress"/);
-  assert.match(home, /"Not started"/);
+  assert.match(overview, /current\.nextHref/);
+  assert.match(overview, /current\.nextLabel/);
+  assert.match(overview, /"Completed"/);
+  assert.match(overview, /"In Progress"/);
+  assert.match(overview, /"Not Started"/);
   assert.match(home, /"Start path"/);
   assert.match(home, /"Continue path"/);
   assert.match(home, /Start final check/);

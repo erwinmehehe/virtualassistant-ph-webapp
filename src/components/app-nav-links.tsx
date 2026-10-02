@@ -86,6 +86,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["VA messages", "/workspace/recruiter/va-messages", MessageCircle],
         ["Roles", "/workspace/recruiter/roles", BriefcaseBusiness],
         ["Talent", "/workspace/recruiter/talent", Search],
+        ["Recruiter team", "/workspace/recruiter/team", UsersRound],
         ["Account settings", "/workspace/account", Settings],
       ],
     },

@@ -4,9 +4,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
 import { setIdentityVerificationAction, setInternalUserRoleAction } from "@/app/actions/vetting";
 import { setClientCompanyVerificationAction } from "@/app/actions/admin";
+import { inviteRecruiterAction } from "@/app/actions/recruiter-invites";
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   await requireRoleFast("admin");
+  const params = await searchParams;
   const admin = createAdminClient();
   const [{ data: profiles }, { data: authUsers }] = await Promise.all([
     admin.from("profiles").select("id,role,full_name,avatar_url,created_at,email_verified,identity_verified_at,last_active_at,client_profiles(company_name,verified_at)").order("created_at", { ascending: false }).limit(200),
@@ -22,9 +28,64 @@ export default async function AdminUsersPage() {
     <div className="page-head">
       <div>
         <h1>Users</h1>
-        <p>Registered marketplace accounts. Promote a trusted internal account to Recruiter to delegate initial VA screening.</p>
+        <p>Manage marketplace accounts and invite trusted team members directly into the Recruiter workspace.</p>
       </div>
     </div>
+
+    {params.recruiter_invite === "sent" ? (
+      <div className="success-banner" role="status">
+        Recruiter invitation sent. They will receive a secure email link and open directly into the Recruiter workspace after accepting.
+      </div>
+    ) : null}
+
+    {params.recruiter_access === "granted" ? (
+      <div className="success-banner" role="status">
+        Recruiter access granted to the existing account. They can sign in and open the Recruiter workspace now.
+      </div>
+    ) : null}
+
+    <section className="card stack" style={{ marginBottom: 24 }}>
+      <div>
+        <div className="kicker">Internal team access</div>
+        <h2 style={{ marginBottom: 6 }}>Invite recruiter</h2>
+        <p className="muted" style={{ margin: 0 }}>
+          Send a secure invitation with Recruiter access already assigned. Existing VAPH accounts will be promoted instead of duplicated.
+        </p>
+      </div>
+
+      <form action={inviteRecruiterAction} className="row wrap" style={{ alignItems: "end" }}>
+        <div className="field" style={{ flex: "1 1 220px", margin: 0 }}>
+          <label htmlFor="recruiter-full-name">Name</label>
+          <input
+            id="recruiter-full-name"
+            name="full_name"
+            type="text"
+            required
+            maxLength={100}
+            autoComplete="name"
+            placeholder="Mary Fabro"
+          />
+        </div>
+        <div className="field" style={{ flex: "1 1 280px", margin: 0 }}>
+          <label htmlFor="recruiter-email">Email</label>
+          <input
+            id="recruiter-email"
+            name="email"
+            type="email"
+            required
+            maxLength={254}
+            autoComplete="email"
+            placeholder="mary@example.com"
+          />
+        </div>
+        <button className="btn btn-primary" type="submit">Send recruiter invite</button>
+      </form>
+
+      <p className="small muted" style={{ margin: 0 }}>
+        Recruiters can use the CRM, leads, discovery, candidates, matching, interviews, placements, messages, tasks, funnel and recruiter analytics. Admin settings remain restricted.
+      </p>
+    </section>
+
     <div className="table-wrap responsive-table">
       <table>
         <thead><tr><th>User</th><th>Role</th><th>Trust</th><th>Joined</th><th>Internal role</th></tr></thead>

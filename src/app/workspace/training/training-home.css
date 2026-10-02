@@ -7557,3 +7557,164 @@
     grid-column: auto;
   }
 }
+
+
+/* Restored saved-course control; keeps the current training card visual system. */
+.training-course-v2-cover-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.training-course-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255,255,255,.46);
+  border-radius: 999px;
+  background: rgba(255,255,255,.82);
+  color: #26355f;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.training-course-save:hover {
+  background: #fff;
+}
+
+.training-course-save.is-saved {
+  background: #fff;
+  color: #3f46c8;
+}
+
+.training-course-save:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+@media (max-width: 680px) {
+  .training-course-v2-cover-actions {
+    gap: 5px;
+  }
+
+  .training-course-save {
+    padding-inline: 7px;
+  }
+
+  .training-course-save span {
+    display: none;
+  }
+}
+
+
+.training-shell-notifications {
+  position: relative;
+}
+
+.training-shell-notifications > summary {
+  position: relative;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.training-shell-notifications > summary::-webkit-details-marker {
+  display: none;
+}
+
+.training-shell-notification-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding-inline: 4px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #444ce7;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.training-shell-notification-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(15,23,42,.15);
+}
+
+.training-shell-notification-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 4px 10px;
+}
+
+.training-shell-notification-head button,
+.training-shell-notification-list button {
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+
+.training-shell-notification-head button {
+  color: #444ce7;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.training-shell-notification-list {
+  display: grid;
+  gap: 6px;
+}
+
+.training-shell-notification-list form {
+  margin: 0;
+}
+
+.training-shell-notification-list button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.training-shell-notification-list button:hover,
+.training-shell-notification-list button.is-unread {
+  background: #f6f7ff;
+}
+
+.training-shell-notification-list strong,
+.training-shell-notification-list small {
+  display: block;
+}
+
+.training-shell-notification-list small {
+  margin-top: 3px;
+  color: var(--muted);
+  line-height: 1.4;
+}

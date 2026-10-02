@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Award,
+  Bell,
   BookOpenCheck,
   CircleEllipsis,
   GraduationCap,
@@ -10,6 +11,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
+import { markAllTrainingNotificationsReadAction, openTrainingNotificationAction } from "@/app/actions/training-notifications";
+import type { TrainingShellNotification } from "@/lib/training-shell-data";
 import type { Role } from "@/lib/types";
 
 const roleHome: Record<Role, string> = {
@@ -42,12 +45,19 @@ function TrainingNavIcon({
 
 export function TrainingShell({
   profile,
+  learnerName,
+  notifications = [],
+  unreadCount = 0,
   children,
 }: {
   profile?: { role?: string | null; full_name?: string | null } | null;
+  learnerName?: string | null;
+  notifications?: TrainingShellNotification[];
+  unreadCount?: number;
   children: React.ReactNode;
 }) {
   const role = isRole(profile?.role) ? profile.role : null;
+  const name = profile?.full_name || learnerName || "Training learner";
   const workspaceHref = role ? roleHome[role] : null;
   const workspaceLabel = role ? roleWorkspaceLabel[role] : "Workspace";
   const accountHref = role ? "/workspace/account" : "/workspace/training/account";
@@ -152,7 +162,7 @@ export function TrainingShell({
         <div className="sidebar-footer">
           <Link className="app-account-card" href={accountHref} aria-label="Open account settings">
             <span className="app-account-avatar"><BookOpenCheck size={18}/></span>
-            <div className="user-copy"><strong>{profile?.full_name || "Account"}</strong><span>{accountLabel}</span></div>
+            <div className="user-copy"><strong>{name}</strong><span>{accountLabel}</span></div>
           </Link>
           <form action={logoutAction}>
             <button className="btn btn-ghost app-logout-button" type="submit"><LogOut size={16}/><span>Sign out</span></button>
@@ -169,6 +179,34 @@ export function TrainingShell({
               </Link>
               <strong className="app-topbar-page-title">{pageTitle}</strong>
             </div>
+            <details className="training-shell-notifications">
+              <summary aria-label="Open training notifications">
+                <Bell size={18}/>
+                {unreadCount ? <span className="training-shell-notification-count">{Math.min(unreadCount, 9)}</span> : null}
+              </summary>
+              <div className="training-shell-notification-panel">
+                <div className="training-shell-notification-head">
+                  <strong>Training notifications</strong>
+                  {unreadCount ? <form action={markAllTrainingNotificationsReadAction}><button type="submit">Mark all read</button></form> : null}
+                </div>
+                {notifications.length ? (
+                  <div className="training-shell-notification-list">
+                    {notifications.map((notification) => (
+                      <form action={openTrainingNotificationAction} key={notification.id}>
+                        <input type="hidden" name="notification_id" value={notification.id}/>
+                        <button className={notification.readAt ? "" : "is-unread"} type="submit">
+                          <span>
+                            <strong>{notification.title}</strong>
+                            {notification.body ? <small>{notification.body}</small> : null}
+                          </span>
+                        </button>
+                      </form>
+                    ))}
+                  </div>
+                ) : <p>You’re all caught up.</p>}
+              </div>
+            </details>
+
             <details className="training-detail-account-menu">
               <summary aria-label="Open training account menu"><CircleEllipsis size={19}/></summary>
               <div className="training-detail-account-panel">

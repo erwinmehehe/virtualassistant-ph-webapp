@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { DashHeader } from "@/components/dash-ui";
 import { KiroMascot } from "@/components/kiro-mascot";
+import { KiroClientAssistant } from "@/components/kiro-client-assistant";
 import { collectQueryIssues } from "@/lib/query-health";
 import { DashboardDegradedNotice } from "@/components/dashboard-degraded-notice";
 import { getClientDashboardSummary } from "@/lib/client-dashboard";
@@ -139,6 +140,8 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
     {label:"Make an offer",copy:"Confirm the placement once you have found the right fit.",done:Boolean(hires),active:currentAction.step===4},
   ];
 
+  const recruiterName=hiringOwner?.full_name||"VAPH recruiting team";
+
   const latestUpdates=[
     pipeline.shortlisted?{title:String(pipeline.shortlisted)+" candidate"+(pipeline.shortlisted===1?"":"s")+" shortlisted",copy:"Your recruiter has prepared candidates for your review.",tone:"done"}:null,
     jobCount?{title:"Recruiter sourcing active",copy:"Your role is in the managed hiring workflow.",tone:currentAction.step>=2?"done":"active"}:null,
@@ -175,7 +178,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
             <p>{currentAction.copy} {pipeline.shortlisted?"Review their profiles and choose who you’d like to interview.":""}</p>
             <div className="client-kiro-hero-actions">
               <Link className="btn btn-primary" href={currentAction.href}>{currentAction.label}<ArrowRight size={16}/></Link>
-              <Link className="btn" href="/workspace/client/messages"><MessageCircle size={16}/> Ask Kiro</Link>
+              <KiroClientAssistant state={kiroState} currentTitle={currentAction.title} currentCopy={currentAction.copy} currentHref={currentAction.href} currentLabel={currentAction.label} recruiterName={recruiterName}/>
             </div>
           </div>
           <div className="client-kiro-tip">
@@ -280,7 +283,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
           <span className="small">Your recruiter</span>
           <div className="client-kiro-recruiter">
             <span className="client-kiro-recruiter-avatar">{initials(hiringOwner?.full_name||"VAPH")}</span>
-            <div><strong>{hiringOwner?.full_name||"VAPH recruiting team"}</strong><span>Recruiter</span></div>
+            <div><strong>{recruiterName}</strong><span>Recruiter</span></div>
             <em>Online</em>
           </div>
           <p>Your main point of contact for this hire. Message them whenever you need context or a decision explained.</p>
@@ -304,7 +307,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
           <div className="client-kiro-help-art" aria-hidden="true"><KiroMascot state="training" className="client-kiro-help-mascot"/></div>
           <h2>Need help understanding the process?</h2>
           <p>Ask Kiro anything about hiring, timelines, or what happens next.</p>
-          <Link className="btn btn-primary" href="/workspace/client/messages">Ask Kiro <ArrowRight size={15}/></Link>
+          <KiroClientAssistant state={kiroState} currentTitle={currentAction.title} currentCopy={currentAction.copy} currentHref={currentAction.href} currentLabel={currentAction.label} recruiterName={recruiterName} fullWidth className="btn-primary"/>
         </section>
 
         {attention.length?<section className="client-kiro-rail-card client-kiro-attention">

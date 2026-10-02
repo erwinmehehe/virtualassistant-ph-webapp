@@ -6,11 +6,12 @@ import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { Band, CheckList, CtaBand, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 import "../homepage-sections.css";
 import "../hiring-pages.css";
 import "../info-pages.css";
 
-export const metadata: Metadata = { title: "How Virtual Assistant Vetting Works", description: "See the screening steps required before a virtual assistant can appear in the VirtualAssistant.com.ph public talent directory.", keywords: ["virtual assistant vetting process", "how are virtual assistants screened", "vetted filipino virtual assistants"] , alternates: { canonical: canonicalPath("/how-vetting-works") }};
+export const metadata: Metadata = { title: "How Virtual Assistant Vetting Works", description: "See the screening steps required before a virtual assistant can appear in the VirtualAssistant.com.ph public talent directory.", keywords: ["virtual assistant vetting process", "how are virtual assistants screened", "vetted filipino virtual assistants"] , alternates: { canonical: canonicalPath("/how-vetting-works") }, ...socialMetadata({ title: "How Virtual Assistant Vetting Works", description: "See the screening steps required before a virtual assistant can appear in the VirtualAssistant.com.ph public talent directory.", path: canonicalPath("/how-vetting-works"), category: "hiring", eyebrow: "Human Vetting Process", points: ["Structured profile", "Category skills test", "Video introduction", "Recruiter review"] }) };
 
 const STEPS = [
   { label: "Stage 1", title: "Structured profile", copy: "Experience, specialty, skills, tools, industries, languages, availability, and resume completeness." },

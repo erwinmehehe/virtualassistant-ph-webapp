@@ -16,7 +16,7 @@ test("software SEO uses clean slugs and Philippines keyword targeting", async ()
       description: match[5],
     }));
 
-  assert.equal(rows.length, 41);
+  assert.equal(rows.length, 44);
 
   for (const row of rows) {
     assert.equal(row.slug.includes("virtual-assistant"), false, `${row.slug} should use a clean software-only URL`);
@@ -42,7 +42,7 @@ test("software pages place Philippines in title, H1, supporting headings and cop
 
 test("priority Australian software pages are present with clean canonicals", async () => {
   const source = await readFile(softwarePath, "utf8");
-  for (const slug of ["winbeat", "insight", "lumary", "splose"]) {
+  for (const slug of ["winbeat", "insight", "lumary", "splose", "buildxact", "employment-hero", "nookal"]) {
     assert.match(source, new RegExp(`slug: "${slug}"`));
   }
   assert.match(source, /softwarePagesForTools/);

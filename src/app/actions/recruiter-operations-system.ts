@@ -12,8 +12,9 @@ import { sendTransactionalEventEmail } from "@/lib/email";
 import { VETTING_SCORECARD_PASS } from "@/lib/constants";
 import { recordProductEvent } from "@/lib/product-events";
 import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
-import { queueInterviewFeedbackAutomation } from "@/lib/trigger-automation";
+import { queueInterviewFeedbackAutomation, queueOfferClientConfirmationAutomation, queuePlacementHandoffAutomation } from "@/lib/trigger-automation";
 import { ensureOfferPrepAction, resolveInterviewFeedbackIfClear, resolveInterviewSchedulingIfClear, resolveOfferPrepIfNoProceed, resolveOfferPrepTask } from "@/lib/hiring-pipeline-automation";
+import { ensurePlacementHandoffAction, resolveOfferClientConfirmationArtifacts } from "@/lib/post-hire-automation";
 
 const SCREEN_RESULTS = new Set(["client_ready", "needs_development", "role_specific", "do_not_present"]);
 const INTERVIEW_DECISIONS = new Set(["proceed", "hold", "pass"]);
@@ -658,7 +659,7 @@ export async function respondPlacementOfferAction(formData: FormData) {
   const decision = String(formData.get("decision") || "");
   if (!offerId || !["accept", "decline"].includes(decision)) throw new Error("Invalid offer decision.");
   const admin = createAdminClient();
-  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title)").eq("id", offerId).eq("va_id", user.id).maybeSingle();
+  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id)").eq("id", offerId).eq("va_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_va") throw new Error("This offer is no longer waiting for your response.");
   const now = new Date().toISOString();
   const jobTitle = Array.isArray(offer.jobs) ? offer.jobs[0]?.title : offer.jobs?.title;
@@ -671,6 +672,14 @@ export async function respondPlacementOfferAction(formData: FormData) {
   });
   if (decision === "decline") {
     await admin.from("placement_offers").update({ status: "declined", declined_at: now, updated_at: now }).eq("id", offerId);
+    try {
+      await resolveOfferClientConfirmationArtifacts(admin, offerId, offer.job_id, offer.client_id);
+    } catch (automationError) {
+      console.error("[automation] offer confirmation cleanup failed", {
+        offerId,
+        error: automationError instanceof Error ? automationError.message : String(automationError),
+      });
+    }
     const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
     if (recruiters?.length) await admin.from("notifications").insert(recruiters.map((r: any) => ({ user_id: r.id, title: "VA declined placement offer", body: `${jobTitle || "Role"}: prepare another candidate or revise terms.`, href: `/workspace/recruiter/roles/${offer.job_id}#interviews`, type: "offer", priority: "high" })));
   } else {
@@ -682,6 +691,14 @@ export async function respondPlacementOfferAction(formData: FormData) {
       titles: [`VA accepted the offer: ${offerTitle}`],
     });
     await admin.from("notifications").insert({ user_id: offer.client_id, title: `VA accepted the offer: ${offerTitle}`, body: "Confirm the final placement to activate the workroom and onboarding.", href: "/workspace/client/offers", type: "offer", priority: "high" });
+    try {
+      await queueOfferClientConfirmationAutomation(offerId, now);
+    } catch (automationError) {
+      console.error("[automation] offer client confirmation queue failed", {
+        offerId,
+        error: automationError instanceof Error ? automationError.message : String(automationError),
+      });
+    }
   }
   revalidatePath("/workspace/va/offers"); revalidatePath("/workspace/client/offers"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${offer.job_id}`);
   redirect(`/workspace/va/offers?${decision === "accept" ? "accepted" : "declined"}=1`);
@@ -691,7 +708,7 @@ export async function confirmPlacementOfferAction(formData: FormData) {
   const { user } = await requireRole("client");
   const offerId = String(formData.get("offer_id") || "");
   const admin = createAdminClient();
-  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
+  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_client") throw new Error("This placement is not waiting for client confirmation.");
   let applicationId = offer.application_id;
   if (!applicationId) {
@@ -705,14 +722,43 @@ export async function confirmPlacementOfferAction(formData: FormData) {
     }
     await admin.from("placement_offers").update({ application_id: applicationId }).eq("id", offerId);
   }
-  const { error: hireError } = await admin.rpc("confirm_hire_transaction", { p_application_id: applicationId, p_client_id: user.id, p_va_id: offer.va_id, p_job_id: offer.job_id, p_agreed_rate: offer.hourly_rate, p_start_date: offer.start_date, p_schedule: offer.schedule });
+  const { data: workroomId, error: hireError } = await admin.rpc("confirm_hire_transaction", { p_application_id: applicationId, p_client_id: user.id, p_va_id: offer.va_id, p_job_id: offer.job_id, p_agreed_rate: offer.hourly_rate, p_start_date: offer.start_date, p_schedule: offer.schedule });
   if (hireError) throw hireError;
+  if (!workroomId) throw new Error("The placement workroom could not be created.");
   const now = new Date().toISOString();
   await Promise.all([
     admin.from("placement_offers").update({ status: "accepted", client_confirmed_at: now, updated_at: now }).eq("id", offerId),
     admin.from("jobs").update({ status: "closed", closed_at: now }).eq("id", offer.job_id)
   ]);
   const confirmedTitle = Array.isArray(offer.jobs) ? offer.jobs[0]?.title : offer.jobs?.title || "role";
+  const confirmedJob = Array.isArray(offer.jobs) ? offer.jobs[0] : offer.jobs;
+  try {
+    await resolveOfferClientConfirmationArtifacts(admin, offerId, offer.job_id, user.id);
+    const { data: room } = await admin
+      .from("workrooms")
+      .select("id,created_at,client_success_owner_id,start_date")
+      .eq("id", String(workroomId))
+      .maybeSingle();
+    if (room) {
+      await ensurePlacementHandoffAction({
+        admin,
+        workroomId: room.id,
+        job: {
+          id: offer.job_id,
+          title: confirmedTitle,
+          recruiter_id: confirmedJob?.recruiter_id || null,
+        },
+        clientSuccessOwnerId: room.client_success_owner_id,
+      });
+      await queuePlacementHandoffAutomation(room.id, room.created_at);
+    }
+  } catch (automationError) {
+    console.error("[automation] placement handoff setup failed", {
+      offerId,
+      workroomId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
   await Promise.all([
     resolveOpenNotifications(admin, {
       userId: user.id,

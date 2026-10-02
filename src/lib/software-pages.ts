@@ -1746,7 +1746,366 @@ export const softwarePages: SoftwareSeoPage[] = [
     relatedServiceSlugs: ["allied-health-referral-billing-virtual-assistant","medical-virtual-assistant","medical-billing-virtual-assistant"],
     relatedIndustrySlugs: ["allied-health-referral-billing","healthcare-dental"]
   }
+,
 
+  // --- AU software expansion: construction, HR, allied health ---
+  {
+    slug: "buildxact",
+    locale: "en-AU",
+    name: "Buildxact Virtual Assistant",
+    software: "Buildxact",
+    category: "Construction & Trades",
+    directoryCategory: "Administrative Support",
+    primaryKeyword: "buildxact virtual assistant philippines",
+    metaTitle: "Buildxact Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Buildxact Virtual Assistants for estimating admin, job records, quote follow-up, purchasing, and construction workflow support.",
+    h1: "Keep Buildxact Estimating and Job Administration Moving",
+    intro: "A Buildxact Virtual Assistant can support repeatable construction administration such as estimate data entry, take-off preparation, quote follow-up, purchase-order administration, job records and supplier coordination. Builders and authorised managers retain final responsibility for scope, quantities, pricing, margins, contracts and construction decisions.",
+    focus: "buildxact estimating and construction administration",
+    workflows: [
+      "receive approved plans, scope notes and estimating instructions",
+      "prepare estimate or take-off data using the agreed cost structure",
+      "maintain quote, supplier and purchase-order records",
+      "update job stages and approved project information",
+      "track outstanding pricing, selections and supporting documents",
+      "prepare quote or variation administration for authorised review",
+      "maintain cost and document checklists around active jobs",
+      "escalate quantity, scope, pricing or contract exceptions"
+    ],
+    tasks: [
+      "estimate data entry",
+      "take-off preparation support",
+      "quote follow-up",
+      "supplier price administration",
+      "purchase-order administration",
+      "job record maintenance",
+      "variation administration",
+      "document and checklist follow-up"
+    ],
+    bestFor: [
+      "residential builders",
+      "construction companies",
+      "estimating teams",
+      "trade contractors"
+    ],
+    outcomes: [
+      "Estimating and job records stay more current between manager reviews.",
+      "Supplier pricing, quotes and project documents are easier to track.",
+      "Builders spend less time on repeatable administration without delegating final pricing or scope decisions."
+    ],
+    hiringNotes: [
+      "Document the cost-code structure, naming conventions and review stages before assigning live estimating work.",
+      "Require authorised review before quotes, variations, purchase orders or pricing changes are issued.",
+      "Keep quantity sign-off, scope interpretation, margins, contract decisions and final estimates with the responsible builder or estimator."
+    ],
+    relatedServiceSlugs: [
+      "construction-estimating-virtual-assistant",
+      "construction-virtual-assistant",
+      "trades-service-administration-virtual-assistant"
+    ],
+    relatedIndustrySlugs: [
+      "construction-estimating-tender-desk",
+      "construction-companies",
+      "trades-service-administration"
+    ]
+  },
+  {
+    slug: "employment-hero",
+    locale: "en-AU",
+    name: "Employment Hero Virtual Assistant",
+    software: "Employment Hero",
+    category: "HR & People Operations",
+    directoryCategory: "Administrative Support",
+    primaryKeyword: "employment hero virtual assistant philippines",
+    metaTitle: "Employment Hero Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Employment Hero Virtual Assistants for HR admin, employee records, onboarding, recruitment support, and people operations.",
+    h1: "Keep Employment Hero People Administration Current",
+    intro: "An Employment Hero Virtual Assistant can support defined HR administration such as employee records, onboarding checklists, recruitment coordination, document follow-up and routine people-operations updates. Employment decisions, workplace advice, payroll approval and legal compliance remain with authorised local staff.",
+    focus: "employment hero hr and people operations administration",
+    workflows: [
+      "review the assigned people-operations queue",
+      "create or update approved employee records",
+      "prepare onboarding and offboarding checklists",
+      "coordinate approved recruitment administration",
+      "follow up outstanding employee documents and acknowledgements",
+      "maintain routine leave, policy and people records",
+      "prepare payroll or HR exceptions for authorised review",
+      "escalate employment, conduct, payroll or compliance decisions"
+    ],
+    tasks: [
+      "employee record administration",
+      "onboarding coordination",
+      "offboarding administration",
+      "recruitment coordination",
+      "document follow-up",
+      "leave and policy record updates",
+      "people-operations reporting"
+    ],
+    bestFor: [
+      "Australian SMEs",
+      "people and culture teams",
+      "recruitment teams",
+      "multi-location businesses"
+    ],
+    outcomes: [
+      "Employee records and onboarding tasks stay more current.",
+      "Routine recruitment and people administration requires less manager chasing.",
+      "HR exceptions reach authorised staff with clearer context and supporting records."
+    ],
+    hiringNotes: [
+      "Use role-based access and limit the assistant to the employee and HR records required for assigned work.",
+      "Document which updates may be completed independently and which require manager approval.",
+      "Keep hiring decisions, disciplinary action, workplace advice, payroll approval and statutory compliance with authorised staff."
+    ],
+    relatedServiceSlugs: [
+      "recruitment-hr",
+      "recruitment-candidate-sourcing-virtual-assistant",
+      "payroll-virtual-assistant"
+    ],
+    relatedIndustrySlugs: [
+      "recruitment-candidate-sourcing",
+      "small-business"
+    ]
+  },
+  {
+    slug: "nookal",
+    locale: "en-AU",
+    name: "Nookal Virtual Assistant",
+    software: "Nookal",
+    category: "Allied Health",
+    directoryCategory: "Dental & Healthcare",
+    primaryKeyword: "nookal virtual assistant philippines",
+    metaTitle: "Nookal Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Nookal Virtual Assistants for scheduling, patient admin, referrals, billing support, and non-clinical clinic workflows.",
+    h1: "Keep Nookal Front-Desk and Patient Administration Moving",
+    intro: "A Nookal Virtual Assistant can support defined non-clinical workflows such as appointment scheduling, patient administration, referral follow-up, billing preparation and routine clinic communication. Clinical decisions, treatment records, privacy exceptions and sensitive patient matters remain with authorised practitioners and practice staff.",
+    focus: "nookal allied health and clinic administration",
+    workflows: [
+      "review the assigned reception and administration queue",
+      "create or update approved patient details",
+      "book, reschedule or cancel the correct appointment type",
+      "track referral and document follow-up",
+      "send approved confirmations and routine patient communication",
+      "prepare approved billing or payment administration",
+      "run recall and missed-appointment follow-up",
+      "escalate clinical, privacy, billing or complaint exceptions"
+    ],
+    tasks: [
+      "appointment scheduling",
+      "patient record administration",
+      "referral follow-up",
+      "appointment reminders",
+      "billing administration",
+      "recall follow-up",
+      "document administration",
+      "routine clinic communication"
+    ],
+    bestFor: [
+      "physiotherapy clinics",
+      "allied health practices",
+      "multidisciplinary clinics",
+      "therapy practices"
+    ],
+    outcomes: [
+      "Appointments, referrals and routine patient administration stay more current.",
+      "Front-desk follow-up becomes easier to track across the clinic.",
+      "Practitioners spend less time maintaining non-clinical workflow queues."
+    ],
+    hiringNotes: [
+      "Use the minimum patient access needed for the assigned reception or administration workflow.",
+      "Document identity checks, privacy rules, billing boundaries and escalation paths before live work.",
+      "Keep treatment notes, clinical judgement, sensitive complaints and privacy exceptions with authorised clinic staff."
+    ],
+    relatedServiceSlugs: [
+      "medical-receptionist",
+      "allied-health-referral-billing-virtual-assistant",
+      "medical-virtual-assistant"
+    ],
+    relatedIndustrySlugs: [
+      "allied-health-referral-billing",
+      "medical-practices",
+      "healthcare-dental"
+    ]
+  },
+
+  // --- AU construction software expansion ---
+  {
+    slug: "buildertrend",
+    locale: "en-AU",
+    name: "Buildertrend Virtual Assistant",
+    software: "Buildertrend",
+    category: "Construction & Trades",
+    directoryCategory: "Administrative Support",
+    primaryKeyword: "buildertrend virtual assistant philippines",
+    metaTitle: "Buildertrend Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Buildertrend Virtual Assistants for project admin, schedules, purchase orders, job records, client updates, and workflow support.",
+    h1: "Keep Buildertrend Project Administration Current",
+    intro: "A Buildertrend Virtual Assistant can support repeatable construction administration such as project records, schedules, purchase orders, change-order preparation, client updates and document follow-up. Builders and authorised managers retain responsibility for scope, pricing, contracts, approvals and construction decisions.",
+    focus: "buildertrend construction project administration",
+    workflows: [
+      "review the assigned project administration queue",
+      "create or update approved project records",
+      "maintain schedules, tasks and milestone information",
+      "prepare purchase-order and change-order administration",
+      "track supplier, subcontractor and document follow-up",
+      "record approved client and project updates",
+      "prepare missing-information and exception lists",
+      "escalate scope, pricing, contract or compliance decisions"
+    ],
+    tasks: [
+      "project record maintenance",
+      "schedule administration",
+      "purchase-order administration",
+      "change-order preparation",
+      "supplier and subcontractor follow-up",
+      "client update administration",
+      "document control",
+      "project exception reporting"
+    ],
+    bestFor: [
+      "residential builders",
+      "remodelling companies",
+      "construction project teams",
+      "trade contractors"
+    ],
+    outcomes: [
+      "Project records and schedules stay more current between manager reviews.",
+      "Purchase orders, change orders and supporting documents are easier to track.",
+      "Project managers spend less time chasing routine administration."
+    ],
+    hiringNotes: [
+      "Document who may create, edit and approve project records, purchase orders and change orders.",
+      "Use clear naming, document and status conventions across live jobs.",
+      "Keep scope, pricing, contract, supplier-selection and final project decisions with authorised construction staff."
+    ],
+    relatedServiceSlugs: [
+      "construction-virtual-assistant",
+      "project-coordination",
+      "construction-estimating-virtual-assistant"
+    ],
+    relatedIndustrySlugs: [
+      "construction-companies",
+      "construction-estimating-tender-desk"
+    ]
+  },
+  {
+    slug: "procore",
+    locale: "en-AU",
+    name: "Procore Virtual Assistant",
+    software: "Procore",
+    category: "Construction & Trades",
+    directoryCategory: "Administrative Support",
+    primaryKeyword: "procore virtual assistant philippines",
+    metaTitle: "Procore Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Procore Virtual Assistants for project records, RFIs, submittal admin, document control, logs, and construction workflow support.",
+    h1: "Keep Procore Project Records and Document Workflows Current",
+    intro: "A Procore Virtual Assistant can support defined project administration such as document control, log maintenance, RFI and submittal administration, meeting records and routine project follow-up. Project managers, engineers and authorised construction staff retain final technical, contractual, safety and commercial decisions.",
+    focus: "procore construction project and document administration",
+    workflows: [
+      "review the assigned project administration queue",
+      "create or update approved project records",
+      "maintain document registers and controlled files",
+      "prepare RFI and submittal administration for review",
+      "update meeting, action and correspondence logs",
+      "track outstanding project documentation",
+      "prepare exception lists for project managers",
+      "escalate technical, contractual, safety or commercial decisions"
+    ],
+    tasks: [
+      "project record maintenance",
+      "document control",
+      "RFI administration",
+      "submittal administration",
+      "meeting and action logs",
+      "correspondence tracking",
+      "document follow-up",
+      "project exception reporting"
+    ],
+    bestFor: [
+      "commercial builders",
+      "general contractors",
+      "construction project teams",
+      "specialty contractors"
+    ],
+    outcomes: [
+      "Project records and document registers stay easier to trust.",
+      "RFIs, submittals and action items have clearer administrative follow-through.",
+      "Project managers receive cleaner exception lists instead of hidden document backlogs."
+    ],
+    hiringNotes: [
+      "Define the Procore tools, projects and permission level the role actually needs.",
+      "Use written rules for document naming, status changes and review handoffs.",
+      "Keep engineering judgement, safety decisions, contract interpretation, approvals and commercial decisions with authorised staff."
+    ],
+    relatedServiceSlugs: [
+      "construction-virtual-assistant",
+      "project-coordination",
+      "construction-estimating-virtual-assistant"
+    ],
+    relatedIndustrySlugs: [
+      "construction-companies",
+      "construction-estimating-tender-desk"
+    ]
+  },
+  {
+    slug: "groundplan",
+    locale: "en-AU",
+    name: "Groundplan Virtual Assistant",
+    software: "Groundplan",
+    category: "Construction & Trades",
+    directoryCategory: "Administrative Support",
+    primaryKeyword: "groundplan virtual assistant philippines",
+    metaTitle: "Groundplan Virtual Assistant Philippines",
+    metaDescription: "Hire Philippines-based Groundplan Virtual Assistants for take-off admin, measurements, estimate preparation, plan revisions, and tender workflow support.",
+    h1: "Keep Groundplan Take-Off and Estimating Administration Moving",
+    intro: "A Groundplan Virtual Assistant can support repeatable estimating administration such as plan setup, take-off preparation, measurement records, revision tracking and tender support. Estimators and authorised construction staff retain responsibility for quantity sign-off, scope interpretation, rates, margins and final pricing.",
+    focus: "groundplan take-off and estimating administration",
+    workflows: [
+      "receive approved drawings and estimating instructions",
+      "prepare project and plan files in groundplan",
+      "complete defined take-off and measurement work",
+      "record assumptions, exclusions and missing information",
+      "track drawing revisions and superseded plans",
+      "prepare estimate-support outputs for estimator review",
+      "maintain tender and supplier follow-up records",
+      "escalate quantity, scope, rate or pricing decisions"
+    ],
+    tasks: [
+      "plan setup",
+      "take-off preparation",
+      "measurement administration",
+      "drawing revision tracking",
+      "estimate support",
+      "tender document preparation",
+      "supplier follow-up",
+      "estimating exception reporting"
+    ],
+    bestFor: [
+      "residential builders",
+      "trade contractors",
+      "estimating teams",
+      "construction companies"
+    ],
+    outcomes: [
+      "Take-off work reaches estimator review with fewer administrative gaps.",
+      "Drawing revisions and measurement records stay easier to trace.",
+      "Estimators spend more time on final pricing and commercial judgement."
+    ],
+    hiringNotes: [
+      "Document measurement conventions, plan-version controls and review checkpoints before live work.",
+      "Require estimator review before quantities are treated as final or used for pricing.",
+      "Keep scope interpretation, quantity sign-off, rates, margins and final estimates with authorised estimators or builders."
+    ],
+    relatedServiceSlugs: [
+      "construction-estimating-virtual-assistant",
+      "construction-virtual-assistant",
+      "project-coordination"
+    ],
+    relatedIndustrySlugs: [
+      "construction-estimating-tender-desk",
+      "construction-companies"
+    ]
+  }
 ];
 
 function normalizedSoftwareTool(value: string) {

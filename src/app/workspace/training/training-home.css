@@ -7642,3 +7642,152 @@
     width: 100%;
   }
 }
+
+
+/* Ask Kiro interactive learner coach */
+.training-kiro-context-card {
+  padding: 13px;
+  border: 1px solid #e6eaf3;
+  border-radius: 12px;
+  background: #fbfcff;
+}
+
+.training-kiro-quick-prompts {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.training-kiro-quick-prompts button {
+  min-height: 31px;
+  padding: 0 9px;
+  border: 1px solid #dde3f4;
+  border-radius: 999px;
+  color: #4252bd;
+  background: #f7f8ff;
+  font: inherit;
+  font-size: 8.6px;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.training-kiro-quick-prompts button:hover {
+  border-color: #cbd3ff;
+  background: #eff2ff;
+}
+
+.training-kiro-question {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.training-kiro-question label {
+  color: #66708e;
+  font-size: 8.7px;
+  line-height: 1.4;
+}
+
+.training-kiro-question > div {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 6px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.training-kiro-question input {
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid #dfe4ef;
+  border-radius: 9px;
+  outline: none;
+  color: #172057;
+  background: #fff;
+  font: inherit;
+  font-size: 9.5px;
+}
+
+.training-kiro-question input:focus {
+  border-color: #aeb9ff;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.08);
+}
+
+.training-kiro-question button {
+  min-width: 58px;
+  min-height: 38px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: linear-gradient(135deg,#3156e8,#4f46e5);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.training-kiro-question button:disabled {
+  cursor: wait;
+  opacity: .58;
+}
+
+.training-kiro-reply {
+  padding: 13px !important;
+  border-color: #dfe4fb !important;
+  background: linear-gradient(145deg,#f9faff,#f4f6ff) !important;
+}
+
+.training-kiro-reply > span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  color: #4f46e5;
+  font-size: 8.5px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.training-kiro-reply p {
+  margin-top: 7px;
+  color: #4f5a7d;
+}
+
+.training-kiro-reply .btn {
+  width: fit-content;
+  min-height: 32px;
+  margin-top: 9px;
+  font-size: 8.8px;
+}
+
+.training-kiro-dialog > footer small {
+  display: block;
+  color: #8991a8;
+  font-size: 8.3px;
+  line-height: 1.45;
+}
+
+@media (max-width: 430px) {
+  .training-kiro-quick-prompts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px !important;
+  }
+
+  .training-kiro-quick-prompts button {
+    flex: 0 0 auto;
+  }
+
+  .training-kiro-question > div {
+    grid-template-columns: 1fr;
+  }
+
+  .training-kiro-question button {
+    width: 100%;
+  }
+}

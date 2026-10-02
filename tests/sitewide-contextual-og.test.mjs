@@ -100,7 +100,8 @@ test("existing polished homepage, services and training OGs stay intact", async 
     read("src/app/training/page.tsx"),
   ]);
   assert.match(home, /\/opengraph-image/);
-  assert.match(services, /\/og\/services\.jpg/);
-  assert.match(service, /serviceOgImage/);
+  assert.match(services, /socialMetadata\(/);
+  assert.match(service, /socialMetadata\(/);
+  assert.match(service, /serviceOgCategory\(/);
   assert.match(training, /\/training\/opengraph-image/);
 });

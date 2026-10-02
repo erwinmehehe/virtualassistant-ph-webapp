@@ -107,6 +107,7 @@ export type TrainingLearnerPreferences = {
 };
 
 export type TrainingCourseSummary = CourseRow & {
+  searchTerms: string[];
   lessonCount: number;
   completedLessons: number;
   progressPercent: number;
@@ -195,12 +196,19 @@ function percent(done: number, total: number) {
 
 export async function getTrainingDashboard(userId: string) {
   const supabase = await createClient();
-  const { data: courseData, error } = await supabase
-    .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
-    .eq("status", "published")
-    .order("recommended_order", { ascending: true })
-    .order("title");
+  const [
+    { data: authUserData },
+    { data: courseData, error },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("training_courses")
+      .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,review_requirement,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at,published_at,updated_at")
+      .eq("status", "published")
+      .order("recommended_order", { ascending: true })
+      .order("title"),
+  ]);
+  const learnerName = String(authUserData.user?.user_metadata?.full_name || "").trim() || null;
 
   if (error) {
     return {
@@ -208,6 +216,8 @@ export async function getTrainingDashboard(userId: string) {
       paths: [] as TrainingLearningPathSummary[],
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
       learnerPreferences: null as TrainingLearnerPreferences | null,
+      savedCourseIds: [] as string[],
+      learnerName,
       error: error.message,
     };
   }
@@ -220,6 +230,8 @@ export async function getTrainingDashboard(userId: string) {
       paths: [] as TrainingLearningPathSummary[],
       learnerProfile: null as TrainingDashboardLearnerProfile | null,
       learnerPreferences: null as TrainingLearnerPreferences | null,
+      savedCourseIds: [] as string[],
+      learnerName,
       error: null,
     };
   }
@@ -252,6 +264,7 @@ export async function getTrainingDashboard(userId: string) {
     { data: assessmentData },
     { data: learnerProfileData },
     { data: learnerPreferencesData },
+    { data: savedCourseData },
   ] = await Promise.all([
     supabase
       .from("training_enrollments")
@@ -286,6 +299,11 @@ export async function getTrainingDashboard(userId: string) {
       .select("australia_specialization,australia_selected_at")
       .eq("user_id", userId)
       .maybeSingle(),
+    supabase
+      .from("training_saved_courses")
+      .select("course_id")
+      .eq("user_id", userId)
+      .in("course_id", courseIds),
   ]);
 
   const enrollments = new Map(
@@ -378,6 +396,7 @@ export async function getTrainingDashboard(userId: string) {
 
     return {
       ...course,
+      searchTerms: courseLessons.map((lesson) => lesson.title),
       lessonCount: courseLessons.length,
       completedLessons,
       progressPercent: enrollment?.completed_at
@@ -453,7 +472,9 @@ export async function getTrainingDashboard(userId: string) {
       }
     : null;
 
-  return { courses: summaries, paths, learnerProfile, learnerPreferences, error: null };
+  const savedCourseIds = (savedCourseData || []).map((row) => row.course_id);
+
+  return { courses: summaries, paths, learnerProfile, learnerPreferences, savedCourseIds, learnerName, error: null };
 }
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {

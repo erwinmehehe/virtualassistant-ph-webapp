@@ -14,9 +14,10 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import type { CSSProperties } from "react";
 import { KiroMascot } from "@/components/kiro-mascot";
+import { toggleTrainingSavedCourseAction } from "@/app/actions/training-saved-courses";
 
 export type TrainingDashboardCourseItem = {
   id: string;
@@ -45,6 +46,7 @@ type Props = {
   courses: TrainingDashboardCourseItem[];
   currentCourseSlug: string | null;
   recommendedCourseSlug: string | null;
+  initialSavedCourseIds: string[];
 };
 
 const tabs = [
@@ -76,17 +78,15 @@ export function TrainingDashboardOverview({
   courses,
   currentCourseSlug,
   recommendedCourseSlug,
+  initialSavedCourseIds,
 }: Props) {
   const [tab,setTab]=useState<(typeof tabs)[number][0]>("progress");
   const [query,setQuery]=useState("");
-  const [saved,setSaved]=useState<string[]>([]);
+  const [saved,setSaved]=useState<string[]>(initialSavedCourseIds);
   const [kiroOpen,setKiroOpen]=useState(false);
+  const [savingCourse,startSavingCourse]=useTransition();
 
   useEffect(()=>{
-    try {
-      const stored=JSON.parse(localStorage.getItem("vaph-training-saved-courses")||"[]");
-      if(Array.isArray(stored)) setSaved(stored.filter((value):value is string=>typeof value==="string"));
-    } catch {}
     const handler=(event:Event)=>{
       const custom=event as CustomEvent<{query?:string}>;
       setQuery(custom.detail?.query||"");
@@ -94,12 +94,6 @@ export function TrainingDashboardOverview({
     window.addEventListener("vaph-training-search",handler);
     return()=>window.removeEventListener("vaph-training-search",handler);
   },[]);
-
-  useEffect(()=>{
-    try {
-      localStorage.setItem("vaph-training-saved-courses",JSON.stringify(saved));
-    } catch {}
-  },[saved]);
 
   const completed=courses.filter((course)=>Boolean(course.completedAt));
   const inProgress=courses.filter((course)=>course.enrolled&&!course.completedAt);
@@ -120,7 +114,7 @@ export function TrainingDashboardOverview({
     );
   },[completed,inProgress,notStarted,normalizedQuery,tab]);
 
-  const savedCourses=courses.filter((course)=>saved.includes(course.slug));
+  const savedCourses=courses.filter((course)=>saved.includes(course.id));
   const foundation=courses.find((course)=>course.slug.includes("foundation"))||null;
   const coreCompleted=completed.filter((course)=>course.category==="skill"&&course.countryFocus!=="Australia").length;
   const specialistCompleted=completed.filter((course)=>course.category==="software"||course.category==="industry").length;
@@ -138,10 +132,21 @@ export function TrainingDashboardOverview({
     ? "You’re "+current.progressPercent+"% complete with "+current.title+". Pick up where you left off and keep the momentum going."
     : "Start with a practical course, finish the lessons, and earn a verified certificate when you pass the final check.";
 
-  function toggleSaved(slug:string) {
-    setSaved((currentSaved)=>currentSaved.includes(slug)
-      ? currentSaved.filter((value)=>value!==slug)
-      : [...currentSaved,slug]);
+  function toggleSaved(courseId:string) {
+    const shouldSave=!saved.includes(courseId);
+    const previous=saved;
+    setSaved((currentSaved)=>shouldSave
+      ? [...currentSaved,courseId]
+      : currentSaved.filter((value)=>value!==courseId));
+
+    startSavingCourse(async()=>{
+      try {
+        const result=await toggleTrainingSavedCourseAction({courseId,save:shouldSave});
+        if(!result.ok || result.saved!==shouldSave) setSaved(previous);
+      } catch {
+        setSaved(previous);
+      }
+    });
   }
 
   return (
@@ -257,7 +262,7 @@ export function TrainingDashboardOverview({
                 {course.enrolled&&!course.completedAt?<div><i style={{width:course.progressPercent+"%"}}/></div>:null}
               </div>
               {course.enrolled&&!course.completedAt?<strong className="training-reference-list-percent">{course.progressPercent}%</strong>:null}
-              <button className={"training-reference-save "+(saved.includes(course.slug)?"is-saved":"")} type="button" onClick={()=>toggleSaved(course.slug)} aria-label={(saved.includes(course.slug)?"Unsave ":"Save ")+course.title}><Bookmark size={15}/></button>
+              <button className={"training-reference-save "+(saved.includes(course.id)?"is-saved":"")} type="button" onClick={()=>toggleSaved(course.id)} disabled={savingCourse} aria-label={(saved.includes(course.id)?"Unsave ":"Save ")+course.title}><Bookmark size={15}/></button>
               <Link className="btn btn-sm" href={course.nextHref}>{course.completedAt?"Review":course.enrolled?"Continue":"Open"} <ArrowRight size={13}/></Link>
             </article>)}
             {!filtered.length?<div className="training-reference-empty"><Search size={18}/><div><strong>No courses in this view.</strong><span>{query?"Try another search term.":"Switch tabs or browse the full course library."}</span></div></div>:null}

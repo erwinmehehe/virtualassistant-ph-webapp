@@ -20,21 +20,33 @@ Decision: HOLD final launch sign-off. Database and deployment evidence are curre
 - Supabase Security Advisor currently reports one warning: leaked-password protection is disabled. This is a plan-level Auth protection and is recorded as a known limitation rather than silently treated as green.
 - The read-only release preflight now returns one JSON document so API/MCP clients preserve every check instead of only the final SELECT result.
 
+## 2026-10-03 production hiring-loop verification
+- Production email infrastructure is live: the `virtualassistant.com.ph` Resend domain is verified with sending enabled, and recent hiring acknowledgements, internal discovery notifications, account confirmations, and password-reset messages show delivered status.
+- In the last 24 hours, production recorded 3 client-hiring leads. All 3 were acknowledged, assigned to CRM owners, linked to recruiting jobs, and moved beyond the `new` CRM stage.
+- Production discovery scheduling has 3 recent booked calls in the last 7 days; all 3 have Google Meet URLs plus Calendar event IDs, with 0 booked calls missing meeting details.
+- The Supabase discovery reminder scheduler `discovery-reminder-sweep` is active every 15 minutes. Its recent runs succeeded, and Vercel returned HTTP 200 for the reminder endpoint on the same cadence.
+- A rollback-only production acceptance test exercised the real `accept_lead_proposal_atomic` function with an active client identity. It verified: lead conversion to won, a published recruiting role, accepted commercials, comped candidate access, proposal acceptance, recruiter activity, lead-won analytics, and idempotent repeat acceptance. The downstream hiring automation advanced the role from `ready_to_recruit` to `sourcing`, which is accepted by the reusable QA script.
+- Rollback-only failure checks verified `client_identity_invalid` for an invalid client and `proposal_expired` for an expired proposal, with no job created.
+- A temporary sent proposal was created only long enough to fetch the real production public proposal page. The page returned HTTP 200 and rendered the role, recommendation, responsibilities, compensation, Approve, and Request changes UI. The QA proposal and lead were then deleted, with 0 rows remaining.
+- Production Auth is actively creating and confirming accounts. In the last 24 hours, 55 Auth users were created and 53 were email-confirmed; 16 matching profile rows were created.
+- The only production workroom was traced to the repository's original Posh Moving and Storage demo seed. It had a closed demo job, an admin profile in the client slot, no messages, time entries, or placement offers, and 10 stale check-in notifications. The demo workroom was retired to `completed / ended`, and those 10 stale notifications were closed. No real client workroom was modified.
+- `scripts/agency-production-runtime-qa.sql` now captures the acceptance-core production test as a rollback-only repeatable check. It intentionally does not claim browser Server Action, Auth invite/magic-link, or real-client proposal-send coverage.
+
 ## Remaining release gates
 | Complete | Owner | Action | Required evidence |
 | --- | --- | --- | --- |
 | [x] | Release operator | Record current production deployment and rollback deployment | Current READY SHA/deployment and previous rollback-candidate SHA/deployment recorded above |
 | [ ] | Database owner | Confirm recoverable backup and remaining historical schema coverage | Migration coverage is current; still record backup timestamp and tested recovery procedure |
 | [x] | Engineering | Harden acceptance as one consistent business operation | Atomic acceptance RPC, row locks, idempotent retry, release-safety tests and rollback-only constraint-failure coverage |
-| [ ] | Engineering + QA | Verify client identity handoff end to end | Record runtime new/existing client, role conflict, Auth failure and magic-link failure evidence |
-| [ ] | Release operator | Verify production environment | Supabase URL and server credentials, app URL, Auth callbacks, app email, Auth SMTP; run the strict setup check without exposing secret values |
+| [ ] | Engineering + QA | Verify client identity handoff end to end | Acceptance with a valid client identity and invalid-identity blocking are production-tested; still record runtime new/existing-client Auth invite/magic-link and role-conflict evidence |
+| [ ] | Release operator | Verify production environment | App URL, Supabase runtime, Resend sending, Auth email delivery, Google Calendar/Meet, and discovery scheduler are live; still verify all strict config keys/callbacks without exposing secret values |
 | [x] | Release operator | Verify tested release on the production domain | Production SHA/aliases verified, smoke checks passed, rollback candidate recorded |
-| [ ] | Recruiter + QA | Hiring brief and CRM | Lead persisted, acknowledgement delivered, owner/stage/follow-up saved |
-| [ ] | Recruiter + QA | Discovery | Correct timezone, schedule, meeting link, completion and delivery-failure feedback |
-| [ ] | Recruiter + QA | Proposals | Both service models; correct totals; send/view/revise/replace/decline/expiry; prior live proposal survives email failure |
-| [ ] | Client + QA | Acceptance and workspace | One role, correct client, accepted terms, included access, CRM won, working workspace link and released shortlist |
-| [ ] | Engineering + QA | Failures and retries | Core DB coverage exists; still record Auth failure and email failure behavior with no false success or duplicate role |
-| [ ] | Operations | Maintenance and reminders | Quotes never publish unaccepted roles; scheduler configured; overdue reminders delivered once |
+| [ ] | Recruiter + QA | Hiring brief and CRM | Live intake proves persistence, acknowledgement, owner, stage and job handoff; still record a runtime follow-up timestamp/interaction |
+| [ ] | Recruiter + QA | Discovery | Live bookings prove scheduling plus Google Meet/Calendar creation; still record attended/completed outcome and delivery-failure feedback |
+| [ ] | Recruiter + QA | Proposals | Public proposal render and expiry failure are production-tested; still record both service models plus send/view/revise/replace/decline and email-failure preservation |
+| [ ] | Client + QA | Acceptance and workspace | Rollback-only production acceptance proves one role, correct client, accepted terms, included access and CRM won; still record Auth handoff, workspace login and released-shortlist runtime |
+| [ ] | Engineering + QA | Failures and retries | Production rollback QA proves invalid-client blocking, expiry handling and idempotent repeat acceptance; still record Auth and email failure behavior |
+| [ ] | Operations | Maintenance and reminders | Discovery scheduler is active and succeeding every 15 minutes; still record the daily maintenance run and a due reminder/automation outcome |
 | [ ] | QA | Privacy and regression | Unrelated client denied; unreleased private candidates hidden; existing engagements work; mobile/desktop journeys and VA notifications pass |
 | [ ] | Release operator | Sign-off and monitoring | Record owner, monitoring window, backup/recovery evidence and rollback decision |
 

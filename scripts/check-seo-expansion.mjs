@@ -246,7 +246,7 @@ for (const serviceSlug of ["creative-virtual-assistant", "logistics-virtual-assi
   assert(serviceSource.includes(`"slug": "${serviceSlug}"`), `missing new service page: ${serviceSlug}`);
 }
 
-for (const softwareSlug of ["canva-virtual-assistant", "gohighlevel-virtual-assistant", "salesforce-virtual-assistant", "hubspot-virtual-assistant", "xero-virtual-assistant", "klaviyo-virtual-assistant", "quickbooks-virtual-assistant"]) {
+for (const softwareSlug of ["canva", "gohighlevel", "salesforce", "hubspot", "xero", "klaviyo", "quickbooks"]) {
   assert(files.software.includes(`slug: "${softwareSlug}"`), `missing software expansion page: ${softwareSlug}`);
 }
 

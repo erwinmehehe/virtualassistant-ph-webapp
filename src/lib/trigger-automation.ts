@@ -14,8 +14,8 @@ export async function queueLeadSlaAutomation(leadId: string) {
 
   // Automation is opt-in. Lead capture remains fully functional until the
   // Trigger.dev project and callback secret are configured together.
-  if (triggerSecret.length < 20 || callbackSecret.length < 32) {
-    return { queued: false as const, reason: "not_configured" as const };
+  if (!triggerAutomationsActive()) {
+    return { queued: false as const, reason: "not_active" as const };
   }
 
   try {
@@ -70,8 +70,8 @@ export async function queueDiscoveryOutcomeAutomation(
     return { queued: false as const, reason: "invalid_schedule" as const };
   }
 
-  if (triggerSecret.length < 20 || callbackSecret.length < 32) {
-    return { queued: false as const, reason: "not_configured" as const };
+  if (!triggerAutomationsActive()) {
+    return { queued: false as const, reason: "not_active" as const };
   }
 
   const scheduleKey = String(scheduledMs);
@@ -144,8 +144,8 @@ async function queueTriggerTask(args: {
   const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
   const callbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
 
-  if (triggerSecret.length < 20 || callbackSecret.length < 32) {
-    return { queued: false as const, reason: "not_configured" as const };
+  if (!triggerAutomationsActive()) {
+    return { queued: false as const, reason: "not_active" as const };
   }
 
   try {

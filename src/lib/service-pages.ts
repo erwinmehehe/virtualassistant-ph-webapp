@@ -19,9 +19,7 @@ export type ServiceSeoPage = {
 };
 
 export function serviceMetaTitle(page: ServiceSeoPage) {
-  const base = page.metaTitle;
-  const expanded = `${base} | Hire Vetted VAs`;
-  return base.length < 40 && expanded.length <= 60 ? expanded : base;
+  return page.metaTitle;
 }
 
 export function serviceMetaDescription(page: ServiceSeoPage) {
@@ -5033,7 +5031,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "group": "Legal",
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "conveyancing virtual assistant",
-    "metaTitle": "Conveyancing Virtual Assistant Australia",
+    "metaTitle": "Conveyancing Virtual Assistant Philippines",
     "metaDescription": "Hire a Philippines-based Conveyancing Virtual Assistant for Australian matter admin, PEXA preparation, document follow-up, milestones and client updates.",
     "intro": "Hire a Conveyancing Virtual Assistant to support Australian conveyancing administration across matter opening, document collection, client follow-up, PEXA preparation, settlement milestones and file close. Legal advice, contract interpretation, signing authority and regulated conveyancing decisions remain with the Australian conveyancer, solicitor or licensed professional.",
     "focus": "Australian conveyancing matter administration and settlement support",
@@ -5052,7 +5050,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "group": "Real Estate",
     "directoryCategory": "Real Estate",
     "primaryKeyword": "buyers agent virtual assistant",
-    "metaTitle": "Buyers Agent Virtual Assistant Australia",
+    "metaTitle": "Buyers Agent Virtual Assistant Philippines",
     "metaDescription": "Hire a Philippines-based Virtual Assistant for Australian buyers agents handling CRM updates, property research, inspections, follow-up and deal admin.",
     "intro": "Hire a Buyers Agent Virtual Assistant to keep Australian property-search administration moving across CRM updates, property research, inspection scheduling, client follow-up, agent communication and due-diligence checklists. Negotiation, property recommendations and licensed real-estate decisions remain with the buyers agent.",
     "focus": "Australian buyers agency research, CRM and transaction administration",
@@ -5070,8 +5068,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "name": "Financial Planning Virtual Assistant",
     "group": "Finance & Insurance",
     "directoryCategory": "Bookkeeping & Finance",
-    "primaryKeyword": "financial planning virtual assistant australia",
-    "metaTitle": "Financial Planning Virtual Assistant Australia",
+    "primaryKeyword": "financial planning virtual assistant philippines",
+    "metaTitle": "Financial Planning Virtual Assistant Philippines",
     "metaDescription": "Hire a Philippines-based Financial Planning Virtual Assistant for Australian client administration, Xplan workflows, document follow-up and review preparation.",
     "intro": "Hire a Financial Planning Virtual Assistant to support Australian advice practices with client administration, Xplan updates, review preparation, document collection, implementation tracking and routine follow-up. Personal financial advice, product recommendations, advice documents requiring authorised review and regulated decisions remain with appropriately licensed Australian advisers.",
     "focus": "Australian financial planning client administration and advice-production support",
@@ -5090,7 +5088,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "group": "Healthcare",
     "directoryCategory": "Dental & Healthcare",
     "primaryKeyword": "ndis rostering virtual assistant",
-    "metaTitle": "NDIS Rostering Virtual Assistant Australia",
+    "metaTitle": "NDIS Rostering Virtual Assistant Philippines",
     "metaDescription": "Hire a Philippines-based NDIS Rostering Virtual Assistant for ShiftCare rosters, participant scheduling, worker availability, notes and admin follow-up.",
     "intro": "Hire an NDIS Rostering Virtual Assistant to support Australian providers with participant schedules, support-worker availability, ShiftCare updates, shift changes, timesheet follow-up and routine service administration. Participant safety, care decisions, incident management and compliance accountability remain with the provider and qualified local staff.",
     "focus": "NDIS rostering, participant scheduling and service administration",
@@ -5108,8 +5106,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "name": "Aged Care Virtual Assistant",
     "group": "Healthcare",
     "directoryCategory": "Dental & Healthcare",
-    "primaryKeyword": "aged care virtual assistant australia",
-    "metaTitle": "Aged Care Virtual Assistant Australia",
+    "primaryKeyword": "aged care virtual assistant philippines",
+    "metaTitle": "Aged Care Virtual Assistant Philippines",
     "metaDescription": "Hire a Philippines-based Aged Care Virtual Assistant for Australian rostering, client administration, referral follow-up, records and service coordination.",
     "intro": "Hire an Aged Care Virtual Assistant to support Australian community and home-care teams with rostering, referral administration, client records, service updates, document follow-up and routine communication. Care decisions, clinical judgement, incidents, safeguarding and regulatory accountability remain with qualified local staff.",
     "focus": "Australian aged-care rostering and client administration",
@@ -5127,8 +5125,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "name": "Trust Accounting Virtual Assistant",
     "group": "Real Estate",
     "directoryCategory": "Real Estate",
-    "primaryKeyword": "trust accounting virtual assistant australia",
-    "metaTitle": "Trust Accounting Virtual Assistant Australia",
+    "primaryKeyword": "trust accounting virtual assistant philippines",
+    "metaTitle": "Trust Accounting Virtual Assistant Philippines",
     "metaDescription": "Hire a Philippines-based Trust Accounting Virtual Assistant for Australian property management reconciliations, receipts, ledgers and review preparation.",
     "intro": "Hire a Trust Accounting Virtual Assistant to prepare Australian property-management trust administration such as receipt allocation, ledger maintenance, reconciliation support, owner and tenant record checks, and exception preparation. Trust-account authority, approvals, regulated handling of funds and final reconciliation sign-off remain with authorised local staff.",
     "focus": "Australian property-management trust administration and reconciliation support",
@@ -5146,8 +5144,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "name": "Medical Receptionist Virtual Assistant",
     "group": "Healthcare",
     "directoryCategory": "Dental & Healthcare",
-    "primaryKeyword": "medical receptionist virtual assistant australia",
-    "metaTitle": "Medical Receptionist Virtual Assistant Australia",
+    "primaryKeyword": "medical receptionist virtual assistant philippines",
+    "metaTitle": "Medical Receptionist Virtual Assistant Philippines",
     "metaDescription": "Hire a Philippines-based Medical Receptionist Virtual Assistant for Australian clinics using Best Practice, Cliniko or similar practice systems.",
     "intro": "Hire a Medical Receptionist Virtual Assistant to support Australian clinics with appointment booking, patient calls, recalls, referrals, inbox administration, records follow-up and routine Best Practice or Cliniko updates. Clinical advice, triage decisions, prescribing and other regulated healthcare decisions remain with qualified local clinicians.",
     "focus": "Australian medical reception and non-clinical practice administration",

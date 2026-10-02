@@ -336,7 +336,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "excerpt": "A workflow-level guide to the GoHighLevel work a Virtual Assistant can own without turning routine CRM administration into unrestricted system control.",
     "topic": "seo-marketing",
     "clusterLabel": "GoHighLevel Virtual Assistant",
-    "softwareSlug": "gohighlevel-virtual-assistant",
+    "softwareSlug": "gohighlevel",
     "intent": "informational",
     "publishedAt": "2026-09-23",
     "updatedAt": "2026-09-23",
@@ -467,7 +467,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "GoHighLevel Virtual Assistant",
-        "href": "/software/gohighlevel-virtual-assistant",
+        "href": "/software/gohighlevel",
         "description": "See the commercial software-specific hiring page."
       },
       {
@@ -495,7 +495,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "excerpt": "A practical guide to assigning HubSpot administration without confusing record maintenance with sales, marketing, or system ownership.",
     "topic": "seo-marketing",
     "clusterLabel": "HubSpot Virtual Assistant",
-    "softwareSlug": "hubspot-virtual-assistant",
+    "softwareSlug": "hubspot",
     "intent": "informational",
     "publishedAt": "2026-09-23",
     "updatedAt": "2026-09-23",
@@ -628,7 +628,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "HubSpot Virtual Assistant",
-        "href": "/software/hubspot-virtual-assistant",
+        "href": "/software/hubspot",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -656,7 +656,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "excerpt": "A practical division of Salesforce administration between repeatable Virtual Assistant work and changes that should stay with sales or system owners.",
     "topic": "seo-marketing",
     "clusterLabel": "Salesforce Virtual Assistant",
-    "softwareSlug": "salesforce-virtual-assistant",
+    "softwareSlug": "salesforce",
     "intent": "informational",
     "publishedAt": "2026-09-23",
     "updatedAt": "2026-09-23",
@@ -788,7 +788,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Salesforce Virtual Assistant",
-        "href": "/software/salesforce-virtual-assistant",
+        "href": "/software/salesforce",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -976,7 +976,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "excerpt": "A practical guide to delegating Klaviyo production work while keeping strategy, offers, compliance decisions, and final sends with the accountable team.",
     "topic": "seo-marketing",
     "clusterLabel": "Klaviyo Virtual Assistant",
-    "softwareSlug": "klaviyo-virtual-assistant",
+    "softwareSlug": "klaviyo",
     "intent": "informational",
     "publishedAt": "2026-09-23",
     "updatedAt": "2026-09-23",
@@ -1100,7 +1100,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Klaviyo Virtual Assistant",
-        "href": "/software/klaviyo-virtual-assistant",
+        "href": "/software/klaviyo",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1128,7 +1128,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "excerpt": "A practical way to delegate Xero bookkeeping administration without handing over accounting judgment, tax positions, banking authority, or final approvals.",
     "topic": "hiring",
     "clusterLabel": "Xero Virtual Assistant",
-    "softwareSlug": "xero-virtual-assistant",
+    "softwareSlug": "xero",
     "intent": "informational",
     "publishedAt": "2026-09-23",
     "updatedAt": "2026-09-23",
@@ -1253,7 +1253,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Xero Virtual Assistant",
-        "href": "/software/xero-virtual-assistant",
+        "href": "/software/xero",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1281,7 +1281,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "excerpt": "A practical QuickBooks delegation guide focused on preparation, records, follow-up, and review readiness rather than unrestricted finance access.",
     "topic": "hiring",
     "clusterLabel": "QuickBooks Virtual Assistant",
-    "softwareSlug": "quickbooks-virtual-assistant",
+    "softwareSlug": "quickbooks",
     "intent": "informational",
     "publishedAt": "2026-09-23",
     "updatedAt": "2026-09-23",
@@ -1406,7 +1406,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "QuickBooks Virtual Assistant",
-        "href": "/software/quickbooks-virtual-assistant",
+        "href": "/software/quickbooks",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1434,7 +1434,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "excerpt": "A production-focused guide to using a Canva Virtual Assistant for repeatable branded assets without confusing production support with creative direction.",
     "topic": "seo-marketing",
     "clusterLabel": "Canva Virtual Assistant",
-    "softwareSlug": "canva-virtual-assistant",
+    "softwareSlug": "canva",
     "intent": "informational",
     "publishedAt": "2026-09-23",
     "updatedAt": "2026-09-23",
@@ -1559,7 +1559,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Canva Virtual Assistant",
-        "href": "/software/canva-virtual-assistant",
+        "href": "/software/canva",
         "description": "See the software-specific commercial hiring page."
       },
       {
@@ -1732,7 +1732,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "Canva Virtual Assistant",
-        "href": "/software/canva-virtual-assistant",
+        "href": "/software/canva",
         "description": "See software-specific support for repeatable Canva production."
       }
     ]

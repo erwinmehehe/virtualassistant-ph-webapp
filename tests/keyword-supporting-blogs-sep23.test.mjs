@@ -83,13 +83,13 @@ test("service-support posts point to the existing commercial service owners", ()
 test("software-support posts point to the correct software canonicals", () => {
   const bySlug = new Map(posts().map((post) => [post.slug, post]));
   const expected = new Map([
-    ["gohighlevel-virtual-assistant-tasks", "gohighlevel-virtual-assistant"],
-    ["hubspot-virtual-assistant-tasks", "hubspot-virtual-assistant"],
-    ["salesforce-virtual-assistant-tasks", "salesforce-virtual-assistant"],
-    ["klaviyo-virtual-assistant-tasks", "klaviyo-virtual-assistant"],
-    ["xero-virtual-assistant-tasks", "xero-virtual-assistant"],
-    ["quickbooks-virtual-assistant-tasks", "quickbooks-virtual-assistant"],
-    ["canva-virtual-assistant-tasks", "canva-virtual-assistant"]
+    ["gohighlevel-virtual-assistant-tasks", "gohighlevel"],
+    ["hubspot-virtual-assistant-tasks", "hubspot"],
+    ["salesforce-virtual-assistant-tasks", "salesforce"],
+    ["klaviyo-virtual-assistant-tasks", "klaviyo"],
+    ["xero-virtual-assistant-tasks", "xero"],
+    ["quickbooks-virtual-assistant-tasks", "quickbooks"],
+    ["canva-virtual-assistant-tasks", "canva"]
   ]);
 
   for (const [slug, softwareSlug] of expected) {
@@ -157,7 +157,7 @@ test("round two service guides answer adjacent intent without replacing money pa
   assert.equal(creative.intent, "comparison");
   assert.ok(creative.internalLinks.some((link) => link.href === "/service/creative-virtual-assistant"));
   assert.ok(creative.internalLinks.some((link) => link.href === "/service/graphic-design"));
-  assert.ok(creative.internalLinks.some((link) => link.href === "/software/canva-virtual-assistant"));
+  assert.ok(creative.internalLinks.some((link) => link.href === "/software/canva"));
   assert.match(JSON.stringify(creative), /creative ownership|original visual|template/i);
 
   const events = bySlug.get("event-planning-virtual-assistant-tasks");

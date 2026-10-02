@@ -92,8 +92,8 @@ test("ServiceM8 course remains editorial-only published training", async () => {
 test("ServiceM8 hiring page reflects current workflow without creating a duplicate route", async () => {
   const pages = await readFile("src/lib/software-pages.ts", "utf8");
 
-  assert.equal((pages.match(/slug: "servicem8-virtual-assistant"/g) || []).length, 1);
-  assert.match(pages, /primaryKeyword: "servicem8 virtual assistant"/);
+  assert.equal((pages.match(/slug: "servicem8"/g) || []).length, 1);
+  assert.match(pages, /primaryKeyword: "servicem8 virtual assistant philippines"/);
   assert.match(pages, /job status and Queue administration/);
   assert.match(pages, /checklist and Form follow-up/);
   assert.match(pages, /automation QA/);

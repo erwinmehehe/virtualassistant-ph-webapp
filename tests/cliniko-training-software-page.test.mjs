@@ -8,9 +8,9 @@ const migrationPath = "supabase/migrations/20260923225000_refresh_cliniko_traini
 test("Cliniko has one dedicated software hiring page", async () => {
   const software = await readFile(softwarePath, "utf8");
 
-  assert.equal((software.match(/slug: "cliniko-virtual-assistant"/g) || []).length, 1);
-  assert.match(software, /primaryKeyword: "cliniko virtual assistant"/);
-  assert.match(software, /metaTitle: "Hire Cliniko Virtual Assistant Philippines"/);
+  assert.equal((software.match(/slug: "cliniko"/g) || []).length, 1);
+  assert.match(software, /primaryKeyword: "cliniko virtual assistant philippines"/);
+  assert.match(software, /metaTitle: "Cliniko Virtual Assistant Philippines"/);
   assert.match(software, /directoryCategory: "Dental & Healthcare"/);
   assert.match(software, /allied-health-referral-billing/);
   assert.match(software, /medical-virtual-assistant/);

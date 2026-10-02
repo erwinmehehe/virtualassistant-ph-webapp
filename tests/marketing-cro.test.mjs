@@ -34,7 +34,7 @@ test("high-value public pages keep approved H1 copy and a valid conversion path"
   const checks = [
     ["src/app/services/page.tsx", "Find the Virtual Assistant role that matches", /href="\/hire"/],
     ["src/app/industries/page.tsx", "Find VA support by business workflow.", /href="\/hire"/],
-    ["src/app/software/page.tsx", "Hire a virtual assistant who already knows your software.", /href="\/hire"/],
+    ["src/app/software/page.tsx", "Virtual Assistant Software Philippines", /href="\/hire"/],
     ["src/app/blog/page.tsx", "Practical guides for hiring and managing Filipino VAs.", /href="\/hire"/],
     ["src/app/pricing/page.tsx", "Virtual Assistant pricing, without hidden fees.", /href="\/hire"|href="\/book-client-call"/],
     ["src/app/faq/page.tsx", "Questions before you hire or apply.", /href="\/hire"/],

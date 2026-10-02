@@ -642,7 +642,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         eyebrow={isAu ? `Philippines-based ${roleName(s.name)} support` : `Filipino ${roleName(s.name)} VAs`}
         titleLead={`Hire ${article}`}
         titleAccent={s.name}
-        titleTail={isAu ? "for Australian businesses" : "in the Philippines"}
+        titleTail="in the Philippines"
         lede={copy.hero}
         tasks={s.tasks.slice(0, 6).map(toTitle)}
         tools={s.tools}

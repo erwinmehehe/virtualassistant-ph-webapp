@@ -321,6 +321,13 @@ export async function saveJobShortlistAction(formData: FormData) {
       released_at: status === "released" ? now : null
     };
   });
+  if (["invite", "release"].includes(mode)) {
+    const weakMatches = rows.filter((row) => Number(row.match_score || 0) < 60);
+    if (weakMatches.length) {
+      return fail("Client-facing shortlists require 60%+ matches. Replace weaker candidates before sending.");
+    }
+  }
+
   const { error } = await admin.from("job_shortlist_candidates").upsert(rows, { onConflict: "job_id,va_id" });
   if (error) {
     const message = String(error.message || "");
@@ -389,7 +396,7 @@ export async function saveJobShortlistAction(formData: FormData) {
         action: "client_review_invited",
         description: `Client invited to claim their account and review ${selected.length} selected VA${selected.length === 1 ? "" : "s"}`,
         actorId: user.id,
-        metadata: { va_ids: selected, lead_id: inviteLead.id }
+        metadata: { va_ids: selected, lead_id: inviteLead.id, invite_sent_at: now }
       });
     } else {
       inviteEmailUnavailable = true;

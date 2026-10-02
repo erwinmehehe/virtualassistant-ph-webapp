@@ -205,7 +205,7 @@ export function SiteNav({
     return <TrainingPublicNav />;
   }
 
-  const isTrainingContext = actionContext === "training";
+  const isTrainingContext = false;
   const trainingContextLoginHref = trainingLoginHref();
   const trainingContextJoinHref = trainingJoinHref();
 

@@ -31,8 +31,8 @@ test("release readiness records live runtime evidence without overstating remain
   const readiness = await readFile("AGENCY_RELEASE_READINESS.md", "utf8");
 
   assert.match(readiness, /2026-10-03 production hiring-loop verification/);
-  assert.match(readiness, /3 client-hiring leads/);
-  assert.match(readiness, /3 recent booked calls/);
+  assert.match(readiness, /3 `client_hiring` enquiries/);
+  assert.match(readiness, /1 Google Meet booking/);
   assert.match(readiness, /discovery-reminder-sweep/);
   assert.match(readiness, /client_identity_invalid/);
   assert.match(readiness, /proposal_expired/);

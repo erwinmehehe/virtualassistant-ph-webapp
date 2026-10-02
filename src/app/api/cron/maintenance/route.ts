@@ -8,7 +8,7 @@ import { reconcilePaymongoPayments } from "@/lib/payment-reconciliation";
 import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement";
 import { runVaAddressResumeBackfill } from "@/lib/va-address-backfill";
 import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
-import { proposalAutomationConfigured } from "@/lib/trigger-automation";
+import { proposalAutomationConfigured, triggerAutomationsActive } from "@/lib/trigger-automation";
 
 // Daily maintenance is deliberately idempotent. Matching can create recruiter
 // suggestions, reminders can nudge people, but no automation may release a VA
@@ -224,6 +224,7 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
   const offerPairs = new Set((offers || []).map((row: any) => `${row.job_id}:${row.va_id}`));
   const jobMap = new Map((jobs || []).map((row: any) => [row.id, row]));
   let recruiterNudges = 0; let client24h = 0; let client48h = 0; let vaNudges = 0; let interviewScheduleNudges = 0; let offerNudges = 0;
+  const durableHiringAutomation = triggerAutomationsActive();
 
   for (const job of jobs || []) {
     const candidateRows = shortlistByJob.get(job.id) || [];
@@ -235,31 +236,35 @@ async function runWorkflowReminders(admin: ReturnType<typeof createAdminClient>)
         if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId, action: "needs_candidates", title: `Role needs candidates: ${job.title}`, body: "This active client role has no recruiter-approved shortlist yet. Review the automatic suggestions and decide who should move forward.", href: `/workspace/recruiter/roles/${job.id}`, repeatDays: 1 })) recruiterNudges++;
       }
     }
-    if (!job.client_id || !released.length || released.some((row: any) => row.client_decision)) continue;
-    const releasedAt = released.map((row: any) => row.released_at).filter(Boolean).sort()[0];
-    if (!releasedAt) continue;
-    const ageMs = Date.now() - new Date(releasedAt).getTime();
-    if (ageMs >= 24 * 60 * 60 * 1000 && ageMs < 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", email: false, title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
-    } else if (ageMs >= 48 * 60 * 60 * 1000) {
-      if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", email: false, title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
+    if (!durableHiringAutomation) {
+      if (!job.client_id || !released.length || released.some((row: any) => row.client_decision)) continue;
+      const releasedAt = released.map((row: any) => row.released_at).filter(Boolean).sort()[0];
+      if (!releasedAt) continue;
+      const ageMs = Date.now() - new Date(releasedAt).getTime();
+      if (ageMs >= 24 * 60 * 60 * 1000 && ageMs < 48 * 60 * 60 * 1000) {
+        if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_24h", email: false, title: `Your shortlist is ready: ${job.title}`, body: "Your recruiter prepared a reviewed shortlist. Take a look and tell us who you would like to move forward.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client24h++;
+      } else if (ageMs >= 48 * 60 * 60 * 1000) {
+        if (await sendWorkflowReminder(admin, { subjectType: "job", subjectId: job.id, recipientId: job.client_id, action: "review_shortlist_48h", email: false, title: `Candidate availability can change: ${job.title}`, body: "Your reviewed candidates are still waiting for feedback. Please review the shortlist while availability is current.", href: `/workspace/client/candidates?role=${job.id}`, repeatDays: 30 })) client48h++;
+      }
     }
   }
 
-  for (const interview of interviews || []) {
-    if (interview.status !== "requested" || new Date(interview.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000) continue;
-    const job: any = jobMap.get(interview.job_id);
-    if (await sendWorkflowReminder(admin, {
-      subjectType: "job",
-      subjectId: interview.job_id,
-      recipientId: interview.client_id,
-      action: `schedule_interview_${interview.id}`,
-      email: false,
-      title: `Schedule the requested interview${job?.title ? `: ${job.title}` : ""}`,
-      body: "You requested an interview but have not chosen a time yet. Open Interviews to schedule it so the VA can prepare.",
-      href: "/workspace/client/interviews",
-      repeatDays: 1
-    })) interviewScheduleNudges++;
+  if (!durableHiringAutomation) {
+    for (const interview of interviews || []) {
+      if (interview.status !== "requested" || new Date(interview.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000) continue;
+      const job: any = jobMap.get(interview.job_id);
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "job",
+        subjectId: interview.job_id,
+        recipientId: interview.client_id,
+        action: `schedule_interview_${interview.id}`,
+        email: false,
+        title: `Schedule the requested interview${job?.title ? `: ${job.title}` : ""}`,
+        body: "You requested an interview but have not chosen a time yet. Open Interviews to schedule it so the VA can prepare.",
+        href: "/workspace/client/interviews",
+        repeatDays: 1
+      })) interviewScheduleNudges++;
+    }
   }
 
   for (const offer of offers || []) {

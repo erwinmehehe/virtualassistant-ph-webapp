@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   description: "Browse recruiter-reviewed Filipino virtual assistants with at least two years of experience, then tell us the role and we will build your shortlist.",
   keywords: ["vetted virtual assistants philippines", "hire filipino virtual assistant", "browse virtual assistants", "filipino va directory"],
   alternates: { canonical: canonicalPath("/find-talent") }
-,
   ...socialMetadata({
     title: "Browse Vetted Filipino Virtual Assistants",
     description: "Browse recruiter-reviewed Filipino virtual assistants with at least two years of experience, then tell us the role and we will build your shortlist.",

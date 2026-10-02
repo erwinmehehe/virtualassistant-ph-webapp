@@ -5,8 +5,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { canonicalPath } from "@/lib/seo-url";
+import { socialMetadata } from "@/lib/og";
 
-export const metadata: Metadata = { title: "VirtualAssistant.com.ph FAQ", description: "Answers about hiring, vetting, pricing, client accounts, Virtual Assistant applications, privacy, and managed placements.", keywords: ["virtual assistant faq", "hiring a virtual assistant questions", "virtualassistant.com.ph faq"], alternates:{canonical:canonicalPath("/faq")} };
+export const metadata: Metadata = { title: "VirtualAssistant.com.ph FAQ", description: "Answers about hiring, vetting, pricing, client accounts, Virtual Assistant applications, privacy, and managed placements.", keywords: ["virtual assistant faq", "hiring a virtual assistant questions", "virtualassistant.com.ph faq"], alternates:{canonical:canonicalPath("/faq")}, ...socialMetadata({ title: "VirtualAssistant.com.ph FAQ", description: "Answers about hiring, vetting, pricing, client accounts, Virtual Assistant applications, privacy, and managed placements.", path: canonicalPath("/faq"), category: "hiring", eyebrow: "Frequently Asked Questions" }) };
 
 const groups = [
   ["For clients", [

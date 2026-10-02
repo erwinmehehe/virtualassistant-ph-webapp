@@ -1,10 +1,36 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function TrainingDashboardSearch() {
   const [query,setQuery]=useState("");
+  const inputRef=useRef<HTMLInputElement>(null);
+
+  useEffect(()=>{
+    const setHandler=(event:Event)=>{
+      const custom=event as CustomEvent<{query?:string}>;
+      setQuery(custom.detail?.query||"");
+    };
+    const keyHandler=(event:KeyboardEvent)=>{
+      const target=event.target as HTMLElement|null;
+      const typing=target?.tagName==="INPUT"||target?.tagName==="TEXTAREA"||target?.isContentEditable;
+      if(event.key==="/"&&!typing){
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+      if(event.key==="Escape"&&document.activeElement===inputRef.current){
+        update("");
+        inputRef.current?.blur();
+      }
+    };
+    window.addEventListener("vaph-training-search-set",setHandler);
+    window.addEventListener("keydown",keyHandler);
+    return()=>{
+      window.removeEventListener("vaph-training-search-set",setHandler);
+      window.removeEventListener("keydown",keyHandler);
+    };
+  },[]);
 
   function update(value:string) {
     setQuery(value);
@@ -28,6 +54,7 @@ export function TrainingDashboardSearch() {
       <Search size={16}/>
       <label className="sr-only" htmlFor="training-dashboard-search-input">Search training</label>
       <input
+        ref={inputRef}
         id="training-dashboard-search-input"
         type="search"
         value={query}
@@ -35,6 +62,7 @@ export function TrainingDashboardSearch() {
         placeholder="Search courses, lessons, or ask Kiro..."
         autoComplete="off"
       />
+      <kbd className="training-dashboard-search-shortcut" aria-hidden="true">/</kbd>
       <button className="sr-only" type="submit">Search or ask Kiro</button>
     </form>
   );

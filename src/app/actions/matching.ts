@@ -396,7 +396,7 @@ export async function saveJobShortlistAction(formData: FormData) {
         action: "client_review_invited",
         description: `Client invited to claim their account and review ${selected.length} selected VA${selected.length === 1 ? "" : "s"}`,
         actorId: user.id,
-        metadata: { va_ids: selected, lead_id: inviteLead.id }
+        metadata: { va_ids: selected, lead_id: inviteLead.id, invite_sent_at: now }
       });
     } else {
       inviteEmailUnavailable = true;

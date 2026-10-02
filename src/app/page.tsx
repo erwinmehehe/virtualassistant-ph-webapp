@@ -33,11 +33,15 @@ import "./homepage-growth.css";
 import "./homepage-sections.css";
 import "./homepage-reference-polish.css";
 import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
+import { socialMetadata } from "@/lib/og";
+
+const HOME_META_TITLE = "Virtual Assistant Philippines | Hire Vetted Filipino VAs";
+const HOME_META_DESCRIPTION =
+  "Virtual Assistant Philippines: hire vetted Filipino VAs matched to your role, tools, schedule and budget, with recruiter support from shortlist to hire.";
 
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
-  description:
-    "Virtual Assistant Philippines: hire vetted Filipino VAs matched to your role, tools, schedule and budget, with recruiter support from shortlist to hire.",
+  title: { absolute: HOME_META_TITLE },
+  description: HOME_META_DESCRIPTION,
   keywords: [
     "virtual assistant philippines",
     "hire filipino virtual assistant",
@@ -46,28 +50,14 @@ export const metadata: Metadata = {
     "outsource to the philippines",
   ],
   alternates: { canonical: canonicalPath("/") },
-  openGraph: {
-    type: "website",
-    title: "Virtual Assistant Philippines | Vetted Filipino VA Agency",
-    description:
-      "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
-    url: canonicalPath("/"),
-    images: [
-      {
-        url: canonicalUrl("/opengraph-image"),
-        width: 1200,
-        height: 630,
-        alt: "VirtualAssistant.com.ph - hire vetted Filipino virtual assistants",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Virtual Assistant Philippines | Vetted Filipino VA Agency",
-    description:
-      "Get matched with vetted Filipino virtual assistants for your role, tools, schedule, and budget.",
-    images: [canonicalUrl("/twitter-image")],
-  },
+  ...socialMetadata({
+    title: HOME_META_TITLE,
+    description: HOME_META_DESCRIPTION,
+    path: canonicalPath("/"),
+    category: "hiring",
+    eyebrow: "Vetted Filipino Virtual Assistants",
+    points: ["Role-fit matching", "Human recruiter review", "Flexible schedules", "Client Success support"],
+  }),
 };
 
 const BOOKING_URL = "/book-client-call";

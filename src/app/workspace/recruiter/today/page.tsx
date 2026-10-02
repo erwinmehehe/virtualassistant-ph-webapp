@@ -530,15 +530,16 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     />
     <RecruiterOperationsNav current="today" taskCount={openTasks} notificationCount={unreadNotifications}/>
 
-    <KiroGuide
-      compact
-      className={styles.kiroBriefing}
-      state={primaryAction.count ? "attention" : "success"}
-      eyebrow="Kiro · Recruiter briefing"
-      title={primaryAction.title}
-      description={primaryAction.copy}
-      action={{ href: primaryAction.href, label: primaryAction.cta }}
-    />
+    <section id="recruiter-next-action" className={styles.kiroBriefing} aria-label="Recruiter next action">
+      <KiroGuide
+        compact
+        state={primaryAction.count ? "attention" : "success"}
+        eyebrow="Kiro · Recruiter briefing"
+        title={primaryAction.title}
+        description={primaryAction.copy}
+        actionSlot={<Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>}
+      />
+    </section>
 
     <section id="sales-closing" className={styles.closingCommandCenter} aria-labelledby="sales-closing-heading">
       <div className={styles.closingCommandHead}>

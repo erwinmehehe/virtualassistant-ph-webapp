@@ -21,6 +21,7 @@ type KiroGuideProps = {
     href: string;
     label: string;
   };
+  actionSlot?: ReactNode;
   compact?: boolean;
   className?: string;
 };
@@ -40,6 +41,7 @@ export function KiroGuide({
   title,
   description,
   action,
+  actionSlot,
   compact = false,
   className = "",
 }: KiroGuideProps) {
@@ -65,7 +67,9 @@ export function KiroGuide({
         <p>{description}</p>
       </div>
 
-      {action ? (
+      {actionSlot ? (
+        <div className={styles.actionSlot}>{actionSlot}</div>
+      ) : action ? (
         <Link className={styles.action} href={action.href}>
           {action.label}
           <ArrowRight size={15} />

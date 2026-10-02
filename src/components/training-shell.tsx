@@ -164,7 +164,7 @@ export function TrainingShell({
 
             <div className="training-reference-topbar-actions">
               <details className="training-reference-notifications">
-                <summary aria-label="Open training notifications"><Bell size={17}/><span>0</span></summary>
+                <summary aria-label="Open training notifications"><Bell size={17}/></summary>
                 <div>
                   <strong>Training notifications</strong>
                   <p>You’re all caught up. Course progress updates appear here.</p>

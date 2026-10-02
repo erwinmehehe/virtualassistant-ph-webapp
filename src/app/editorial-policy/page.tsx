@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Editorial Policy | VirtualAssistant.com.ph",
   description:
     "How VirtualAssistant.com.ph writes, reviews, updates, sources, and corrects hiring, pricing, compliance, and virtual assistant content.",
-  alternates: { canonical: canonicalPath("/editorial-policy") }
+  alternates: { canonical: canonicalPath("/editorial-policy") },
   ...socialMetadata({
     title: "Editorial Policy | VirtualAssistant.com.ph",
     description: "How VirtualAssistant.com.ph writes, reviews, updates, sources, and corrects hiring, pricing, compliance, and virtual assistant content.",

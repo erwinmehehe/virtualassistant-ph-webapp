@@ -5,7 +5,7 @@ import test from "node:test";
 const staffPath = "src/components/staff-job-matching.tsx";
 const tablePath = "src/components/matching-candidate-table.tsx";
 const matchingPath = "src/lib/matching.ts";
-const cssPath = "src/app/globals.css";
+const cssPath = "src/app/workspace/recruiter-role-workspace.css";
 
 test("recruiter matching receives completed learning paths as supporting evidence", async () => {
   const staff = await readFile(staffPath, "utf8");

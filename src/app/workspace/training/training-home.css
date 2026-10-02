@@ -7012,8 +7012,10 @@
 
 .training-kiro-dialog-body {
   display: grid;
+  min-height: 0;
   align-content: start;
   gap: 10px;
+  overflow-y: auto;
   padding: 14px;
 }
 

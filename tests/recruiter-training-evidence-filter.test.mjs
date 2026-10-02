@@ -25,7 +25,7 @@ test("candidate table can search and filter verified training without changing s
   assert.match(table, /row\.trainingPaths/);
   assert.match(table, /path\.title/);
   assert.match(table, /Training is supporting evidence only and does not change the match score or client-readiness gate/);
-  assert.match(table, /training-path-evidence/);
+  assert.match(table, /matching-path-evidence/);
   assert.match(table, /Open recruiter scorecard/);
 });
 

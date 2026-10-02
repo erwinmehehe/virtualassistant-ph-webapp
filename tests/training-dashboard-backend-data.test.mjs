@@ -42,6 +42,7 @@ test("training topbar notifications read and mutate backend learner notification
   assert.match(action, /read_at/);
   assert.match(migration, /create table if not exists public\.training_notifications/);
   assert.match(migration, /references auth\.users\(id\)/);
+  assert.match(migration, /grant update \(read_at\) on public\.training_notifications to authenticated/);
 });
 
 test("course completion creates learner notifications in the backend", async () => {

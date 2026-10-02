@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import type { CSSProperties } from "react";
 import { KiroMascot } from "@/components/kiro-mascot";
 import { toggleTrainingSavedCourseAction } from "@/app/actions/training-saved-courses";
+import { askTrainingKiroAction } from "@/app/actions/training-kiro";
 
 export type TrainingDashboardCourseItem = {
   id: string;
@@ -84,7 +85,10 @@ export function TrainingDashboardOverview({
   const [query,setQuery]=useState("");
   const [saved,setSaved]=useState<string[]>(initialSavedCourseIds);
   const [kiroOpen,setKiroOpen]=useState(false);
+  const [kiroQuestion,setKiroQuestion]=useState("");
+  const [kiroReply,setKiroReply]=useState<{answer:string;actionLabel:string|null;actionHref:string|null}|null>(null);
   const [savingCourse,startSavingCourse]=useTransition();
+  const [askingKiro,startAskingKiro]=useTransition();
 
   useEffect(()=>{
     const handler=(event:Event)=>{
@@ -146,6 +150,20 @@ export function TrainingDashboardOverview({
       } catch {
         setSaved(previous);
       }
+    });
+  }
+
+  function askKiro(questionOverride?:string) {
+    const question=(questionOverride ?? kiroQuestion).trim();
+    if(question.length<2)return;
+    setKiroQuestion(question);
+    startAskingKiro(async()=>{
+      const result=await askTrainingKiroAction({question});
+      setKiroReply({
+        answer: result.answer,
+        actionLabel: result.actionLabel,
+        actionHref: result.actionHref,
+      });
     });
   }
 
@@ -297,12 +315,31 @@ export function TrainingDashboardOverview({
 
       {kiroOpen?<div className="training-kiro-dialog-backdrop" onMouseDown={(event)=>{if(event.target===event.currentTarget)setKiroOpen(false);}}>
         <section className="training-kiro-dialog" role="dialog" aria-modal="true" aria-labelledby="training-kiro-dialog-title">
-          <header><div><KiroMascot state="training" className="training-kiro-dialog-mascot"/><div><strong id="training-kiro-dialog-title">Ask Kiro</strong><span>Your VAPH training coach</span></div></div><button type="button" onClick={()=>setKiroOpen(false)} aria-label="Close Kiro"><X size={18}/></button></header>
+          <header><div><KiroMascot state="training" className="training-kiro-dialog-mascot"/><div><strong id="training-kiro-dialog-title">Ask Kiro</strong><span>Grounded in your VAPH training data</span></div></div><button type="button" onClick={()=>setKiroOpen(false)} aria-label="Close Kiro"><X size={18}/></button></header>
           <div className="training-kiro-dialog-body">
-            <div><span><Sparkles size={13}/> Your next move</span><h3>{current?current.title:recommended?.title||"Choose your next course"}</h3><p>{current?("You’re "+current.progressPercent+"% complete. Continue the next lesson before opening another course."):recommended?("Kiro recommends "+recommended.title+" as your next course."):"Browse the course library and choose one skill you want to improve."}</p></div>
-            <div><strong>How Kiro helps</strong><p>Kiro can explain your current learning status, point you to your next lesson, recommend a course, and clarify how certificates work.</p></div>
+            <div className="training-kiro-context-card"><span><Sparkles size={13}/> Your next move</span><h3>{current?current.title:recommended?.title||"Choose your next course"}</h3><p>{current?("You’re "+current.progressPercent+"% complete. Continue the next lesson before opening another course."):recommended?("Kiro recommends "+recommended.title+" as your next course."):"Browse the course library and choose one skill you want to improve."}</p></div>
+
+            <div className="training-kiro-quick-prompts">
+              <button type="button" onClick={()=>askKiro("What should I learn next?")}>What should I learn next?</button>
+              <button type="button" onClick={()=>askKiro("How is my progress?")}>How is my progress?</button>
+              <button type="button" onClick={()=>askKiro("What certificates do I have?")}>My certificates</button>
+            </div>
+
+            <form className="training-kiro-question" onSubmit={(event)=>{event.preventDefault();askKiro();}}>
+              <label htmlFor="kiro-training-question">Ask about your courses, progress, certificates, or learning path.</label>
+              <div>
+                <input id="kiro-training-question" value={kiroQuestion} onChange={(event)=>setKiroQuestion(event.target.value)} placeholder="e.g. What should I continue today?" maxLength={600}/>
+                <button type="submit" disabled={askingKiro||kiroQuestion.trim().length<2}>{askingKiro?"Thinking…":"Ask"}</button>
+              </div>
+            </form>
+
+            {kiroReply?<div className="training-kiro-reply" aria-live="polite">
+              <span><Sparkles size={13}/> Kiro</span>
+              <p>{kiroReply.answer}</p>
+              {kiroReply.actionHref&&kiroReply.actionLabel?<Link className="btn btn-primary" href={kiroReply.actionHref}>{kiroReply.actionLabel}<ArrowRight size={14}/></Link>:null}
+            </div>:null}
           </div>
-          <footer>{current?<Link className="btn btn-primary" href={current.nextHref}>{current.nextLabel} <ArrowRight size={14}/></Link>:recommended?<Link className="btn btn-primary" href={recommended.nextHref}>Start recommended course <ArrowRight size={14}/></Link>:null}</footer>
+          <footer><small>Kiro uses your live VAPH training progress. Training remains separate from hiring eligibility.</small></footer>
         </section>
       </div>:null}
     </div>

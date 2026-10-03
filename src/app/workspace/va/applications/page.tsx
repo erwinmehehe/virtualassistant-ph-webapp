@@ -51,6 +51,9 @@ export default async function VaApplicationsPage({
           <CheckCircle2 size={17} /> Application submitted. The job poster has been notified and your application is now in recruiter review.
         </div>
       ) : null}
+      {params.applied === "already" ? (
+        <div className="alert" role="status">You already applied to this role. You can track it below.</div>
+      ) : null}
       {params.interest === "1" ? (
         <div className="success-banner" role="status">
           <CheckCircle2 size={17} /> Application submitted. Your application is now in recruiter review.

@@ -7,6 +7,10 @@ const css = readFileSync("src/app/jobs/jobs-marketplace.css", "utf8");
 const postJobPage = readFileSync("src/app/workspace/client/jobs/new/page.tsx", "utf8");
 const jobSearchGuides = readFileSync("src/lib/blog-job-search-guides.ts", "utf8");
 const postJobPublicPage = readFileSync("src/app/post-a-job/page.tsx", "utf8");
+const publicJobDetail = readFileSync("src/app/jobs/[id]/page.tsx", "utf8");
+const clientDashboard = readFileSync("src/app/workspace/client/page.tsx", "utf8");
+const clientJobs = readFileSync("src/app/workspace/client/jobs/page.tsx", "utf8");
+const appNav = readFileSync("src/components/app-nav-links.tsx", "utf8");
 const jobWizard = readFileSync("src/components/job-wizard.tsx", "utf8");
 const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
@@ -101,10 +105,10 @@ test("job draft suggestions only emit matcher-supported VAPH categories", () => 
 
 
 test("public jobs and navigation respect signed-in VA and client roles", () => {
-  assert.match(jobsPage, /getSessionProfile/);
-  assert.match(jobsPage, /const isVa = profile\?\.role === "va"/);
-  assert.match(jobsPage, /const isClient = profile\?\.role === "client"/);
-  assert.match(jobsPage, /isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(page, /getSessionProfile/);
+  assert.match(page, /const isVa = profile\?\.role === "va"/);
+  assert.match(page, /const isClient = profile\?\.role === "client"/);
+  assert.match(page, /isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
   assert.match(siteNav, /export async function SiteNav/);
   assert.match(siteNav, /user \? \([\s\S]*My workspace/);
   assert.match(siteNav, /profile\?\.role === "client"[\s\S]*\/workspace\/client\/jobs\/new/);
@@ -112,17 +116,18 @@ test("public jobs and navigation respect signed-in VA and client roles", () => {
 });
 
 test("post-a-job skips the login handoff for an already signed-in client", () => {
-  assert.match(postAJob, /getSessionProfile/);
-  assert.match(postAJob, /profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
-  assert.match(postAJob, /user \? <>[\s\S]*You’re already signed in/);
+  assert.match(postJobPublicPage, /getSessionProfile/);
+  assert.match(postJobPublicPage, /profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
+  assert.match(postJobPublicPage, /const isVa = profile\?\.role === "va"/);
+  assert.match(postJobPublicPage, /You’re signed in as a Virtual Assistant/);
 });
 
 
 test("job posting and application CTAs respect the signed-in account", () => {
-  assert.match(jobsPage, /const isVa = profile\?\.role === "va"/);
-  assert.match(jobsPage, /const isClient = profile\?\.role === "client"/);
-  assert.match(jobsPage, /isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
-  assert.match(jobsPage, /isVa \? <Link className="btn btn-lg" href="\/workspace\/va\/applications">My applications/);
+  assert.match(page, /const isVa = profile\?\.role === "va"/);
+  assert.match(page, /const isClient = profile\?\.role === "client"/);
+  assert.match(page, /isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(page, /isVa \? <Link className="btn btn-lg" href="\/workspace\/va\/applications">My applications/);
   assert.match(postJobPage, /profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
   assert.match(postJobPage, /if \(user\) redirect\(profile\?\.role === "va" \? "\/workspace\/va" : "\/workspace"\)/);
   assert.match(publicJobDetail, /profile\?\.role === "va"/);
@@ -135,8 +140,8 @@ test("job posting and application CTAs respect the signed-in account", () => {
 
 
 test("job marketplace CTAs are role-aware for logged-out VAs and signed-in clients", () => {
-  assert.match(jobsPage, /const employerPostHref = isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
-  assert.match(jobsPage, /isVa \? <Link className="btn btn-lg" href="\/workspace\/va\/applications">My applications<\/Link> : !user \? <Link className="btn btn-lg" href="\/auth\/join\/va">Create free VA profile<\/Link> : null/);
+  assert.match(page, /const employerPostHref = isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(page, /isVa \? <Link className="btn btn-lg" href="\/workspace\/va\/applications">My applications<\/Link> : !user \? <Link className="btn btn-lg" href="\/auth\/join\/va">Create free VA profile<\/Link> : null/);
   assert.match(publicJobDetail, /profile\?\.role === "client"/);
   assert.match(publicJobDetail, /You’re signed in as a client/);
   assert.match(publicJobDetail, /Create VA profile/);
@@ -144,4 +149,22 @@ test("job marketplace CTAs are role-aware for logged-out VAs and signed-in clien
   assert.match(publicJobDetail, /Apply for this job/);
   assert.match(postJobPage, /if \(profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
   assert.match(postJobPage, /if \(user\) redirect\(profile\?\.role === "va" \? "\/workspace\/va" : "\/workspace"\)/);
+});
+
+
+test("client workspace always exposes direct job creation without another login", () => {
+  assert.match(clientDashboard, /href="\/workspace\/client\/jobs\/new"/);
+  assert.match(clientDashboard, /> Post a job<\/Link>/);
+  assert.match(clientJobs, /href="\/workspace\/client\/jobs\/new">Post a job<\/Link>/);
+  assert.match(clientJobs, /Post your first job/);
+  assert.match(appNav, /\["Jobs", "\/workspace\/client\/jobs", BriefcaseBusiness\]/);
+});
+
+test("logged-out and signed-in job journeys do not cross auth roles", () => {
+  assert.match(publicJobDetail, /auth\/join\/va\?next=\$\{encodeURIComponent\(canonicalHref\)\}/);
+  assert.match(publicJobDetail, /auth\/login\?next=\$\{encodeURIComponent\(canonicalHref\)\}/);
+  assert.match(publicJobDetail, /profile\?\.role === "client"/);
+  assert.match(publicJobDetail, /Go to client workspace/);
+  assert.match(postJobPublicPage, /if \(isClient\) redirect\("\/workspace\/client\/jobs\/new"\)/);
+  assert.match(postJobPublicPage, /isVa \? <div className="post-job-role-guard">/);
 });

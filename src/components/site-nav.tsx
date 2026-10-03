@@ -187,8 +187,7 @@ export async function SiteNav({
             </div>
           </details>
 
-          <Link href="/how-vetting-works">How it works</Link>
-          <Link href="/pricing">Pricing</Link>
+          <Link href="/software">Software</Link>
           <Link href="/training">Training</Link>
           <Link href="/for-virtual-assistants">For VAs</Link>
         </nav>
@@ -241,8 +240,7 @@ export async function SiteNav({
               <Link href="/find-talent">Find a VA</Link>
               <Link href="/services">Services</Link>
               <Link href="/industries">Industries</Link>
-              <Link href="/how-vetting-works">How it works</Link>
-              <Link href="/pricing">Pricing</Link>
+              <Link href="/software">Software</Link>
               <span className="va-mobile-panel-label">Virtual Assistants</span>
               <Link href="/training">Free VA Training</Link>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>

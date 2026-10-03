@@ -11,12 +11,12 @@ const jobWizard = readFileSync("src/components/job-wizard.tsx", "utf8");
 const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
 
-test("jobs page targets the Philippines VA jobs keyword cluster", () => {
+test("jobs page targets live Philippines VA job intent without keyword stuffing", () => {
   assert.match(page, /Virtual Assistant Jobs Philippines \| Free VA Job Website/);
-  assert.match(page, /free virtual assistant job websites philippines/);
-  assert.match(page, /virtual assistant job philippines/);
-  assert.match(page, /philippines virtual assistant jobs/);
   assert.match(page, /<h1>Virtual Assistant Jobs Philippines<\/h1>/);
+  assert.match(page, /remote VA roles with pay, weekly hours, and timezone expectations shown upfront/i);
+  assert.match(page, /\/blog\/free-virtual-assistant-job-websites-philippines/);
+  assert.doesNotMatch(page, /keywords:\s*\[/);
 });
 
 test("jobs page makes job posting a prominent employer conversion path", () => {
@@ -28,7 +28,7 @@ test("jobs page makes job posting a prominent employer conversion path", () => {
   assert.match(postJobPage, /Post a Virtual Assistant job/);
   assert.doesNotMatch(postJobPage, /Start a hiring request/);
   assert.match(css, /\.jobs-employer-card/);
-  assert.match(css, /\.jobs-employer-cta/);
+  assert.match(css, /\.jobs-bottom-cta/);
 });
 
 test("jobs collection exposes crawlable structured data", () => {
@@ -53,7 +53,7 @@ test("jobs hub and comparison guide reinforce separate search intents", () => {
 
 
 test("employers can draft and preview a job before account creation", () => {
-  assert.match(postJobPublicPage, /Build the role before creating an account/);
+  assert.match(postJobPublicPage, /Create the job first/);
   assert.match(postJobPublicPage, /<JobWizard publicMode/);
   assert.match(jobWizard, /const steps = \["Describe the work", "Schedule & pay", "Preview & post"\]/);
   assert.match(jobWizard, /publicMode \? "Create free account to post"/);
@@ -61,7 +61,7 @@ test("employers can draft and preview a job before account creation", () => {
   assert.match(jobWizard, /job-post-preview/);
   assert.match(jobWizard, /const candidate = step === 0 \? \{ \.\.\.data, \.\.\.starterBriefValues\(data\) \} : data/);
   assert.match(jobWizard, /suggestJobDraft/);
-  assert.match(jobWizard, /Plain English is enough/);
+  assert.match(jobWizard, /Write the work in your own words/);
   assert.match(jobWizard, /starterBriefValues/);
   assert.match(jobWizard, /window\.location\.assign\("\/auth\/join\/client\?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew%3Ffrom_post%3D1"\)/);
   assert.doesNotMatch(jobWizard, /Choose your hiring support/);

@@ -4,86 +4,30 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("recruiters can request missing private addresses without changing VA stage", async () => {
+test("VA profile no longer collects or requires a private home address", async () => {
+  const [page, action, dashboard] = await Promise.all([
+    read("src/app/workspace/va/profile/page.tsx"),
+    read("src/app/actions/profile.ts"),
+    read("src/app/workspace/va/page.tsx"),
+  ]);
+
+  assert.doesNotMatch(page, /name="address"/);
+  assert.doesNotMatch(page, /Add your address/);
+  assert.doesNotMatch(action, /formData\.get\("address"\)/);
+  assert.doesNotMatch(action, /private_address_request/);
+  assert.doesNotMatch(dashboard, /title:"Add your address"/);
+});
+
+test("recruiters cannot request private home addresses from the talent workflow", async () => {
   const [action, talent, candidate] = await Promise.all([
     read("src/app/actions/recruiter.ts"),
     read("src/app/workspace/recruiter/talent/page.tsx"),
     read("src/app/workspace/recruiter/candidates/[id]/page.tsx"),
   ]);
 
-  assert.match(action, /"request_address"/);
-  assert.match(action, /type: "private_address_request"/);
-  assert.match(action, /has_private_address !== true/);
-  assert.match(action, /\.is\("done_at", null\)/);
-  assert.match(action, /private_address_requested/);
-  assert.doesNotMatch(
-    action.match(/else if \(action === "request_address"\)[\s\S]*?else if \(action === "hide"\)/)?.[0] || "",
-    /va_vetting[^\n]*update\(/
-  );
-
-  assert.match(talent, /<option value="request_address">Request address<\/option>/);
-  assert.match(candidate, /requestVaPrivateAddressAction/);
-  assert.match(candidate, /Request address/);
-  assert.match(candidate, /Ask the VA to confirm the current address rather than guessing/);
-});
-
-test("saving a private address resolves outstanding address requests without logging the address value", async () => {
-  const profile = await read("src/app/actions/profile.ts");
-
-  assert.match(profile, /eq\("type", "private_address_request"\)/);
-  assert.match(profile, /update\(\{ done_at: resolvedAt, read_at: resolvedAt, snoozed_until: null \}\)/);
-  assert.match(profile, /private_address_provided/);
-  assert.match(profile, /VA provided the requested home address/);
-
-  const activityBlock = profile.match(/action: "private_address_provided"[\s\S]{0,260}/)?.[0] || "";
-  assert.doesNotMatch(activityBlock, /address,/);
-  assert.doesNotMatch(activityBlock, /metadata/);
-});
-
-test("address requests point VAs directly to the private profile field", async () => {
-  const [action, dashboard, profilePage] = await Promise.all([
-    read("src/app/actions/recruiter.ts"),
-    read("src/app/workspace/va/page.tsx"),
-    read("src/app/workspace/va/profile/page.tsx"),
-  ]);
-
-  assert.match(action, /href: "\/workspace\/va\/profile#basics"/);
-  assert.match(dashboard, /title:"Add your address"/);
-  assert.match(dashboard, /href:"\/workspace\/va\/profile#basics"/);
-  assert.match(profilePage, /name="address"/);
-  assert.match(profilePage, /never shown on your public profile/);
-});
-
-
-test("VA dashboard summary includes private address requests in recruiter requests", async () => {
-  const migration = await read("supabase/migrations/20260929160000_va_dashboard_private_address_requests.sql");
-
-  assert.match(migration, /type in \('profile_update_request', 'private_address_request'\)/);
-  assert.match(migration, /revoke all on function public\.va_dashboard_summary\(uuid\) from anon/);
-  assert.match(migration, /revoke all on function public\.va_dashboard_summary\(uuid\) from authenticated/);
-  assert.match(migration, /grant execute on function public\.va_dashboard_summary\(uuid\) to service_role/);
-});
-
-
-test("recruiter profile health separates auth, profile completeness and address queues", async () => {
-  const talent = await read("src/app/workspace/recruiter/talent/page.tsx");
-  assert.match(talent, /Profile health/);
-  assert.match(talent, /Email unconfirmed/);
-  assert.match(talent, /Profile incomplete/);
-  assert.match(talent, /Address missing/);
-  assert.match(talent, /Resume address review/);
-  assert.match(talent, /registration_health", "profile_incomplete"/);
-  assert.match(talent, /has_private_address", false/);
-  assert.match(talent, /Never public/);
-});
-
-
-test("profile health includes a distinct missing-resume client-readiness queue", async () => {
-  const talent = await read("src/app/workspace/recruiter/talent/page.tsx");
-  assert.match(talent, /key: "missing_resume"/);
-  assert.match(talent, /has_resume", false/);
-  assert.match(talent, /Missing resume/);
-  assert.match(talent, /Client-readiness blocker/);
-  assert.match(talent, /\["profile_incomplete", Number\(profileIncompleteCount \|\| 0\)\]/);
-  assert.match(talent, /\["missing_resume", Number\(missingResumeCount \|\| 0\)\]/);
+  assert.doesNotMatch(action, /"request_address"/);
+  assert.doesNotMatch(action, /private_address_request/);
+  assert.doesNotMatch(talent, /Request address/);
+  assert.doesNotMatch(candidate, /requestVaPrivateAddressAction/);
+  assert.doesNotMatch(candidate, /Request address/);
 });

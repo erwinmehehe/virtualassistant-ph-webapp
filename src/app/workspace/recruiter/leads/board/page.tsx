@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 import Link from "next/link";
 import { Flame, LayoutDashboard, Snowflake, ThermometerSun } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
@@ -29,7 +31,7 @@ type LeadRow = {
 
 const BOARD_STAGES: PipelineStage[] = ["new","contacted","discovery_booked","qualified","terms_sent","nurture","won"];
 
-export default async function RecruiterLeadBoardPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
+async function LegacyRecruiterLeadBoardPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
@@ -99,3 +101,18 @@ export default async function RecruiterLeadBoardPage({ searchParams }: { searchP
     <RecruiterLeadKanban initialLeads={leads}/>
   </div>;
 }
+
+
+export default async function RecruiterLeadBoardRedirect({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const params = await searchParams;
+  const legacyQuery = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) if (value) legacyQuery.set(key, value);
+  const legacyHref = `/workspace/recruiter/leads/board${legacyQuery.size ? `?${legacyQuery.toString()}` : ""}`;
+  redirect(canonicalRecruiterHref(legacyHref, "/workspace/recruiter/crm?mode=board") || "/workspace/recruiter/crm?mode=board");
+}
+
+void LegacyRecruiterLeadBoardPage;

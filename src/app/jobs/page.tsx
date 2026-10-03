@@ -20,7 +20,7 @@ import { socialMetadata } from "@/lib/og";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
-  title: "Post Virtual Assistant Jobs Philippines | Hire Filipino VAs",
+  title: { absolute: "Post Virtual Assistant Jobs Philippines | Hire Filipino VAs" },
   description:
     "Post a Virtual Assistant job in the Philippines and reach vetted Filipino VAs. Set the work, hours, timezone, and pay before submitting your role.",
   alternates: { canonical: canonicalPath("/jobs") },

@@ -216,6 +216,48 @@ export default async function PublicJobsPage({
           </div>
         </section>
 
+        <section className="jobs-application-toolkit" aria-label="Virtual Assistant application guides">
+          <div className="container">
+            <div className="jobs-application-toolkit-head">
+              <div>
+                <span className="kicker">Before you apply</span>
+                <h2>Make the application easy to evaluate.</h2>
+                <p>Keep your profile, resume, work samples, intro video, and proposal focused on the same type of VA work.</p>
+              </div>
+              <Link href="/blog/how-to-apply-as-a-virtual-assistant">
+                Full application guide <ArrowRight size={14}/>
+              </Link>
+            </div>
+            <div className="jobs-application-toolkit-grid">
+              <Link href="/blog/how-to-create-the-best-va-profile">
+                <span>Profile</span>
+                <strong>Show your role clearly</strong>
+                <small>Specialty, evidence, tools, availability.</small>
+              </Link>
+              <Link href="/blog/virtual-assistant-resume-sample">
+                <span>Resume</span>
+                <strong>Prioritize relevant work</strong>
+                <small>Responsibilities, tools, and truthful results.</small>
+              </Link>
+              <Link href="/blog/virtual-assistant-portfolio-examples">
+                <span>Portfolio</span>
+                <strong>Prove the work</strong>
+                <small>Use role-specific, privacy-safe samples.</small>
+              </Link>
+              <Link href="/blog/virtual-assistant-introduction-video">
+                <span>Video</span>
+                <strong>Prepare a one-minute intro</strong>
+                <small>Use it when the application requests video.</small>
+              </Link>
+              <Link href="/blog/virtual-assistant-proposal-sample">
+                <span>Proposal</span>
+                <strong>Answer this job directly</strong>
+                <small>Need, proof, plan, availability, question.</small>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <section className="section jobs-directory" id="open-jobs">
           <div className="container">
             <div className="jobs-directory-intro">

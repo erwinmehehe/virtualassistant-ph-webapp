@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ShieldCheck, Sparkles, UsersRound } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
-import { hideShortlistCandidateAction, prepareTopMatchesForReviewAction, saveJobShortlistAction } from "@/app/actions/matching";
+import { createCandidateAccessInvoiceAction, hideShortlistCandidateAction, prepareTopMatchesForReviewAction, saveJobShortlistAction } from "@/app/actions/matching";
 import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
@@ -19,7 +19,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     admin.from("job_shortlist_candidates").select("va_id,match_score,match_confidence,shortlist_status,shortlist_order,client_recommendation,client_decision,client_decision_note,client_decision_at,released_at,created_by").eq("job_id",job.id).order("shortlist_order",{ascending:true,nullsFirst:false}),
     admin.from("applications").select("id,va_id,status,cover_note,match_score,applied_at").eq("job_id",job.id).not("status","in",'(withdrawn,rejected)'),
     admin.from("job_commercials").select("commercial_status,placement_fee,managed_markup_percent,service_model").eq("job_id",job.id).maybeSingle(),
-    admin.from("job_candidate_access").select("access_status").eq("job_id",job.id).maybeSingle()
+    admin.from("job_candidate_access").select("access_status,access_fee,payment_reference").eq("job_id",job.id).maybeSingle()
   ]);
 
   const ids=[...new Set((vettingRows||[]).map((row:any)=>row.va_id))];
@@ -99,6 +99,8 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     <div className="matching-summary-grid"><div className="matching-summary-card"><span>Match suggestions</span><strong>{suggestedCount}</strong><small>Automatic · not shortlisted</small></div><div className="matching-summary-card"><span>Recruiter shortlist</span><strong>{proposedCount}</strong><small>Selected internally</small></div><div className="matching-summary-card"><span>Sent to client</span><strong>{releasedCount}</strong><small>{awaitingClientCount?`${awaitingClientCount} waiting on feedback`:"No client decisions waiting"}</small></div><div className="matching-summary-card"><span>Role readiness</span><strong>{canSendClient?"Ready":"Internal only"}</strong><small>{canSendClient?"Terms + candidate access active":!candidateAccessReady&&job.client_id?"Candidate access must be activated":"Client + approved terms required"}</small></div></div>
 
     {!canSendClient&&job.client_id?<div className="info-banner"><strong>Keep this shortlist internal for now.</strong> {!candidateAccessReady?"Candidate access is not active yet. Confirm paid candidate access before sending the shortlist.":"The role must be published with client-approved service terms before anything can be marked as sent to the client."}</div>:!job.client_id?<div className="info-banner"><strong>Client account not linked yet.</strong> Build the internal shortlist, then invite the lead to claim the client workspace. Candidates stay recruiter-only until the account and service terms are active.</div>:null}
+
+    {viewerRole==="admin"&&job.client_id&&!candidateAccessReady?<section className="card" style={{margin:"14px 0"}}><div className="row-between wrap"><div><strong>Paid candidate access</strong><p className="small muted" style={{margin:"5px 0 0"}}>Client identity and candidate-review access stay locked until a VAPH invoice is settled. Existing invoice: {candidateAccess?.payment_reference||"none"}.</p></div><span className="badge badge-warning">{String(candidateAccess?.access_status||"locked").replaceAll("_"," ")}</span></div><form action={createCandidateAccessInvoiceAction} className="row wrap" style={{marginTop:12}}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><label className="field" style={{minWidth:220}}><span>Candidate access fee, USD</span><input type="number" min="0.01" max="100000" step="0.01" name="access_fee" required defaultValue={candidateAccess?.access_fee??""}/></label><button className="btn btn-primary" type="submit">Create candidate access invoice</button></form></section>:null}
 
     {pool.length?<form action={saveJobShortlistAction} className="staff-match-form"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><div className="row-between wrap shortlist-controls"><div><strong>Reviewed candidates</strong><div className="small muted">Select only the VAs you want in this shortlist. Automatic match suggestions stay unselected until you choose them. Client notes are saved with the shortlist and internal match percentages never appear to the client.</div></div></div><MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction} canSendClient={canSendClient} canInviteClient={canInviteClient}/></form>:<div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
   </section>;

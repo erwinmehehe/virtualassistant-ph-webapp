@@ -41,7 +41,7 @@ test("jobs page states applicant fees precisely", () => {
 test("jobs hub and comparison guide reinforce separate search intents", () => {
   assert.match(page, /\/blog\/free-virtual-assistant-job-websites-philippines/);
   assert.match(keywordGuides, /"slug": "free-virtual-assistant-job-websites-philippines"/);
-  assert.match(keywordGuides, /Free Virtual Assistant Job Websites Philippines \(2026\)/);
+  assert.match(keywordGuides, /Free Virtual Assistant Job Websites Philippines \| 2026 Guide/);
   assert.match(keywordGuides, /"href": "\/jobs"/);
   assert.match(keywordGuides, /"href": "\/auth\/join\/client\?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew"/);
 });

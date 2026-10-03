@@ -666,8 +666,12 @@ export async function respondPlacementOfferAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("va_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_va") throw new Error("This offer is no longer waiting for your response.");
+  const offerJob = Array.isArray(offer.jobs) ? offer.jobs[0] : offer.jobs;
+  const offerTimeZone = isValidTimeZone(offer.timezone) ? String(offer.timezone) : isValidTimeZone(offerJob?.timezone) ? String(offerJob?.timezone) : "UTC";
+  const todayForOffer = new Intl.DateTimeFormat("en-CA", { timeZone: offerTimeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (offer.start_date && String(offer.start_date) < todayForOffer) throw new Error("This offer start date has passed. Ask the recruiter to update the final terms.");
   const now = new Date().toISOString();
-  const jobTitle = Array.isArray(offer.jobs) ? offer.jobs[0]?.title : offer.jobs?.title;
+  const jobTitle = offerJob?.title;
   const offerTitle = jobTitle || "role";
   await resolveOpenNotifications(admin, {
     userId: user.id,

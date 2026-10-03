@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
+import { BriefcaseBusiness, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { JobWizard } from "@/components/job-wizard";
@@ -32,21 +32,20 @@ export default function PostAJobPage() {
         <section className="post-job-hero">
           <div className="container post-job-hero-grid">
             <div className="post-job-copy">
-              <span className="post-job-kicker"><Sparkles size={15}/> Post a VA job</span>
-              <h1>Tell us what you need. We’ll shape the job posting.</h1>
+              <span className="post-job-kicker"><BriefcaseBusiness size={15}/> Post a VA job</span>
+              <h1>Describe the role. Review the posting before you sign up.</h1>
               <p>
-                Start with the work, hours, timezone, and budget. You do not need an account until you have seen
-                your job preview.
+                Add the work, hours, timezone, and budget first. Your account comes later, after you review the job exactly as applicants will see it.
               </p>
               <div className="post-job-proof">
-                <span><CheckCircle2 size={16}/> Start without signing up</span>
-                <span><CheckCircle2 size={16}/> Draft saves on this device</span>
+                <span><CheckCircle2 size={16}/> No signup to start</span>
+                <span><CheckCircle2 size={16}/> Draft saved on this device</span>
                 <span><ShieldCheck size={16}/> Contact details stay private</span>
               </div>
             </div>
             <aside className="post-job-side-note">
               <span>Already have a client account?</span>
-              <strong>Skip signup and continue in your workspace.</strong>
+              <strong>Open your workspace and post from there.</strong>
               <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
             </aside>
           </div>
@@ -57,9 +56,9 @@ export default function PostAJobPage() {
             <div className="post-job-builder-head">
               <div>
                 <span className="kicker">Your job draft</span>
-                <h2>Build the role before creating an account</h2>
+                <h2>Create the job first</h2>
               </div>
-              <p>Most employers only need the three steps below. Extra details stay optional.</p>
+              <p>Three short steps. Add more detail only when it matters.</p>
             </div>
             <div className="post-job-wizard-shell">
               <JobWizard publicMode />
@@ -67,8 +66,7 @@ export default function PostAJobPage() {
             <div className="post-job-after">
               <strong>What happens after the preview?</strong>
               <p>
-                Create or sign in to your client account, attach this saved draft, and submit the final role.
-                If recruiter review or commercial terms are required, those happen after the job exists, not before.
+                Create or sign in to your client account, confirm the saved draft, and submit it. If the role needs recruiter review or commercial approval, you will see that clearly after submission.
               </p>
             </div>
           </div>

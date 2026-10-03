@@ -65,13 +65,14 @@ test("every direct approved-stage write in server actions has the centralized 80
     }
   }
 
-  assert.ok(writes >= 3, "Expected the known recruiter/admin/final-review approval writes.");
+  assert.ok(writes >= 2, "Expected the recruiter and final-review approval writes.");
   assert.deepEqual(violations, [], "Every approval write must use the centralized approval guard.");
 });
 
-test("admin and finalist approval paths use the centralized eligibility policy", async () => {
-  const [admin, vetting, visibility] = await Promise.all([
+test("remaining approval paths use the centralized eligibility policy and admin has no bulk bypass", async () => {
+  const [admin, recruiter, vetting, visibility] = await Promise.all([
     read("src/app/actions/admin.ts"),
+    read("src/app/actions/recruiter.ts"),
     read("src/app/actions/vetting.ts"),
     read("src/lib/public-visibility.ts")
   ]);
@@ -79,8 +80,10 @@ test("admin and finalist approval paths use the centralized eligibility policy",
   assert.match(visibility, /isApprovalCompletionEligible/);
   assert.match(visibility, /approvalEligibility/);
   assert.match(visibility, /assertApprovalCompletion/);
-  assert.match(admin, /filter\(isRowApprovable\)/);
+  assert.match(recruiter, /rows\.filter\(isRowApprovable\)/);
   assert.match(vetting, /assertApprovalCompletion\(completion\)/);
+  assert.doesNotMatch(admin, /bulkApproveExperiencedVAsAction/);
+  assert.doesNotMatch(admin, /Bulk-approved: 2\+ years experience/);
 });
 
 test("completion is enforced when approving, not re-applied as a hidden matching gate", async () => {

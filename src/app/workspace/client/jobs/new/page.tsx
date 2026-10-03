@@ -45,8 +45,8 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
     <div className="client-role-editor-intro">
       <div>
         <a className="text-link small" href="/workspace/client/jobs">← Hiring requests</a>
-        <div className="kicker" style={{marginTop:10}}>{fromPublicDraft ? "Final review" : "New hiring request"}</div>
-        <h1>{fromPublicDraft ? "Review your job before posting" : "Tell us who you need"}</h1>
+        <div className="kicker" style={{marginTop:10}}>{fromPublicDraft ? "Final review" : "Post a Virtual Assistant job"}</div>
+        <h1>{fromPublicDraft ? "Review and post your job" : "Tell us who you need"}</h1>
         <p>{fromPublicDraft
           ? "Check the role, schedule and budget below. You can edit anything before you submit."
           : company?.can_self_publish_jobs

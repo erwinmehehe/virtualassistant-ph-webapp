@@ -312,6 +312,11 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         "label": "Free Virtual Assistant training",
         "href": "/training",
         "description": "Build practical VA skills with free training and certificates."
+      },
+      {
+        "label": "Post a Virtual Assistant job",
+        "href": "/post-a-job",
+        "description": "Employers can create and preview a clear VA job before creating an account."
       }
     ]
   }

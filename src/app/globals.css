@@ -2900,3 +2900,31 @@ main#main-content.section > .container > .page-head.public-page-head p { max-wid
     display: none;
   }
 }
+
+
+/* v4.12 simplified employer job composer */
+.wizard-primary-brief { min-height: 170px !important; font-size: 16px; line-height: 1.6; }
+.wizard-optional { border: 1px solid #e4e7ec; border-radius: 13px; background: #f9fafb; overflow: hidden; }
+.wizard-optional > summary { cursor: pointer; padding: 13px 14px; color: #344054; font-size: 13px; font-weight: 750; list-style: none; }
+.wizard-optional > summary::-webkit-details-marker { display: none; }
+.wizard-optional > summary:after { content: "+"; float: right; color: #667085; font-size: 17px; line-height: 1; }
+.wizard-optional[open] > summary:after { content: "−"; }
+.wizard-optional-grid { padding: 0 14px 14px; }
+.job-post-preview { border: 1px solid #c7d7fe; border-radius: 17px; background: linear-gradient(145deg,#f8faff 0%,#fff 62%); padding: 20px; display: grid; gap: 16px; }
+.job-post-preview-head { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: start; }
+.job-post-preview-head span { display: block; color: #667085; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+.job-post-preview-head h3 { margin: 0; font-size: 22px; letter-spacing: -.03em; }
+.job-post-preview-head p { margin: 4px 0 0; color: #667085; font-size: 13px; }
+.job-post-preview-rate { white-space: nowrap; color: #101828; font-size: 17px; }
+.job-post-preview-summary { margin: 0; color: #344054; line-height: 1.65; }
+.job-post-preview-responsibilities { padding-top: 14px; border-top: 1px solid #e4e7ec; }
+.job-post-preview-responsibilities > span { display: block; margin-bottom: 8px; color: #344054; font-size: 12px; font-weight: 800; }
+.job-post-preview-responsibilities ul { margin: 0; padding-left: 20px; color: #475467; display: grid; gap: 5px; }
+.review-edit-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: flex-end; }
+@media (max-width: 680px) {
+  .wizard-primary-brief { min-height: 150px !important; }
+  .job-post-preview { padding: 16px; }
+  .job-post-preview-head { grid-template-columns: auto minmax(0,1fr); }
+  .job-post-preview-rate { grid-column: 2; }
+  .review-edit-row { justify-content: flex-start; }
+}

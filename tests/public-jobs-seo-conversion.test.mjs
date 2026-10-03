@@ -38,6 +38,14 @@ test("jobs collection exposes crawlable structured data", () => {
   assert.match(page, /jobPublicHref\(job\)/);
 });
 
+test("public marketplace never exposes jobs below the product rate floor", () => {
+  const detail = readFileSync("src/app/jobs/[id]/page.tsx", "utf8");
+  assert.match(page, /MIN_HOURLY_RATE/);
+  assert.match(page, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
+  assert.match(detail, /MIN_HOURLY_RATE/);
+  assert.match(detail, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
+});
+
 test("jobs page states employer fee handling precisely", () => {
   assert.match(page, /Employer recruiting, candidate-access, placement, or managed-service fees depend on the hiring model/);
   assert.match(page, /commercial terms are confirmed separately from VA compensation/);

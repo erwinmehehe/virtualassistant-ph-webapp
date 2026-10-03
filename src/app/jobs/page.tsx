@@ -12,7 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { JobCard } from "@/components/job-card";
 import { createClient } from "@/lib/supabase/server";
-import { VA_CATEGORIES } from "@/lib/constants";
+import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { jobPublicHref } from "@/lib/public-routing";
@@ -96,7 +96,8 @@ export default async function PublicJobsPage({
       .select(
         "id,slug,title,company_name,summary,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,engagement_length,published_at,company_logo_url,company_industry,company_location,company_verified_at,company_hires_count",
         { count: "exact" },
-      );
+      )
+      .gte("min_hourly_rate", MIN_HOURLY_RATE);
 
     if (q) query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%`);
     if (category) query = query.contains("categories", [category]);

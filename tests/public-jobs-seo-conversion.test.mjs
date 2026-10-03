@@ -99,3 +99,12 @@ test("job draft suggestions only emit matcher-supported VAPH categories", () => 
     assert.match(jobDraftSuggestions, new RegExp(`category: "${category.replace(/[&]/g, "\\&")}"`));
   }
 });
+
+
+test("public marketplace never exposes jobs below the product rate floor", () => {
+  const detail = readFileSync("src/app/jobs/[id]/page.tsx", "utf8");
+  assert.match(page, /MIN_HOURLY_RATE/);
+  assert.match(page, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
+  assert.match(detail, /MIN_HOURLY_RATE/);
+  assert.match(detail, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
+});

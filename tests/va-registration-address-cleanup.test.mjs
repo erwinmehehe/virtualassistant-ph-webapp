@@ -16,7 +16,7 @@ test("registration health stays recruiter-only and exposes reasons without raw a
   assert.doesNotMatch(migration, /au\.email\s+as/);
 });
 
-test("Talent exposes exact zero-percent and address rescue queues with bulk-safe filters", async () => {
+test("Talent keeps registration rescue queues without private-address workflow", async () => {
   const [page, filters, recruiterTalent, recruiter] = await Promise.all([
     read("src/app/workspace/recruiter/talent/page.tsx"),
     read("src/lib/recruiter-talent-filters.ts"),
@@ -26,23 +26,21 @@ test("Talent exposes exact zero-percent and address rescue queues with bulk-safe
 
   assert.match(page, /0% \/ not started/);
   assert.match(page, /Email unconfirmed/);
-  assert.match(page, /Missing address/);
-  assert.match(page, /Resume address review/);
+  assert.match(page, /Missing resume/);
   assert.match(page, /recruiter_va_directory_health/);
   assert.match(page, /registration_health/);
-  assert.match(page, /address_resume_status/);
   assert.match(page, /Never started profile/);
   assert.match(page, /Signed in but setup was never started/);
+  assert.doesNotMatch(page, /Missing address/);
+  assert.doesNotMatch(page, /Resume address review/);
+  assert.doesNotMatch(page, /filter_address/);
   assert.match(filters, /registration\?: string/);
-  assert.match(filters, /address\?: string/);
+  assert.doesNotMatch(filters, /address\?: string/);
   assert.match(filters, /registration_health/);
-  assert.match(filters, /has_private_address/);
   assert.match(recruiterTalent, /filter_registration/);
-  assert.match(recruiterTalent, /filter_address/);
-  assert.match(recruiterTalent, /recruiter_va_directory_health/);
+  assert.doesNotMatch(recruiterTalent, /filter_address/);
   assert.match(recruiter, /filter_registration/);
-  assert.match(recruiter, /filter_address/);
-  assert.match(recruiter, /recruiter_va_directory_health/);
+  assert.doesNotMatch(recruiter, /filter_address/);
 });
 
 test("maintenance no longer mines resumes for home addresses", async () => {

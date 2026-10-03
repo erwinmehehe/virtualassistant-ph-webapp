@@ -114,14 +114,14 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   const { user } = await requireRole("va");
   const address = String(formData.get("address") || "").replace(/\s+/g, " ").trim();
 
-  if (address.length < 5 || address.length > 200) {
-    return onboardingError(user.id, 3, "address", "Enter your current home address.");
+  if (address && (address.length < 5 || address.length > 200)) {
+    return onboardingError(user.id, 3, "address", "Enter at least 5 characters or leave the optional address blank.");
   }
 
   const admin = createAdminClient();
   const { data: updatedProfile, error: profileError } = await admin
     .from("va_profiles")
-    .update({ address })
+    .update({ address: address || null })
     .eq("user_id", user.id)
     .select("user_id,primary_category,headline,years_experience,weekly_hours,hourly_rate,address")
     .maybeSingle();

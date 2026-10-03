@@ -231,7 +231,6 @@ export async function verifyPaymongoWebhookSignature(
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-const FALLBACK_USD_PHP_RATE = 58;
 const RATE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 export async function usdToPhp(amountUsd: number): Promise<{ amountPhp: number; rate: number }> {
@@ -250,29 +249,37 @@ export async function usdToPhp(amountUsd: number): Promise<{ amountPhp: number; 
     : 0;
   const isStale = Date.now() - cachedAt > RATE_STALE_AFTER_MS;
 
-  let rate = cachedRate ?? FALLBACK_USD_PHP_RATE;
-  if (isStale) {
+  let rate = cachedRate && Number.isFinite(cachedRate) && cachedRate > 0 && !isStale
+    ? cachedRate
+    : null;
+
+  if (!rate) {
     try {
       const res = await fetch("https://open.er-api.com/v6/latest/USD", {
         signal: AbortSignal.timeout(4_000),
         cache: "no-store",
       });
+      if (!res.ok) throw new Error(`FX provider returned ${res.status}`);
       const json = await res.json();
       const liveRate = Number(json?.rates?.PHP);
-      if (Number.isFinite(liveRate) && liveRate > 0) {
-        rate = liveRate;
-        await admin
-          .from("admin_settings")
-          .update({
-            usd_to_php_rate: liveRate,
-            usd_to_php_rate_updated_at: new Date().toISOString(),
-          })
-          .eq("id", 1);
-      }
-    } catch {
-      // Keep the latest cached rate. The hardcoded value is only a bootstrap
-      // fallback when no successful rate lookup has ever been stored.
+      if (!Number.isFinite(liveRate) || liveRate <= 0) throw new Error("FX provider returned an invalid USD/PHP rate.");
+      rate = liveRate;
+      await admin
+        .from("admin_settings")
+        .update({
+          usd_to_php_rate: liveRate,
+          usd_to_php_rate_updated_at: new Date().toISOString(),
+        })
+        .eq("id", 1);
+    } catch (error) {
+      console.error("[payments] fresh USD/PHP quote unavailable", {
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
+  }
+
+  if (!rate) {
+    throw new Error("A current USD/PHP exchange rate is unavailable. Checkout is temporarily paused so the client is not charged using a stale or guessed rate.");
   }
 
   return {

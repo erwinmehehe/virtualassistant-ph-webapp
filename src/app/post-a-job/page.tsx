@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { JobWizard } from "@/components/job-wizard";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
+import { getSessionProfile } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import "./post-a-job.css";
 
 export const metadata: Metadata = {
@@ -24,7 +26,10 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function PostAJobPage() {
+export default async function PostAJobPage() {
+  const { user, profile } = await getSessionProfile();
+  if (profile?.role === "client") redirect("/workspace/client/jobs/new");
+  if (user) redirect(profile?.role === "va" ? "/workspace/va" : "/workspace");
   return (
     <>
       <SiteHeader />

@@ -2847,16 +2847,16 @@
 .client-kiro-rendered-hero {
   position: relative;
   display: grid;
-  grid-template-columns: 178px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 26px;
   align-items: center;
-  min-height: 196px;
+  min-height: 226px;
   overflow: hidden;
-  padding: 18px 30px 18px 14px;
+  padding: 12px 32px 12px 14px;
   border: 1px solid #dce3fb;
   border-radius: 18px;
   background:
-    radial-gradient(circle at 10% 26%, rgba(111, 211, 255, .20), transparent 29%),
+    radial-gradient(circle at 12% 24%, rgba(111, 211, 255, .20), transparent 30%),
     radial-gradient(circle at 91% 16%, rgba(220, 203, 255, .24), transparent 30%),
     linear-gradient(135deg, #fff 0%, #fbfcff 52%, #f7f6ff 100%);
   box-shadow: 0 9px 28px rgba(15, 27, 107, .045);
@@ -2866,18 +2866,19 @@
   position: relative;
   z-index: 1;
   display: grid;
-  min-height: 160px;
+  min-height: 202px;
   place-items: end center;
+  align-self: stretch;
 }
 
 .client-kiro-rendered-image {
   display: block;
-  width: 160px;
-  height: 160px;
+  width: 220px;
+  height: 220px;
   max-width: 100%;
   object-fit: contain;
   object-position: center bottom;
-  filter: drop-shadow(0 12px 16px rgba(15, 27, 107, .12));
+  filter: drop-shadow(0 14px 18px rgba(15, 27, 107, .12));
 }
 
 .client-kiro-rendered-copy {
@@ -2923,26 +2924,43 @@
   padding-inline: 16px;
 }
 
+@media (max-width: 900px) {
+  .client-kiro-rendered-hero {
+    grid-template-columns: 188px minmax(0, 1fr);
+    gap: 20px;
+    min-height: 208px;
+    padding-right: 22px;
+  }
+
+  .client-kiro-rendered-art {
+    min-height: 184px;
+  }
+
+  .client-kiro-rendered-image {
+    width: 190px;
+    height: 190px;
+  }
+}
+
 @media (max-width: 680px) {
   .client-kiro-greeting h1 { font-size: 28px; }
   .client-kiro-greeting p { font-size: 12.5px; }
 
   .client-kiro-rendered-hero {
-    grid-template-columns: 108px minmax(0, 1fr);
-    gap: 10px;
-    min-height: 148px;
-    padding: 12px 12px 12px 7px;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 11px;
+    min-height: 154px;
+    padding: 10px 12px 10px 6px;
     border-radius: 15px;
   }
 
   .client-kiro-rendered-art {
-    min-height: 116px;
-    align-self: stretch;
+    min-height: 130px;
   }
 
   .client-kiro-rendered-image {
-    width: 116px;
-    height: 116px;
+    width: 124px;
+    height: 124px;
     max-width: none;
   }
 
@@ -2973,11 +2991,12 @@
 
 @media (max-width: 420px) {
   .client-kiro-rendered-hero {
-    grid-template-columns: 94px minmax(0, 1fr);
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 8px;
   }
 
   .client-kiro-rendered-image {
-    width: 100px;
-    height: 100px;
+    width: 108px;
+    height: 108px;
   }
 }

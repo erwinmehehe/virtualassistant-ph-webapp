@@ -13,10 +13,11 @@ export function Kiro({
     <Image
       src="/brand/kiro/kiro-default.webp"
       alt={alt}
-      width={160}
-      height={160}
+      width={1024}
+      height={1024}
       priority={priority}
-      unoptimized
+      quality={95}
+      sizes="(max-width: 420px) 108px, (max-width: 680px) 124px, (max-width: 900px) 190px, 220px"
       className={className}
     />
   );

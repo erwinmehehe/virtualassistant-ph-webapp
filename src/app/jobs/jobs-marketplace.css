@@ -739,3 +739,36 @@
     border-right: 0;
   }
 }
+
+
+.jobs-application-toolkit-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-top: 12px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.jobs-application-toolkit-foot > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.jobs-application-toolkit-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #444ce7;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .jobs-application-toolkit-foot {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -138,6 +138,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
   ],
 };
 
+/* Decision stages stay inside the hiring surfaces; the global nav keeps only durable destinations. */
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/messages", "/workspace/client/team"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/workroom"],

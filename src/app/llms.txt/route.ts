@@ -2,6 +2,16 @@ import { INDUSTRIES } from "@/lib/industries";
 import { PUBLIC_SEO_ROUTES } from "@/lib/public-seo-routes";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { softwarePages } from "@/lib/software-pages";
+import { BLOG_POSTS, blogHref } from "@/lib/blog";
+
+const CANDIDATE_GUIDE_SLUGS = [
+  "how-to-create-the-best-va-profile",
+  "virtual-assistant-resume-sample",
+  "virtual-assistant-portfolio-examples",
+  "virtual-assistant-introduction-video",
+  "virtual-assistant-proposal-sample",
+  "how-to-apply-as-a-virtual-assistant",
+] as const;
 
 const SECTION_ORDER = [
   "Hiring and Vetting",
@@ -53,6 +63,15 @@ export function GET() {
     ),
   ].join("\n");
 
+  const candidateGuides = [
+    "## Candidate Application Guides",
+    "",
+    ...CANDIDATE_GUIDE_SLUGS.flatMap((slug) => {
+      const post = BLOG_POSTS.find((item) => item.slug === slug);
+      return post ? [line(post.title, `${base}${blogHref(post)}`, post.description)] : [];
+    }),
+  ].join("\n");
+
   const body = [
     "# VirtualAssistant.com.ph",
     "",
@@ -67,6 +86,8 @@ export function GET() {
     industries,
     "",
     software,
+    "",
+    candidateGuides,
     "",
     "## Complete Public URL Discovery",
     "",

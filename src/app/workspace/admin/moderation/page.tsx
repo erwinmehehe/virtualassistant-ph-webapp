@@ -9,16 +9,11 @@ export default async function ModerationPage() {
 
   const { data: flags } = await admin
     .from("message_flags")
-    .select("id,matched_terms,status,created_at,message_id,sender_id,conversation_id,profiles!message_flags_sender_id_fkey(id,full_name,role)")
+    .select("id,channel,matched_terms,status,created_at,message_id,thread_id,sender_id,body_snapshot,profiles!message_flags_sender_id_fkey(id,full_name,role)")
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const messageIds = (flags || []).map((f: any) => f.message_id);
-  const { data: messages } = messageIds.length
-    ? await admin.from("messages").select("id,body,created_at").in("id", messageIds)
-    : { data: [] };
-  const messageMap = new Map((messages || []).map((m: any) => [m.id, m]));
 
   const { data: bannedUsers } = await admin
     .from("profiles")
@@ -32,17 +27,16 @@ export default async function ModerationPage() {
     <h3>Pending review</h3>
     <div className="stack" style={{ marginBottom: 32 }}>
       {flags?.length ? flags.map((f: any) => {
-        const message = messageMap.get(f.message_id);
         return <div className="card" key={f.id}>
           <div className="row-between wrap">
             <div>
               <div className="row wrap"><span className="badge badge-warning">Flagged</span><span className="small muted">{dateShort(f.created_at)}</span></div>
               <h3 style={{ margin: "8px 0 3px" }}>{f.profiles?.full_name || "Unknown"} <span className="small muted">({f.profiles?.role})</span></h3>
-              <div className="small muted">Matched: {(f.matched_terms || []).join(", ")}</div>
+              <div className="small muted">{f.channel === "client_recruiter" ? "Client ↔ Recruiter" : "Recruiter ↔ VA"} · Matched: {(f.matched_terms || []).join(", ")}</div>
             </div>
           </div>
           <blockquote style={{ margin: "12px 0", padding: "10px 14px", background: "var(--surface-2)", borderRadius: 8, borderLeft: "3px solid var(--warning)" }}>
-            {message?.body || "Message content unavailable."}
+            {f.body_snapshot || "Message content unavailable."}
           </blockquote>
           <div className="row wrap">
             <form action={dismissFlagAction}><input type="hidden" name="flag_id" value={f.id}/><button className="btn btn-sm" type="submit">Dismiss, no action</button></form>

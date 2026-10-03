@@ -28,6 +28,7 @@ import {
 } from "@/lib/public-training";
 import { trainingJoinHref } from "@/lib/training-intent";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
+import { trainingCourseOutcome } from "@/lib/training-card-copy";
 import "../training-landing.css";
 
 export const dynamic = "force-dynamic";
@@ -128,6 +129,10 @@ function CourseCard({ course, position }: { course: PublicTrainingCourse; positi
           {recommended ? <span className="tr-course-recommended">Recommended first</span> : null}
           <h3>{course.title}</h3>
           {course.summary ? <p className="tr-course-summary">{course.summary}</p> : null}
+          <div className="tr-course-outcome">
+            <span>Practise</span>
+            <strong>{trainingCourseOutcome(course)}</strong>
+          </div>
         </div>
 
         <div className="tr-course-card-meta">

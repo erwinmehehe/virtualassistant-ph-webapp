@@ -38,7 +38,7 @@ test("jobs collection exposes crawlable structured data", () => {
 });
 
 test("jobs page states applicant fees precisely", () => {
-  assert.match(page, /No VA-side platform fee/);
+  assert.match(page, /without a VA-side platform fee/);
   assert.match(page, /Employer recruiting, candidate-access, placement, or managed-service fees are separate/);
 });
 

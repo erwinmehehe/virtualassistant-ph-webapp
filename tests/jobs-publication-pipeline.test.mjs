@@ -122,7 +122,8 @@ test("all publication write paths use the same required-role validator", async (
 
 test("client commercial acceptance fetches every publication-required job field before publishing", async () => {
   const jobs = await read("src/app/actions/jobs.ts");
-  assert.match(jobs, /select\("id,status,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing"\)/);
+  assert.match(jobs, /select\("id,status,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan"\)/);
+  assert.match(jobs, /assertPublicHiringContentSafe/);
   const validationIndex = jobs.indexOf("const missing = publicationMissingDetails(job)");
   const publishIndex = jobs.indexOf('update({status:"published",published_at:publishedAt})');
   assert.ok(validationIndex >= 0 && publishIndex > validationIndex, "publication validation must happen before the published update");

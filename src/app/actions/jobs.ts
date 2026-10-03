@@ -248,10 +248,10 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   if (publishedJob) {
     await admin.from("job_candidate_access").upsert({
       job_id: jobId,
-      access_status: "comped",
-      access_fee: 0,
+      access_status: "locked",
+      access_fee: null,
       currency: "USD",
-      unlocked_at: publishedAt
+      unlocked_at: null
     }, { onConflict: "job_id" });
   }
 

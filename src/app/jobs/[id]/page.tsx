@@ -161,10 +161,20 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     identifier: { "@type": "PropertyValue", name: "VirtualAssistant.com.ph", value: job.id },
     datePosted: job.published_at || job.created_at,
     validThrough: job.expires_at || undefined,
-    employmentType: job.hours_per_week && job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME",
+    url: `${base}${canonicalHref}`,
+    employmentType: job.hours_per_week ? (job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME") : undefined,
     jobLocationType: "TELECOMMUTE",
     applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
-    hiringOrganization: { "@type": "Organization", name: companyName, ...(companyWebsite ? { sameAs: companyWebsite } : {}) },
+    hiringOrganization: {
+      "@type": "Organization",
+      name: companyName,
+      ...(companyWebsite ? { sameAs: companyWebsite } : {}),
+      ...(company?.logo_url ? { logo: company.logo_url } : {}),
+    },
+    responsibilities: uniqueStrings(job.responsibilities).length ? uniqueStrings(job.responsibilities).join("; ") : undefined,
+    skills: mergeUniqueStrings(job.required_skills, job.required_tools).length ? mergeUniqueStrings(job.required_skills, job.required_tools).join(", ") : undefined,
+    workHours: job.hours_per_week ? `${job.hours_per_week} hours per week` : undefined,
+    experienceRequirements: job.experience_level ? `Experience level: ${job.experience_level}` : undefined,
         baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
       }
     ]

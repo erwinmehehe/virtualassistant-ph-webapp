@@ -15,12 +15,13 @@ import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
 import { isPublishableCompanyName } from "@/lib/job-publication";
 import { organizationRef } from "@/lib/organization";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 import "./job-detail.css";
 
 async function getPublishedJob(key: string) {
   try {
     const supabase = await createClient();
-    const query = supabase.from("public_jobs").select("*");
+    const query = supabase.from("public_jobs").select("*").gte("min_hourly_rate", MIN_HOURLY_RATE);
     const { data } = isUuid(key) ? await query.eq("id", key).maybeSingle() : await query.eq("slug", key).maybeSingle();
     return data;
   } catch (err) {

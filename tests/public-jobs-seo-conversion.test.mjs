@@ -10,6 +10,7 @@ const postJobPublicPage = readFileSync("src/app/post-a-job/page.tsx", "utf8");
 const jobWizard = readFileSync("src/components/job-wizard.tsx", "utf8");
 const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
+const siteNav = readFileSync("src/components/site-nav.tsx", "utf8");
 
 test("jobs page targets live Philippines VA job intent without keyword stuffing", () => {
   assert.match(page, /Virtual Assistant Jobs Philippines \| Free VA Job Website/);
@@ -96,4 +97,22 @@ test("job draft suggestions only emit matcher-supported VAPH categories", () => 
   ]) {
     assert.match(jobDraftSuggestions, new RegExp(`category: "${category.replace(/[&]/g, "\\&")}"`));
   }
+});
+
+
+test("public jobs and navigation respect signed-in VA and client roles", () => {
+  assert.match(jobsPage, /getSessionProfile/);
+  assert.match(jobsPage, /const isVa = profile\?\.role === "va"/);
+  assert.match(jobsPage, /const isClient = profile\?\.role === "client"/);
+  assert.match(jobsPage, /isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(siteNav, /export async function SiteNav/);
+  assert.match(siteNav, /user \? \([\s\S]*My workspace/);
+  assert.match(siteNav, /profile\?\.role === "client"[\s\S]*\/workspace\/client\/jobs\/new/);
+  assert.match(siteNav, /profile\?\.role === "va"[\s\S]*Browse VA jobs/);
+});
+
+test("post-a-job skips the login handoff for an already signed-in client", () => {
+  assert.match(postAJob, /getSessionProfile/);
+  assert.match(postAJob, /profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
+  assert.match(postAJob, /user \? <>[\s\S]*You’re already signed in/);
 });

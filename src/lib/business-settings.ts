@@ -38,7 +38,7 @@ export async function getBusinessSettings(): Promise<BusinessSettings> {
       .maybeSingle();
     if (error || !data) return fallback;
     return {
-      minHourlyRate: Number(data.min_hourly_rate ?? fallback.minHourlyRate),
+      minHourlyRate: Math.max(MIN_HOURLY_RATE, Number(data.min_hourly_rate ?? fallback.minHourlyRate)),
       placementFee: Number(data.default_placement_fee ?? fallback.placementFee),
       managedMarkupPercent: Number(data.default_managed_markup_percent ?? 0),
       clientSuccessOwnerId: data.client_success_owner_id || null,

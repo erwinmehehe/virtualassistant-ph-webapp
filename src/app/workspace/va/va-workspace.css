@@ -2954,3 +2954,644 @@
     padding-bottom:24px;
   }
 }
+
+
+/* VA quick setup redesign — clearer hierarchy, consistent progress, tighter actions. */
+.va-quick-setup-page {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.va-onboarding-head {
+  margin-bottom: 0;
+}
+
+.va-onboarding-head > div {
+  max-width: 760px;
+}
+
+.va-onboarding-head .kicker {
+  margin-bottom: 8px;
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.va-onboarding-head h1 {
+  margin: 0;
+  max-width: 720px;
+  color: #111827;
+  font-size: clamp(30px, 3vw, 38px);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.va-onboarding-head p {
+  max-width: 720px;
+  margin: 10px 0 0;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.va-onboarding-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 13px;
+  border: 1px solid #abefc6;
+  border-radius: 11px;
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.va-onboarding-saved > div {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.va-onboarding-saved strong,
+.va-onboarding-saved span {
+  font-size: 12px;
+}
+
+.va-onboarding-alert {
+  border-radius: 11px;
+}
+
+.va-quick-setup-layout {
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 20px;
+}
+
+.va-onboarding-progress,
+.va-onboarding-form-card {
+  border: 1px solid #e4e7ec;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 14px 38px rgba(16, 24, 40, .06);
+}
+
+.va-onboarding-progress {
+  position: sticky;
+  top: 24px;
+  gap: 18px;
+  padding: 20px;
+}
+
+.va-onboarding-progress-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.va-onboarding-progress h2 {
+  margin-top: 2px;
+  color: #111827;
+  font-size: 26px;
+  letter-spacing: -.035em;
+}
+
+.va-onboarding-progress .badge {
+  border: 1px solid #d9d6fe;
+  background: #f5f3ff;
+  color: #4f46e5;
+}
+
+.va-quick-setup-meter {
+  appearance: none;
+  overflow: hidden;
+  height: 7px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef1f6;
+}
+
+.va-quick-setup-meter::-webkit-progress-bar {
+  background: #eef1f6;
+  border-radius: 999px;
+}
+
+.va-quick-setup-meter::-webkit-progress-value {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  border-radius: 999px;
+}
+
+.va-quick-setup-meter::-moz-progress-bar {
+  background: #4f46e5;
+  border-radius: 999px;
+}
+
+.va-quick-setup-step-list {
+  gap: 7px;
+  padding-top: 2px;
+}
+
+.va-quick-setup-step {
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  min-height: 54px;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+
+.va-quick-setup-step > span {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  color: #667085;
+}
+
+.va-quick-setup-step strong {
+  color: #344054;
+  font-size: 12.5px;
+}
+
+.va-quick-setup-step small {
+  margin-top: 1px;
+  color: #7a8495;
+  font-size: 10.75px;
+}
+
+.va-quick-setup-step.is-current {
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  background: #eef2ff;
+}
+
+.va-quick-setup-step.is-current > span {
+  border-color: #4f46e5;
+  background: #4f46e5;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, .18);
+}
+
+.va-quick-setup-step.is-current strong {
+  color: #312e81;
+}
+
+.va-quick-setup-step.is-done > span {
+  border-color: #abefc6;
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.va-quick-setup-step.is-done strong {
+  color: #067647;
+}
+
+.va-quick-setup-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  background: #f8f9ff;
+}
+
+.va-quick-setup-note > svg {
+  margin-top: 1px;
+  color: #4f46e5;
+}
+
+.va-quick-setup-note strong {
+  color: #344054;
+  font-size: 11.5px;
+}
+
+.va-quick-setup-note p {
+  margin-top: 3px;
+}
+
+.va-onboarding-form-card {
+  min-width: 0;
+  padding: 28px 30px;
+}
+
+.va-quick-setup-card-head {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.va-onboarding-step-kicker {
+  margin-bottom: 6px;
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.va-quick-setup-card-head h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 27px;
+  line-height: 1.12;
+  letter-spacing: -.035em;
+}
+
+.va-quick-setup-card-head p {
+  max-width: 650px;
+  margin-top: 8px;
+  color: #667085;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.va-quick-setup-form {
+  gap: 20px;
+}
+
+.va-onboarding-form .field {
+  gap: 8px;
+}
+
+.va-onboarding-form .field > label,
+.va-rate-label label {
+  color: #344054;
+  font-size: 12.5px;
+  font-weight: 750;
+}
+
+.va-onboarding-form input,
+.va-onboarding-form select,
+.va-onboarding-form textarea {
+  min-height: 48px;
+  border-color: #d0d5dd;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.va-onboarding-form input:hover,
+.va-onboarding-form select:hover,
+.va-onboarding-form textarea:hover {
+  border-color: #b8c0cc;
+}
+
+.va-onboarding-form input:focus,
+.va-onboarding-form select:focus,
+.va-onboarding-form textarea:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, .10);
+}
+
+.va-onboarding-form .field-help {
+  color: #7a8495;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.va-quick-setup-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.va-onboarding-metric-field {
+  align-content: start;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #eaecf0;
+  border-radius: 14px;
+  background: #fcfcfd;
+}
+
+.va-rate-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.va-rate-label > span {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #ecfdf3;
+  color: #067647;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.va-rate-input {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 48px;
+  border: 1px solid #d0d5dd;
+  border-radius: 11px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.va-rate-input:focus-within {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, .10);
+}
+
+.va-rate-input > span {
+  padding-left: 13px;
+  color: #667085;
+  font-weight: 700;
+}
+
+.va-rate-input > small {
+  padding-right: 12px;
+  color: #98a2b3;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.va-rate-input input {
+  min-height: 46px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-left: 7px;
+  padding-right: 8px;
+}
+
+.va-onboarding-privacy-note,
+.va-onboarding-ready-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid #d9d6fe;
+  border-radius: 12px;
+  background: #f8f7ff;
+}
+
+.va-onboarding-privacy-note > svg {
+  margin-top: 1px;
+  color: #4f46e5;
+}
+
+.va-onboarding-privacy-note strong,
+.va-onboarding-privacy-note span,
+.va-onboarding-ready-note strong,
+.va-onboarding-ready-note span {
+  display: block;
+}
+
+.va-onboarding-privacy-note strong,
+.va-onboarding-ready-note strong {
+  color: #344054;
+  font-size: 12px;
+}
+
+.va-onboarding-privacy-note span,
+.va-onboarding-ready-note span {
+  margin-top: 2px;
+  color: #667085;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.va-onboarding-ready-note {
+  border-color: #abefc6;
+  background: #ecfdf3;
+}
+
+.va-onboarding-ready-note > svg {
+  margin-top: 1px;
+  color: #067647;
+}
+
+.va-onboarding-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.va-onboarding-review-grid > div {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.va-onboarding-review-grid > div:nth-child(2) {
+  grid-column: span 1;
+}
+
+.va-onboarding-review-grid span,
+.va-onboarding-review-grid strong,
+.va-onboarding-review-grid small {
+  display: block;
+}
+
+.va-onboarding-review-grid span {
+  margin-bottom: 3px;
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.va-onboarding-review-grid strong {
+  overflow-wrap: anywhere;
+  color: #101828;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.va-onboarding-review-grid small {
+  margin-top: 3px;
+  color: #067647;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.va-onboarding-actions {
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid #eaecf0;
+}
+
+.va-onboarding-actions .btn {
+  min-width: 0;
+}
+
+.va-onboarding-actions .btn-primary {
+  min-width: 178px;
+  box-shadow: 0 7px 16px rgba(79, 70, 229, .16);
+}
+
+.va-onboarding-actions .btn-ghost {
+  padding-inline: 12px;
+}
+
+.va-onboarding-action-note {
+  color: #7a8495;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .va-quick-setup-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .va-onboarding-progress {
+    position: static;
+  }
+
+  .va-quick-setup-step-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .va-quick-setup-step {
+    min-height: 74px;
+  }
+
+  .va-quick-setup-note {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .va-quick-setup-page {
+    gap: 12px;
+  }
+
+  .va-onboarding-head h1 {
+    font-size: 28px;
+  }
+
+  .va-onboarding-head p {
+    margin-top: 8px;
+    font-size: 12.5px;
+  }
+
+  .va-onboarding-saved {
+    width: 100%;
+  }
+
+  .va-onboarding-saved > div {
+    display: grid;
+    gap: 0;
+  }
+
+  .va-onboarding-progress,
+  .va-onboarding-form-card {
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, .05);
+  }
+
+  .va-onboarding-progress-top {
+    align-items: center;
+  }
+
+  .va-onboarding-progress h2 {
+    font-size: 22px;
+  }
+
+  .va-quick-setup-step-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .va-quick-setup-step {
+    display: flex;
+    min-height: 46px;
+    padding: 7px;
+    gap: 6px;
+  }
+
+  .va-quick-setup-step > span {
+    flex: 0 0 auto;
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
+  }
+
+  .va-quick-setup-step > div {
+    min-width: 0;
+  }
+
+  .va-quick-setup-step strong {
+    display: block;
+    overflow: hidden;
+    font-size: 10px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+  }
+
+  .va-quick-setup-step small {
+    display: none;
+  }
+
+  .va-quick-setup-step.is-current {
+    padding: 7px;
+  }
+
+  .va-quick-setup-card-head {
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+  }
+
+  .va-quick-setup-card-head h2 {
+    font-size: 22px;
+  }
+
+  .va-quick-setup-card-head p {
+    font-size: 12.5px;
+  }
+
+  .va-quick-setup-metrics,
+  .va-onboarding-review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .va-onboarding-metric-field {
+    padding: 12px;
+  }
+
+  .va-onboarding-review-grid > div:nth-child(2) {
+    grid-column: auto;
+  }
+
+  .va-onboarding-actions {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .va-onboarding-actions .btn {
+    width: auto;
+    min-height: 46px;
+  }
+
+  .va-onboarding-actions .btn-primary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .va-onboarding-action-note {
+    display: none;
+  }
+
+  .va-onboarding-actions:has(.va-onboarding-action-note) {
+    grid-template-columns: 1fr;
+  }
+}

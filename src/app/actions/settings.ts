@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 
 export async function updateMarketplaceSettingsAction(formData: FormData){
   await requireRole("admin");
-  const minHourlyRate=Math.max(0,Number(formData.get("min_hourly_rate")??5));
+  const minHourlyRate=Math.max(MIN_HOURLY_RATE,Number(formData.get("min_hourly_rate")??MIN_HOURLY_RATE));
   const placementFee=Math.max(0,Number(formData.get("default_placement_fee")??0));
   const markup=Math.max(0,Math.min(100,Number(formData.get("default_managed_markup_percent")??0)));
   const clientSuccessOwnerId=String(formData.get("client_success_owner_id")??"").trim()||null;

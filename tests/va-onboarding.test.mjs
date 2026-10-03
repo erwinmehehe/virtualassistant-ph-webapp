@@ -24,12 +24,14 @@ const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 test("new VA signups land in a focused quick setup instead of the full profile editor", () => {
   assert.match(auth, /role === "va" \? "\/workspace\/va\/onboarding"/);
   assert.match(quickPage, /completeVaQuickSetupAction/);
-  assert.match(quickPage, /Build your profile in three saved steps/);
+  assert.match(quickPage, /Build a profile recruiters can understand quickly/);
   assert.match(quickPage, /name="primary_category"/);
   assert.match(quickPage, /name="headline"/);
   assert.match(quickPage, /name="years_experience"/);
   assert.match(quickPage, /name="weekly_hours"/);
   assert.match(quickPage, /name="hourly_rate"/);
+  assert.doesNotMatch(quickPage, /name="address"/);
+  assert.match(quickPage, /Review & finish/);
   assert.doesNotMatch(quickPage, /redirect\("\/workspace\/va\/profile#basics"\)/);
   assert.match(profilePage, /<h1>Your profile<\/h1>/);
   assert.doesNotMatch(nav, /\["Quick setup", "\/workspace\/va\/onboarding"/);
@@ -137,8 +139,8 @@ test("VA quick setup saves progress after each step and removes competing exits"
   assert.match(quickPage, /saveVaOnboardingBasicsAction/);
   assert.match(quickPage, /saveVaOnboardingWorkAction/);
   assert.match(quickPage, /completeVaQuickSetupAction/);
-  assert.match(quickPage, /Build your profile in three saved steps/);
-  assert.match(quickPage, /Step saved/);
+  assert.match(quickPage, /Build a profile recruiters can understand quickly/);
+  assert.match(quickPage, /Saved\./);
   assert.match(quickPage, /id="va-onboarding-step-1"/);
   assert.match(quickPage, /id="va-onboarding-step-2"/);
   assert.match(quickPage, /id="va-onboarding-step-3"/);

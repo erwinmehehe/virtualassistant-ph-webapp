@@ -110,24 +110,17 @@ export async function saveVaOnboardingWorkAction(formData: FormData) {
   redirect("/workspace/va/onboarding?step=3&saved=1");
 }
 
-export async function completeVaQuickSetupAction(formData: FormData) {
+export async function completeVaQuickSetupAction() {
   const { user } = await requireRole("va");
-  const address = String(formData.get("address") || "").replace(/\s+/g, " ").trim();
-
-  if (address && (address.length < 5 || address.length > 200)) {
-    return onboardingError(user.id, 3, "address", "Enter at least 5 characters or leave the optional address blank.");
-  }
-
   const admin = createAdminClient();
   const { data: updatedProfile, error: profileError } = await admin
     .from("va_profiles")
-    .update({ address: address || null })
+    .select("user_id,primary_category,headline,years_experience,weekly_hours,hourly_rate")
     .eq("user_id", user.id)
-    .select("user_id,primary_category,headline,years_experience,weekly_hours,hourly_rate,address")
     .maybeSingle();
 
   if (profileError || !updatedProfile) {
-    return onboardingError(user.id, 3, "save", "We could not save your address. Please try again.");
+    return onboardingError(user.id, 3, "finish", "We could not finish setup. Please try again.");
   }
 
   if (!updatedProfile.primary_category || String(updatedProfile.headline || "").trim().length < 8) {
@@ -152,7 +145,7 @@ export async function completeVaQuickSetupAction(formData: FormData) {
   await recordProductEvent("va_onboarding_step_saved", {
     userId: user.id,
     path: "/workspace/va/onboarding",
-    metadata: { step: 3, section: "private_address" },
+    metadata: { step: 3, section: "review_finish" },
   });
   await recordProductEvent("va_onboarding_complete", {
     userId: user.id,

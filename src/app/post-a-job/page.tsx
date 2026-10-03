@@ -8,8 +8,6 @@ import { JobWizard } from "@/components/job-wizard";
 import { getSessionProfile } from "@/lib/auth";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
-import { getSessionProfile } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import "./post-a-job.css";
 
 export const metadata: Metadata = {

@@ -32,7 +32,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
     va?.weekly_hours != null &&
     va?.hourly_rate != null
   );
-  const addressDone = Boolean(String(va?.address || "").trim());
+  const addressDone = true;
 
   let step = requestedStep(params.step) || (!basicsDone ? 1 : !workDone ? 2 : 3);
   if (!basicsDone) step = 1;
@@ -41,7 +41,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
   const stepStatus = [
     { number: 1, label: "Specialty", done: basicsDone },
     { number: 2, label: "Work setup", done: workDone },
-    { number: 3, label: "Private address", done: addressDone },
+    { number: 3, label: "Private address (optional)", done: addressDone },
   ];
 
   return <div className="va-quick-setup-page">
@@ -148,15 +148,15 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
 
         {step === 3 ? <>
           <div className="va-quick-setup-card-head">
-            <span className="small">Step 3 · Private address</span>
+            <span className="small">Step 3 · Private address (optional)</span>
             <h2>Where are you currently based?</h2>
-            <p>We try to pick this up when your resume clearly includes it. If it is missing, outdated, or uncertain, enter your current address here.</p>
+            <p>Add a current address only if you want it saved privately for your own profile record. It is not required to continue onboarding.</p>
           </div>
 
           <form id="va-onboarding-step-3" action={completeVaQuickSetupAction} className="va-quick-setup-form va-onboarding-form">
             <div className="field">
-              <label htmlFor="quick-address">Current home address <span className="muted">(private)</span></label>
-              <input id="quick-address" name="address" minLength={5} maxLength={200} required defaultValue={va?.address || ""} placeholder="Street / barangay, city, province" autoComplete="street-address"/>
+              <label htmlFor="quick-address">Current home address <span className="muted">(optional, private)</span></label>
+              <input id="quick-address" name="address" minLength={5} maxLength={200} defaultValue={va?.address || ""} placeholder="Street / barangay, city, province" autoComplete="street-address"/>
               <span className="field-help"><LockKeyhole size={13}/> Recruiter/admin hiring operations only. This is never shown on your public VA profile.</span>
             </div>
 

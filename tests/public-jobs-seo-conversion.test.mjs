@@ -177,3 +177,30 @@ test("public jobs and post-job routes respect logged-out, VA, and client session
   assert.match(postJobPage, /if \(user\) redirect\(profile\?\.role === "va" \? "\/workspace\/va" : "\/workspace"\)/);
   assert.match(postJobPage, /<JobWizard publicMode/);
 });
+
+
+test("logged-out and signed-in job CTAs follow the account role without fake login walls", () => {
+  assert.match(jobsPage, /const isVa = profile\?\.role === "va"/);
+  assert.match(jobsPage, /const isClient = profile\?\.role === "client"/);
+  assert.match(jobsPage, /isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(jobsPage, /Create free VA profile/);
+
+  assert.match(postAJobPage, /const isClient = profile\?\.role === "client"/);
+  assert.match(postAJobPage, /Post a job from my dashboard/);
+  assert.match(postAJobPage, /Job posting requires a client account/);
+  assert.match(postAJobPage, /<JobWizard publicMode \/>/);
+
+  assert.match(publicJobDetail, /Create VA profile/);
+  assert.match(publicJobDetail, /Apply for this job/);
+  assert.match(publicJobDetail, /You’re signed in as a client/);
+  assert.match(publicJobDetail, /Go to client workspace/);
+  assert.match(publicJobDetail, /profile\?\.role === "va"/);
+});
+
+test("signed-in clients can start a new job directly from their dashboard and navigation", () => {
+  assert.match(clientDashboard, /href="\/workspace\/client\/jobs\/new"/);
+  assert.match(clientDashboard, /Post a job/);
+  assert.match(clientJobs, /href="\/workspace\/client\/jobs\/new"/);
+  assert.match(clientJobs, /Post a job/);
+  assert.match(appNav, /\["Post a job", "\/workspace\/client\/jobs\/new", FileText\]/);
+});

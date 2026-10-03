@@ -13,7 +13,7 @@ export async function reviewJobAction(formData: FormData) {
   const decision = String(formData.get("decision"));
   const admin = createAdminClient();
   if (decision === "approve") {
-    const { data: job } = await admin.from("jobs").select("client_id,service_model,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
+    const { data: job } = await admin.from("jobs").select("client_id,service_model,title,company_name,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
     if (!job?.client_id) throw new Error("Link this lead-created job to a client account before publishing it.");
     const missing = publicationMissingDetails(job);
     if (missing.length) throw new Error(`This brief is missing required public content: ${missing.join(", ")}.`);

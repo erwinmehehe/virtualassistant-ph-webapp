@@ -7,6 +7,7 @@ test("publication validator executes and returns missing required fields", async
     status: "pending",
     client_id: "client-1",
     title: "Executive Assistant",
+    company_name: "Acme Studio",
     summary: null,
     responsibilities: ["Calendar management"],
     required_skills: ["Calendar management", "Inbox management"],
@@ -25,6 +26,7 @@ test("legacy published roles with missing required fields are visibly flagged", 
     status: "published",
     client_id: "client-1",
     title: "Ecommerce VA",
+    company_name: "Acme Commerce",
     summary: null,
     responsibilities: ["Manage orders"],
     required_skills: ["Shopify", "Customer support"],
@@ -45,6 +47,7 @@ test("complete published roles remain healthy", async () => {
     status: "published",
     client_id: "client-1",
     title: "Executive Assistant",
+    company_name: "Acme Studio",
     summary: "A sufficiently detailed role summary for publication.",
     responsibilities: ["Manage executive calendar"],
     required_skills: ["Calendar management", "Inbox management"],
@@ -55,4 +58,25 @@ test("complete published roles remain healthy", async () => {
   }, { commercial_status: "accepted" });
 
   assert.equal(result.key, "published");
+});
+
+
+test("public jobs require a real company name", async () => {
+  const { publicationMissingDetails, isPublishableCompanyName } = await import("../src/lib/job-publication.ts");
+
+  assert.equal(isPublishableCompanyName("Acme Studio"), true);
+  for (const value of ["", "N/A", "test", "Private employer", "Confidential Client"]) {
+    assert.equal(isPublishableCompanyName(value), false, `${value || "empty"} should not be publishable`);
+  }
+
+  const missing = publicationMissingDetails({
+    status: "pending",
+    client_id: "client-1",
+    title: "Executive Assistant",
+    company_name: "N/A",
+    summary: "A sufficiently detailed role summary for publication.",
+    responsibilities: ["Manage executive calendar"],
+    min_hourly_rate: 8,
+  });
+  assert.ok(missing.includes("company name"));
 });

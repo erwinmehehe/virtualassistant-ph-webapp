@@ -102,6 +102,7 @@ test("all publication write paths use the same required-role validator", async (
 
   assert.match(helper, /export function publicationMissingDetails/);
   assert.match(helper, /missing\.push\("title"\)/);
+  assert.match(helper, /missing\.push\("company name"\)/);
   assert.match(helper, /missing\.push\("summary"\)/);
   assert.match(helper, /missing\.push\("responsibilities"\)/);
   assert.match(helper, /missing\.push\("budget"\)/);
@@ -123,4 +124,25 @@ test("client commercial acceptance fetches every publication-required job field 
   const validationIndex = jobs.indexOf("const missing = publicationMissingDetails(job)");
   const publishIndex = jobs.indexOf('update({status:"published",published_at:publishedAt})');
   assert.ok(validationIndex >= 0 && publishIndex > validationIndex, "publication validation must happen before the published update");
+});
+
+
+test("public job UI always exposes the submitted company name and never anonymous placeholders", async () => {
+  const [wizard, card, detail, jobsAction, autoPublish] = await Promise.all([
+    read("src/components/job-wizard.tsx"),
+    read("src/components/job-card.tsx"),
+    read("src/app/jobs/[id]/page.tsx"),
+    read("src/app/actions/jobs.ts"),
+    read("src/lib/auto-publish.ts"),
+  ]);
+
+  assert.match(wizard, /Published job posts always show the company name/);
+  assert.match(wizard, /This company name will be shown publicly on the job post/);
+  assert.match(wizard, /isPublishableCompanyName\(candidate\.company_name\)/);
+  assert.match(jobsAction, /Enter the real company name that will appear on the public job post/);
+  assert.match(card, /if \(!isPublishableCompanyName\(companyName\)\) return null/);
+  assert.match(detail, /if \(!isPublishableCompanyName\(companyName\)\) notFound\(\)/);
+  assert.doesNotMatch(detail, /Private employer/);
+  assert.doesNotMatch(card, /Confidential Client/);
+  assert.match(autoPublish, /isPublishableCompanyName\(job\.company_name\)/);
 });

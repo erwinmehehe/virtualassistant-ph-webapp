@@ -91,13 +91,13 @@ test("availability freshness is VA self-service and blocks stale client presenta
   assert.match(guardrails,/invalidate_va_availability_confirmation/);
 });
 
-test("public client identity is private unless the client opts in",()=>{
+test("published jobs show company names while richer company profile details remain opt-in",()=>{
   assert.match(core,/public_company_visible boolean not null default false/);
   assert.match(automation,/where c\.public_company_visible=true/);
   assert.match(company,/Public company identity/);
   assert.match(companyVisibility,/public_company_visible:visible/);
-  assert.match(jobCard,/company\?\.company_name\|\|"Confidential Client"/);
-  assert.doesNotMatch(jobCard,/job\.company_name/);
+  assert.match(jobCard,/company\?\.company_name\|\|job\.company_name/);
+  assert.doesNotMatch(jobCard,/Confidential Client/);
   assert.doesNotMatch(jobs,/company_name\.ilike/);
 });
 

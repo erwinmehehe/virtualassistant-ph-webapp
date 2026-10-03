@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
-import { publicationMissingDetails } from "@/lib/job-publication";
+import { isPublishableCompanyName, publicationMissingDetails } from "@/lib/job-publication";
 import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
 
 function csv(value: FormDataEntryValue | null) {
@@ -45,6 +45,7 @@ export async function createJobAction(formData: FormData) {
   const exception = formData.get("live_coverage_exception") === "on";
   const requestedVaRaw = String(formData.get("requested_va_id") ?? "").trim();
 
+  const companyName = String(formData.get("company_name") ?? "").trim();
   const maxRate = n(formData.get("max_hourly_rate"));
   if (minRate != null && minRate < MIN_HOURLY_RATE) throw new Error(`Budget must be at least USD ${MIN_HOURLY_RATE} per hour.`);
   if (maxRate != null && maxRate < MIN_HOURLY_RATE) throw new Error(`Maximum budget must be at least USD ${MIN_HOURLY_RATE} per hour.`);
@@ -52,6 +53,7 @@ export async function createJobAction(formData: FormData) {
 
   if (submitMode !== "draft") {
     if (!String(formData.get("title") ?? "").trim()) throw new Error("Job title is required.");
+    if (!isPublishableCompanyName(companyName)) throw new Error("Enter the real company name that will appear on the public job post.");
     if (minRate == null) throw new Error(`Budget must be at least USD ${MIN_HOURLY_RATE} per hour.`);
     if (overlap > 4 && !exception) throw new Error("Live overlap above 4 hours requires a time-dependent role exception.");
   }
@@ -79,7 +81,7 @@ export async function createJobAction(formData: FormData) {
   if (submitMode !== "draft") {
     assertPublicHiringContentSafe([
       title,
-      String(formData.get("company_name") ?? ""),
+      companyName,
       summary,
       description,
       responsibilities,
@@ -101,6 +103,7 @@ export async function createJobAction(formData: FormData) {
   if (canSelfPublish && submitMode !== "draft") {
     const selfPublishMissing = publicationMissingDetails({
       title,
+      company_name: companyName,
       summary,
       responsibilities,
       required_skills: requiredSkills,
@@ -119,7 +122,7 @@ export async function createJobAction(formData: FormData) {
     client_id: user.id,
     requested_va_id: requestedVaId,
     title,
-    company_name: String(formData.get("company_name") ?? "").trim() || null,
+    company_name: companyName || null,
     summary: summary || null,
     description: description || null,
     responsibilities,

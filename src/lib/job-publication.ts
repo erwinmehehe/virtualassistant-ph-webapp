@@ -11,6 +11,7 @@ export type PublicationJob = {
   status?: string | null;
   client_id?: string | null;
   title?: string | null;
+  company_name?: string | null;
   summary?: string | null;
   responsibilities?: unknown;
   required_skills?: unknown;
@@ -24,9 +25,17 @@ type PublicationCommercial = {
   commercial_status?: string | null;
 } | null | undefined;
 
+const INVALID_PUBLIC_COMPANY_NAMES = new Set(["n/a", "na", "none", "test", "private employer", "confidential client"]);
+
+export function isPublishableCompanyName(value: unknown): boolean {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return normalized.length >= 2 && !INVALID_PUBLIC_COMPANY_NAMES.has(normalized);
+}
+
 export function publicationMissingDetails(job: PublicationJob): string[] {
   const missing: string[] = [];
   if (!job.title || String(job.title).trim().length < 3) missing.push("title");
+  if (!isPublishableCompanyName(job.company_name)) missing.push("company name");
   if (!job.summary || String(job.summary).trim().length < 20) missing.push("summary");
   if (!Array.isArray(job.responsibilities) || job.responsibilities.length === 0) missing.push("responsibilities");
   // Public hiring forms do not consistently ask for explicit skills,

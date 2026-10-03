@@ -6,7 +6,6 @@ import { BLOG_POSTS, blogHref } from "@/lib/blog";
 import { syncPublicTalentEmbeddings } from "@/lib/talent-search";
 import { reconcilePaymongoPayments } from "@/lib/payment-reconciliation";
 import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement";
-import { runVaAddressResumeBackfill } from "@/lib/va-address-backfill";
 import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
 import { proposalAutomationConfigured, triggerAutomationsActive } from "@/lib/trigger-automation";
 import { syncPlacementRetentionRecovery } from "@/lib/placement-retention-automation";
@@ -901,7 +900,7 @@ export async function GET(request: Request) {
   // the same lifecycle state during this maintenance run.
   const expiredJobResult = await runMaintenanceTask("expired job cleanup", () => runExpiredJobCleanup(admin));
 
-  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, handoffRecoveryResult, retentionRecoveryResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, clientClaimFollowupResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult, addressBackfillResult] = await Promise.all([
+  const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, handoffRecoveryResult, retentionRecoveryResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, clientClaimFollowupResult, salesReminderResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult] = await Promise.all([
     runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
     runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
     runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
@@ -916,11 +915,10 @@ export async function GET(request: Request) {
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
     runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
     runMaintenanceTask("PayMongo reconciliation", () => reconcilePaymongoPayments(75)),
-    runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin)),
-    runMaintenanceTask("VA address resume backfill", () => runVaAddressResumeBackfill(8))
+    runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);
   const trainingLaunchResult = await runMaintenanceTask("VA training launch announcement", () => sendVaTrainingAnnouncementBatch(20));
-  const result = { ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementHandoffRecovery: handoffRecoveryResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, clientClaimFollowups: clientClaimFollowupResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, addressBackfill: addressBackfillResult, trainingLaunchAnnouncement: trainingLaunchResult };
+  const result = { ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementHandoffRecovery: handoffRecoveryResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, clientClaimFollowups: clientClaimFollowupResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, trainingLaunchAnnouncement: trainingLaunchResult };
 
   const errorTasks = Object.entries(result)
     .filter(([key, value]) => key !== "ok" && value && typeof value === "object" && "error" in value)

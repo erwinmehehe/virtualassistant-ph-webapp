@@ -1,6 +1,6 @@
 # Agency release readiness
 Reviewed 2026-10-03 (Asia/Manila) against application runtime release `fc11ca9ced0df51e94630cc2e7d9d344729ca64f`, current source main `db00a975ae7f27abf316360afc4f7b46a073598c`, the connected production Supabase project, Resend delivery/webhook telemetry, and the runtime checks recorded below.
-Decision: HOLD final launch sign-off. Core production hiring/database/email/calendar/maintenance evidence is strong and the P0/P1 audit guardrails are merged. Hard blockers remain a real off-site encrypted database backup plus restore rehearsal and production Cloudflare Turnstile keys. Authenticated browser workspace handoff, the remaining proposal-response lifecycle, final privacy/regression QA, and monitoring ownership also remain open.
+Decision: HOLD final launch sign-off. Core production hiring/database/email/calendar/maintenance evidence is strong and the P0/P1 audit guardrails are merged. Hard blockers remain a real off-site encrypted database backup plus restore rehearsal and missing Cloudflare Turnstile protection on the production hiring form. Authenticated browser workspace handoff, the remaining proposal-response lifecycle, final privacy/regression QA, and monitoring ownership also remain open.
 
 
 ## 2026-10-03 audit hardening and backup readiness

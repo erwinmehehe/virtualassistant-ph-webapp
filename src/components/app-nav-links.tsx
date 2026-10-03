@@ -42,7 +42,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
       label: "Workspace",
       items: [
         ["Overview", "/workspace/client", LayoutDashboard],
-        ["Hiring", "/workspace/client/jobs", BriefcaseBusiness],
+        ["Jobs", "/workspace/client/jobs", BriefcaseBusiness],
         ["Proposals", "/workspace/client/proposals", FileText],
         ["Hiring Room", "/workspace/client/candidates", UsersRound],
         ["Messages", "/workspace/client/messages", MessageCircle],

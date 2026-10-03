@@ -116,3 +116,19 @@ test("post-a-job skips the login handoff for an already signed-in client", () =>
   assert.match(postAJob, /profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
   assert.match(postAJob, /user \? <>[\s\S]*You’re already signed in/);
 });
+
+
+test("job posting and application CTAs respect the signed-in account", () => {
+  assert.match(jobsPage, /const isVa = profile\?\.role === "va"/);
+  assert.match(jobsPage, /const isClient = profile\?\.role === "client"/);
+  assert.match(jobsPage, /isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(jobsPage, /isVa \? <Link className="btn btn-lg" href="\/workspace\/va\/applications">My applications/);
+  assert.match(postJobPage, /profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
+  assert.match(postJobPage, /if \(user\) redirect\(profile\?\.role === "va" \? "\/workspace\/va" : "\/workspace"\)/);
+  assert.match(publicJobDetail, /profile\?\.role === "va"/);
+  assert.match(publicJobDetail, /profile\?\.role === "client"/);
+  assert.match(publicJobDetail, /You’re signed in as a client/);
+  assert.match(publicJobDetail, /Apply for this job/);
+  assert.match(publicJobDetail, /Complete vetting to apply/);
+  assert.match(publicJobDetail, /!user|: user \?/);
+});

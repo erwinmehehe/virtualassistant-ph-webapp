@@ -25,9 +25,11 @@ test("VA quick setup saves the essential profile fields then returns to the dash
     read("src/app/actions/va-onboarding.ts"),
   ]);
 
-  for (const field of ["primary_category", "headline", "years_experience", "weekly_hours", "hourly_rate", "address"]) {
+  for (const field of ["primary_category", "headline", "years_experience", "weekly_hours", "hourly_rate"]) {
     assert.match(page, new RegExp(`name="${field}"`));
   }
+  assert.doesNotMatch(page, /name="address"/);
+  assert.doesNotMatch(action, /formData\.get\("address"\)/);
   assert.match(action, /\.from\("va_profiles"\)[\s\S]*?\.update/);
   assert.match(action, /redirect\("\/workspace\/va\?setup=complete"\)/);
 });

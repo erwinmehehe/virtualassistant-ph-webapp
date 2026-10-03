@@ -46,8 +46,9 @@ test("VA profile remains private unless current public-profile consent is grante
 
 test("public job application journey requires recruiter-ready vetting", async () => {
   const job = await read("src/app/jobs/[id]/page.tsx");
-  assert.match(job, /Complete vetting first/);
+  assert.match(job, /Complete vetting to apply/);
   assert.match(job, /Continue vetting/);
-  assert.match(job, /Send interest to recruiter/);
-  assert.match(job, /The client only sees candidates the recruiting team approves/);
+  assert.match(job, /Apply for this job/);
+  assert.match(job, /approved and bench-vetted VAs/i);
+  assert.match(job, /candidate details stay protected until access is active/i);
 });

@@ -12,7 +12,9 @@ export type CandidateAccessRecord = {
 };
 
 export function candidateAccessUnlocked(status?: string | null) {
-  return status === "paid" || status === "comped";
+  // Candidate identity/review access is a paid entitlement. Legacy "comped"
+  // rows must never unlock client-facing candidate access.
+  return status === "paid";
 }
 
 export function candidateAccessLabel(status?: string | null) {
@@ -21,7 +23,7 @@ export function candidateAccessLabel(status?: string | null) {
     case "quoted": return "Access price ready";
     case "invoiced": return "Access being finalized";
     case "paid": return "Candidate access active";
-    case "comped": return "Candidate access active";
+    case "comped": return "Payment required";
     default: return "Candidate identity protected";
   }
 }

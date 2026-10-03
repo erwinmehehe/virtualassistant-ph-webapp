@@ -37,6 +37,7 @@ Decision: HOLD final launch sign-off. Core database acceptance for both service 
 - All synthetic acceptance-smoke records were transactionally rolled back. A residue check found 0 synthetic leads, jobs, or proposals after testing.
 - A live production fetch of `/hire` returned HTTP 200 with the expected hiring form and timezone field, but no Turnstile widget or Cloudflare challenge script. The component only omits the widget when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is absent, so bot protection is currently not configured on the public hiring form. The admin health gate now treats Turnstile as a launch blocker until both site and server keys are present.
 - Admin production health now applies the same strict runtime controls as the CLI preflight for Google Calendar/Meet, Turnstile, Resend webhook verification, and Trigger.dev signed automations, preventing a partially configured environment from appearing release-clear.
+- Production privacy QA checked 11 client Hiring Room summaries: 0 foreign jobs were exposed, 0 non-released candidates were exposed, and 0 profile rows appeared without a released candidate. `anon` and `authenticated` cannot execute the server-only Hiring Room RPC or directly select the shortlist table.
 
 ## Remaining release gates
 | Complete | Owner | Action | Required evidence |
@@ -53,7 +54,7 @@ Decision: HOLD final launch sign-off. Core database acceptance for both service 
 | [ ] | Client + QA | Acceptance and workspace | Rollback-only production acceptance proves one role, correct client, accepted terms, included access and CRM won; still record Auth handoff, workspace login and released-shortlist runtime |
 | [ ] | Engineering + QA | Failures and retries | Production rollback QA proves invalid-client blocking and idempotent repeat acceptance with no partial acceptance writes; browser Auth and provider-email failure behavior still need runtime evidence |
 | [ ] | Operations | Maintenance and reminders | Discovery scheduler is active and succeeding every 15 minutes; still record the daily maintenance run and a due reminder/automation outcome |
-| [ ] | QA | Privacy and regression | Unrelated client denied; unreleased private candidates hidden; existing engagements work; mobile/desktop journeys and VA notifications pass |
+| [ ] | QA | Privacy and regression | Production Hiring Room checks prove client job isolation and released-only candidate visibility; still verify existing engagements, mobile/desktop journeys and VA notification behavior |
 | [ ] | Release operator | Sign-off and monitoring | Record owner, monitoring window, backup/recovery evidence and rollback decision |
 
 ## Verified source-level controls
@@ -83,6 +84,7 @@ Current-release error health: 0 release-tagged unresolved app errors; no Vercel 
 Primary email delivery: PASS; verified sending domain and 29/29 delivered on October 2 UTC with 0 failures/bounces/complaints
 Backup/recovery evidence: BLOCKED; Supabase Free project has no recorded recoverable off-site dump or restore rehearsal
 Turnstile bot protection: BLOCKED; production `/hire` currently renders without the Turnstile widget because the public site key is not configured
+Client Hiring Room privacy boundary: PASS; 11 client summaries checked with 0 foreign jobs or unreleased candidate/profile exposure
 Browser Auth/workspace and remaining proposal-response lifecycle: pending
 Monitoring owner/window: pending
 Go/no-go: HOLD

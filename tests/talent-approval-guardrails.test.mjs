@@ -65,7 +65,7 @@ test("every direct approved-stage write in server actions has the centralized 80
     }
   }
 
-  assert.ok(writes >= 3, "Expected the known recruiter/admin/final-review approval writes.");
+  assert.ok(writes >= 2, "Expected the recruiter and final-review approval writes.");
   assert.deepEqual(violations, [], "Every approval write must use the centralized approval guard.");
 });
 
@@ -79,7 +79,7 @@ test("admin and finalist approval paths use the centralized eligibility policy",
   assert.match(visibility, /isApprovalCompletionEligible/);
   assert.match(visibility, /approvalEligibility/);
   assert.match(visibility, /assertApprovalCompletion/);
-  assert.match(admin, /filter\(isRowApprovable\)/);
+  assert.doesNotMatch(admin, /bulkApproveExperiencedVAs/);
   assert.match(vetting, /assertApprovalCompletion\(completion\)/);
 });
 

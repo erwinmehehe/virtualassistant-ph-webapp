@@ -153,7 +153,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
           </div>
 
           <form id="va-onboarding-step-3" action={completeVaQuickSetupAction} className="va-quick-setup-form va-onboarding-form">
-            <div className="info-banner"><ShieldCheck size={16}/><div><strong>What happens next</strong><p style={{margin:"4px 0 0"}}>Continue with your full profile, resume, skills test, video introduction, and recruiter review. We only collect additional sensitive information later when a confirmed placement or documented compliance need requires it.</p></div></div>
+            <div className="info-banner"><ShieldCheck size={16}/><div><strong>What happens next</strong><p>Continue with your full profile, resume, skills test, video introduction, and recruiter review. We only collect additional sensitive information later when a confirmed placement or documented compliance need requires it.</p></div></div>
             <div className="va-quick-setup-actions va-onboarding-actions">
               <Link className="btn btn-ghost" href="/workspace/va/onboarding?step=2"><ArrowLeft size={16}/> Back</Link>
               <button className="btn btn-primary btn-lg" type="submit">Finish quick setup <ArrowRight size={16}/></button>

@@ -5,11 +5,12 @@ import { readFile } from "node:fs/promises";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("candidate identity and hiring actions require paid candidate access", async () => {
-  const [access, jobs, matching, shortlist] = await Promise.all([
+  const [access, jobs, matching, shortlist, paymentGuard] = await Promise.all([
     read("src/lib/candidate-access.ts"),
     read("src/app/actions/jobs.ts"),
     read("src/app/actions/matching.ts"),
     read("src/app/actions/client-shortlist.ts"),
+    read("supabase/migrations/20261003031600_enforce_settled_payment_for_candidate_access.sql"),
   ]);
 
   assert.match(access, /return status === "paid"/);
@@ -19,6 +20,12 @@ test("candidate identity and hiring actions require paid candidate access", asyn
   assert.doesNotMatch(matching, /ACCESS_STATUSES[^\n]*"comped"/);
   assert.match(shortlist, /candidateAccessUnlocked\(access\?\.access_status\)/);
   assert.match(shortlist, /Candidate access must be active before recording a shortlist decision/);
+  assert.match(matching, /A settled VAPH payment ID is required/);
+  assert.match(matching, /\.from\("payments"\)/);
+  assert.match(matching, /\.in\("status", \["paid", "released"\]\)/);
+  assert.match(paymentGuard, /before insert or update on public\.job_candidate_access/);
+  assert.match(paymentGuard, /candidate access payment is not settled for this job and client/);
+  assert.match(paymentGuard, /referenced_payment\.amount_total < new\.access_fee/);
 });
 
 test("current recruiter chats are scanned into a server-only moderation queue", async () => {

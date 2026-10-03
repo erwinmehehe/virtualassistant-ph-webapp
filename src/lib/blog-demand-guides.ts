@@ -361,7 +361,7 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
     "clusterLabel": "Virtual Assistant Tasks",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -550,7 +550,7 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
     "clusterLabel": "Virtual Assistant Tasks",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [

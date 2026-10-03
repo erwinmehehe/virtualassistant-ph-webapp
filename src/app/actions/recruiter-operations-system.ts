@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { matchAssessment } from "@/lib/matching";
 import { runRecruiterCopilot, type CopilotTask } from "@/lib/ai-recruiter";
@@ -275,6 +276,10 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
   const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title,recruiter_id)").eq("id", interviewId).maybeSingle();
   if (!row || row.status === "cancelled") throw new Error("Interview request not found.");
   if (profile.role === "client" && row.client_id !== user.id) throw new Error("Interview request not found.");
+  if (profile.role === "client") {
+    const { data: access } = await admin.from("job_candidate_access").select("access_status").eq("job_id", row.job_id).maybeSingle();
+    if (!candidateAccessUnlocked(access?.access_status)) throw new Error("Candidate access payment is required before scheduling this interview.");
+  }
 
   const jobRecord = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
   const jobTitle = jobRecord?.title;
@@ -710,6 +715,8 @@ export async function confirmPlacementOfferAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_client") throw new Error("This placement is not waiting for client confirmation.");
+  const { data: candidateAccess } = await admin.from("job_candidate_access").select("access_status").eq("job_id", offer.job_id).maybeSingle();
+  if (!candidateAccessUnlocked(candidateAccess?.access_status)) throw new Error("Candidate access payment is required before confirming this placement.");
   let applicationId = offer.application_id;
   if (!applicationId) {
     const { data: existing } = await admin.from("applications").select("id,status").eq("job_id", offer.job_id).eq("va_id", offer.va_id).maybeSingle();

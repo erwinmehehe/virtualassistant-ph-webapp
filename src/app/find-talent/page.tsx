@@ -47,8 +47,6 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
   const minOverlap = Number(params.min_overlap || 0);
   const timezone = String(params.timezone ?? "").trim();
   const portfolioOnly = params.portfolio === "1";
-  const minRate = Math.max(0, Number(params.min_rate || 0) || 0);
-  const maxRate = Math.max(0, Number(params.max_rate || 0) || 0);
   const sort = params.sort || "recommended";
   const requestedPage = Math.max(1, Number(params.page || 1) || 1);
 
@@ -65,8 +63,6 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
       minOverlap,
       timezone,
       portfolioOnly,
-      minRate,
-      maxRate,
       sort,
       page: requestedPage,
       pageSize: TALENT_PAGE_SIZE,
@@ -101,8 +97,8 @@ export default async function FindTalentPage({ searchParams }: { searchParams: P
         <select name="category" defaultValue={category} aria-label="Specialty"><option value="">All specialties</option>{VA_CATEGORIES.map((x,index)=><option key={`${String(x)}-${index}`}>{x}</option>)}</select>
         <select name="min_experience" defaultValue={String(minExperience)} aria-label="Experience"><option value="2">2+ years</option><option value="3">3+ years</option><option value="5">5+ years</option><option value="8">8+ years</option></select>
         <select name="min_hours" defaultValue={params.min_hours || ""} aria-label="Availability"><option value="">Any availability</option><option value="10">10+ hrs/week</option><option value="20">20+ hrs/week</option><option value="30">30+ hrs/week</option><option value="40">40+ hrs/week</option></select>
-        <details className="directory-more-filters"><summary><Filter size={15}/> More</summary><div className="directory-more-panel"><label>Tool keyword<input name="tool" defaultValue={params.tool} placeholder="HubSpot, Canva..."/></label><label>Live overlap<select name="min_overlap" defaultValue={params.min_overlap || ""}><option value="">Any overlap</option><option value="2">2+ hrs/day</option><option value="4">4+ hrs/day</option><option value="6">6+ hrs/day</option></select></label><label>Timezone / schedule<input name="timezone" defaultValue={params.timezone} placeholder="US Eastern, GMT+8..."/></label><label>Minimum rate, USD/hr<input type="number" name="min_rate" min="0" step="1" defaultValue={params.min_rate} placeholder="5"/></label><label>Maximum rate, USD/hr<input type="number" name="max_rate" min="0" step="1" defaultValue={params.max_rate} placeholder="12"/></label><label className="inline-check"><input type="checkbox" name="portfolio" value="1" defaultChecked={portfolioOnly}/><span>Has portfolio</span></label></div></details>
-        <select name="sort" defaultValue={sort} aria-label="Sort"><option value="recommended">Recommended</option><option value="experience">Most experienced</option><option value="availability">Most available</option><option value="rate_low">Lowest rate</option><option value="rate_high">Highest rate</option><option value="newest">Newest profiles</option></select>
+        <details className="directory-more-filters"><summary><Filter size={15}/> More</summary><div className="directory-more-panel"><label>Tool keyword<input name="tool" defaultValue={params.tool} placeholder="HubSpot, Canva..."/></label><label>Live overlap<select name="min_overlap" defaultValue={params.min_overlap || ""}><option value="">Any overlap</option><option value="2">2+ hrs/day</option><option value="4">4+ hrs/day</option><option value="6">6+ hrs/day</option></select></label><label>Timezone / schedule<input name="timezone" defaultValue={params.timezone} placeholder="US Eastern, GMT+8..."/></label><label className="inline-check"><input type="checkbox" name="portfolio" value="1" defaultChecked={portfolioOnly}/><span>Has portfolio</span></label></div></details>
+        <select name="sort" defaultValue={sort} aria-label="Sort"><option value="recommended">Recommended</option><option value="experience">Most experienced</option><option value="availability">Most available</option><option value="newest">Newest profiles</option></select>
         <button className="btn btn-primary directory-apply" type="submit">Apply</button>
         <Link className="directory-reset" href="/find-talent">Reset</Link>
       </form>

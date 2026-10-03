@@ -32,12 +32,12 @@ export default async function ClientJobsPage(){
     <div className="table-wrap responsive-table client-jobs-table">
       {clientProfile?.can_self_publish_jobs?<div className="success-banner" style={{marginBottom:18}}>Direct publishing is enabled for your account. Complete curated-placement roles can go live on the public jobs page immediately.</div>:null}
       {jobs?.length?<table>
-        <thead><tr><th>Role</th><th>Status</th><th>Hours</th><th>Candidates</th><th>Created</th><th></th></tr></thead>
+        <thead><tr><th>Role</th><th>Status</th><th>Hours</th><th>Applications</th><th>Created</th><th></th></tr></thead>
         <tbody>{jobs.map((job:any)=><tr className="client-job-row" key={job.id}>
           <td data-label="Role"><strong>{job.title}</strong><div className="small muted">VA pay from USD {job.min_hourly_rate||5}/hr</div></td>
           <td data-label="Status"><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{job.status==="published"?"Recruiting":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</span></td>
           <td data-label="Hours">{job.hours_per_week?`${job.hours_per_week}/week`:"Flexible"}</td>
-          <td data-label="Candidates">{counts.get(job.id)||0}</td>
+          <td data-label="Applications"><strong>{counts.get(job.id)||0}</strong><div className="small muted">{counts.get(job.id)?"Recruiter reviewing":"Waiting for applicants"}</div></td>
           <td data-label="Created">{dateShort(job.created_at)}</td>
           <td data-label="Action"><Link className="btn btn-sm client-job-progress" href={`/workspace/client/jobs/${job.id}`}>View progress</Link></td>
         </tr>)}</tbody>

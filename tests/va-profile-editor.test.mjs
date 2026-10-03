@@ -116,7 +116,7 @@ test("client profile validates URLs and logo before persisting account edits", a
 });
 
 
-test("VA address is private, required, and can be suggested from a resume", async () => {
+test("VA address stays optional and private without resume mining or recruiter exposure", async () => {
   const [profilePage, profileAction, onboarding, onboardingAction, parser, autofill, migration, recruiterPage] = await Promise.all([
     source("src/app/workspace/va/profile/page.tsx"),
     source("src/app/actions/profile.ts"),
@@ -130,16 +130,16 @@ test("VA address is private, required, and can be suggested from a resume", asyn
 
   assert.match(profilePage, /name="address"/);
   assert.match(profilePage, /Current home address/);
-  assert.match(profilePage, /never shown on your public profile/);
-  assert.match(profilePage, /Add your address/);
-  assert.match(profileAction, /formData\.get\("address"\)/);
-  assert.match(profileAction, /Enter your current address/);
-  assert.match(onboarding, /name="address"/);
-  assert.match(onboardingAction, /current home address/);
-  assert.match(parser, /function extractAddress/);
-  assert.match(parser, /address: extractAddress\(text\)/);
-  assert.match(autofill, /setFormValue\(form, "address", fields\.address\)/);
+  assert.match(profilePage, /optional, private/);
+  assert.doesNotMatch(profilePage.match(/name="address"[\\s\\S]{0,300}/)?.[0] || "", /required/);
+  assert.match(profileAction, /formData\\.get\\("address"\\)/);
+  assert.doesNotMatch(profileAction, /Enter your current address/);
+  assert.doesNotMatch(onboarding, /name="address"/);
+  assert.doesNotMatch(onboardingAction, /current home address/);
+  assert.doesNotMatch(parser, /function extractAddress/);
+  assert.doesNotMatch(parser, /address: extractAddress\\(text\\)/);
+  assert.doesNotMatch(autofill, /setFormValue\\(form, "address", fields\\.address\\)/);
   assert.match(migration, /add column if not exists address text/);
-  assert.doesNotMatch(migration, /create or replace view public\.public_va_directory/);
-  assert.match(recruiterPage, /<div className="small muted">Address<\/div>/);
+  assert.doesNotMatch(migration, /create or replace view public\\.public_va_directory/);
+  assert.doesNotMatch(recruiterPage, /Request address/);
 });

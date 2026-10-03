@@ -30,7 +30,9 @@ test("current managed chats feed an admin-only circumvention moderation queue", 
   assert.match(migration, /external_payment/);
   assert.match(migration, /external_contact_channel/);
   assert.match(migration, /revoke all on public\.message_flags from public, anon, authenticated/);
-  assert.match(page, /body_snapshot/);\n  assert.match(page, /channel,message_id,thread_id/);\n  assert.doesNotMatch(page, /source_type|source_message_id/);
+  assert.match(page, /body_snapshot/);
+  assert.match(page, /channel,message_id,thread_id/);
+  assert.doesNotMatch(page, /source_type|source_message_id/);
   assert.doesNotMatch(page, /from\("messages"\)/);
 });
 

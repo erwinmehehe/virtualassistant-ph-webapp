@@ -116,7 +116,7 @@ for (const slug of slugsFrom(editorialPath)) blogRoutes.add(`/blog/${slug}`);
 for (const slug of editorialResourceSlugs()) blogRoutes.add(`/blog/${slug}`);
 const topicRoutes = new Set(posts.map(p => `/blog/topic/${p.topic}`));
 const knownStatic = new Set([
-  '/', '/blog', '/services', '/industries', '/software', '/training', '/hire', '/pricing', '/jobs', '/virtual-assistant-companies-philippines', '/managed-vs-direct-hire',
+  '/', '/blog', '/services', '/industries', '/software', '/training', '/hire', '/pricing', '/jobs', '/for-virtual-assistants', '/virtual-assistant-companies-philippines', '/managed-vs-direct-hire',
   '/tools/virtual-assistant-cost-calculator', '/tools/hourly-to-monthly-calculator',
   '/tools/virtual-assistant-job-description-generator', '/tools/what-type-of-va-do-i-need',
   '/research/virtual-assistant-rates-philippines-2026', '/resources/virtual-assistant-job-description'

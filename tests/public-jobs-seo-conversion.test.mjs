@@ -204,3 +204,33 @@ test("signed-in clients can start a new job directly from their dashboard and na
   assert.match(clientJobs, /Post a job/);
   assert.match(appNav, /\["Post a job", "\/workspace\/client\/jobs\/new", FileText\]/);
 });
+
+
+test("logged-out, VA, and client job CTAs stay role-aware", () => {
+  const publicJob = readFileSync("src/app/jobs/[id]/page.tsx", "utf8");
+  const jobsIndex = readFileSync("src/app/jobs/page.tsx", "utf8");
+  const postJob = readFileSync("src/app/post-a-job/page.tsx", "utf8");
+  const clientHome = readFileSync("src/app/workspace/client/page.tsx", "utf8");
+  const clientJobs = readFileSync("src/app/workspace/client/jobs/page.tsx", "utf8");
+
+  assert.match(publicJob, /Create VA profile/);
+  assert.match(publicJob, /Log in/);
+  assert.match(publicJob, /profile\?\.role === "va"/);
+  assert.match(publicJob, /Apply for this job/);
+  assert.match(publicJob, /profile\?\.role === "client"/);
+  assert.match(publicJob, /You’re signed in as a client/);
+  assert.match(publicJob, /Go to client workspace/);
+  assert.match(publicJob, /Post another job/);
+
+  assert.match(jobsIndex, /const employerPostHref = isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(jobsIndex, /const vaPrimaryHref = isVa \? "\/workspace\/va\/jobs"/);
+
+  assert.match(postJob, /const isClient = profile\?\.role === "client"/);
+  assert.match(postJob, /Post from client dashboard/);
+  assert.match(postJob, /<JobWizard publicMode \/>/);
+  assert.match(postJob, /!user \?/);
+
+  assert.match(clientHome, /href="\/workspace\/client\/jobs\/new"/);
+  assert.match(clientHome, /> Post a job</);
+  assert.match(clientJobs, /href="\/workspace\/client\/jobs\/new">Post a job</);
+});

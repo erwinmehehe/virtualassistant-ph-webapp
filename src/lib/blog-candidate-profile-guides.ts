@@ -383,6 +383,11 @@ export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = [
         label: "How to apply as a Virtual Assistant",
         href: "/blog/how-to-apply-as-a-virtual-assistant",
         description: "Use a stronger profile as the foundation for more relevant, evidence-based applications."
+      },
+      {
+        label: "Philippines hiring and VA career guides",
+        href: "/blog/topic/philippines",
+        description: "Browse more Philippines-focused guidance for Virtual Assistants and remote work."
       }
     ]
   }

@@ -309,6 +309,152 @@
   justify-content: flex-end;
 }
 
+.jobs-common-roles {
+  margin-top: 42px;
+  padding-top: 36px;
+  border-top: 1px solid #e4e7ec;
+}
+
+.jobs-common-roles-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.jobs-common-roles-head > div {
+  max-width: 760px;
+}
+
+.jobs-common-roles-head .kicker {
+  color: #667085;
+}
+
+.jobs-common-roles-head h2 {
+  margin: 5px 0 7px;
+  color: #101828;
+  font-size: clamp(27px, 3vw, 36px);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.jobs-common-roles-head p {
+  margin: 0;
+  color: #667085;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.jobs-common-roles-head > .btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.jobs-common-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.jobs-common-role-card {
+  display: grid;
+  gap: 11px;
+  padding: 20px;
+  border: 1px solid #e0e4e9;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.jobs-common-role-card:hover {
+  border-color: #c7ccd4;
+  box-shadow: 0 8px 22px rgba(16,24,40,.045);
+}
+
+.jobs-common-role-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.jobs-common-role-top > span {
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.jobs-common-role-top > strong {
+  color: #101828;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.jobs-common-role-card h3 {
+  margin: 0;
+  color: #101828;
+  font-size: 18px;
+  line-height: 1.22;
+  letter-spacing: -.025em;
+}
+
+.jobs-common-role-card > p {
+  margin: 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.jobs-common-role-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.jobs-common-role-meta span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f2f4f7;
+  color: #475467;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.jobs-common-role-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.jobs-common-role-skills span {
+  padding: 5px 7px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  background: #fcfcfd;
+  color: #475467;
+  font-size: 10.5px;
+}
+
+.jobs-common-role-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  margin-top: 2px;
+  color: #444ce7;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.jobs-common-role-link:hover {
+  color: #3538cd;
+}
+
 .jobs-seo-section {
   padding: 64px 0 72px;
   border-top: 1px solid #e4e7ec;
@@ -548,9 +694,14 @@
     flex-direction: column;
   }
 
-  .jobs-directory-intro {
+  .jobs-directory-intro,
+  .jobs-common-roles-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .jobs-common-role-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -581,7 +732,8 @@
     padding: 28px 0 52px;
   }
 
-  .jobs-directory-post {
+  .jobs-directory-post,
+  .jobs-common-roles-head > .btn {
     width: 100%;
     justify-content: center;
   }

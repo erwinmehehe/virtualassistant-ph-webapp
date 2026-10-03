@@ -355,6 +355,9 @@ export default async function PublicJobsPage({
                 show role scope, hours, timezone context, and advertised compensation so applicants can judge fit
                 before entering the recruiting process.
               </p>
+              <p className="jobs-seo-support-link">
+                Comparing job sites first? <Link href="/blog/free-virtual-assistant-job-websites-philippines">See our 2026 guide to free Virtual Assistant job websites in the Philippines <ArrowRight size={14} /></Link>
+              </p>
             </div>
 
             <div className="jobs-seo-grid">

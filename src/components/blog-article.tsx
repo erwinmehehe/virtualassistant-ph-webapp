@@ -13,7 +13,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
-import { type BlogPost, BLOG_TOPICS, blogHref, relatedBlogPosts } from "@/lib/blog";
+import { type BlogPost, BLOG_TOPICS, blogHref, blogPostBySlug, relatedBlogPosts } from "@/lib/blog";
 import { servicePageBySlug } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
 import { INDUSTRIES } from "@/lib/industries";
@@ -36,8 +36,156 @@ const CANDIDATE_LEARNING_GUIDES = new Set([
   "freelance-platforms-for-virtual-assistants",
   "how-to-start-a-virtual-assistant-business",
   "become-virtual-assistant-no-experience",
-  "how-to-create-the-best-va-profile"
+  "how-to-create-the-best-va-profile",
+  "virtual-assistant-introduction-video",
+  "virtual-assistant-proposal-sample",
+  "free-virtual-assistant-job-websites-philippines"
 ]);
+
+const CANDIDATE_NEXT_READS: Record<string, string[]> = {
+  "how-to-create-the-best-va-profile": [
+    "virtual-assistant-resume-sample",
+    "virtual-assistant-portfolio-examples",
+    "virtual-assistant-introduction-video",
+    "virtual-assistant-proposal-sample"
+  ],
+  "virtual-assistant-resume-sample": [
+    "virtual-assistant-portfolio-examples",
+    "virtual-assistant-introduction-video",
+    "virtual-assistant-proposal-sample",
+    "how-to-apply-as-a-virtual-assistant"
+  ],
+  "virtual-assistant-portfolio-examples": [
+    "virtual-assistant-resume-sample",
+    "virtual-assistant-introduction-video",
+    "virtual-assistant-proposal-sample",
+    "how-to-apply-as-a-virtual-assistant"
+  ],
+  "virtual-assistant-introduction-video": [
+    "virtual-assistant-proposal-sample",
+    "virtual-assistant-resume-sample",
+    "virtual-assistant-portfolio-examples",
+    "how-to-apply-as-a-virtual-assistant"
+  ],
+  "virtual-assistant-proposal-sample": [
+    "how-to-apply-as-a-virtual-assistant",
+    "virtual-assistant-cover-letter",
+    "virtual-assistant-resume-sample",
+    "free-virtual-assistant-job-websites-philippines"
+  ],
+  "virtual-assistant-cover-letter": [
+    "virtual-assistant-proposal-sample",
+    "virtual-assistant-resume-sample",
+    "virtual-assistant-portfolio-examples",
+    "how-to-apply-as-a-virtual-assistant"
+  ],
+  "how-to-apply-as-a-virtual-assistant": [
+    "virtual-assistant-proposal-sample",
+    "virtual-assistant-introduction-video",
+    "virtual-assistant-portfolio-examples",
+    "free-virtual-assistant-job-websites-philippines"
+  ],
+  "free-virtual-assistant-job-websites-philippines": [
+    "how-to-apply-as-a-virtual-assistant",
+    "virtual-assistant-proposal-sample",
+    "how-to-create-the-best-va-profile",
+    "virtual-assistant-resume-sample"
+  ]
+};
+
+type CandidateCta = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  primaryHref: string;
+  primaryLabel: string;
+  secondaryHref: string;
+  secondaryLabel: string;
+};
+
+function candidateCtaFor(slug: string): CandidateCta {
+  const staged: Record<string, CandidateCta> = {
+    "how-to-create-the-best-va-profile": {
+      eyebrow: "Next application step",
+      title: "Turn the profile into job-ready proof.",
+      description: "Build the resume and portfolio that support your profile before you start sending applications.",
+      primaryHref: "/blog/virtual-assistant-resume-sample",
+      primaryLabel: "Build your VA resume",
+      secondaryHref: "/blog/virtual-assistant-portfolio-examples",
+      secondaryLabel: "Plan your portfolio"
+    },
+    "virtual-assistant-resume-sample": {
+      eyebrow: "Next application step",
+      title: "Add work samples that prove the resume.",
+      description: "A focused portfolio gives recruiters something concrete to check before an interview.",
+      primaryHref: "/blog/virtual-assistant-portfolio-examples",
+      primaryLabel: "Build your VA portfolio",
+      secondaryHref: "/blog/virtual-assistant-introduction-video",
+      secondaryLabel: "Prepare your intro video"
+    },
+    "virtual-assistant-portfolio-examples": {
+      eyebrow: "Next application step",
+      title: "Use the proof in a job-specific proposal.",
+      description: "Connect the strongest sample to the employer's actual workload instead of sending a generic application.",
+      primaryHref: "/blog/virtual-assistant-proposal-sample",
+      primaryLabel: "Write your VA proposal",
+      secondaryHref: "/jobs",
+      secondaryLabel: "Browse VA jobs"
+    },
+    "virtual-assistant-introduction-video": {
+      eyebrow: "Next application step",
+      title: "Now write the message that gets sent with the application.",
+      description: "Use a short proposal that connects the job to the same evidence you used in your profile and video.",
+      primaryHref: "/blog/virtual-assistant-proposal-sample",
+      primaryLabel: "See VA proposal samples",
+      secondaryHref: "/jobs",
+      secondaryLabel: "Browse VA jobs"
+    },
+    "virtual-assistant-proposal-sample": {
+      eyebrow: "Ready to apply",
+      title: "Use the proposal on a role that actually fits.",
+      description: "Compare the hours, pay, timezone, tools, and responsibilities before sending a tailored application.",
+      primaryHref: "/jobs",
+      primaryLabel: "Browse VA jobs",
+      secondaryHref: "/blog/how-to-apply-as-a-virtual-assistant",
+      secondaryLabel: "Review the application guide"
+    },
+    "how-to-apply-as-a-virtual-assistant": {
+      eyebrow: "Ready to apply",
+      title: "Build one clear profile, then apply selectively.",
+      description: "Use the same verified profile across suitable VAPH opportunities and keep each application specific to the role.",
+      primaryHref: "/auth/join/va",
+      primaryLabel: "Create your VA profile",
+      secondaryHref: "/jobs",
+      secondaryLabel: "Browse VA jobs"
+    },
+    "virtual-assistant-cover-letter": {
+      eyebrow: "Shorter application option",
+      title: "Need a concise proposal instead of a formal letter?",
+      description: "Use the proposal guide when the application asks for a short job-specific message rather than a full cover letter.",
+      primaryHref: "/blog/virtual-assistant-proposal-sample",
+      primaryLabel: "See VA proposal samples",
+      secondaryHref: "/jobs",
+      secondaryLabel: "Browse VA jobs"
+    }
+  };
+
+  return staged[slug] || {
+    eyebrow: "Candidate next step",
+    title: "Turn what you learned into a stronger application.",
+    description: "Build a clear candidate profile, compare suitable roles, and use free training only where you need more practice.",
+    primaryHref: "/auth/join/va",
+    primaryLabel: "Create your VA profile",
+    secondaryHref: "/jobs",
+    secondaryLabel: "Browse VA jobs"
+  };
+}
+
+function candidateRelatedPosts(post: BlogPost) {
+  const slugs = CANDIDATE_NEXT_READS[post.slug];
+  if (!slugs) return null;
+  return slugs.map((slug) => blogPostBySlug(slug)).filter((item): item is BlogPost => Boolean(item));
+}
 
 function idFor(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -76,7 +224,8 @@ function ContextLinks({ post, start, count = 2 }: { post: BlogPost; start: numbe
 }
 
 export function BlogArticle({ post }: { post: BlogPost }) {
-  const related = relatedBlogPosts(post, 4);
+  const candidateRelated = candidateRelatedPosts(post);
+  const related = candidateRelated || relatedBlogPosts(post, 4);
   const priorityLinks = seoPriorityLinksForBlog(post.slug);
   const marketplaceEvidence = post.fieldNotes?.length ? marketplaceEvidenceForPost(post) : null;
   const relatedIndustries = post.serviceSlug ? INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(post.serviceSlug!)).slice(0, 3) : [];
@@ -97,6 +246,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const articleDate = new Date(`${hasMeaningfulUpdate ? post.updatedAt : post.publishedAt}T00:00:00Z`);
   const articleDateLabel = hasMeaningfulUpdate ? "Updated" : "Published";
   const isCandidateLearningGuide = CANDIDATE_LEARNING_GUIDES.has(post.slug);
+  const candidateCta = candidateCtaFor(post.slug);
   const showPlanningTools = !isCandidateLearningGuide && ["hiring", "pricing", "managing"].includes(post.topic);
   const authorHref = post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team";
   const authorInitials = post.author === "Christ Hemsworthy" ? "CH" : "VA";
@@ -203,8 +353,8 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             {index === 1 ? (
               isCandidateLearningGuide ? (
                 <aside className="blog-inline-cta">
-                  <div><span className="blog-inline-label">Put this into practice</span><h3>Want structured practice before you apply?</h3><p>Use the free training hub to work through practical VA skills, then browse roles when you are ready.</p></div>
-                  <div className="blog-inline-actions"><Link className="btn btn-primary" href="/training" data-track="blog_training_click">Explore free training <ArrowRight size={16}/></Link><Link className="blog-inline-secondary" href="/jobs">Browse VA jobs</Link></div>
+                  <div><span className="blog-inline-label">{candidateCta.eyebrow}</span><h3>{candidateCta.title}</h3><p>{candidateCta.description}</p></div>
+                  <div className="blog-inline-actions"><Link className="btn btn-primary" href={candidateCta.primaryHref} data-track="blog_candidate_next_click">{candidateCta.primaryLabel} <ArrowRight size={16}/></Link><Link className="blog-inline-secondary" href={candidateCta.secondaryHref}>{candidateCta.secondaryLabel}</Link></div>
                 </aside>
               ) : (
                 <aside className="blog-inline-cta">
@@ -289,12 +439,13 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           {isCandidateLearningGuide ? (
             <aside className="blog-bottom-conversion">
               <div className="blog-bottom-copy">
-                <span className="blog-bottom-label">Next step</span>
-                <h2>Turn the guide into practice.</h2>
-                <p>Use the free training hub to build practical skills and keep your learning separate from whether you apply for a role.</p>
+                <span className="blog-bottom-label">Candidate toolkit</span>
+                <h2>Build the profile, then apply to roles that fit.</h2>
+                <p>Keep your profile, resume, portfolio, intro video, and application message consistent. Training stays optional and separate from hiring.</p>
                 <div className="blog-bottom-actions">
-                  <Link className="btn btn-primary btn-lg" href="/training" data-track="blog_training_click">Explore free training <ArrowRight size={16}/></Link>
-                  <Link className="btn btn-lg" href="/jobs">Browse VA jobs</Link>
+                  <Link className="btn btn-primary btn-lg" href="/auth/join/va" data-track="blog_candidate_profile_click">Create your VA profile <ArrowRight size={16}/></Link>
+                  <Link className="btn btn-lg" href="/jobs" data-track="blog_candidate_jobs_click">Browse VA jobs</Link>
+                  <Link className="btn btn-lg" href="/training" data-track="blog_training_click">Free VA training</Link>
                 </div>
               </div>
             </aside>

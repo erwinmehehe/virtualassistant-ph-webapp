@@ -122,6 +122,66 @@ export default async function ForVirtualAssistantsPage() {
           </div>
         </section>
 
+        <section className="va-hub-section va-hub-toolkit">
+          <div className="container">
+            <div className="va-hub-toolkit-head">
+              <div>
+                <span className="va-hub-kicker">Application toolkit</span>
+                <h2>Build each part once. Keep the whole application consistent.</h2>
+                <p>
+                  Your profile, resume, portfolio, intro video, and application message should point to the same type of work.
+                  Use these guides in order, then apply only where the role, hours, pay, and schedule genuinely fit.
+                </p>
+              </div>
+              <Link className="va-hub-text-link" href="/jobs">Browse current VA jobs <ArrowRight size={15} /></Link>
+            </div>
+
+            <div className="va-hub-toolkit-grid">
+              <Link href="/blog/how-to-create-the-best-va-profile">
+                <span>01</span>
+                <strong>Build your VA profile</strong>
+                <small>Choose a clear specialty, headline, evidence, tools, and availability.</small>
+                <em>Profile guide <ArrowRight size={14}/></em>
+              </Link>
+              <Link href="/blog/virtual-assistant-resume-sample">
+                <span>02</span>
+                <strong>Prepare your resume</strong>
+                <small>Show relevant work history without turning the resume into a task dump.</small>
+                <em>Resume sample <ArrowRight size={14}/></em>
+              </Link>
+              <Link href="/blog/virtual-assistant-portfolio-examples">
+                <span>03</span>
+                <strong>Add work samples</strong>
+                <small>Use privacy-safe proof and clearly labelled practice projects when needed.</small>
+                <em>Portfolio examples <ArrowRight size={14}/></em>
+              </Link>
+              <Link href="/blog/virtual-assistant-introduction-video">
+                <span>04</span>
+                <strong>Record your intro video</strong>
+                <small>Use a clear one-minute structure when an application asks for video.</small>
+                <em>Video scripts <ArrowRight size={14}/></em>
+              </Link>
+              <Link href="/blog/virtual-assistant-proposal-sample">
+                <span>05</span>
+                <strong>Write the proposal</strong>
+                <small>Connect the employer's actual workload to your most relevant evidence.</small>
+                <em>Proposal samples <ArrowRight size={14}/></em>
+              </Link>
+              <Link href="/blog/how-to-apply-as-a-virtual-assistant">
+                <span>06</span>
+                <strong>Apply selectively</strong>
+                <small>Check the responsibilities, hours, timezone, pay, and required tools before sending.</small>
+                <em>Application guide <ArrowRight size={14}/></em>
+              </Link>
+            </div>
+
+            <div className="va-hub-toolkit-foot">
+              <span>Need more practice first? Training is free and optional.</span>
+              <Link href="/training">Explore free VA training <ArrowRight size={14}/></Link>
+            </div>
+          </div>
+        </section>
+
         <section className="va-hub-section va-hub-section-white">
           <div className="container">
             <div className="va-hub-section-head">

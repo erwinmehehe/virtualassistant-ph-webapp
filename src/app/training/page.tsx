@@ -613,6 +613,51 @@ export default async function TrainingPage() {
           </div>
         </section>
 
+        <section className="tr-section tr-application-section" aria-labelledby="training-application-heading">
+          <div className="container">
+            <div className="tr-section-heading tr-application-heading">
+              <span className="tr-kicker">From practice to application</span>
+              <h2 id="training-application-heading">Training can support your application. It does not replace it.</h2>
+              <p>
+                Keep training optional. When you are ready to apply, make your target role clear,
+                show truthful work evidence, prepare the application assets employers request, and choose roles that fit your real availability.
+              </p>
+            </div>
+
+            <div className="tr-application-grid">
+              <Link href="/blog/how-to-create-the-best-va-profile">
+                <span><BriefcaseBusiness size={17}/></span>
+                <strong>Build a focused VA profile</strong>
+                <small>Turn your skills, tools, training, and previous work into a clear role story.</small>
+                <em>Profile guide <ArrowRight size={13}/></em>
+              </Link>
+              <Link href="/blog/virtual-assistant-introduction-video">
+                <span><BookOpenCheck size={17}/></span>
+                <strong>Prepare your introduction</strong>
+                <small>Use a one-minute structure when a job asks for an intro video.</small>
+                <em>Video scripts <ArrowRight size={13}/></em>
+              </Link>
+              <Link href="/blog/virtual-assistant-proposal-sample">
+                <span><FileCheck2 size={17}/></span>
+                <strong>Write a job-specific proposal</strong>
+                <small>Connect the employer's workload to evidence you can actually prove.</small>
+                <em>Proposal samples <ArrowRight size={13}/></em>
+              </Link>
+              <Link href="/jobs">
+                <span><BadgeCheck size={17}/></span>
+                <strong>Compare current VA jobs</strong>
+                <small>Check responsibilities, pay, hours, timezone, and required experience before applying.</small>
+                <em>Browse jobs <ArrowRight size={13}/></em>
+              </Link>
+            </div>
+
+            <div className="tr-application-foot">
+              <span>Need the complete candidate path?</span>
+              <Link href="/for-virtual-assistants">Open the Virtual Assistant hub <ArrowRight size={14}/></Link>
+            </div>
+          </div>
+        </section>
+
         <section className="tr-value-band">
           <div className="container tr-value-grid">
             <article>

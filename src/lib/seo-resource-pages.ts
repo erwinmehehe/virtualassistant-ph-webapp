@@ -691,9 +691,14 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Do I have to pay to apply on VirtualAssistant.com.ph?", a: "No. Virtual Assistants can create a profile, complete screening, and apply to suitable roles without paying an application or placement fee to VirtualAssistant.com.ph." }
     ],
     internalLinks: [
-      { href: "/for-virtual-assistants", label: "For Filipino Virtual Assistants", description: "See the profile, screening, jobs, and workspace process." },
-      { href: "/jobs", label: "Browse VA jobs", description: "Review published Virtual Assistant opportunities." },
-      { href: "/auth/join/va", label: "Create your VA profile", description: "Start one profile you can use across suitable opportunities." }
+      { href: "/blog/how-to-create-the-best-va-profile", label: "Build a strong VA profile", description: "Make your specialty, evidence, tools, and availability clear before you apply." },
+      { href: "/blog/virtual-assistant-resume-sample", label: "Virtual Assistant resume sample", description: "Prepare a resume that supports the same target role." },
+      { href: "/blog/virtual-assistant-portfolio-examples", label: "Virtual Assistant portfolio examples", description: "Add proof that supports the claims in your application." },
+      { href: "/blog/virtual-assistant-introduction-video", label: "Virtual Assistant introduction video", description: "Prepare a clear one-minute introduction for applications that request one." },
+      { href: "/blog/virtual-assistant-proposal-sample", label: "Virtual Assistant proposal sample", description: "Write a short job-specific application message." },
+      { href: "/for-virtual-assistants", label: "For Filipino Virtual Assistants", description: "See the profile, screening, jobs, training, and workspace process." },
+      { href: "/jobs", label: "Browse VA jobs", description: "Review published Virtual Assistant opportunities that match your skills and schedule." },
+      { href: "/training", label: "Free VA training", description: "Practise workflows where you still need evidence or confidence." }
     ]
   },
   {
@@ -717,8 +722,12 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Should I add a photo?", a: "A photo is not required for a strong resume unless a specific legitimate process asks for one. Prioritize clear experience, skills, tools, and contact information." }
     ],
     internalLinks: [
+      { href: "/blog/how-to-create-the-best-va-profile", label: "Best VA profile guide", description: "Make the profile and resume support the same target role." },
       { href: "/blog/virtual-assistant-portfolio-examples", label: "VA portfolio examples", description: "Build work samples that support the claims on your resume." },
-      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use the resume inside a better application process." },
+      { href: "/blog/virtual-assistant-introduction-video", label: "VA introduction video", description: "Explain the same experience clearly in a one-minute introduction." },
+      { href: "/blog/virtual-assistant-proposal-sample", label: "VA proposal sample", description: "Turn the strongest resume evidence into a tailored application message." },
+      { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use the resume inside a complete application process." },
+      { href: "/jobs", label: "Browse VA jobs", description: "Compare your resume with current role requirements before applying." },
       { href: "/auth/join/va", label: "Create your VA profile", description: "Add your experience, skills, tools, resume, and work evidence." }
     ]
   },
@@ -743,9 +752,13 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Where should I host my portfolio?", a: "A clean PDF, Google Drive folder, Notion page, or simple website can work. Choose a format that opens reliably and is easy for a recruiter or client to review." }
     ],
     internalLinks: [
+      { href: "/blog/how-to-create-the-best-va-profile", label: "Best VA profile guide", description: "Position the portfolio around the type of work you actually want." },
       { href: "/blog/virtual-assistant-resume-sample", label: "VA resume guide", description: "Make the resume and portfolio support the same target role." },
+      { href: "/blog/virtual-assistant-introduction-video", label: "VA introduction video", description: "Choose proof you can also explain naturally on video." },
+      { href: "/blog/virtual-assistant-proposal-sample", label: "VA proposal sample", description: "Use the most relevant work sample in a job-specific application." },
       { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use work samples strategically in applications." },
-      { href: "/for-virtual-assistants", label: "For Virtual Assistants", description: "See how profiles, screening, and job applications work." }
+      { href: "/for-virtual-assistants", label: "For Virtual Assistants", description: "See how profiles, screening, training, and job applications work." },
+      { href: "/jobs", label: "Browse VA jobs", description: "Use current job requirements to decide which samples to show first." }
     ]
   },
   {
@@ -1111,8 +1124,10 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
       { q: "Should I include salary expectations in the cover letter?", a: "Only when the application asks for them. Follow the employer's instructions and keep compensation information clear and separate from the evidence of role fit." }
     ],
     internalLinks: [
+      { href: "/blog/virtual-assistant-proposal-sample", label: "Virtual Assistant proposal sample", description: "Use a shorter job-specific message when a formal cover letter is not required." },
       { href: "/blog/virtual-assistant-resume-sample", label: "Virtual Assistant resume guide", description: "Build the resume that supports the claims in your cover letter." },
       { href: "/blog/virtual-assistant-portfolio-examples", label: "Virtual Assistant portfolio", description: "Show privacy-safe evidence of relevant work." },
+      { href: "/blog/virtual-assistant-introduction-video", label: "Virtual Assistant introduction video", description: "Keep your spoken introduction consistent with the written application." },
       { href: "/blog/how-to-apply-as-a-virtual-assistant", label: "How to apply as a VA", description: "Use the cover letter inside a complete application process." },
       { href: "/jobs", label: "Browse VA jobs", description: "Apply the structure to current roles that fit your experience." }
     ]

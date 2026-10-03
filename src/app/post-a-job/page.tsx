@@ -4,6 +4,7 @@ import { BriefcaseBusiness, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { JobWizard } from "@/components/job-wizard";
+import { getSessionProfile } from "@/lib/auth";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
 import "./post-a-job.css";
@@ -24,7 +25,10 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function PostAJobPage() {
+export default async function PostAJobPage() {
+  const { user, profile } = await getSessionProfile();
+  const isClient = profile?.role === "client";
+  const isVa = profile?.role === "va";
   return (
     <>
       <SiteHeader />
@@ -44,9 +48,9 @@ export default function PostAJobPage() {
               </div>
             </div>
             <aside className="post-job-side-note">
-              <span>Already have a client account?</span>
-              <strong>Open your workspace and post from there.</strong>
-              <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
+              <span>{isClient ? "You’re signed in as a client" : isVa ? "You’re signed in as a Virtual Assistant" : user ? "You’re already signed in" : "Already have a client account?"}</span>
+              <strong>{isClient ? "Post directly from your client dashboard." : isVa ? "Job posting uses a client account." : user ? "Continue from your existing workspace." : "Open your workspace and post from there."}</strong>
+              {isClient ? <Link href="/workspace/client/jobs/new">Post from client dashboard</Link> : isVa ? <Link href="/workspace/va/jobs">Browse VA jobs</Link> : user ? <Link href="/workspace">Go to workspace</Link> : <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>}
             </aside>
           </div>
         </section>
@@ -60,15 +64,29 @@ export default function PostAJobPage() {
               </div>
               <p>Three short steps. Add more detail only when it matters.</p>
             </div>
-            <div className="post-job-wizard-shell">
-              <JobWizard publicMode />
-            </div>
-            <div className="post-job-after">
-              <strong>What happens after the preview?</strong>
-              <p>
-                Create or sign in to your client account, confirm the saved draft, and submit it. If the role needs recruiter review or commercial approval, you will see that clearly after submission.
-              </p>
-            </div>
+            {isClient ? (
+              <div className="post-job-authenticated-cta">
+                <strong>You already have a client account.</strong>
+                <p>Skip signup and create the job directly inside your dashboard.</p>
+                <Link className="btn btn-primary btn-lg" href="/workspace/client/jobs/new">Post a job from my dashboard</Link>
+              </div>
+            ) : user ? (
+              <div className="post-job-authenticated-cta">
+                <strong>This signed-in account is not a client account.</strong>
+                <p>VA accounts can browse and apply to jobs. Employer job posting stays in the client workspace.</p>
+                <Link className="btn btn-primary" href={isVa ? "/workspace/va/jobs" : "/workspace"}>{isVa ? "Browse VA jobs" : "Go to workspace"}</Link>
+              </div>
+            ) : (
+              <>
+                <div className="post-job-wizard-shell">
+                  <JobWizard publicMode />
+                </div>
+                <div className="post-job-after">
+                  <strong>What happens after the preview?</strong>
+                  <p>Create or sign in to your client account, confirm the saved draft, and submit it. If the role needs recruiter review or commercial approval, you will see that clearly after submission.</p>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>

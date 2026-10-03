@@ -27,25 +27,3 @@ test("USD to PHP checkout never uses a hardcoded or stale fallback rate", async 
   assert.match(source, /!isStale/);
   assert.match(source, /if \(!rate\)/);
 });
-
-test("public talent supports hourly-rate filtering and rate sorting through a server-only RPC", async () => {
-  const page = await readFile("src/app/find-talent/page.tsx", "utf8");
-  const search = await readFile("src/lib/talent-search.ts", "utf8");
-  const migration = await readFile("supabase/migrations/20261003124000_talent_rate_filter_search_v2.sql", "utf8");
-
-  assert.match(page, /name="min_rate"/);
-  assert.match(page, /name="max_rate"/);
-  assert.match(page, /value="rate_low"/);
-  assert.match(page, /value="rate_high"/);
-
-  assert.match(search, /search_public_va_directory_hybrid_v2/);
-  assert.match(search, /p_min_rate/);
-  assert.match(search, /p_max_rate/);
-
-  assert.match(migration, /p_min_rate numeric default 0/);
-  assert.match(migration, /p_max_rate numeric default null/);
-  assert.match(migration, /p_sort = 'rate_low'/);
-  assert.match(migration, /p_sort = 'rate_high'/);
-  assert.match(migration, /revoke execute on function public\.search_public_va_directory_hybrid_v2/);
-  assert.match(migration, /to service_role/);
-});

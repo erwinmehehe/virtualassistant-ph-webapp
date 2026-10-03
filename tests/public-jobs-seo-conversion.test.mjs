@@ -12,8 +12,8 @@ const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
 
 test("jobs page is client-first without keyword stuffing", () => {
-  assert.match(page, /Post Virtual Assistant Jobs Philippines \| Hire Filipino VAs/);
-  assert.match(page, /<h1>Post a Virtual Assistant Job in the Philippines<\/h1>/);
+  assert.match(page, /title: \{ absolute: "Virtual Assistant Jobs Philippines" \}/);
+  assert.match(page, /<h1>Virtual Assistant Jobs Philippines<\/h1>/);
   assert.match(page, /Hire vetted Filipino Virtual Assistants/);
   assert.doesNotMatch(page, /Browse open VA jobs/);
   assert.doesNotMatch(page, /Create free VA profile/);

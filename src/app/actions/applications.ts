@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchScore } from "@/lib/matching";
-import { sendApplicationStatusEmail } from "@/lib/email";
+import { sendApplicationEmail, sendApplicationStatusEmail } from "@/lib/email";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import type { ApplicationStatus } from "@/lib/types";
@@ -50,25 +50,94 @@ export async function applyToJobAction(formData: FormData) {
   if (coverNote.length < 20) throw new Error("Add a short note explaining why you fit the role.");
   const supabase = await createClient();
   const admin = createAdminClient();
-  const [{ data: va }, { data: job }, { data: vetting }] = await Promise.all([
+  const [{ data: va }, { data: job }, { data: vetting }, { data: existing }] = await Promise.all([
     supabase.from("va_profiles").select("*").eq("user_id", user.id).single(),
     admin.from("jobs").select("*").eq("id", jobId).eq("status", "published").eq("moderation_status", "clear").not("client_id", "is", null).single(),
-    admin.from("va_vetting").select("stage").eq("va_id",user.id).single()
+    admin.from("va_vetting").select("stage").eq("va_id",user.id).single(),
+    admin.from("applications").select("id,status").eq("job_id",jobId).eq("va_id",user.id).maybeSingle()
   ]);
   if (!va || !job) throw new Error("Job or VA profile was not found.");
   if (!vetting || !["approved","bench"].includes(vetting.stage)) throw new Error("Complete VA vetting before applying to client jobs.");
   if (!job.client_id) throw new Error("This job is not ready to accept applications yet.");
+  if (existing) redirect("/workspace/va/applications?applied=already");
 
+  const score = matchScore(job, va);
   const { data: application, error } = await admin.from("applications").insert({
     job_id: jobId, va_id: user.id, cover_note: coverNote,
-    match_score: matchScore(job, va), profile_snapshot: snapshot(profile, va, vetting.stage)
+    match_score: score, profile_snapshot: snapshot(profile, va, vetting.stage)
   }).select("id").single();
   if (error) throw error;
   await admin.from("application_status_history").insert({ application_id: application.id, from_status: null, to_status: "new", changed_by: user.id, note: "Application submitted" });
-  await recordProductEvent("application_submitted", { userId: user.id, path: `/jobs/${jobId}`, metadata: { job_id: jobId } });
-  await admin.from("notifications").insert({ user_id: job.client_id, title: `New application for ${job.title}`, body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.", href: `/workspace/client/jobs/${job.id}` });
+  await recordProductEvent("application_submitted", { userId: user.id, path: `/jobs/${jobId}`, metadata: { job_id: jobId, application_id: application.id } });
+
+  try {
+    const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
+    await writeRecruiterActivity({
+      subjectType: "job",
+      subjectId: jobId,
+      action: "application_submitted",
+      description: "A vetted VA applied and is waiting for recruiter review",
+      actorId: user.id,
+      metadata: { va_id: user.id, application_id: application.id, match_score: score },
+    });
+  } catch {}
+
+  try {
+    const recruiterIds = job.recruiter_id
+      ? [job.recruiter_id]
+      : (await admin.from("profiles").select("id").eq("role", "recruiter").eq("account_status", "active")).data?.map((row: any) => row.id) || [];
+
+    if (recruiterIds.length) {
+      await admin.from("notifications").insert(recruiterIds.map((id: string) => ({
+        user_id: id,
+        title: `New VA application: ${job.title}`,
+        body: "A vetted VA applied. Review the application before deciding whether to present the candidate to the client.",
+        href: `/workspace/recruiter/matching/${jobId}`,
+        type: "matching",
+        priority: "normal",
+      })));
+    }
+  } catch (notificationError) {
+    console.error("[notifications] Recruiter application notification failed", notificationError);
+  }
+
+  try {
+    await admin.from("notifications").insert({
+      user_id: job.client_id,
+      title: `New application for ${job.title}`,
+      body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.",
+      href: `/workspace/client/jobs/${job.id}`,
+    });
+  } catch (notificationError) {
+    console.error("[notifications] Employer application notification failed", notificationError);
+  }
+
+  try {
+    const [{ data: clientProfile }, { data: clientAuth }] = await Promise.all([
+      admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle(),
+      admin.auth.admin.getUserById(job.client_id),
+    ]);
+    const emailDelivery = await sendApplicationEmail({
+      to: clientAuth.user?.email,
+      clientName: clientProfile?.full_name,
+      jobTitle: job.title,
+      jobId: job.id,
+      applicationId: application.id,
+    });
+    if (!emailDelivery.sent) {
+      console.warn("[email] New application employer notification was not sent", emailDelivery.reason);
+    }
+  } catch (emailError) {
+    console.error("[email] New application employer notification failed", emailError);
+  }
+
   revalidatePath("/workspace/va/applications");
   revalidatePath(`/jobs/${jobId}`);
+  revalidatePath("/workspace/client");
+  revalidatePath("/workspace/client/notifications");
+  revalidatePath(`/workspace/client/jobs/${job.id}`);
+  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  revalidatePath("/workspace/recruiter/notifications");
   redirect("/workspace/va/applications?applied=1");
 }
 

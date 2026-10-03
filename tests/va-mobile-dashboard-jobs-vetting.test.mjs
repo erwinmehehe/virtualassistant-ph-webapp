@@ -55,3 +55,34 @@ test("VA vetting has a responsive dedicated screening layout", async () => {
   assert.match(css, /\.va-vetting-test-form textarea,[\s\S]*font-size: 16px/);
   assert.match(css, /\.va-vetting-video-form[\s\S]*grid-template-columns: 1fr/);
 });
+
+
+test("vetted VAs get a real apply path for published jobs", async () => {
+  const [publicJob, vaJobs, applicationsAction] = await Promise.all([
+    read("src/app/jobs/[id]/page.tsx"),
+    read("src/app/workspace/va/jobs/page.tsx"),
+    read("src/app/actions/applications.ts"),
+  ]);
+
+  assert.match(publicJob, /applyToJobAction/);
+  assert.match(publicJob, /Apply for this job/);
+  assert.match(publicJob, /approved and bench-vetted VAs/i);
+  assert.doesNotMatch(publicJob, /Send interest to recruiter/);
+  assert.match(vaJobs, /const canApply = Boolean\(vetting && \["approved", "bench"\]\.includes\(vetting\.stage\)\)/);
+  assert.match(vaJobs, /canApply \? "View and apply" : "View role"/);
+  assert.match(applicationsAction, /\["approved","bench"\]\.includes\(vetting\.stage\)/);
+  assert.match(applicationsAction, /redirect\("\/workspace\/va\/applications\?applied=already"\)/);
+  assert.match(applicationsAction, /sendApplicationEmail/);
+});
+
+
+test("vetted VA applications notify employer and recruiter without making delivery a submission blocker", async () => {
+  const applicationsAction = await read("src/app/actions/applications.ts");
+  assert.match(applicationsAction, /New VA application:/);
+  assert.match(applicationsAction, /workspace\/recruiter\/matching/);
+  assert.match(applicationsAction, /New application for/);
+  assert.match(applicationsAction, /sendApplicationEmail/);
+  assert.match(applicationsAction, /Recruiter application notification failed/);
+  assert.match(applicationsAction, /Employer application notification failed/);
+  assert.match(applicationsAction, /New application employer notification failed/);
+});

@@ -154,6 +154,14 @@ export const PUBLIC_SEO_ROUTES: PublicSeoRoute[] = [
     llmsSection: "For Virtual Assistants",
   },
   {
+    path: "/post-a-job",
+    label: "Post a Virtual Assistant Job",
+    description: "Draft, preview, and submit a Virtual Assistant job for Filipino talent.",
+    changeFrequency: "monthly",
+    priority: 0.82,
+    llmsSection: "Hiring and Vetting",
+  },
+  {
     path: "/industries",
     label: "Industries",
     description: "Virtual assistant support organized by industry.",

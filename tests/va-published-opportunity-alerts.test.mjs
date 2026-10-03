@@ -24,18 +24,18 @@ test("published opportunity alerts require a good match with enough evidence", (
 
 test("VA opportunity alerts use the published job and do not introduce the VA to the client", () => {
   assert.match(autoMatching, /title: `New opportunity: \$\{job\.title\}`/);
-  assert.match(autoMatching, /This role appears to match your approved profile\. Review the role and express interest\./);
+  assert.match(autoMatching, /This role appears to match your vetted profile\. Review the role and apply if it fits your experience and availability\./);
   assert.match(autoMatching, /href = `\/jobs\/\$\{job\.id\}`/);
   assert.match(autoMatching, /shortlist_status: "proposed"/);
   assert.match(autoMatching, /releasedCount: 0/);
   assert.doesNotMatch(autoMatching, /shortlist_status: "released"/);
 });
 
-test("published opportunity alerts are deduped and skip VAs who already expressed interest", () => {
+test("published opportunity alerts are deduped and skip VAs who already applied", () => {
   assert.match(autoMatching, /\.from\("notifications"\)[\s\S]*\.eq\("type", "matching"\)[\s\S]*\.eq\("href", href\)/);
   assert.match(autoMatching, /\.from\("applications"\)[\s\S]*\.eq\("job_id", job\.id\)/);
   assert.match(autoMatching, /!alreadyNotified\.has\(match\.vaId\)/);
-  assert.match(autoMatching, /!alreadyInterested\.has\(match\.vaId\)/);
+  assert.match(autoMatching, /!alreadyApplied\.has\(match\.vaId\)/);
 });
 
 test("express interest still routes the VA to recruiter review before any client presentation", () => {

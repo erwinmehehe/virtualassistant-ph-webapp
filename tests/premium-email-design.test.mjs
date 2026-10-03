@@ -38,8 +38,13 @@ test("client application notification uses the branded hiring email", async () =
   const notification = email.slice(start, end);
 
   assert.match(notification, /renderHiringEmail/);
+  assert.match(notification, /A vetted VA applied/);
+  assert.match(notification, /New application/);
+  assert.match(notification, /Vetted applicant/);
   assert.match(notification, /Review application/);
-  assert.match(notification, /workspace\/client/);
+  assert.match(notification, /workspace\/client\/jobs/);
+  assert.match(notification, /Candidate details remain protected/);
+  assert.match(notification, /text:/);
 });
 
 

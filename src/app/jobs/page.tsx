@@ -6,8 +6,7 @@ import {
   CheckCircle2,
   Globe2,
   Search,
-  ShieldCheck,
-  UsersRound,
+  ShieldCheck
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -15,39 +14,39 @@ import { JobCard } from "@/components/job-card";
 import { createClient } from "@/lib/supabase/server";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { getBusinessSettings } from "@/lib/business-settings";
-import { canonicalPath } from "@/lib/seo-url";
+import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
+import { jobPublicHref } from "@/lib/public-routing";
 import { socialMetadata } from "@/lib/og";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
-  title: "Virtual Assistant Jobs Philippines",
+  title: "Virtual Assistant Jobs Philippines | Free VA Job Website",
   description:
-    "Browse remote virtual assistant jobs in the Philippines with published pay, clear role scope, and recruiter-reviewed client opportunities.",
-  keywords: [
-    "virtual assistant jobs philippines",
-    "remote virtual assistant jobs",
-    "work from home virtual assistant jobs",
-    "filipino virtual assistant jobs",
-    "online virtual assistant jobs philippines",
-  ],
+    "Browse virtual assistant jobs in the Philippines for free. Find remote VA work with published pay and clear role details, or post a VA job for Filipino talent.",
   alternates: { canonical: canonicalPath("/jobs") },
   ...socialMetadata({
-    title: "Virtual Assistant Jobs Philippines",
-    description: "Browse remote virtual assistant jobs in the Philippines with published pay, clear role scope, and recruiter-reviewed client opportunities.",
+    title: "Virtual Assistant Jobs Philippines | Free VA Job Website",
+    description:
+      "Browse virtual assistant jobs in the Philippines for free, compare published pay and role details, or post a VA job for Filipino talent.",
     path: canonicalPath("/jobs"),
     category: "jobs",
-    eyebrow: "Remote VA Jobs",
-    points: ["Published pay","Clear role scope","Remote Philippines","Recruiter-reviewed clients"],
+    eyebrow: "Virtual Assistant Jobs Philippines",
+    points: ["Free for VA applicants","Published pay","Remote Philippines","Post a VA job"],
   }),
 };
 
 const PAGE_SIZE = 20;
-const EMPLOYER_POST_HREF = "/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
+const EMPLOYER_POST_HREF = "/post-a-job";
+const EMPLOYER_LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
 
 const jobFaqs = [
   [
+    "Where can I find free virtual assistant job websites in the Philippines?",
+    "VirtualAssistant.com.ph lets Filipino Virtual Assistants browse jobs, create a profile, apply, complete vetting, accept a placement, and receive their agreed compensation without a VA-side platform fee.",
+  ],
+  [
     "How do I apply for virtual assistant jobs in the Philippines?",
-    "Create one VirtualAssistant.com.ph profile, complete the required vetting steps, and then express interest in published roles that match your skills, schedule, and experience.",
+    "Create one free VirtualAssistant.com.ph profile, complete vetting, and apply directly to published roles that match your skills, schedule, and experience.",
   ],
   [
     "Are these virtual assistant jobs remote?",
@@ -55,11 +54,15 @@ const jobFaqs = [
   ],
   [
     "Do job listings show the pay rate?",
-    "Published listings show the client-posted Virtual Assistant compensation range or minimum hourly rate so applicants can evaluate the opportunity before expressing interest.",
+    "Published listings show the client-posted Virtual Assistant compensation range or minimum hourly rate so applicants can evaluate the opportunity before applying.",
   ],
   [
-    "Can businesses post a Virtual Assistant job?",
-    "Yes. Client accounts can create hiring requests. Selected approved client accounts can publish complete curated-placement roles directly, while other roles go through recruiter review before becoming public.",
+    "How do I post a Virtual Assistant job in the Philippines?",
+    "Start on the public Post a Job page with no account required. Add the role, hours, compensation, timezone, and skills, preview the posting, then create or sign in to a client account to submit it.",
+  ],
+  [
+    "Is posting a job free for employers?",
+    "VA applicants are not charged platform fees. Employer recruiting, candidate-access, placement, or managed-service fees are separate and depend on the hiring model selected.",
   ],
 ] as const;
 
@@ -127,6 +130,24 @@ export default async function PublicJobsPage({
       acceptedAnswer: { "@type": "Answer", text: answer },
     })),
   };
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Virtual Assistant Jobs Philippines",
+    url: canonicalUrl("/jobs"),
+    description:
+      "Browse remote virtual assistant jobs in the Philippines with published pay, clear role details, and recruiter-reviewed opportunities.",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: jobs.length,
+      itemListElement: jobs.map((job, index) => ({
+        "@type": "ListItem",
+        position: (page - 1) * PAGE_SIZE + index + 1,
+        url: canonicalUrl(jobPublicHref(job)),
+        name: job.title,
+      })),
+    },
+  };
 
   return (
     <>
@@ -135,6 +156,10 @@ export default async function PublicJobsPage({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }}
         />
 
         <section className="jobs-market-hero">
@@ -150,63 +175,59 @@ export default async function PublicJobsPage({
           <div className="container jobs-market-hero-grid">
             <div className="jobs-market-copy">
               <span className="jobs-market-eyebrow">
-                <ShieldCheck size={15} /> Recruiter-reviewed opportunities
+                <ShieldCheck size={15} /> Remote roles for vetted Filipino VAs
               </span>
-              <h1>Virtual assistant jobs in the Philippines</h1>
+              <h1>Virtual Assistant Jobs Philippines</h1>
               <p>
-                Find remote Virtual Assistant jobs with visible pay, clear role expectations, and a real hiring
-                process behind every public listing.
+                Browse remote VA roles with pay, weekly hours, and timezone expectations shown upfront. Vetted VAs can apply directly from each job page.
               </p>
               <div className="jobs-market-actions">
-                <Link className="btn btn-primary btn-lg" href="/auth/join/va">
-                  Create your VA profile <ArrowRight size={16} />
+                <Link className="btn btn-primary btn-lg" href="#open-jobs">
+                  Browse open VA jobs <ArrowRight size={16} />
                 </Link>
-                <Link className="btn btn-lg" href={EMPLOYER_POST_HREF}>
-                  Post a VA job
+                <Link className="btn btn-lg" href="/auth/join/va">
+                  Create free VA profile
                 </Link>
               </div>
               <div className="jobs-market-proof" aria-label="Job marketplace benefits">
+                <span><CheckCircle2 size={15} /> Free for VA applicants</span>
                 <span><CheckCircle2 size={15} /> Published compensation</span>
-                <span><ShieldCheck size={15} /> Vetted applicant flow</span>
                 <span><Globe2 size={15} /> Remote Philippines roles</span>
               </div>
             </div>
 
-            <aside className="jobs-market-summary-card">
+            <aside className="jobs-employer-card">
+              <span className="jobs-employer-kicker">For employers</span>
               <div className="jobs-market-summary-icon"><BriefcaseBusiness size={24} /></div>
-              <strong>{total} open role{total === 1 ? "" : "s"}</strong>
-              <p>New opportunities appear after the client or recruiting team completes the publication checks.</p>
-              <div className="jobs-market-summary-row">
-                <span>For VAs</span>
-                <b>One vetted profile</b>
-              </div>
-              <div className="jobs-market-summary-row">
-                <span>For clients</span>
-                <b>Clear role + pay</b>
-              </div>
+              <h2>Hiring a Filipino Virtual Assistant?</h2>
+              <p>
+                Add the work, hours, schedule, and budget. Review the posting before you create an account.
+              </p>
+              <ul>
+                <li><CheckCircle2 size={15} /> Reach vetted Filipino VAs</li>
+                <li><CheckCircle2 size={15} /> Set compensation and schedule up front</li>
+                <li><CheckCircle2 size={15} /> Review the posting before signup</li>
+              </ul>
+              <Link className="btn btn-primary btn-lg jobs-employer-button" href={EMPLOYER_POST_HREF}>
+                Post a VA job <ArrowRight size={16} />
+              </Link>
+              <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link>
             </aside>
           </div>
         </section>
 
-        <section className="jobs-market-paths">
-          <div className="container jobs-market-path-grid">
-            <div>
-              <UsersRound size={20} />
-              <span>Looking for work?</span>
-              <strong>Build one profile and use it across matching opportunities.</strong>
-              <Link href="/auth/join/va">Start your VA profile <ArrowRight size={14} /></Link>
-            </div>
-            <div>
-              <BriefcaseBusiness size={20} />
-              <span>Hiring a Virtual Assistant?</span>
-              <strong>Post a complete role or send a hiring brief for recruiter review.</strong>
-              <Link href={EMPLOYER_POST_HREF}>Post a job <ArrowRight size={14} /></Link>
-            </div>
-          </div>
-        </section>
-
-        <section className="section jobs-directory">
+        <section className="section jobs-directory" id="open-jobs">
           <div className="container">
+            <div className="jobs-directory-intro">
+              <div>
+                <span className="kicker">Remote opportunities</span>
+                <h2>Latest virtual assistant jobs in the Philippines</h2>
+                <p>Search current Philippines virtual assistant jobs by specialty, hours, pay, and recency.</p>
+              </div>
+              <Link className="btn jobs-directory-post" href={EMPLOYER_POST_HREF}>
+                <BriefcaseBusiness size={16} /> Post a job
+              </Link>
+            </div>
             <form className="jobs-filterbar" method="get">
               <div className="jobs-search">
                 <Search size={17} />
@@ -270,10 +291,7 @@ export default async function PublicJobsPage({
                   <div>
                     <span className="small">No public roles match right now</span>
                     <h2>{q || category || minRate || hours ? "Try broader job filters." : "More reviewed VA jobs are being prepared."}</h2>
-                    <p>
-                      Public roles only appear after the required publishing checks. Create your VA profile now so
-                      you are ready when matching opportunities go live.
-                    </p>
+                    <p>Only published roles appear here. Create your VA profile and complete vetting so you can apply when a suitable role opens.</p>
                   </div>
                   <div className="jobs-empty-actions">
                     <Link className="btn btn-primary" href="/auth/join/va">Create VA profile</Link>
@@ -296,31 +314,34 @@ export default async function PublicJobsPage({
         <section className="jobs-seo-section">
           <div className="container">
             <div className="jobs-seo-intro">
-              <span className="kicker">Virtual Assistant careers</span>
-              <h2>Finding remote virtual assistant jobs in the Philippines</h2>
+              <span className="kicker">Free VA job website for applicants</span>
+              <h2>A free virtual assistant job website for the Philippines</h2>
               <p>
-                VirtualAssistant.com.ph is built for Filipino professionals who want remote work with clearer role
-                expectations. Public job listings show the work the client needs, expected weekly hours, working
-                region or timezone, and the advertised VA compensation so you can decide whether a role fits before
-                entering the recruiting process.
+                Filipino Virtual Assistants can create a profile, browse and apply for jobs, complete vetting, accept
+                a placement, and receive their agreed compensation without a VA-side platform fee. Public listings
+                show role scope, hours, timezone context, and advertised compensation so applicants can judge fit
+                before entering the recruiting process.
+              </p>
+              <p className="jobs-seo-support-link">
+                Comparing job sites first? <Link href="/blog/free-virtual-assistant-job-websites-philippines">See our 2026 guide to free Virtual Assistant job websites in the Philippines <ArrowRight size={14} /></Link>
               </p>
             </div>
 
             <div className="jobs-seo-grid">
               <article>
-                <ShieldCheck size={20} />
-                <h3>Reviewed opportunities</h3>
+                <CheckCircle2 size={20} />
+                <h3>Free for Filipino applicants</h3>
                 <p>
-                  Public roles are not raw anonymous posts. A role must reach the publication stage before it appears
-                  here, and the candidate process stays recruiter-managed.
+                  VAs are not charged to create a profile, apply for jobs, complete vetting, accept a placement, or
+                  receive their agreed compensation.
                 </p>
               </article>
               <article>
-                <BriefcaseBusiness size={20} />
-                <h3>Different VA specialties</h3>
+                <ShieldCheck size={20} />
+                <h3>Reviewed opportunities</h3>
                 <p>
-                  Opportunities can include administrative support, executive assistance, customer service,
-                  ecommerce, bookkeeping, sales support, marketing, social media, real estate, and other remote work.
+                  Public roles must reach the publication stage before they appear here, and recruiter review remains
+                  part of the hiring flow when the role or client account requires it.
                 </p>
               </article>
               <article>
@@ -328,7 +349,7 @@ export default async function PublicJobsPage({
                 <h3>Remote schedules and timezones</h3>
                 <p>
                   Some clients need US, UK, or Australian business-hour overlap while others offer flexible schedules.
-                  Check each job for weekly hours and timezone expectations before expressing interest.
+                  Check each job for weekly hours and timezone expectations before applying.
                 </p>
               </article>
             </div>
@@ -338,15 +359,14 @@ export default async function PublicJobsPage({
                 <span className="kicker">How it works</span>
                 <h2>One vetted profile, multiple Virtual Assistant opportunities</h2>
                 <p>
-                  Instead of sending the same information from scratch for every opening, build a complete profile
-                  once and keep your skills, experience, availability, and recruiter review in one place.
+                  Build your profile once, complete vetting, and use the same verified profile when you apply to published roles.
                 </p>
               </div>
               <ol>
                 <li><span>1</span><div><strong>Create your VA profile</strong><p>Add your experience, skills, tools, schedule, and work preferences.</p></div></li>
                 <li><span>2</span><div><strong>Complete vetting</strong><p>Finish the required profile, screening, video, and recruiter-review steps.</p></div></li>
-                <li><span>3</span><div><strong>Express interest</strong><p>Choose published jobs that fit your skills, rate, and availability.</p></div></li>
-                <li><span>4</span><div><strong>Recruiter review</strong><p>The recruiting team reviews fit before presenting candidates to the client.</p></div></li>
+                <li><span>3</span><div><strong>Apply to a role</strong><p>Open a published job, add a short fit note, and submit your application.</p></div></li>
+                <li><span>4</span><div><strong>Track the application</strong><p>Your application starts in recruiter review and stays visible in your VA workspace.</p></div></li>
               </ol>
             </div>
 
@@ -367,13 +387,13 @@ export default async function PublicJobsPage({
 
             <div className="jobs-bottom-cta">
               <div>
-                <span>For Filipino Virtual Assistants</span>
-                <h2>Ready for your next remote VA role?</h2>
-                <p>Create your profile now so your experience is ready when the right job is published.</p>
+                <span>For employers</span>
+                <h2>Post a Virtual Assistant job in the Philippines</h2>
+                <p>Post the role with clear pay, hours, timezone, and responsibilities so Filipino VAs can evaluate it quickly.</p>
               </div>
               <div className="jobs-bottom-actions">
-                <Link className="btn btn-primary btn-lg" href="/auth/join/va">Create VA profile</Link>
-                <Link className="btn btn-lg" href={EMPLOYER_POST_HREF}>I’m hiring a VA</Link>
+                <Link className="btn btn-primary btn-lg" href={EMPLOYER_POST_HREF}>Post a VA job</Link>
+                <Link className="btn btn-lg" href="/auth/join/va">I’m looking for VA work</Link>
               </div>
             </div>
           </div>

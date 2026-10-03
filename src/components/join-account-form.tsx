@@ -23,6 +23,7 @@ export function JoinAccountForm({
   const googleEnabled = googleLoginEnabled();
   const microsoftEnabled = microsoftLoginEnabled();
   const socialEnabled = googleEnabled || microsoftEnabled;
+  const jobPostingFlow = client && Boolean(next?.startsWith("/workspace/client/jobs/new"));
   const switchHref = client ? "/auth/join/va" : "/auth/join/client";
   const loginParams = new URLSearchParams();
   if (next) loginParams.set("next", next);
@@ -42,9 +43,11 @@ export function JoinAccountForm({
           <div className="auth-role-icon" aria-hidden="true">{client ? <BriefcaseBusiness size={22}/> : <UserRoundCheck size={22}/>}</div>
           <div>
             <div className="kicker">{client ? "Client account" : "Virtual Assistant account"}</div>
-            <h1>{client ? "Create your client workspace" : "Create your free VA profile"}</h1>
+            <h1>{client ? jobPostingFlow ? "Save your job and continue" : "Create your client workspace" : "Create your free VA profile"}</h1>
             <p className="muted auth-intro">{client
-              ? "Start with your account, then manage hiring requests, shortlists, interviews, and placements from one workspace."
+              ? jobPostingFlow
+                ? "Your job draft is saved on this device. Create your client account now, then you’ll return to the preview and submit the role."
+                : "Start with your account, then manage hiring requests, shortlists, interviews, and placements from one workspace."
               : "Create your free account first. Then complete a short setup and build the rest of your profile at your own pace."}</p>
           </div>
         </div>
@@ -115,7 +118,7 @@ export function JoinAccountForm({
           <JoinSubmitButton role={role}/>
           <div className="auth-after-submit-note">
             {client
-              ? "After confirmation, your private Client workspace opens immediately."
+              ? jobPostingFlow ? "After confirmation, you’ll return to your saved job preview." : "After confirmation, your private Client workspace opens immediately."
               : "After confirmation, you’ll continue to the short VA profile setup."}
           </div>
         </form>

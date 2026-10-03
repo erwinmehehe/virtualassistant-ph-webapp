@@ -16,12 +16,15 @@ export default async function VaJobsPage() {
   const { userId } = await requireRoleFast("va");
   const supabase = await createClient();
 
-  const [{ data: va }, { data: jobs }, { data: saved }, { data: apps }] = await Promise.all([
+  const [{ data: va }, { data: jobs }, { data: saved }, { data: apps }, { data: vetting }] = await Promise.all([
     supabase.from("va_profiles").select("*").eq("user_id", userId).single(),
     supabase.from("public_jobs").select("*").order("published_at", { ascending: false }).limit(80),
     supabase.from("saved_jobs").select("job_id").eq("va_id", userId),
     supabase.from("applications").select("job_id,status").eq("va_id", userId),
+    supabase.from("va_vetting").select("stage").eq("va_id", userId).maybeSingle(),
   ]);
+
+  const canApply = Boolean(vetting && ["approved", "bench"].includes(vetting.stage));
 
   const savedSet = new Set((saved || []).map((item: any) => item.job_id));
   const appMap = new Map((apps || []).map((item: any) => [item.job_id, item.status]));
@@ -38,7 +41,7 @@ export default async function VaJobsPage() {
       <div className="va-jobs-head va-jobs-mobile-head">
         <div>
           <h1>Find jobs</h1>
-          <p>Open roles matched to your profile, experience, and availability.</p>
+          <p>{canApply ? "You are vetted and can apply directly to published roles." : "Browse open roles now. Complete vetting to unlock job applications."}</p>
         </div>
         <Link className="btn btn-sm va-jobs-update-profile" href="/workspace/va/profile">
           Update profile
@@ -91,7 +94,7 @@ export default async function VaJobsPage() {
 
                 <div className="va-job-actions va-job-mobile-actions">
                   <Link className="btn btn-primary btn-sm" href={jobPublicHref(job)}>
-                    {applied ? "View role" : "View and apply"}
+                    {applied ? "View application" : canApply ? "View and apply" : "View role"}
                   </Link>
                   <form action={saveJobAction}>
                     <input type="hidden" name="job_id" value={job.id} />

@@ -132,13 +132,17 @@ test("VA address is optional and private across profile and onboarding", async (
   assert.ok(profilePage.includes('name="address"'));
   assert.ok(profilePage.includes("Current home address"));
   assert.ok(profilePage.includes("optional, private"));
-  assert.doesNotMatch(profilePage.match(/name="address"[\\s\\S]{0,300}/)?.[0] || "", /required/);
+  const profileAddressIndex = profilePage.indexOf('name="address"');
+  assert.ok(profileAddressIndex >= 0);
+  assert.ok(!profilePage.slice(Math.max(0, profileAddressIndex - 180), profileAddressIndex + 320).includes("required"));
   assert.ok(profileAction.includes('formData.get("address")'));
   assert.ok(!profileAction.includes("Enter your current address"));
 
   assert.ok(onboarding.includes("Private address (optional)"));
   assert.ok(onboarding.includes('name="address"'));
-  assert.doesNotMatch(onboarding.match(/name="address"[\\s\\S]{0,300}/)?.[0] || "", /required/);
+  const onboardingAddressIndex = onboarding.indexOf('name="address"');
+  assert.ok(onboardingAddressIndex >= 0);
+  assert.ok(!onboarding.slice(Math.max(0, onboardingAddressIndex - 180), onboardingAddressIndex + 320).includes("required"));
   assert.ok(onboardingAction.includes("if (address &&"));
   assert.ok(onboardingAction.includes("address: address || null"));
 

@@ -52,13 +52,14 @@ export async function applyToJobAction(formData: FormData) {
   const admin = createAdminClient();
   const [{ data: va }, { data: job }, { data: vetting }, { data: existing }] = await Promise.all([
     supabase.from("va_profiles").select("*").eq("user_id", user.id).single(),
-    admin.from("jobs").select("*").eq("id", jobId).eq("status", "published").eq("moderation_status", "clear").not("client_id", "is", null).single(),
+    admin.from("jobs").select("*").eq("id", jobId).eq("status", "published").eq("moderation_status", "clear").single(),
     admin.from("va_vetting").select("stage").eq("va_id",user.id).single(),
     admin.from("applications").select("id,status").eq("job_id",jobId).eq("va_id",user.id).maybeSingle()
   ]);
   if (!va || !job) throw new Error("Job or VA profile was not found.");
   if (!vetting || !["approved","bench"].includes(vetting.stage)) throw new Error("Complete VA vetting before applying to client jobs.");
-  if (!job.client_id) throw new Error("This job is not ready to accept applications yet.");
+  const recruiterManagedPublic = Boolean(job.recruiter_managed_public && job.lead_id);
+  if (!job.client_id && !recruiterManagedPublic) throw new Error("This job is not ready to accept applications yet.");
   if (existing) redirect("/workspace/va/applications?applied=already");
 
   const score = matchScore(job, va);
@@ -101,34 +102,36 @@ export async function applyToJobAction(formData: FormData) {
     console.error("[notifications] Recruiter application notification failed", notificationError);
   }
 
-  try {
-    await admin.from("notifications").insert({
-      user_id: job.client_id,
-      title: `New application for ${job.title}`,
-      body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.",
-      href: `/workspace/client/jobs/${job.id}`,
-    });
-  } catch (notificationError) {
-    console.error("[notifications] Employer application notification failed", notificationError);
-  }
-
-  try {
-    const [{ data: clientProfile }, { data: clientAuth }] = await Promise.all([
-      admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle(),
-      admin.auth.admin.getUserById(job.client_id),
-    ]);
-    const emailDelivery = await sendApplicationEmail({
-      to: clientAuth.user?.email,
-      clientName: clientProfile?.full_name,
-      jobTitle: job.title,
-      jobId: job.id,
-      applicationId: application.id,
-    });
-    if (!emailDelivery.sent) {
-      console.warn("[email] New application employer notification was not sent", emailDelivery.reason);
+  if (job.client_id) {
+    try {
+      await admin.from("notifications").insert({
+        user_id: job.client_id,
+        title: `New application for ${job.title}`,
+        body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.",
+        href: `/workspace/client/jobs/${job.id}`,
+      });
+    } catch (notificationError) {
+      console.error("[notifications] Employer application notification failed", notificationError);
     }
-  } catch (emailError) {
-    console.error("[email] New application employer notification failed", emailError);
+
+    try {
+      const [{ data: clientProfile }, { data: clientAuth }] = await Promise.all([
+        admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle(),
+        admin.auth.admin.getUserById(job.client_id),
+      ]);
+      const emailDelivery = await sendApplicationEmail({
+        to: clientAuth.user?.email,
+        clientName: clientProfile?.full_name,
+        jobTitle: job.title,
+        jobId: job.id,
+        applicationId: application.id,
+      });
+      if (!emailDelivery.sent) {
+        console.warn("[email] New application employer notification was not sent", emailDelivery.reason);
+      }
+    } catch (emailError) {
+      console.error("[email] New application employer notification failed", emailError);
+    }
   }
 
   revalidatePath("/workspace/va/applications");

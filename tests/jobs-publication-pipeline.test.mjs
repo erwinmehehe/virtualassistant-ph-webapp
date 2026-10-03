@@ -68,7 +68,8 @@ test("selected clients can self-publish complete curated-placement jobs only", a
   const adminJob = await read("src/app/workspace/admin/jobs/[id]/page.tsx");
 
   assert.match(migration, /can_self_publish_jobs boolean not null default false/);
-  assert.match(jobs, /select\("can_self_publish_jobs"\)/);
+  assert.match(jobs, /select\("can_self_publish_jobs,verified_at"\)/);
+  assert.match(jobs, /clientProfile\?\.can_self_publish_jobs && clientProfile\?\.verified_at/);
   assert.match(jobs, /serviceModel === "curated_placement"/);
   assert.match(jobs, /status: submitMode === "draft" \? "draft" : selfPublish \? "published" : "pending"/);
   assert.match(jobs, /published_at: selfPublish \? new Date\(\)\.toISOString\(\) : null/);
@@ -84,6 +85,7 @@ test("approved client publishing UI explains when a job will go live", async () 
   const clientJobs = await read("src/app/workspace/client/jobs/page.tsx");
 
   assert.match(newJob, /can_self_publish_jobs/);
+  assert.match(newJob, /company\?\.can_self_publish_jobs && company\?\.verified_at/);
   assert.match(newJob, /Post a Virtual Assistant job/);
   assert.match(wizard, /canSelfPublishJobs/);
   assert.match(wizard, /Publish job/);

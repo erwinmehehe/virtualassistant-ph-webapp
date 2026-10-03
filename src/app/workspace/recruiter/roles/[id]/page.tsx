@@ -8,7 +8,6 @@ import { elapsedLabel, hoursSince } from "@/lib/format";
 import { publicationBlocker } from "@/lib/job-publication";
 import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
-import { bulkRecruiterVaAction } from "@/app/actions/recruiter";
 import { createPlacementOfferAction } from "@/app/actions/recruiter-operations-system";
 import { StaffJobMatching } from "@/components/staff-job-matching";
 import { CandidateInterviewScheduler } from "@/components/candidate-interview-scheduler";
@@ -133,21 +132,19 @@ export default async function RoleControlCenter({
   const proposed = shortlist.filter((x) => x.shortlist_status === "proposed" && Boolean(x.created_by));
   const released = shortlist.filter((x) => x.shortlist_status === "released");
   const proposedVaIds = [...new Set(proposed.map((x) => x.va_id).filter(Boolean))];
-  const [{ data: proposedVetting }, { data: proposedProfiles }, { data: proposedPool }] = proposedVaIds.length
+  const [{ data: proposedVetting }, { data: proposedProfiles }] = proposedVaIds.length
     ? await Promise.all([
         admin.from("va_vetting").select("va_id,stage").in("va_id", proposedVaIds),
         admin.from("va_profiles").select("user_id,availability_status,availability_confirmed_at").in("user_id", proposedVaIds),
-        admin.from("bench_memberships").select("va_id").in("va_id", proposedVaIds).eq("status", "active"),
       ])
-    : [{ data: [] as any[] }, { data: [] as any[] }, { data: [] as any[] }];
+    : [{ data: [] as any[] }, { data: [] as any[] }];
   const proposedStage = new Map((proposedVetting || []).map((row: any) => [row.va_id, row.stage]));
   const proposedProfile = new Map((proposedProfiles || []).map((row: any) => [row.user_id, row]));
-  const proposedPoolIds = new Set((proposedPool || []).map((row: any) => row.va_id));
   const blockedProposed = proposed.filter((row) => {
     const profile = proposedProfile.get(row.va_id) as any;
     return !isTalentAgencyCertified({
       stage: proposedStage.get(row.va_id) as string | null | undefined,
-      activePool: proposedPoolIds.has(row.va_id),
+      activePool: false,
       availabilityStatus: profile?.availability_status,
       availabilityConfirmedAt: profile?.availability_confirmed_at,
     });
@@ -156,7 +153,7 @@ export default async function RoleControlCenter({
     const profile = proposedProfile.get(row.va_id) as any;
     return talentReadinessActions({
       stage: proposedStage.get(row.va_id) as string | null | undefined,
-      activePool: proposedPoolIds.has(row.va_id),
+      activePool: false,
       availabilityStatus: profile?.availability_status,
       availabilityConfirmedAt: profile?.availability_confirmed_at,
     });
@@ -165,7 +162,7 @@ export default async function RoleControlCenter({
     const profile = proposedProfile.get(row.va_id) as any;
     const gaps = talentReadinessActions({
       stage: proposedStage.get(row.va_id) as string | null | undefined,
-      activePool: proposedPoolIds.has(row.va_id),
+      activePool: false,
       availabilityStatus: profile?.availability_status,
       availabilityConfirmedAt: profile?.availability_confirmed_at,
     });
@@ -173,11 +170,9 @@ export default async function RoleControlCenter({
       vaId: row.va_id,
       name: vaMap.get(row.va_id) || "VA",
       gaps,
-      needsPool: gaps.includes("Add to talent pool"),
       needsAvailability: gaps.includes("Confirm availability") || gaps.includes("Refresh availability"),
     };
   }).sort((a, b) => a.gaps.length - b.gaps.length || a.name.localeCompare(b.name));
-  const poolBlockedIds = blockedReadinessRows.filter((row) => row.needsPool).map((row) => row.vaId);
   const availabilityBlockedCount = blockedReadinessRows.filter((row) => row.needsAvailability).length;
   const waiting = released.filter((x) => !x.client_decision);
   const activeInterviews = interviews.filter((x) => x.status !== "cancelled");
@@ -439,20 +434,9 @@ export default async function RoleControlCenter({
                 These are recruiter-selected candidates only. Clear the exact blocker before sending anyone to the client.
               </p>
             </div>
-            <div className="row wrap">
-              {poolBlockedIds.length > 1 ? (
-                <form action={bulkRecruiterVaAction}>
-                  <input type="hidden" name="bulk_action" value="bench"/>
-                  <input type="hidden" name="selection_scope" value="selected"/>
-                  <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${id}`}/>
-                  {poolBlockedIds.map((vaId) => <input type="hidden" name="va_id" value={vaId} key={vaId}/>)}
-                  <button className="btn" type="submit">Add {poolBlockedIds.length} to talent pool</button>
-                </form>
-              ) : null}
-            </div>
+            <span className="badge badge-warning">{blockedReadinessRows.length} need attention</span>
           </div>
           <div className="row wrap" style={{ marginTop: 10 }}>
-            {poolBlockedIds.length ? <span className="small muted">{poolBlockedIds.length} need talent-pool membership</span> : null}
             {availabilityBlockedCount ? <span className="small muted">{availabilityBlockedCount} need availability confirmation</span> : null}
           </div>
           <div className="stack" style={{ marginTop: 14 }}>
@@ -466,16 +450,7 @@ export default async function RoleControlCenter({
                     </div>
                   </div>
                   <div className="row wrap">
-                    {candidate.needsPool ? (
-                      <form action={bulkRecruiterVaAction}>
-                        <input type="hidden" name="bulk_action" value="bench"/>
-                        <input type="hidden" name="selection_scope" value="selected"/>
-                        <input type="hidden" name="va_id" value={candidate.vaId}/>
-                        <input type="hidden" name="return_to" value={`/workspace/recruiter/roles/${id}`}/>
-                        <button className="btn btn-sm" type="submit">Add to talent pool</button>
-                      </form>
-                    ) : null}
-                                        {candidate.needsAvailability ? (
+                    {candidate.needsAvailability ? (
                       <Link className="btn btn-sm" href={`/workspace/recruiter/candidates/${candidate.vaId}`}>Open VA profile</Link>
                     ) : null}
                   </div>

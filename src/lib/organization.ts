@@ -1,18 +1,17 @@
 /**
  * One canonical Organization node for the whole site.
  *
- * Every page used to declare its own unlinked Organization, so a crawler had
- * no way to tell that the publisher on a blog post and the provider on a
- * service page were the same company. Pages now reference this @id instead,
- * and the profile links let an assistant resolve us to the same entity it
- * sees elsewhere.
+ * Keep the public entity name consistent across page schema, publisher/provider
+ * references, and site metadata. The domain remains an alternate name/brand
+ * reference, while the entity itself is "Virtual Assistant Philippines".
  */
 
 export function organizationId(base: string) {
   return `${base.replace(/\/$/, "")}/#organization`;
 }
 
-export const ORGANIZATION_NAME = "VirtualAssistant.com.ph";
+export const ORGANIZATION_NAME = "Virtual Assistant Philippines";
+export const ORGANIZATION_ALTERNATE_NAME = "VirtualAssistant.com.ph";
 
 /** Profiles we control. Only add a URL that is live and genuinely ours. */
 export const ORGANIZATION_SAME_AS = [
@@ -21,5 +20,11 @@ export const ORGANIZATION_SAME_AS = [
 
 /** A reference to the canonical node, for provider/publisher fields. */
 export function organizationRef(base: string) {
-  return { "@type": "Organization", "@id": organizationId(base), name: ORGANIZATION_NAME, url: base.replace(/\/$/, "") };
+  return {
+    "@type": "Organization",
+    "@id": organizationId(base),
+    name: ORGANIZATION_NAME,
+    alternateName: ORGANIZATION_ALTERNATE_NAME,
+    url: base.replace(/\/$/, ""),
+  };
 }

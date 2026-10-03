@@ -157,3 +157,21 @@ test("public jobs always expose the submitted company name while richer profile 
   assert.match(migration, /'confidential client'/);
   assert.doesNotMatch(migration, /select[\s\S]*?c\.company_name,/);
 });
+
+
+test("recent recruiter-managed roles can publish and accept applications before client claim", async () => {
+  const [migration, applications, helper, detail] = await Promise.all([
+    read("supabase/migrations/20261003210000_recruiter_managed_public_jobs.sql"),
+    read("src/app/actions/applications.ts"),
+    read("src/lib/job-publication.ts"),
+    read("src/app/jobs/[id]/page.tsx"),
+  ]);
+
+  assert.match(migration, /recruiter_managed_public boolean not null default false/);
+  assert.match(migration, /j\.client_id is not null or j\.recruiter_managed_public = true/);
+  assert.match(applications, /recruiterManagedPublic = Boolean\(job\.recruiter_managed_public && job\.lead_id\)/);
+  assert.doesNotMatch(applications, /eq\("moderation_status", "clear"\)\.not\("client_id", "is", null\)/);
+  assert.match(applications, /if \(job\.client_id\) \{/);
+  assert.match(helper, /job\.status === "published" && job\.recruiter_managed_public/);
+  assert.match(detail, /VAPH will handle the next employer step/);
+});

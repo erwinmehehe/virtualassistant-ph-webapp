@@ -43,6 +43,20 @@ Decision: HOLD final launch sign-off. Core database acceptance for both service 
 - Production data records maintenance-only actions at approximately 09:52 UTC on October 2, including 7 `sales_follow_up_due` reminders and the training-resume reminder batch. Between 09:50 and 09:55 UTC, 7 `product_training_resume_reminder` emails were delivered and 22 low-priority reminders were `skipped_quota`, with no delivery failures. This proves the daily maintenance route executed and that quota protection shed low-priority reminder traffic safely.
 - Runtime release `137447aa5357cc847d1ac9b08de0c2be4e2b1515` adds a durable `maintenance_completed` system audit entry plus a concise `[maintenance] completed` log for every future daily run, recording only success, failed task names, deployment SHA, and environment. It is READY on Vercel deployment `dpl_H7Wq5tZVMFWeBg8YjF7wH9ar6Aky`, serves both production aliases, passed post-merge CI and CodeQL, has 0 release-tagged unresolved app errors, and Vercel reported no runtime error groups in the post-deploy observation window.
 
+## 2026-10-03 runtime launch verification
+- Vercel production runtime over the last 24 hours showed 738 HTTP 200 responses in the sampled status rollup and no 5xx status group. The last 12 hours showed no runtime error clusters.
+- An earlier service OG dynamic-font error occurred twice on an older deployment. It did not recur in the current 12-hour production error window, so it is recorded as observed but not an active blocker.
+- The verified Resend domain `virtualassistant.com.ph` has sending enabled. The separate `replies.virtualassistant.com.ph` domain is verified for receiving.
+- Recent production delivery evidence includes successful account-confirmation emails, password-reset emails, lead acknowledgements, internal lead notifications, discovery notifications, and training reminders. This verifies both application transactional email and Supabase Auth custom SMTP behavior without sending a synthetic test message.
+- Production activity in the last seven days includes 17 leads, 16 new jobs, 501 recruiter activity records, and 145 workflow reminders. Seven client-linked jobs were created in the last 30 days.
+- Production has 2 Admin profiles and 3 Recruiter profiles, satisfying the internal-access prerequisite.
+- Discovery automation is active in production: the discovery-reminder endpoint returned HTTP 200 on its recent scheduled executions.
+- Six discovery bookings were scheduled in the last 30 days. Five are backed by Google Calendar event IDs and Google Meet URLs; one is explicitly recorded as a manual meeting with a meeting URL and no Calendar event. This is a supported/manual booking mode, not a silent failed Google Meet record.
+- Booking handoff telemetry in the last 30 days includes 15 completed booking events, 3 explicit `booking_handoff_ready` events, 2 duplicate-booking reuse events, and 0 `booking_handoff_recovery_needed` events.
+- There are 0 open or recent `Fix booking role handoff` recruiter recovery tasks.
+- `lead_proposals` still contains 0 production rows. Therefore proposal send/view/revise/acceptance, client identity handoff, accepted commercials, workspace access, and proposal failure/retry behavior cannot honestly be marked runtime-verified from production evidence yet.
+- No synthetic lead, proposal, customer email, or production mutation was created solely for this verification.
+
 ## Remaining release gates
 | Complete | Owner | Action | Required evidence |
 | --- | --- | --- | --- |
@@ -135,8 +149,8 @@ Do not run schema.sql or seed.sql over this existing production database.
 | [ ] | Engineering | Verify client identity handoff end to end | Source guards are implemented; still record runtime new/existing client, role conflict, Auth failure and magic-link failure evidence |
 | [ ] | Release operator | Verify production environment | Supabase URL and server credentials, app URL, Auth callbacks, app email, Auth SMTP; setup:check -- --strict |
 | [ ] | Release operator | Verify tested release on the production domain | Production-domain SHA verification plus a known-good rollback deployment |
-| [ ] | Recruiter + QA | Hiring brief and CRM | Lead persisted, acknowledgement delivered, owner/stage/follow-up saved |
-| [ ] | Recruiter + QA | Discovery | Correct timezone, schedule, meeting link, completion and delivery-failure feedback |
+| [x] | Recruiter + QA | Hiring brief and CRM | Recent production leads/jobs, delivered lead acknowledgements/internal notifications, recruiter activity and workflow reminders provide live evidence |
+| [x] | Recruiter + QA | Discovery | Recent production bookings, Google Meet/Calendar records, delivered discovery notifications and running reminder endpoint provide live evidence; one recent booking is explicitly manual |
 | [ ] | Recruiter + QA | Proposals | Both service models; correct totals; send/view/revise/replace/decline/expiry; prior live proposal survives email failure |
 | [ ] | Client + QA | Acceptance and workspace | One role, correct client, accepted terms, included access, CRM won, working workspace link and released shortlist |
 | [ ] | Engineering | Failures and retries | Core DB double-click/concurrency/rollback coverage exists; still record Auth failure and email failure behavior with no false success or duplicate role |

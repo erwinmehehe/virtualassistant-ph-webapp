@@ -833,5 +833,383 @@ export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = [
         "description": "Browse more VAPH guidance for applications, screening, interviews, and hiring."
       }
     ]
+  },
+  {
+    "slug": "virtual-assistant-proposal-sample",
+    "title": "Virtual Assistant Proposal Sample: Templates, Examples & Checklist",
+    "metaTitle": "Virtual Assistant Proposal Sample: Templates & Examples",
+    "description": "Write a stronger Virtual Assistant proposal with practical templates, beginner examples, role-specific samples, personalization tips, and a pre-send checklist.",
+    "excerpt": "A practical guide to writing short, job-specific Virtual Assistant proposals that show fit, proof, availability, and a clear next step without repeating your resume.",
+    "topic": "hiring",
+    "clusterLabel": "Virtual Assistant Proposal",
+    "intent": "informational",
+    "publishedAt": "2026-10-03",
+    "updatedAt": "2026-10-03",
+    "author": "VirtualAssistant.com.ph Editorial Team",
+    "reviewNote": "Use the examples as structures, not claims to copy. Keep every experience, result, client, tool, availability statement, and work sample truthful. Replace sample details with evidence you can explain in an interview.",
+    "sources": [
+      {
+        "label": "Upwork: Proposal Sample for Virtual Assistants",
+        "href": "https://www.upwork.com/resources/upwork-proposal-sample-virtual-assistant"
+      },
+      {
+        "label": "Upwork Help: How to submit a proposal",
+        "href": "https://support.upwork.com/hc/en-us/articles/211062998-How-to-submit-a-proposal-on-Upwork"
+      }
+    ],
+    "heroImage": {
+      "src": "/blog/virtual-assistant-proposal-sample/virtual-assistant-proposal-sample.svg",
+      "alt": "Virtual Assistant proposal sample showing job need, proof, plan, availability and question",
+      "width": 1200,
+      "height": 675,
+      "caption": "A strong VA proposal is a short answer to a specific job, not a second copy of your resume."
+    },
+    "sectionImages": [
+      {
+        "afterSection": 3,
+        "src": "/blog/virtual-assistant-proposal-sample/va-proposal-before-after.svg",
+        "alt": "Before and after Virtual Assistant proposal example comparing a generic pitch with a tailored application",
+        "width": 960,
+        "height": 600,
+        "caption": "The stronger version replaces generic claims with the employer's workflow, relevant evidence, and a useful next question."
+      },
+      {
+        "afterSection": 15,
+        "src": "/blog/virtual-assistant-proposal-sample/va-proposal-checklist.svg",
+        "alt": "Virtual Assistant proposal checklist for relevance proof availability work samples and proofreading",
+        "width": 960,
+        "height": 600,
+        "caption": "Before sending, check that the proposal proves fit for this role and that every claim can be supported."
+      }
+    ],
+    "keyTakeaways": [
+      "Treat a VA proposal as a direct response to one job, not a general biography or a shortened resume.",
+      "Use the first two lines to show that you understood the employer's actual workload and have relevant evidence.",
+      "Include one or two proof points, a simple plan, practical availability, and one useful question instead of a long skills list.",
+      "Beginners can write credible proposals using transferable work and clearly labelled practice projects without inventing client experience.",
+      "Reuse a structure, but rewrite the opening, proof, and next step for every role you seriously want."
+    ],
+    "sections": [
+      {
+        "heading": "What is a Virtual Assistant proposal?",
+        "paragraphs": [
+          "A Virtual Assistant proposal is the short message you send with a job application when the employer or platform gives you space to explain why you fit the role. On a freelance marketplace it may be called a proposal or cover letter. On a job board it may be an application note, message to the employer, or answer to a question about why you are a good fit.",
+          "The proposal has a narrower job than your resume. Your resume shows your broader work history. Your profile shows your positioning, tools, availability, and evidence. Your proposal should connect the specific opening to the most relevant part of that background.",
+          "If a proposal could be sent to ten unrelated jobs without changing anything, it is too generic."
+        ]
+      },
+      {
+        "heading": "Proposal vs cover letter vs profile: what is the difference?",
+        "paragraphs": [
+          "These documents can overlap, but they should not all say the same thing. A profile is reusable. A resume summarizes your work history. A cover letter can give more context when a formal application asks for one. A proposal is usually shorter and more specific to the work described in the job post.",
+          "Use the shortest format that still answers the employer's question. If the application asks for a formal cover letter, follow that instruction. If it gives you a small application box, prioritize relevance and proof instead of trying to squeeze an entire letter into it."
+        ],
+        "table": {
+          "headers": [
+            "Application item",
+            "Main job",
+            "Best use"
+          ],
+          "rows": [
+            [
+              "VA profile",
+              "Show your overall role fit",
+              "Reusable across suitable opportunities"
+            ],
+            [
+              "Resume",
+              "Summarize relevant work history",
+              "Evidence of experience, responsibilities, and progression"
+            ],
+            [
+              "Cover letter",
+              "Explain a fuller case for fit",
+              "Formal applications that specifically request a letter"
+            ],
+            [
+              "Proposal or fit note",
+              "Answer this job directly",
+              "Short applications, freelance proposals, and job-specific messages"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "The five parts of a strong VA proposal",
+        "paragraphs": [
+          "You do not need a complicated formula. A useful proposal normally has five parts: show that you understood the work, give relevant proof, explain how you would approach the first part of the job, confirm practical fit, and make it easy for the employer to reply.",
+          "The order matters. Employers should not have to read through your life story before discovering whether you have handled the work they posted."
+        ],
+        "numbered": [
+          "Open with the employer's main need or workflow.",
+          "Give one or two relevant proof points from real work or a clearly labelled practice project.",
+          "State how you would approach the work or what you would take ownership of first.",
+          "Confirm any important schedule, timezone, tool, or availability requirement.",
+          "Close with one specific question or a simple invitation to continue the conversation."
+        ]
+      },
+      {
+        "heading": "A reusable Virtual Assistant proposal template",
+        "paragraphs": [
+          "Use this as a framework, then rewrite the details for the actual job.",
+          "Template: Hi [name if known]. You mentioned that you need help with [specific workflow or problem]. I have experience with [most relevant task, tool, or environment], including [short proof point]. If I joined the role, I would start by [first useful action or workflow], then keep [important output or status] visible through [brief reporting or communication method]. I am available for [hours or timezone overlap if relevant]. One question before we continue: [specific question about the work]. Thank you for considering my application.",
+          "The framework is intentionally short. Add more detail only when the job post asks for it or when the role requires explanation that cannot be shown in your profile, resume, or portfolio."
+        ]
+      },
+      {
+        "heading": "Virtual Assistant proposal sample for beginners with no VA clients",
+        "paragraphs": [
+          "A beginner proposal should not apologize for being new. It should connect transferable experience to the role and show that you understand the work.",
+          "Sample: Hi. I saw that you need support with inbox organization, appointment scheduling, spreadsheet updates, and customer follow-up. My previous customer service and office support experience included email communication, data entry, scheduling, and maintaining customer records. I have also been practising remote admin workflows in Google Workspace and task-management tools using dummy projects. I would be comfortable starting with a documented task list and sending a short status update so you can see what is completed and what needs your input. I can work [truthful availability]. Which part of the admin workload is taking the most time right now?",
+          "The proposal is credible because it separates previous work from current practice. It does not invent a remote client history."
+        ]
+      },
+      {
+        "heading": "Administrative Virtual Assistant proposal sample",
+        "paragraphs": [
+          "Sample: Hi Sarah. You mentioned that the main problem is keeping email, scheduling, and weekly admin follow-up from piling up. I have handled shared inboxes, appointment coordination, spreadsheet reporting, and recurring customer follow-up in previous admin roles. I would start by learning your current priorities and rules, then organize the daily queue so urgent messages, calendar changes, and waiting items stay visible. I use Google Workspace, Excel, Slack, and ClickUp regularly. I can overlap with your Australian business hours. Do you already have inbox and calendar rules documented, or would you like the VA to help turn them into a simple SOP?",
+          "This example works because the employer can picture what the first week might look like instead of only seeing a list of tools."
+        ]
+      },
+      {
+        "heading": "Executive Virtual Assistant proposal sample",
+        "paragraphs": [
+          "Sample: Hi Daniel. Your role needs someone to protect calendar priorities, prepare meetings, coordinate travel, and keep follow-up from getting lost. I have supported managers with complex scheduling, inbox triage, meeting preparation, stakeholder coordination, and action tracking. My approach is to separate routine calendar changes from decisions that need executive input, then surface those decisions in one clear queue instead of interrupting you for every update. I can cover [truthful timezone or schedule]. How do you currently decide which meeting requests can be moved or declined without checking with you first?",
+          "For Executive VA work, judgment and context matter more than saying you are organized. Show how you reduce interruption while protecting important decisions."
+        ]
+      },
+      {
+        "heading": "Customer Support Virtual Assistant proposal sample",
+        "paragraphs": [
+          "Sample: Hi. I noticed that you need someone to handle email and chat tickets, keep customer records current, and escalate order or billing issues correctly. I have four years of customer support experience using written channels and CRM systems, with responsibility for documenting each interaction and following escalation procedures. I would first learn your response standards, common issue types, and escalation owners, then work the queue by priority while keeping unresolved cases visible. I am available during [truthful coverage window]. Which ticket types currently create the most backlog?",
+          "If the role has response-time targets, mention whether your actual schedule can support them. Do not promise immediate availability across a full day when that is not realistic."
+        ]
+      },
+      {
+        "heading": "SEO Virtual Assistant proposal sample",
+        "paragraphs": [
+          "Sample: Hi. Your post mentions WordPress publishing, on-page optimization, internal linking, and Search Console reporting. Those are the parts of SEO execution I work with most often. I have updated title tags and descriptions, formatted and published content in WordPress, built internal-link recommendations, checked live pages after changes, and prepared Search Console summaries in Google Sheets. I would start by following your existing content and QA process rather than changing the strategy without context. Do you already have a page-level brief for each article, or is the VA expected to prepare the optimization checklist too?",
+          "The proposal avoids turning into a list of SEO software. It explains the actual work performed and asks a question that affects scope."
+        ]
+      },
+      {
+        "heading": "Bookkeeping Virtual Assistant proposal sample",
+        "paragraphs": [
+          "Sample: Hi. I saw that you need recurring help with invoicing, transaction review, reconciliations, and month-end preparation. My bookkeeping support experience includes maintaining source documents, following up on missing items, preparing reconciliations, and keeping unresolved transactions visible for reviewer decisions. I have worked with [truthful bookkeeping software] and spreadsheets. I would begin by understanding your chart of accounts, document flow, reconciliation schedule, and approval boundaries before taking over the recurring queue. Are the books currently up to date, or does the role also include historical cleanup?",
+          "That final question matters because routine bookkeeping and cleanup can be very different workloads."
+        ]
+      },
+      {
+        "heading": "Real Estate Virtual Assistant proposal sample",
+        "paragraphs": [
+          "Sample: Hi. Your role combines lead follow-up, CRM updates, appointment coordination, and listing administration. I have experience maintaining customer records, working follow-up queues, scheduling appointments, and keeping status fields current across shared systems. I would first learn which system is the source of truth for leads and listings, then make sure every active record has an owner and next action. I can cover [truthful schedule or timezone]. Which CRM are you using, and is the immediate priority new-lead response or cleaning up the existing database?",
+          "If you have direct real estate software experience, name it. If you do not, use the transferable CRM or operations evidence you can actually support."
+        ]
+      },
+      {
+        "heading": "Ecommerce Virtual Assistant proposal sample",
+        "paragraphs": [
+          "Sample: Hi. You need support with product updates, orders, customer messages, and inventory checks across your store. I have ecommerce operations experience with [truthful platform or marketplace], including product data, customer support, order exceptions, and recurring reporting. I would start by documenting which system controls product, inventory, and order status so updates do not conflict across channels. I am available for [truthful coverage]. Which part of the store is creating the most manual work right now: listings, order exceptions, customer support, or inventory?",
+          "A good ecommerce proposal shows that you understand connected systems and exceptions, not just that you have opened Shopify or Seller Central."
+        ]
+      },
+      {
+        "heading": "How to personalize a proposal in five minutes",
+        "paragraphs": [
+          "Personalization does not mean rewriting your whole career story. Read the job once for scope, then read it again looking for the employer's repeated responsibilities, required tools, schedule, and any problem language that reveals why they are hiring.",
+          "Choose one or two items you can prove. Build the opening around those. Remove anything that does not help the employer judge this role."
+        ],
+        "numbered": [
+          "Underline the two responsibilities that appear most important.",
+          "Find one real example from your experience that matches one of them.",
+          "Mention a required tool only when you have actually used it.",
+          "Confirm a schedule or timezone requirement if it could affect fit.",
+          "Ask one question that would change how you approach the work."
+        ]
+      },
+      {
+        "heading": "Weak vs stronger Virtual Assistant proposal opening",
+        "paragraphs": [
+          "The opening usually fails when it starts with the applicant instead of the employer's need. You do not have to be clever. You have to be relevant."
+        ],
+        "table": {
+          "headers": [
+            "Weak opening",
+            "Stronger opening"
+          ],
+          "rows": [
+            [
+              "I am writing to express my interest in your Virtual Assistant position.",
+              "You mentioned that inbox follow-up and calendar changes are taking time away from client work. I have handled both in recurring admin support."
+            ],
+            [
+              "I am hardworking, passionate, and detail-oriented.",
+              "I maintained a shared support inbox and weekly customer tracker, including escalation and overdue follow-up."
+            ],
+            [
+              "I know many tools including Google, Slack, Trello, Zoom, Canva, and Notion.",
+              "Your role uses HubSpot and Google Sheets. I have maintained CRM records and recurring reports in both."
+            ],
+            [
+              "Please give me a chance even though I am new.",
+              "My direct VA experience is new, but my previous office role already included scheduling, spreadsheets, email communication, and customer records."
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "Should you mention your rate in the proposal?",
+        "paragraphs": [
+          "Follow the application instructions. If the platform already asks for a bid or hourly rate in a separate field, you usually do not need to repeat it in the message unless the employer asks.",
+          "If a job asks you to confirm a rate, answer clearly. Do not hide important compensation expectations until the end of a long interview process. At the same time, the proposal should still focus mainly on whether you can do the work."
+        ]
+      },
+      {
+        "heading": "Should you attach a portfolio or work sample?",
+        "paragraphs": [
+          "Attach or link evidence when it is relevant and the application process allows it. A strong work sample can reduce the amount of explaining the proposal needs to do.",
+          "Choose the sample closest to the employer's task. An SEO role benefits from an audit, brief, or reporting example. An admin role may benefit from a tracker, SOP, research sheet, or meeting workflow. A design support role needs visual work. A bookkeeping role may use a privacy-safe practice reconciliation or spreadsheet structure.",
+          "Never send private client files, passwords, customer data, medical information, financial records, or internal documents just to make an application look stronger."
+        ]
+      },
+      {
+        "heading": "Common VA proposal mistakes that reduce replies",
+        "paragraphs": [
+          "A proposal can be grammatically correct and still be weak. The most common problem is making the employer search for evidence of fit."
+        ],
+        "bullets": [
+          "Opening with a long biography before mentioning the job.",
+          "Sending the exact same message to unrelated roles.",
+          "Repeating every item from the resume instead of choosing the most relevant proof.",
+          "Listing tools without explaining what you did with them.",
+          "Using unsupported claims such as expert, top-rated, or highly experienced.",
+          "Inventing metrics, clients, certificates, or software experience.",
+          "Ignoring the hours, timezone, or availability requirement.",
+          "Answering none of the questions included in the job post.",
+          "Attaching irrelevant work samples or files with broken permissions.",
+          "Ending with a generic statement when one useful scope question would make replying easier."
+        ]
+      },
+      {
+        "heading": "How AI can help without making the proposal sound generic",
+        "paragraphs": [
+          "AI can help you compare a job description with your real background, identify which experience is most relevant, shorten a draft, or spot missing information. The final message should still be based on facts you can defend.",
+          "Do not ask a tool to invent achievements, client names, years of experience, results, or software expertise. Do not paste confidential employer or client information into an AI system unless you are allowed to use that system for the data.",
+          "A simple test is to read the final proposal and ask whether you could explain every sentence naturally in an interview. If not, rewrite it."
+        ]
+      },
+      {
+        "heading": "Virtual Assistant proposal pre-send checklist",
+        "paragraphs": [
+          "Before you send the application, compare the proposal with the job post one last time. The employer should be able to understand why you fit without opening five other documents first."
+        ],
+        "bullets": [
+          "The opening refers to the actual work in this job.",
+          "I included one or two relevant proof points.",
+          "Every tool and experience claim is true.",
+          "I did not repeat my entire resume.",
+          "I answered any required questions in the post.",
+          "My availability matches the hours I am claiming.",
+          "The rate or compensation answer is clear when requested.",
+          "Any portfolio link opens without requesting unnecessary access.",
+          "I removed private client or employer information.",
+          "The message is easy to scan on a phone.",
+          "Spelling, names, company references, and links are correct.",
+          "My closing gives the employer an easy next step."
+        ]
+      },
+      {
+        "heading": "How this fits into your full VA application",
+        "paragraphs": [
+          "The proposal is one layer of a complete application. Your profile should establish your positioning. Your resume should show work history. Your portfolio should prove the work. Your introduction video should show how you communicate. The proposal should connect those assets to the opening in front of you.",
+          "Keep those pieces consistent. If the proposal says you are applying for Executive VA work while your profile, resume, and portfolio mainly present social media work, the employer has to resolve that contradiction.",
+          "When the application is ready, use the job board to find roles that match your real skills, hours, and experience rather than measuring progress by how many proposals you can send."
+        ]
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What should I write in a Virtual Assistant proposal?",
+        "answer": "Write a short job-specific message that shows you understood the employer's main need, gives one or two relevant proof points, explains how you would approach the work, confirms practical availability when needed, and ends with a useful next question or invitation to continue."
+      },
+      {
+        "question": "How long should a VA proposal be?",
+        "answer": "There is no universal word limit, so follow the platform or employer instructions. In many applications, a concise message of a few short paragraphs is easier to review than a long letter because your profile, resume, and portfolio already carry the detailed background."
+      },
+      {
+        "question": "Can I use a Virtual Assistant proposal template?",
+        "answer": "Yes. Reuse the structure, but change the opening, relevant evidence, role-specific details, and closing question for each serious application. A template should speed up thinking, not produce the same message for every employer."
+      },
+      {
+        "question": "What do I write if I have no Virtual Assistant experience?",
+        "answer": "Use transferable evidence from office administration, BPO work, customer service, sales, finance, marketing, school projects, internships, volunteering, or clearly labelled practice projects. Do not invent paid VA clients."
+      },
+      {
+        "question": "Is a VA proposal the same as a cover letter?",
+        "answer": "Not always. A proposal or application note is often shorter and focused on one job or project. A cover letter can be a more formal document when the employer specifically requests one. Follow the application format the employer provides."
+      },
+      {
+        "question": "Should I mention tools in my proposal?",
+        "answer": "Mention tools that are relevant to the job and that you have actually used. Explain the workflow when possible, such as maintaining HubSpot records or publishing WordPress content, instead of sending a long software list."
+      },
+      {
+        "question": "Should I include my rate in the proposal?",
+        "answer": "Include it when the employer asks or when the application does not provide another rate field. If the platform already captures your bid separately, avoid repeating compensation details unless they add necessary context."
+      },
+      {
+        "question": "Should I attach my portfolio to every proposal?",
+        "answer": "Attach or link a portfolio sample when it helps prove a responsibility in the job. Choose the most relevant sample rather than sending everything, and protect confidential client, customer, medical, financial, and account information."
+      },
+      {
+        "question": "Can AI write my Virtual Assistant proposal?",
+        "answer": "AI can help organize or shorten a draft, but the final proposal should use your real experience and your own understanding of the job. Remove invented claims and make sure you can explain every sentence naturally in an interview."
+      },
+      {
+        "question": "Why am I sending VA proposals but getting no replies?",
+        "answer": "Review whether your applications are relevant enough. Generic openings, unsupported claims, weak proof, mismatched schedules, missing required answers, and applications to roles outside your experience can all reduce response quality. Track which role types and messages lead to interviews and adjust from evidence."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "How to create the best VA profile",
+        "href": "/blog/how-to-create-the-best-va-profile",
+        "description": "Make your positioning and evidence clear before you start applying."
+      },
+      {
+        "label": "Virtual Assistant introduction video",
+        "href": "/blog/virtual-assistant-introduction-video",
+        "description": "Prepare a one-minute introduction that matches the same role and evidence."
+      },
+      {
+        "label": "Virtual Assistant resume sample",
+        "href": "/blog/virtual-assistant-resume-sample",
+        "description": "Build the resume that supports the proof points in your proposal."
+      },
+      {
+        "label": "Virtual Assistant portfolio examples",
+        "href": "/blog/virtual-assistant-portfolio-examples",
+        "description": "Choose work samples that prove the tasks you mention."
+      },
+      {
+        "label": "Virtual Assistant cover letter",
+        "href": "/blog/virtual-assistant-cover-letter",
+        "description": "Use the longer format when a formal application specifically requests a cover letter."
+      },
+      {
+        "label": "How to apply as a Virtual Assistant",
+        "href": "/blog/how-to-apply-as-a-virtual-assistant",
+        "description": "Use the proposal inside a complete, selective application process."
+      },
+      {
+        "label": "Browse Virtual Assistant jobs",
+        "href": "/jobs",
+        "description": "Apply the proposal structure to current roles that fit your real skills and schedule."
+      },
+      {
+        "label": "Virtual Assistant hiring guides",
+        "href": "/blog/topic/hiring",
+        "description": "Browse more application, profile, interview, and hiring guidance."
+      }
+    ]
   }
 ];

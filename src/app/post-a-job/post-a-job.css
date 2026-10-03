@@ -388,6 +388,30 @@
   justify-content: center;
 }
 
+
+.post-job-authenticated-cta {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, .06);
+}
+
+.post-job-authenticated-cta strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #101828;
+  font-size: 18px;
+}
+
+.post-job-authenticated-cta p {
+  margin: 0 0 18px;
+  color: #667085;
+  line-height: 1.65;
+}
+
 .post-job-after {
   max-width: 720px;
   margin: 16px 0 0 198px;

@@ -85,7 +85,7 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
     <section className="client-concierge-strip client-mobile-concierge client-dashboard-recruiter">
       <div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>Your recruiter owns sourcing, vetting, follow-up and coordination. Message them whenever the brief or priority changes.</p></div>
-      <Link className="btn" href="/workspace/client/messages"><LifeBuoy size={16}/> Message recruiter</Link>
+      <Link className="btn" href="/workspace/client/messages"><LifeBuoy size={16}/> Message your recruiter</Link>
     </section>
 
     {!hires&&jobCount?<div className="client-dashboard-service-note"><UsersRound size={17}/><span>No raw applicant queue here. Your recruiter screens first and only releases candidates ready for your decision.</span></div>:null}

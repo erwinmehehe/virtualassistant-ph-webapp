@@ -273,7 +273,7 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
 
   const admin = createAdminClient();
   const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title,recruiter_id)").eq("id", interviewId).maybeSingle();
-  if (!row || row.status === "cancelled") throw new Error("Interview request not found.");
+  if (!row || !["requested", "scheduled"].includes(String(row.status))) throw new Error("Interview request is no longer schedulable.");
   if (profile.role === "client" && row.client_id !== user.id) throw new Error("Interview request not found.");
 
   const jobRecord = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
@@ -406,6 +406,7 @@ export async function cancelCandidateInterviewAction(formData: FormData) {
   if (!row) throw new Error("Interview not found.");
   if (profile.role === "client" && row.client_id !== user.id) throw new Error("Interview not found.");
   if (profile.role === "va" && row.va_id !== user.id) throw new Error("Interview not found.");
+  if (!["requested", "scheduled"].includes(String(row.status))) throw new Error("Only requested or scheduled interviews can be cancelled.");
   if (row.calendar_event_id) { try { await cancelGoogleMeetDiscoveryMeeting(row.calendar_event_id); } catch {} }
   const cancelledAt = new Date().toISOString();
   await admin.from("candidate_interviews").update({ status: "cancelled", cancelled_at: cancelledAt, updated_at: cancelledAt }).eq("id", interviewId);
@@ -460,6 +461,10 @@ export async function submitCandidateInterviewFeedbackAction(formData: FormData)
   const admin = createAdminClient();
   const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title,recruiter_id)").eq("id", interviewId).eq("client_id", user.id).maybeSingle();
   if (!row) throw new Error("Interview not found.");
+  if (row.status !== "scheduled" || !row.scheduled_at) throw new Error("Complete the scheduled interview before recording feedback.");
+  const scheduledAtMs = new Date(row.scheduled_at).getTime();
+  const interviewEndsAtMs = scheduledAtMs + Number(row.duration_minutes || 30) * 60 * 1000;
+  if (!Number.isFinite(interviewEndsAtMs) || interviewEndsAtMs > Date.now()) throw new Error("Interview feedback is available after the scheduled interview ends.");
   const now = new Date().toISOString();
   await admin.from("candidate_interviews").update({ status: "completed", completed_at: row.completed_at || now, client_decision: decision, client_feedback: feedback, client_feedback_reason: reason, client_feedback_at: now, updated_at: now }).eq("id", interviewId);
   if (row.shortlist_candidate_id && decision === "pass") await admin.from("job_shortlist_candidates").update({ client_decision: "pass", client_decision_note: [reason, feedback].filter(Boolean).join(": ").slice(0, 500), client_decision_at: now }).eq("id", row.shortlist_candidate_id);
@@ -659,10 +664,14 @@ export async function respondPlacementOfferAction(formData: FormData) {
   const decision = String(formData.get("decision") || "");
   if (!offerId || !["accept", "decline"].includes(decision)) throw new Error("Invalid offer decision.");
   const admin = createAdminClient();
-  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id)").eq("id", offerId).eq("va_id", user.id).maybeSingle();
+  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("va_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_va") throw new Error("This offer is no longer waiting for your response.");
+  const offerJob = Array.isArray(offer.jobs) ? offer.jobs[0] : offer.jobs;
+  const offerTimeZone = isValidTimeZone(offer.timezone) ? String(offer.timezone) : isValidTimeZone(offerJob?.timezone) ? String(offerJob?.timezone) : "UTC";
+  const todayForOffer = new Intl.DateTimeFormat("en-CA", { timeZone: offerTimeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (offer.start_date && String(offer.start_date) < todayForOffer) throw new Error("This offer start date has passed. Ask the recruiter to update the final terms.");
   const now = new Date().toISOString();
-  const jobTitle = Array.isArray(offer.jobs) ? offer.jobs[0]?.title : offer.jobs?.title;
+  const jobTitle = offerJob?.title;
   const offerTitle = jobTitle || "role";
   await resolveOpenNotifications(admin, {
     userId: user.id,
@@ -708,8 +717,12 @@ export async function confirmPlacementOfferAction(formData: FormData) {
   const { user } = await requireRole("client");
   const offerId = String(formData.get("offer_id") || "");
   const admin = createAdminClient();
-  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
+  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_client") throw new Error("This placement is not waiting for client confirmation.");
+  const confirmationJob = Array.isArray(offer.jobs) ? offer.jobs[0] : offer.jobs;
+  const confirmationTimeZone = isValidTimeZone(offer.timezone) ? String(offer.timezone) : isValidTimeZone(confirmationJob?.timezone) ? String(confirmationJob?.timezone) : "UTC";
+  const todayForConfirmation = new Intl.DateTimeFormat("en-CA", { timeZone: confirmationTimeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (offer.start_date && String(offer.start_date) < todayForConfirmation) throw new Error("This offer start date has passed. Ask the recruiter to refresh the final terms before confirming.");
   let applicationId = offer.application_id;
   if (!applicationId) {
     const { data: existing } = await admin.from("applications").select("id,status").eq("job_id", offer.job_id).eq("va_id", offer.va_id).maybeSingle();

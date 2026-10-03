@@ -78,3 +78,17 @@ test("legacy recruiter lead routes collapse into the canonical CRM pipeline", as
   assert.match(funnel, /leadsPath="\/workspace\/recruiter\/crm"/);
   assert.doesNotMatch(funnel, /leadsPath="\/workspace\/recruiter\/leads"/);
 });
+
+
+test("legacy lead routes are compatibility shims, not duplicate CRM implementations", async () => {
+  const [leadsPage, boardPage] = await Promise.all([
+    read("src/app/workspace/recruiter/leads/page.tsx"),
+    read("src/app/workspace/recruiter/leads/board/page.tsx"),
+  ]);
+
+  for (const source of [leadsPage, boardPage]) {
+    assert.match(source, /redirect\(/);
+    assert.match(source, /canonicalRecruiterHref/);
+    assert.doesNotMatch(source, /createAdminClient|RecruiterLeadKanban|lead_intake|recruiter_leads_page/);
+  }
+});

@@ -85,6 +85,8 @@ export default async function PublicJobsPage({
   const isVa = profile?.role === "va";
   const isClient = profile?.role === "client";
   const employerPostHref = isClient ? "/workspace/client/jobs/new" : EMPLOYER_POST_HREF;
+  const vaPrimaryHref = isVa ? "/workspace/va/jobs" : !user ? "/auth/join/va?next=%2Fjobs" : "/workspace";
+  const vaPrimaryLabel = isVa ? "Find jobs for me" : !user ? "Create free VA profile" : "Go to my workspace";
   const q = String(params.q || "").trim().replace(/[,%()]/g, " ");
   const category = String(params.category || "").trim();
   const minRate = Number(params.min_rate || 0);
@@ -190,7 +192,7 @@ export default async function PublicJobsPage({
                 <Link className="btn btn-primary btn-lg" href="#open-jobs">
                   Browse open VA jobs <ArrowRight size={16} />
                 </Link>
-                {isVa ? <Link className="btn btn-lg" href="/workspace/va/applications">My applications</Link> : !user ? <Link className="btn btn-lg" href="/auth/join/va">Create free VA profile</Link> : null}
+                <Link className="btn btn-lg" href={isVa ? "/workspace/va/applications" : vaPrimaryHref}>{isVa ? "My applications" : vaPrimaryLabel}</Link>
               </div>
               <div className="jobs-market-proof" aria-label="Job marketplace benefits">
                 <span><CheckCircle2 size={15} /> Free for VA applicants</span>
@@ -214,7 +216,7 @@ export default async function PublicJobsPage({
               <Link className="btn btn-primary btn-lg jobs-employer-button" href={employerPostHref}>
                 Post a VA job <ArrowRight size={16} />
               </Link>
-              {isClient ? <Link className="jobs-employer-note" href="/workspace/client">Manage my jobs</Link> : !user ? <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link> : null}
+              {isClient ? <Link className="jobs-employer-note" href="/workspace/client/jobs">Manage my jobs</Link> : !user ? <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link> : <span className="jobs-employer-note">Client job posting uses a client account.</span>}
             </aside>
           </div>
         </section>

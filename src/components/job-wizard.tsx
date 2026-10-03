@@ -9,7 +9,10 @@ import { ROLE_TEMPLATES, type RoleTemplate } from "@/lib/role-templates";
 import { suggestJobDraft } from "@/lib/job-draft-suggestions";
 import { isPublishableCompanyName } from "@/lib/job-publication";
 
-const steps = ["Describe the work", "Schedule & pay", "Preview & post"] as const;
+const steps = ["Role & outcomes", "Schedule & budget", "Review & submit"] as const;
+const stepDescriptions = ["Start with the outcome. We can help shape the hiring brief around it.","Set working hours, timezone and VA compensation.","Review the complete role before submitting."] as const;
+const HOURS_PRESETS = ["10", "20", "30", "40"] as const;
+const START_PRESETS = ["ASAP", "Within 2 weeks", "Within a month", "Flexible"] as const;
 
 const COMMON_SKILLS = [
   "Administrative support", "Calendar management", "Inbox management", "Customer service",

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import {
-  completeVaQuickSetupAction,
   saveVaOnboardingBasicsAction,
   saveVaOnboardingWorkAction,
 } from "@/app/actions/va-onboarding";

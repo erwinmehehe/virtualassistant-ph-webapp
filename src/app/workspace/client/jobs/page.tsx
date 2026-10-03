@@ -53,7 +53,7 @@ export default async function ClientJobsPage(){
       <div><UsersRound size={17}/><span><strong>{shortlistTotal}</strong> shortlisted</span></div>
     </div>
 
-    {clientProfile?.can_self_publish_jobs?<div className="success-banner client-jobs-publish-note">Direct publishing is enabled. Complete curated-placement roles can go live immediately after your final review.</div>:null}
+    {clientProfile?.can_self_publish_jobs?<div className="success-banner client-jobs-publish-note">Direct publishing is enabled for your account. Complete curated-placement roles can go live immediately after your final review.</div>:null}
 
     {jobs?.length?<div className="client-jobs-grid">
       {jobs.map((job:any)=>{

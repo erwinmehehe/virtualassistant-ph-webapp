@@ -114,8 +114,6 @@ export async function updateVaProfileAction(formData: FormData) {
 
   const fullName = String(formData.get("full_name") ?? "").trim();
   if (fullName.length < 2 || fullName.length > 100) throw new Error("Enter your full name.");
-  const address = String(formData.get("address") ?? "").replace(/\s+/g, " ").trim();
-  if (address.length < 5 || address.length > 200) throw new Error("Enter your current address.");
   const hourlyRate = numberOrNull(formData.get("hourly_rate"));
   const yearsExperience = numberOrNull(formData.get("years_experience"));
   const weeklyHours = numberOrNull(formData.get("weekly_hours"));
@@ -180,7 +178,6 @@ export async function updateVaProfileAction(formData: FormData) {
   ])].slice(0, 3);
 
   const updates = {
-    address,
     headline: headlineValue,
     bio: bioValue,
     primary_category: resolvedPrimaryCategory,
@@ -204,7 +201,6 @@ export async function updateVaProfileAction(formData: FormData) {
   const listKey = (value: unknown) => Array.isArray(value) ? [...value].map(String).sort().join("\u0000") : "";
   const categoryChanged = (current?.primary_category ?? null) !== updates.primary_category;
   let materialChanged = categoryChanged ||
-    (current?.address ?? null) !== updates.address ||
     (current?.headline ?? null) !== updates.headline ||
     (current?.bio ?? null) !== updates.bio ||
     listKey(current?.categories) !== listKey(updates.categories) ||
@@ -222,28 +218,6 @@ export async function updateVaProfileAction(formData: FormData) {
   ]);
   if (nameError) throw nameError;
   if (profileError) throw profileError;
-
-  if (address) {
-    const resolvedAt = new Date().toISOString();
-    const { data: resolvedAddressRequests, error: resolveAddressError } = await admin
-      .from("notifications")
-      .update({ done_at: resolvedAt, read_at: resolvedAt, snoozed_until: null })
-      .eq("user_id", user.id)
-      .eq("type", "private_address_request")
-      .is("done_at", null)
-      .select("id");
-    if (resolveAddressError) throw resolveAddressError;
-
-    if (resolvedAddressRequests?.length) {
-      await writeRecruiterActivity({
-        subjectType: "va",
-        subjectId: user.id,
-        action: "private_address_provided",
-        description: "VA provided the requested home address.",
-        actorId: user.id,
-      });
-    }
-  }
 
   if (resumeUpload) {
     const { file: resume, expectedMime, safeName } = resumeUpload;

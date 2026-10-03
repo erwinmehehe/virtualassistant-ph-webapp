@@ -273,7 +273,7 @@ export async function scheduleCandidateInterviewAction(formData: FormData) {
 
   const admin = createAdminClient();
   const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title,recruiter_id)").eq("id", interviewId).maybeSingle();
-  if (!row || row.status === "cancelled") throw new Error("Interview request not found.");
+  if (!row || !["requested", "scheduled"].includes(String(row.status))) throw new Error("Interview request is no longer schedulable.");
   if (profile.role === "client" && row.client_id !== user.id) throw new Error("Interview request not found.");
 
   const jobRecord = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;

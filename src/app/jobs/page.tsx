@@ -15,7 +15,7 @@ import { JobCard } from "@/components/job-card";
 import { createClient } from "@/lib/supabase/server";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { getBusinessSettings } from "@/lib/business-settings";
-import { canonicalPath } from "@/lib/seo-url";
+import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { jobPublicHref } from "@/lib/public-routing";
 import { socialMetadata } from "@/lib/og";
 import "./jobs-marketplace.css";
@@ -144,7 +144,7 @@ export default async function PublicJobsPage({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Virtual Assistant Jobs Philippines",
-    url: canonicalPath("/jobs"),
+    url: canonicalUrl("/jobs"),
     description:
       "Browse remote virtual assistant jobs in the Philippines with published pay, clear role details, and recruiter-reviewed opportunities.",
     mainEntity: {
@@ -153,7 +153,7 @@ export default async function PublicJobsPage({
       itemListElement: jobs.map((job, index) => ({
         "@type": "ListItem",
         position: (page - 1) * PAGE_SIZE + index + 1,
-        url: canonicalPath(jobPublicHref(job)),
+        url: canonicalUrl(jobPublicHref(job)),
         name: job.title,
       })),
     },

@@ -300,7 +300,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
       },
       {
         "label": "Post a Virtual Assistant job",
-        "href": "/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew",
+        "href": "/post-a-job",
         "description": "Create a client account and publish a clear role for Filipino Virtual Assistants."
       }
     ]

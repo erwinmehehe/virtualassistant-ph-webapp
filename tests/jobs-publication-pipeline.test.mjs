@@ -140,7 +140,7 @@ test("public job UI always exposes the submitted company name and never anonymou
   assert.match(wizard, /This company name will be shown publicly on the job post/);
   assert.match(wizard, /isPublishableCompanyName\(candidate\.company_name\)/);
   assert.match(jobsAction, /Enter the real company name that will appear on the public job post/);
-  assert.match(card, /if \(!companyName\) return null/);
+  assert.match(card, /if \(!isPublishableCompanyName\(companyName\)\) return null/);
   assert.match(detail, /if \(!isPublishableCompanyName\(companyName\)\) notFound\(\)/);
   assert.doesNotMatch(detail, /Private employer/);
   assert.doesNotMatch(card, /Confidential Client/);

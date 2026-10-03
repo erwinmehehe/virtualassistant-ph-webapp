@@ -25,3 +25,14 @@ test("candidate interviews use Google Meet rather than Zoom", async () => {
   assert.match(migration, /calendar_event_id/);
   assert.match(migration, /Google Meet link/);
 });
+
+
+test("VA interview page renders the scheduled timezone instead of server local time", async () => {
+  const vaPage = await read("src/app/workspace/va/interviews/page.tsx");
+
+  assert.match(vaPage, /localLabel\(row\.scheduled_at,row\.timezone\|\|job\.timezone\)/);
+  assert.match(vaPage, /timeZone:zone\|\|undefined/);
+  assert.match(vaPage, /Scheduled timezone:/);
+  assert.match(vaPage, /calendar invitation will convert this to your local timezone/);
+  assert.doesNotMatch(vaPage, /Shown in your device timezone/);
+});

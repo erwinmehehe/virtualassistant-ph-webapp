@@ -23,6 +23,11 @@ test("dynamic OG renderer is contextual, 1200x630, and font-safe", async () => {
   assert.match(source, /HIRE A VIRTUAL ASSISTANT/);
   assert.match(source, /VA PRICING/);
   assert.doesNotMatch(source, /[✓↗●◆]/);
+  assert.match(source, /function fontSafeText/);
+  assert.match(source, /normalize\("NFKD"\)/);
+  assert.match(source, /replace\(\/\[\^\\x20-\\x7E\]\//);
+  assert.match(source, /fontSafeText\(url\.searchParams\.get\(key\) \|\| fallback, max\)/);
+  assert.match(source, /map\(\(point\) => fontSafeText\(point, 54\)\)/);
 });
 
 test("industry and blog families use contextual OG metadata", async () => {

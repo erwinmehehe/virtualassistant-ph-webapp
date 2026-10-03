@@ -23,8 +23,7 @@ const nav = fs.readFileSync("src/components/app-nav-links.tsx", "utf8");
 
 test("new VA signups land in a focused quick setup instead of the full profile editor", () => {
   assert.match(auth, /role === "va" \? "\/workspace\/va\/onboarding"/);
-  assert.match(quickPage, /completeVaQuickSetupAction/);
-  assert.match(quickPage, /Build your profile in three saved steps/);
+  assert.match(quickPage, /Build your profile in two saved steps/);
   assert.match(quickPage, /name="primary_category"/);
   assert.match(quickPage, /name="headline"/);
   assert.match(quickPage, /name="years_experience"/);
@@ -136,18 +135,17 @@ test("quick setup uses the same live minimum hourly rate as the full VA profile"
 test("VA quick setup saves progress after each step and removes competing exits", () => {
   assert.match(quickPage, /saveVaOnboardingBasicsAction/);
   assert.match(quickPage, /saveVaOnboardingWorkAction/);
-  assert.match(quickPage, /completeVaQuickSetupAction/);
-  assert.match(quickPage, /Build your profile in three saved steps/);
+  assert.match(quickPage, /Build your profile in two saved steps/);
   assert.match(quickPage, /Step saved/);
   assert.match(quickPage, /id="va-onboarding-step-1"/);
   assert.match(quickPage, /id="va-onboarding-step-2"/);
-  assert.match(quickPage, /id="va-onboarding-step-3"/);
   assert.doesNotMatch(quickPage, /Open full profile/);
   assert.match(quickAction, /va_onboarding_step_saved/);
   assert.match(quickAction, /va_onboarding_validation_error/);
   assert.match(quickAction, /va_onboarding_complete/);
   assert.match(quickAction, /redirect\("\/workspace\/va\/onboarding\?step=2&saved=1"\)/);
-  assert.match(quickAction, /redirect\("\/workspace\/va\/onboarding\?step=3&saved=1"\)/);
+  assert.doesNotMatch(quickPage, /name="address"/);
+  assert.doesNotMatch(quickAction, /formData\.get\("address"\)/);
 });
 
 test("VA onboarding hides training and workspace distractions until quick setup is saved", () => {

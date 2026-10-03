@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+<title id="title">Generic vs tailored Virtual Assistant proposal</title>
+<desc id="desc">A side-by-side comparison showing a generic VA pitch and a stronger job-specific proposal.</desc>
+<rect width="960" height="600" rx="32" fill="#f8fafc"/>
+<text x="60" y="68" font-family="Arial, sans-serif" font-size="29" font-weight="700" fill="#101828">Generic vs job-specific</text>
+<text x="60" y="102" font-family="Arial, sans-serif" font-size="15" fill="#667085">The stronger proposal makes the employer's workload visible immediately.</text>
+<rect x="60" y="142" width="392" height="378" rx="24" fill="#fff" stroke="#e4e7ec"/>
+<rect x="508" y="142" width="392" height="378" rx="24" fill="#fff" stroke="#c7d7fe" stroke-width="2"/>
+<text x="88" y="184" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#b42318">TOO GENERIC</text>
+<text x="536" y="184" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#3538cd">STRONGER</text>
+<g font-family="Arial, sans-serif" fill="#475467" font-size="15">
+<text x="88" y="231">“I am hardworking and passionate.</text><text x="88" y="258">I know Google Workspace, Slack,</text><text x="88" y="285">Trello, Canva and Zoom. I can do</text><text x="88" y="312">many VA tasks and learn quickly.”</text>
+<text x="536" y="231">“You need help keeping inbox and</text><text x="536" y="258">calendar follow-up from piling up.</text><text x="536" y="285">I have managed both in admin roles,</text><text x="536" y="312">including weekly status tracking.”</text>
+</g>
+<line x1="88" y1="353" x2="424" y2="353" stroke="#eaecf0"/><line x1="536" y1="353" x2="872" y2="353" stroke="#dbe4ff"/>
+<g font-family="Arial, sans-serif" font-size="14">
+<text x="88" y="391" fill="#667085">No job-specific need</text><text x="88" y="421" fill="#667085">No proof point</text><text x="88" y="451" fill="#667085">Tool list without workflow</text><text x="88" y="481" fill="#667085">No useful next question</text>
+<text x="536" y="391" fill="#344054">Names the actual workflow</text><text x="536" y="421" fill="#344054">Uses relevant evidence</text><text x="536" y="451" fill="#344054">Explains the first step</text><text x="536" y="481" fill="#344054">Ends with a scope question</text>
+</g>
+<rect x="60" y="548" width="840" height="1" fill="#e4e7ec"/>
+<text x="480" y="578" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#444ce7">Personalize the evidence, not just the greeting.</text>
+</svg>

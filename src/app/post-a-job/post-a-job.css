@@ -31,6 +31,24 @@
 .wizard-optional > summary { cursor: pointer; padding: 13px 14px; color: #344054; font-size: 13px; font-weight: 750; }
 .wizard-optional-grid { padding: 0 14px 14px; }
 .post-job-wizard-shell .review-hero { border: 1px solid #c7d7fe; background: linear-gradient(135deg,#f8faff,#fff); border-radius: 16px; padding: 18px; }
+
+.post-job-wizard-shell .wizard-optional { overflow: hidden; }
+.post-job-wizard-shell .wizard-optional > summary { list-style: none; }
+.post-job-wizard-shell .wizard-optional > summary::-webkit-details-marker { display: none; }
+.post-job-wizard-shell .wizard-optional > summary:after { content: "+"; float: right; color: #667085; font-size: 17px; line-height: 1; }
+.post-job-wizard-shell .wizard-optional[open] > summary:after { content: "−"; }
+.post-job-wizard-shell .job-post-preview { border: 1px solid #c7d7fe; border-radius: 17px; background: linear-gradient(145deg,#f8faff 0%,#fff 62%); padding: 20px; display: grid; gap: 16px; }
+.post-job-wizard-shell .job-post-preview-head { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: start; }
+.post-job-wizard-shell .job-post-preview-head span { display: block; color: #667085; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+.post-job-wizard-shell .job-post-preview-head h3 { margin: 0; font-size: 22px; letter-spacing: -.03em; }
+.post-job-wizard-shell .job-post-preview-head p { margin: 4px 0 0; color: #667085; font-size: 13px; }
+.post-job-wizard-shell .job-post-preview-rate { white-space: nowrap; color: #101828; font-size: 17px; }
+.post-job-wizard-shell .job-post-preview-summary { margin: 0; color: #344054; line-height: 1.65; }
+.post-job-wizard-shell .job-post-preview-responsibilities { padding-top: 14px; border-top: 1px solid #e4e7ec; }
+.post-job-wizard-shell .job-post-preview-responsibilities > span { display: block; margin-bottom: 8px; color: #344054; font-size: 12px; font-weight: 800; }
+.post-job-wizard-shell .job-post-preview-responsibilities ul { margin: 0; padding-left: 20px; color: #475467; display: grid; gap: 5px; }
+.post-job-wizard-shell .review-edit-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: flex-end; }
+
 .post-job-after { margin: 18px 0 0 208px; padding: 16px 18px; border-radius: 14px; border: 1px solid #e4e7ec; background: #fff; }
 .post-job-after strong { display: block; margin-bottom: 4px; }
 .post-job-after p { margin: 0; color: #667085; line-height: 1.6; font-size: 13px; }
@@ -54,4 +72,8 @@
   .post-job-wizard-shell .wizard-step span:last-child { display: none !important; }
   .wizard-optional-grid { grid-template-columns: 1fr; }
   .wizard-optional-grid .span-2 { grid-column: span 1; }
+  .post-job-wizard-shell .job-post-preview { padding: 16px; }
+  .post-job-wizard-shell .job-post-preview-head { grid-template-columns: auto minmax(0,1fr); }
+  .post-job-wizard-shell .job-post-preview-rate { grid-column: 2; }
+  .post-job-wizard-shell .review-edit-row { justify-content: flex-start; }
 }

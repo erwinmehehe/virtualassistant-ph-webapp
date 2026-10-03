@@ -99,3 +99,22 @@ test("job draft suggestions only emit matcher-supported VAPH categories", () => 
     assert.match(jobDraftSuggestions, new RegExp(`category: "${category.replace(/[&]/g, "\\&")}"`));
   }
 });
+
+
+test("jobs auth CTAs respect logged-out, VA, and client sessions", () => {
+  assert.match(jobsPage, /getSessionProfile/);
+  assert.match(jobsPage, /const employerPostHref = isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(jobsPage, /isClient \? \(/);
+  assert.match(jobsPage, /My applications/);
+  assert.match(publicJobDetail, /profile\?\.role === "client"/);
+  assert.match(publicJobDetail, /You’re signed in as a client/);
+  assert.match(publicJobDetail, /Create VA profile to apply/);
+  assert.match(publicJobDetail, /Already have a VA account\? Log in/);
+  assert.match(publicJobDetail, /Apply for this job/);
+  assert.match(publicJobDetail, /Complete vetting to apply/);
+  assert.match(postJobPage, /if \(profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
+  assert.match(postJobPage, /if \(user\) redirect\(profile\?\.role === "va" \? "\/workspace\/va" : "\/workspace"\)/);
+  assert.match(siteNav, /My workspace/);
+  assert.match(siteNav, /profile\?\.role === "client"/);
+  assert.match(siteNav, /profile\?\.role === "va"/);
+});

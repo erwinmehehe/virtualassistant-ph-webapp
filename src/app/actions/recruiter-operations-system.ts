@@ -664,7 +664,7 @@ export async function respondPlacementOfferAction(formData: FormData) {
   const decision = String(formData.get("decision") || "");
   if (!offerId || !["accept", "decline"].includes(decision)) throw new Error("Invalid offer decision.");
   const admin = createAdminClient();
-  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id)").eq("id", offerId).eq("va_id", user.id).maybeSingle();
+  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("va_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_va") throw new Error("This offer is no longer waiting for your response.");
   const now = new Date().toISOString();
   const jobTitle = Array.isArray(offer.jobs) ? offer.jobs[0]?.title : offer.jobs?.title;

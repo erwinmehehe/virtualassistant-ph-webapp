@@ -17,6 +17,7 @@ import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { jobPublicHref } from "@/lib/public-routing";
 import { socialMetadata } from "@/lib/og";
+import { getSessionProfile } from "@/lib/auth";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
@@ -79,7 +80,11 @@ export default async function PublicJobsPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const [params, settings] = await Promise.all([searchParams, getBusinessSettings()]);
+  const [params, settings, session] = await Promise.all([searchParams, getBusinessSettings(), getSessionProfile()]);
+  const { user, profile } = session;
+  const isVa = profile?.role === "va";
+  const isClient = profile?.role === "client";
+  const employerPostHref = isClient ? "/workspace/client/jobs/new" : EMPLOYER_POST_HREF;
   const q = String(params.q || "").trim().replace(/[,%()]/g, " ");
   const category = String(params.category || "").trim();
   const minRate = Number(params.min_rate || 0);
@@ -182,12 +187,16 @@ export default async function PublicJobsPage({
                 Create a clear role with the work, weekly hours, timezone, and compensation shown up front. Review the posting before you create an account.
               </p>
               <div className="jobs-market-actions">
-                <Link className="btn btn-primary btn-lg" href={EMPLOYER_POST_HREF}>
+                <Link className="btn btn-primary btn-lg" href={employerPostHref}>
                   Post a VA job <ArrowRight size={16} />
                 </Link>
-                <Link className="btn btn-lg" href={EMPLOYER_LOGIN_HREF}>
-                  Client sign in
-                </Link>
+                {isClient ? (
+                  <Link className="btn btn-lg" href="/workspace/client">Manage my jobs</Link>
+                ) : isVa ? (
+                  <Link className="btn btn-lg" href="/workspace/va/applications">My applications</Link>
+                ) : !user ? (
+                  <Link className="btn btn-lg" href={EMPLOYER_LOGIN_HREF}>Client sign in</Link>
+                ) : null}
               </div>
               <div className="jobs-market-proof" aria-label="Employer marketplace benefits">
                 <span><CheckCircle2 size={15} /> Reach vetted Filipino VAs</span>
@@ -208,10 +217,10 @@ export default async function PublicJobsPage({
                 <li><CheckCircle2 size={15} /> Set compensation and schedule up front</li>
                 <li><CheckCircle2 size={15} /> Review the posting before signup</li>
               </ul>
-              <Link className="btn btn-primary btn-lg jobs-employer-button" href={EMPLOYER_POST_HREF}>
+              <Link className="btn btn-primary btn-lg jobs-employer-button" href={employerPostHref}>
                 Post a VA job <ArrowRight size={16} />
               </Link>
-              <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link>
+              {isClient ? <Link className="jobs-employer-note" href="/workspace/client">Manage my jobs</Link> : !user ? <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link> : null}
             </aside>
           </div>
         </section>
@@ -224,7 +233,7 @@ export default async function PublicJobsPage({
                 <h2>Latest virtual assistant jobs in the Philippines</h2>
                 <p>Search current Philippines virtual assistant jobs by specialty, hours, pay, and recency.</p>
               </div>
-              <Link className="btn jobs-directory-post" href={EMPLOYER_POST_HREF}>
+              <Link className="btn jobs-directory-post" href={employerPostHref}>
                 <BriefcaseBusiness size={16} /> Post a job
               </Link>
             </div>
@@ -268,7 +277,7 @@ export default async function PublicJobsPage({
                 <strong>{total} published role{total === 1 ? "" : "s"}</strong>
                 <span>See how roles appear publicly before you post your own.</span>
               </div>
-              <Link href={EMPLOYER_POST_HREF} className="text-link">Post your role</Link>
+              <Link href={employerPostHref} className="text-link">Post your role</Link>
             </div>
 
             <div className="jobs-list">
@@ -294,7 +303,7 @@ export default async function PublicJobsPage({
                     <p>No published roles match these filters. Clear the filters or start a new employer job posting.</p>
                   </div>
                   <div className="jobs-empty-actions">
-                    <Link className="btn btn-primary" href={EMPLOYER_POST_HREF}>Post a VA job</Link>
+                    <Link className="btn btn-primary" href={employerPostHref}>Post a VA job</Link>
                     {(q || category || minRate || hours) ? <Link className="btn" href="/jobs">Clear filters</Link> : null}
                   </div>
                 </div>
@@ -377,7 +386,7 @@ export default async function PublicJobsPage({
                 <p>Draft the work, hours, timezone, and pay first. Create your client account only after you review the posting.</p>
               </div>
               <div className="jobs-bottom-actions">
-                <Link className="btn btn-primary btn-lg" href={EMPLOYER_POST_HREF}>Post a VA job</Link>
+                <Link className="btn btn-primary btn-lg" href={employerPostHref}>Post a VA job</Link>
                 <Link className="btn btn-lg" href={EMPLOYER_LOGIN_HREF}>Client sign in</Link>
               </div>
             </div>

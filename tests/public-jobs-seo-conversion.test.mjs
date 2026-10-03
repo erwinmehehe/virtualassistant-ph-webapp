@@ -24,8 +24,8 @@ test("jobs page makes job posting a prominent employer conversion path", () => {
   assert.match(page, /Post a VA job/);
   assert.match(page, /EMPLOYER_POST_HREF/);
   assert.match(page, /const EMPLOYER_POST_HREF = "\/post-a-job"/);
-  assert.match(postJobPage, /<h1>Post a Virtual Assistant job<\/h1>/);
-  assert.doesNotMatch(postJobPage, /<h1>Start a hiring request<\/h1>/);
+  assert.match(postJobPage, /Post a Virtual Assistant job/);
+  assert.doesNotMatch(postJobPage, /Start a hiring request/);
   assert.match(css, /\.jobs-employer-card/);
   assert.match(css, /\.jobs-employer-cta/);
 });
@@ -56,6 +56,8 @@ test("employers can draft and preview a job before account creation", () => {
   assert.match(postJobPublicPage, /<JobWizard publicMode/);
   assert.match(jobWizard, /const steps = \["Describe the role", "Schedule & pay", "Preview & post"\]/);
   assert.match(jobWizard, /publicMode \? "Create free account to post"/);
+  assert.match(jobWizard, /Plain English is enough/);
+  assert.match(jobWizard, /starterBriefValues/);
   assert.match(jobWizard, /window\.location\.assign\("\/auth\/join\/client\?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew%3Ffrom_post%3D1"\)/);
   assert.doesNotMatch(jobWizard, /Choose your hiring support/);
 });

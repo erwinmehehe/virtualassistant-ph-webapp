@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+<title id="title">One-minute Virtual Assistant introduction structure</title>
+<desc id="desc">A 60-second timeline showing opening, workflows, proof, and closing for a VA introduction video.</desc>
+<rect width="960" height="600" rx="32" fill="#f8fafc"/>
+<text x="64" y="72" font-family="Arial, sans-serif" font-size="29" font-weight="700" fill="#0f172a">A simple 60-second VA intro</text>
+<text x="64" y="106" font-family="Arial, sans-serif" font-size="16" fill="#64748b">Use a structure you can remember without reading every word.</text>
+<line x1="90" y1="200" x2="870" y2="200" stroke="#cbd5e1" stroke-width="8" stroke-linecap="round"/>
+<g font-family="Arial, sans-serif">
+  <circle cx="150" cy="200" r="30" fill="#2563eb"/>
+  <text x="150" y="206" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">0-10</text>
+  <text x="150" y="260" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">Open</text>
+  <text x="150" y="286" text-anchor="middle" font-size="13" fill="#64748b">Name + role</text>
+
+  <circle cx="360" cy="200" r="30" fill="#4f46e5"/>
+  <text x="360" y="206" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">10-25</text>
+  <text x="360" y="260" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">Workflows</text>
+  <text x="360" y="286" text-anchor="middle" font-size="13" fill="#64748b">2-3 relevant tasks</text>
+
+  <circle cx="590" cy="200" r="30" fill="#059669"/>
+  <text x="590" y="206" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">25-45</text>
+  <text x="590" y="260" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">Proof</text>
+  <text x="590" y="286" text-anchor="middle" font-size="13" fill="#64748b">Experience + tools</text>
+
+  <circle cx="810" cy="200" r="30" fill="#d97706"/>
+  <text x="810" y="206" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">45-60</text>
+  <text x="810" y="260" text-anchor="middle" font-size="17" font-weight="700" fill="#0f172a">Close</text>
+  <text x="810" y="286" text-anchor="middle" font-size="13" fill="#64748b">Why this job</text>
+</g>
+<rect x="64" y="352" width="832" height="150" rx="24" fill="#fff" stroke="#e2e8f0"/>
+<text x="96" y="395" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4f46e5">REMEMBER</text>
+<text x="96" y="431" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">One role. A few workflows. One proof point. One reason to continue.</text>
+<text x="96" y="466" font-family="Arial, sans-serif" font-size="14" fill="#64748b">If the employer gives a different time limit or asks specific questions, follow those instructions first.</text>
+<rect x="64" y="535" width="832" height="1" fill="#e2e8f0"/>
+<text x="480" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#475569">Do not spend the first half of the video on unrelated personal history.</text>
+</svg>

@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { JobWizard } from "@/components/job-wizard";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
+import { getSessionProfile } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import "./post-a-job.css";
 
 export const metadata: Metadata = {
@@ -24,7 +26,10 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function PostAJobPage() {
+export default async function PostAJobPage() {
+  const { user, profile } = await getSessionProfile();
+  if (profile?.role === "client") redirect("/workspace/client/jobs/new");
+
   return (
     <>
       <SiteHeader />
@@ -44,9 +49,15 @@ export default function PostAJobPage() {
               </div>
             </div>
             <aside className="post-job-side-note">
-              <span>Already have a client account?</span>
-              <strong>Open your workspace and post from there.</strong>
-              <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
+              {user ? <>
+                <span>You’re already signed in</span>
+                <strong>This account is not a client account.</strong>
+                <Link href="/workspace">Open your workspace</Link>
+              </> : <>
+                <span>Already have a client account?</span>
+                <strong>Open your workspace and post from there.</strong>
+                <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
+              </>}
             </aside>
           </div>
         </section>

@@ -13,7 +13,7 @@ const SERVICES_META_TITLE = "Virtual Assistant Services Philippines | VA Roles";
 const SERVICES_META_DESCRIPTION = "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.";
 
 export const metadata: Metadata = {
-  title: SERVICES_META_TITLE,
+  title: { absolute: SERVICES_META_TITLE },
   description: SERVICES_META_DESCRIPTION,
   keywords: ["virtual assistant services philippines", "hire filipino virtual assistant", "virtual assistant specialties", "outsourcing services philippines"],
   alternates: { canonical: canonicalPath("/services") },

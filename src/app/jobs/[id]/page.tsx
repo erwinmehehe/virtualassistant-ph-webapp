@@ -14,6 +14,7 @@ import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
 import { isPublishableCompanyName } from "@/lib/job-publication";
+import { organizationRef } from "@/lib/organization";
 import "./job-detail.css";
 
 async function getPublishedJob(key: string) {
@@ -139,10 +140,21 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     job.timezone ? `Client timezone or working-region context: ${job.timezone}.` : null
   ].filter(Boolean).join("\n");
 
+  const base=(process.env.NEXT_PUBLIC_APP_URL||"https://virtualassistant.com.ph").replace(/\/$/,"");
+  const jobSchemaId = `${base}${canonicalHref}#job`;
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title,
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${base}${canonicalHref}`,
+        publisher: organizationRef(base),
+        mainEntity: { "@id": jobSchemaId },
+      },
+      {
+        "@type": "JobPosting",
+        "@id": jobSchemaId,
+        title: job.title,
     description: structuredDescription,
     identifier: { "@type": "PropertyValue", name: "VirtualAssistant.com.ph", value: job.id },
     datePosted: job.published_at || job.created_at,
@@ -151,7 +163,9 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     jobLocationType: "TELECOMMUTE",
     applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
     hiringOrganization: { "@type": "Organization", name: companyName, ...(companyWebsite ? { sameAs: companyWebsite } : {}) },
-    baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
+        baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
+      }
+    ]
   };
 
   const rateText = job.max_hourly_rate ? `${money(job.min_hourly_rate)}–${money(job.max_hourly_rate)}/hr` : `${money(job.min_hourly_rate)}/hr`;

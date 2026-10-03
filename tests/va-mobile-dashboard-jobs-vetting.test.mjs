@@ -86,3 +86,13 @@ test("vetted VA applications notify employer and recruiter without making delive
   assert.match(applicationsAction, /Employer application notification failed/);
   assert.match(applicationsAction, /New application employer notification failed/);
 });
+
+
+test("VA dashboard connects vetting to direct published-job applications", async () => {
+  const page=await read("src/app/workspace/va/page.tsx");
+  assert.match(page,/Apply to a published role/);
+  assert.match(page,/Your application starts in recruiter review and the job poster is notified/);
+  assert.match(page,/Your vetted profile is ready to apply/);
+  assert.match(page,/\["Applied",pipeline\.applied\]/);
+  assert.doesNotMatch(page,/Express interest in a role/);
+});

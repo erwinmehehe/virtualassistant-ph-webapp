@@ -13,12 +13,13 @@ export async function banUserAction(formData: FormData) {
   if (!reason || reason.length < 5) throw new Error("Add a short reason for the ban record.");
 
   const admin = createAdminClient();
-  await admin.from("profiles").update({
+  const { error: profileError } = await admin.from("profiles").update({
     account_status: "banned",
     banned_at: new Date().toISOString(),
     banned_reason: reason,
     banned_by: user.id
   }).eq("id", userId);
+  if (profileError) throw profileError;
 
   // Ban at the Supabase Auth level too (not just our own account_status
   // column) so the account is blocked from signing in again at all, not
@@ -43,12 +44,13 @@ export async function unbanUserAction(formData: FormData) {
   const userId = String(formData.get("user_id") ?? "");
   if (!userId) throw new Error("Missing account to restore.");
   const admin = createAdminClient();
-  await admin.from("profiles").update({
+  const { error: profileError } = await admin.from("profiles").update({
     account_status: "active",
     banned_at: null,
     banned_reason: null,
     banned_by: null
   }).eq("id", userId);
+  if (profileError) throw profileError;
   await admin.auth.admin.updateUserById(userId, { ban_duration: "none" }).catch(() => {});
   const { writeAdminAudit } = await import("@/lib/admin-audit");
   await writeAdminAudit({ actorId: user.id, action: "user_unbanned", targetType: "user", targetId: userId });

@@ -74,11 +74,6 @@ export default async function VaProfilePage({
       {params.certificate_visibility === "hidden" ? (
         <div className="success-banner profile-feedback-banner" role="status">Certificate is private again. Recruiters can still verify it internally.</div>
       ) : null}
-      {!String(va?.address || "").trim() ? (
-        <div className="alert profile-feedback-banner" role="status">
-          <strong>Add your address.</strong> Recruiters need it for hiring operations. It is never shown on your public profile.
-        </div>
-      ) : null}
 
       <div className="page-head va-profile-head va-profile-mobile-head">
         <div>
@@ -116,16 +111,15 @@ export default async function VaProfilePage({
                   <span className="field-help">Public pages show first name + last initial only.</span>
                 </div>
                 <div className="field">
-                  <label>Current home address</label>
+                  <label>Current home address <span className="muted">(optional, private)</span></label>
                   <input
                     name="address"
                     defaultValue={va?.address || ""}
                     placeholder="Street / barangay, city, province"
                     autoComplete="street-address"
                     maxLength={200}
-                    required
                   />
-                  <span className="field-help">Used only by our recruiter/admin team for hiring operations. It is never shown on your public profile.</span>
+                  <span className="field-help">Optional. Only provide this when VAPH asks for it during placement or compliance. It is never shown to clients or on your public profile.</span>
                 </div>
                 <div className="field">
                   <label>Professional headline</label>

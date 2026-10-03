@@ -116,8 +116,8 @@ test("client profile validates URLs and logo before persisting account edits", a
 });
 
 
-test("VA address is private, required, and can be suggested from a resume", async () => {
-  const [profilePage, profileAction, onboarding, onboardingAction, parser, autofill, migration, recruiterPage] = await Promise.all([
+test("VA address is optional and private across profile and onboarding", async () => {
+  const [profilePage, profileAction, onboarding, onboardingAction, parser, autofill, migration, recruiterPage, maintenance] = await Promise.all([
     source("src/app/workspace/va/profile/page.tsx"),
     source("src/app/actions/profile.ts"),
     source("src/app/workspace/va/onboarding/page.tsx"),
@@ -126,20 +126,31 @@ test("VA address is private, required, and can be suggested from a resume", asyn
     source("src/components/resume-autofill.tsx"),
     source("supabase/migrations/20260929074500_va_private_address.sql"),
     source("src/app/workspace/recruiter/candidates/[id]/page.tsx"),
+    source("src/app/api/cron/maintenance/route.ts"),
   ]);
 
-  assert.match(profilePage, /name="address"/);
-  assert.match(profilePage, /Current home address/);
-  assert.match(profilePage, /never shown on your public profile/);
-  assert.match(profilePage, /Add your address/);
-  assert.match(profileAction, /formData\.get\("address"\)/);
-  assert.match(profileAction, /Enter your current address/);
-  assert.match(onboarding, /name="address"/);
-  assert.match(onboardingAction, /current home address/);
-  assert.match(parser, /function extractAddress/);
-  assert.match(parser, /address: extractAddress\(text\)/);
-  assert.match(autofill, /setFormValue\(form, "address", fields\.address\)/);
-  assert.match(migration, /add column if not exists address text/);
-  assert.doesNotMatch(migration, /create or replace view public\.public_va_directory/);
-  assert.match(recruiterPage, /<div className="small muted">Address<\/div>/);
+  assert.ok(profilePage.includes('name="address"'));
+  assert.ok(profilePage.includes("Current home address"));
+  assert.ok(profilePage.includes("optional, private"));
+  const profileAddressIndex = profilePage.indexOf('name="address"');
+  assert.ok(profileAddressIndex >= 0);
+  assert.ok(!profilePage.slice(Math.max(0, profileAddressIndex - 180), profileAddressIndex + 320).includes("required"));
+  assert.ok(profileAction.includes('formData.get("address")'));
+  assert.ok(!profileAction.includes("Enter your current address"));
+
+  assert.ok(onboarding.includes("Private address (optional)"));
+  assert.ok(onboarding.includes('name="address"'));
+  const onboardingAddressIndex = onboarding.indexOf('name="address"');
+  assert.ok(onboardingAddressIndex >= 0);
+  assert.ok(!onboarding.slice(Math.max(0, onboardingAddressIndex - 180), onboardingAddressIndex + 320).includes("required"));
+  assert.ok(onboardingAction.includes("if (address &&"));
+  assert.ok(onboardingAction.includes("address: address || null"));
+
+  assert.ok(parser.includes("function extractAddress"));
+  assert.ok(autofill.includes('setFormValue(form, "address", fields.address)'));
+  assert.ok(!maintenance.includes("runVaAddressResumeBackfill"));
+
+  assert.ok(migration.includes("add column if not exists address text"));
+  assert.ok(!migration.includes("create or replace view public.public_va_directory"));
+  assert.ok(!recruiterPage.includes("Request address"));
 });

@@ -11,7 +11,7 @@ import { publicationMissingDetails } from "@/lib/job-publication";
 import { isTalentAgencyCertified } from "@/lib/talent-operations";
 import { queueShortlistReviewAutomation } from "@/lib/trigger-automation";
 
-const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid", "comped"];
+const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid"];
 const CLIENT_INVITE_COOLDOWN_HOURS = 20;
 
 function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
@@ -76,7 +76,7 @@ export async function updateCandidateAccessAction(formData: FormData) {
   const payload: Record<string, unknown> = {
     job_id: jobId,
     access_status: status,
-    access_fee: status === "comped" && fee == null ? 0 : fee,
+    access_fee: fee,
     currency: "USD",
     payment_reference: paymentReference,
     notes,

@@ -89,7 +89,9 @@ export async function updateCandidateAccessAction(formData: FormData) {
 
   if (job.client_id) {
     const copy = active
-      ? "Candidate details are now unlocked. You can review released shortlist profiles, applicants, and resumes."
+      ? status === "paid"
+        ? "Paid candidate review access is active. You can review recruiter-released candidate evidence and continue through interviews and offers. Private contact details remain protected by the managed hiring flow."
+        : "Sanitized candidate review access is active. You can review recruiter-released profile evidence and continue through interviews and offers with your recruiter."
       : status === "quoted"
         ? `Candidate access has been quoted at USD ${fee?.toFixed(2)}.`
         : status === "invoiced"

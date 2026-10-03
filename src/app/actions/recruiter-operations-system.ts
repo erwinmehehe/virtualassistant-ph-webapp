@@ -461,6 +461,10 @@ export async function submitCandidateInterviewFeedbackAction(formData: FormData)
   const admin = createAdminClient();
   const { data: row } = await admin.from("candidate_interviews").select("*,jobs(title,recruiter_id)").eq("id", interviewId).eq("client_id", user.id).maybeSingle();
   if (!row) throw new Error("Interview not found.");
+  if (row.status !== "scheduled" || !row.scheduled_at) throw new Error("Complete the scheduled interview before recording feedback.");
+  const scheduledAtMs = new Date(row.scheduled_at).getTime();
+  const interviewEndsAtMs = scheduledAtMs + Number(row.duration_minutes || 30) * 60 * 1000;
+  if (!Number.isFinite(interviewEndsAtMs) || interviewEndsAtMs > Date.now()) throw new Error("Interview feedback is available after the scheduled interview ends.");
   const now = new Date().toISOString();
   await admin.from("candidate_interviews").update({ status: "completed", completed_at: row.completed_at || now, client_decision: decision, client_feedback: feedback, client_feedback_reason: reason, client_feedback_at: now, updated_at: now }).eq("id", interviewId);
   if (row.shortlist_candidate_id && decision === "pass") await admin.from("job_shortlist_candidates").update({ client_decision: "pass", client_decision_note: [reason, feedback].filter(Boolean).join(": ").slice(0, 500), client_decision_at: now }).eq("id", row.shortlist_candidate_id);

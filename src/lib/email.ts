@@ -554,26 +554,64 @@ export async function sendTrackedRawEmail(args: {
 
 export async function sendApplicationEmail(args: {
   to?: string | null;
-  applicantName: string;
+  clientName?: string | null;
   jobTitle: string;
+  jobId: string;
   applicationId: string;
 }) {
   const config = resendConfig();
-  if (!config || !args.to) return { sent: false as const, reason: !args.to ? "missing_recipient" : "email_not_configured" };
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+
+  const firstName = args.clientName?.trim().split(/\s+/)[0] || "there";
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
+  const jobUrl = `${appUrl}/workspace/client/jobs/${encodeURIComponent(args.jobId)}`;
+  const safeTitle = escapeHtml(args.jobTitle);
+
+  const bodyHtml = `
+    <p style="margin:0 0 20px;color:#344054;font-size:16px;line-height:1.7;">
+      A vetted Virtual Assistant just applied to your <strong style="color:#101828;">${safeTitle}</strong> role.
+    </p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 22px;border-collapse:separate;">
+      <tr>
+        <td style="padding:18px 18px 17px;border:1px solid #e4e7ec;border-radius:14px;background:#f8f9fc;">
+          <p style="margin:0 0 5px;color:#667085;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.07em;text-transform:uppercase;">New application</p>
+          <p style="margin:0;color:#101828;font-size:18px;font-weight:800;line-height:1.35;letter-spacing:-.25px;">${safeTitle}</p>
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:13px;">
+            <tr>
+              <td style="padding:6px 9px;border-radius:999px;background:#ecfdf3;color:#067647;font-size:11px;font-weight:800;">Vetted applicant</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:0 0 16px;color:#475467;font-size:15px;line-height:1.7;">
+      Open the role to see the latest hiring activity and take the next available action. Candidate details remain protected until your role has the required candidate access.
+    </p>
+    <p style="margin:0;color:#667085;font-size:13px;line-height:1.65;">
+      You do not need to reply to this email. Your VAPH workspace keeps the application and hiring status together.
+    </p>`;
+
   const delivery = await trackedSend(config, {
     from: config.from,
-    to: [args.to],
-    subject: `New application: ${args.jobTitle}`,
+    to: [recipient],
+    replyTo: configuredReplyToFor({ jobId: args.jobId }),
+    subject: `New application for ${args.jobTitle}`,
+    text: `Hi ${firstName},\n\nA vetted Virtual Assistant just applied to your ${args.jobTitle} role.\n\nOpen the role to see the latest hiring activity and take the next available action:\n${jobUrl}\n\nCandidate details remain protected until your role has the required candidate access.\n\nBest,\nVirtualAssistant.com.ph Hiring Team`,
     html: renderHiringEmail({
-      firstName: "there",
-      bodyHtml: `<p style="margin:0 0 14px;color:#475467;font-size:15px;line-height:1.7;"><strong style="color:#101828;">${escapeHtml(args.applicantName)}</strong> applied for <strong style="color:#101828;">${escapeHtml(args.jobTitle)}</strong>.</p><p style="margin:0;color:#667085;font-size:14px;line-height:1.65;">Open your Client workspace to review the application and candidate details.</p>`,
+      firstName,
+      bodyHtml,
       senderName: "VirtualAssistant.com.ph Hiring Team",
-      headline: "New application received",
-      ctaHref: `${appUrl}/workspace/client`,
+      headline: "A vetted VA applied",
+      ctaHref: jobUrl,
       ctaLabel: "Review application"
     })
-  }, "new_application", { archive: false, priority: "standard", idempotencyKey: `new-application-${args.applicationId}` });
+  }, "new_application", {
+    archive: false,
+    priority: "critical",
+    idempotencyKey: `new-application-${args.applicationId}`
+  });
+
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }
 

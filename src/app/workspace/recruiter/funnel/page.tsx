@@ -9,5 +9,5 @@ function range(value?: string) {
 export default async function RecruiterFunnelPage({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
   const query = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
-  return <AgencyFunnelDashboard recruiterId={userId} days={range(query.days)} basePath="/workspace/recruiter/funnel" scopeLabel="Your owned hiring pipeline" leadsPath="/workspace/recruiter/leads" rolesPath="/workspace/recruiter/roles" />;
+  return <AgencyFunnelDashboard recruiterId={userId} days={range(query.days)} basePath="/workspace/recruiter/funnel" scopeLabel="Your owned hiring pipeline" leadsPath="/workspace/recruiter/crm" rolesPath="/workspace/recruiter/roles" />;
 }

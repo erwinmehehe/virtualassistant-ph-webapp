@@ -59,3 +59,22 @@ test("client record prioritizes the hiring workflow and collapses secondary CRM 
   assert.match(page, /\+ Add follow-up task/);
   assert.doesNotMatch(page, /<h2>Relationships<\/h2>|Connected CRM objects|<h2>Next step<\/h2>/);
 });
+
+
+test("legacy recruiter lead routes collapse into the canonical CRM pipeline", async () => {
+  const [leadsPage, boardPage, routes, funnel] = await Promise.all([
+    read("src/app/workspace/recruiter/leads/page.tsx"),
+    read("src/app/workspace/recruiter/leads/board/page.tsx"),
+    read("src/lib/recruiter-routes.ts"),
+    read("src/app/workspace/recruiter/funnel/page.tsx"),
+  ]);
+
+  assert.match(leadsPage, /canonicalRecruiterHref/);
+  assert.match(boardPage, /canonicalRecruiterHref/);
+  assert.match(leadsPage, /redirect\(canonicalRecruiterHref\(legacyHref, "\/workspace\/recruiter\/crm"/);
+  assert.match(boardPage, /redirect\(canonicalRecruiterHref\(legacyHref, "\/workspace\/recruiter\/crm\?mode=board"/);
+  assert.match(routes, /originalPath === "\/workspace\/recruiter\/leads"/);
+  assert.match(routes, /originalPath === "\/workspace\/recruiter\/leads\/board"/);
+  assert.match(funnel, /leadsPath="\/workspace\/recruiter\/crm"/);
+  assert.doesNotMatch(funnel, /leadsPath="\/workspace\/recruiter\/leads"/);
+});

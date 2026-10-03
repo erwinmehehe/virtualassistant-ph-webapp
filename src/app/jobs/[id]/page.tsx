@@ -13,7 +13,7 @@ import { isUuid, jobPublicHref } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
-import { organizationRef } from "@/lib/organization";
+import { isPublishableCompanyName } from "@/lib/job-publication";
 import "./job-detail.css";
 
 async function getPublishedJob(key: string) {
@@ -65,8 +65,11 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
   const job = await getPublishedJob(id);
   if (!job) return { title: "Virtual Assistant Job", robots: { index: false, follow: false } };
   const company = publicCompanyFromJob(job);
-  const title = `${job.title} | VA Job`;
-  const description = job.summary || `${job.title} virtual assistant opportunity${company?.company_name ? ` with ${company.company_name}` : " through VirtualAssistant.com.ph"}.`;
+  if (!isPublishableCompanyName(company?.company_name)) {
+    return { title: "Virtual Assistant Job", robots: { index: false, follow: false } };
+  }
+  const title = `${job.title} | ${company.company_name}`;
+  const description = job.summary || `${job.title} virtual assistant opportunity with ${company.company_name}.`;
   const canonical = canonicalPath(jobPublicHref(job));
   return {
     title,
@@ -77,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
       description,
       path: canonical,
       category: "jobs",
-      eyebrow: company?.company_name || "Virtual Assistant Job",
+      eyebrow: company.company_name,
       points: [
         job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Remote role",
         job.timezone || "Schedule in listing",
@@ -101,7 +104,8 @@ export default async function JobPage({ params, searchParams }: { params: Promis
 
   const { user, profile } = await getSessionProfile();
   const company = publicCompanyFromJob(job);
-  const companyName = company?.company_name || null;
+  const companyName = String(company?.company_name || "").trim();
+  if (!isPublishableCompanyName(companyName)) notFound();
   const companyWebsite = company?.website || null;
   const companyHiresCount = Number(company?.hires_count || 0);
   let applied = false;
@@ -135,7 +139,6 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     job.timezone ? `Client timezone or working-region context: ${job.timezone}.` : null
   ].filter(Boolean).join("\n");
 
-  const base=(process.env.NEXT_PUBLIC_APP_URL||"https://virtualassistant.com.ph").replace(/\/$/,"");
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -147,14 +150,12 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     employmentType: job.hours_per_week && job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME",
     jobLocationType: "TELECOMMUTE",
     applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
-    hiringOrganization: companyName
-      ? { "@type": "Organization", name: companyName, ...(companyWebsite ? { sameAs: companyWebsite } : {}) }
-      : organizationRef(base),
+    hiringOrganization: { "@type": "Organization", name: companyName, ...(companyWebsite ? { sameAs: companyWebsite } : {}) },
     baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
   };
 
   const rateText = job.max_hourly_rate ? `${money(job.min_hourly_rate)}–${money(job.max_hourly_rate)}/hr` : `${money(job.min_hourly_rate)}/hr`;
-  const employerLabel = companyName || "Private employer";
+  const employerLabel = companyName;
   const skillsAndTools = mergeUniqueStrings(job.required_skills, job.required_tools);
   const responsibilities = uniqueStrings(job.responsibilities);
 

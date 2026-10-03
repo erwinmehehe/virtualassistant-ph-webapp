@@ -25,6 +25,22 @@ test("legacy recruiter lead surfaces redirect into the canonical CRM", async () 
   assert.match(crmRecord, /Create role & open matching/);
 });
 
+test("legacy recruiter lead pages are redirect-only compatibility shims", async () => {
+  const [legacyList, legacyBoard] = await Promise.all([
+    read("src/app/workspace/recruiter/leads/page.tsx"),
+    read("src/app/workspace/recruiter/leads/board/page.tsx"),
+  ]);
+
+  for (const source of [legacyList, legacyBoard]) {
+    assert.match(source, /redirect\(/);
+    assert.match(source, /canonicalRecruiterHref/);
+    assert.doesNotMatch(source, /createAdminClient|RecruiterLeadKanban|lead_intake|recruiter_leads_page/);
+  }
+
+  assert.match(legacyList, /\/workspace\/recruiter\/leads/);
+  assert.match(legacyBoard, /\/workspace\/recruiter\/leads\/board/);
+});
+
 test("My Day owns the recruiter action surfaces through one tab set", async () => {
   const [tabs, today, tasks, agenda, notifications] = await Promise.all([
     read("src/components/recruiter-operations-nav.tsx"),

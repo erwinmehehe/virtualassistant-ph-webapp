@@ -682,3 +682,145 @@
     padding: 26px 0;
   }
 }
+
+
+.va-hub-toolkit {
+  background: #f7f8fc;
+}
+
+.va-hub-toolkit-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  align-items: end;
+  margin-bottom: 28px;
+}
+
+.va-hub-toolkit-head > div {
+  max-width: 760px;
+}
+
+.va-hub-toolkit-head h2 {
+  margin: 8px 0 12px;
+  max-width: 760px;
+  font-size: clamp(32px, 3.2vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.va-hub-toolkit-head p {
+  margin: 0;
+  color: #667085;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.va-hub-toolkit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.va-hub-toolkit-grid > a {
+  display: grid;
+  min-height: 210px;
+  padding: 24px;
+  border: 1px solid #dfe3f0;
+  border-radius: 18px;
+  background: #fff;
+  color: #101828;
+  text-decoration: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.va-hub-toolkit-grid > a:hover {
+  transform: translateY(-2px);
+  border-color: #b8c0ff;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.07);
+}
+
+.va-hub-toolkit-grid > a > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #eef0ff;
+  color: #3538cd;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.va-hub-toolkit-grid strong {
+  margin-top: 18px;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+
+.va-hub-toolkit-grid small {
+  margin-top: 8px;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.va-hub-toolkit-grid em {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: end;
+  margin-top: 20px;
+  color: #3538cd;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.va-hub-toolkit-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid #dfe3f0;
+  border-radius: 14px;
+  background: #eef0ff;
+  color: #475467;
+  font-size: 13px;
+}
+
+.va-hub-toolkit-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #3538cd;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .va-hub-toolkit-head {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .va-hub-toolkit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .va-hub-toolkit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .va-hub-toolkit-grid > a {
+    min-height: 0;
+  }
+
+  .va-hub-toolkit-foot {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

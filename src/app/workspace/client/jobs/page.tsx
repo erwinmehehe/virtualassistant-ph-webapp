@@ -27,7 +27,7 @@ export default async function ClientJobsPage(){
   return <div className="client-jobs-page">
     <div className="page-head client-jobs-head">
       <div><h1>Your hiring requests</h1><p>Follow each role from brief review through recruiting, shortlist, interviews, and hire.</p></div>
-      <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new">{clientProfile?.can_self_publish_jobs?"Post a job":"New hiring request"}</Link>
+      <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new">Post a job</Link>
     </div>
     <div className="table-wrap responsive-table client-jobs-table">
       {clientProfile?.can_self_publish_jobs?<div className="success-banner" style={{marginBottom:18}}>Direct publishing is enabled for your account. Complete curated-placement roles can go live on the public jobs page immediately.</div>:null}
@@ -41,7 +41,7 @@ export default async function ClientJobsPage(){
           <td data-label="Created">{dateShort(job.created_at)}</td>
           <td data-label="Action"><Link className="btn btn-sm client-job-progress" href={`/workspace/client/jobs/${job.id}`}>View progress</Link></td>
         </tr>)}</tbody>
-      </table>:<div className="empty"><p>You have not sent a hiring request yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Start your first hiring request</Link></div>}
+      </table>:<div className="empty"><p>You have not posted a job yet.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Post your first job</Link></div>}
     </div>
   </div>;
 }

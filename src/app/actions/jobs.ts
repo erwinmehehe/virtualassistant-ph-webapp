@@ -9,6 +9,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
 import { publicationMissingDetails } from "@/lib/job-publication";
+import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
 
 function csv(value: FormDataEntryValue | null) {
   return String(value ?? "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
@@ -74,6 +75,20 @@ export async function createJobAction(formData: FormData) {
   const serviceModel = String(formData.get("service_model") ?? "curated_placement") === "managed_service"
     ? "managed_service"
     : "curated_placement";
+
+  if (submitMode !== "draft") {
+    assertPublicHiringContentSafe([
+      title,
+      String(formData.get("company_name") ?? ""),
+      summary,
+      description,
+      responsibilities,
+      requiredSkills,
+      requiredTools,
+      String(formData.get("schedule_notes") ?? ""),
+      String(formData.get("onboarding_plan") ?? ""),
+    ]);
+  }
 
   const admin = createAdminClient();
   const { data: clientProfile } = await admin
@@ -234,9 +249,20 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const jobId = String(formData.get("job_id") ?? "");
   if (formData.get("fee_ack") !== "on") throw new Error("Please confirm that the service fee is separate from VA compensation.");
   const supabase = await createClient();
-  const { data: job } = await supabase.from("jobs").select("id,status,client_id,title,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id",jobId).eq("client_id",user.id).single();
+  const { data: job } = await supabase.from("jobs").select("id,status,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan").eq("id",jobId).eq("client_id",user.id).single();
   if (!job) throw new Error("Job not found.");
   if (job.min_hourly_rate == null || Number(job.min_hourly_rate) < MIN_HOURLY_RATE) throw new Error(`Raise the VA budget to at least USD ${MIN_HOURLY_RATE}/hour before publishing.`);
+  assertPublicHiringContentSafe([
+    job.title,
+    job.company_name,
+    job.summary,
+    job.description,
+    job.responsibilities,
+    job.required_skills,
+    job.required_tools,
+    job.schedule_notes,
+    job.onboarding_plan,
+  ]);
   const missing = publicationMissingDetails(job);
   if (missing.length) throw new Error(`This brief is missing required public content: ${missing.join(", ")}.`);
   const { data: commercial } = await supabase.from("job_commercials").select("commercial_status").eq("job_id",jobId).single();

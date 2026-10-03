@@ -9,7 +9,7 @@ export default async function ModerationPage() {
 
   const { data: flags } = await admin
     .from("message_flags")
-    .select("id,matched_terms,status,created_at,source_type,source_message_id,sender_id,body_snapshot,profiles!message_flags_sender_id_fkey(id,full_name,role)")
+    .select("id,matched_terms,status,created_at,channel,message_id,thread_id,sender_id,body_snapshot,profiles!message_flags_sender_id_fkey(id,full_name,role)")
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(50);
@@ -32,7 +32,7 @@ export default async function ModerationPage() {
             <div>
               <div className="row wrap"><span className="badge badge-warning">Flagged</span><span className="small muted">{dateShort(f.created_at)}</span></div>
               <h3 style={{ margin: "8px 0 3px" }}>{f.profiles?.full_name || "Unknown"} <span className="small muted">({f.profiles?.role})</span></h3>
-              <div className="small muted">Matched: {(f.matched_terms || []).join(", ")} · {f.source_type === "client_recruiter" ? "Client ↔ Recruiter" : "Recruiter ↔ VA"}</div>
+              <div className="small muted">Matched: {(f.matched_terms || []).join(", ")} · {f.channel === "client_recruiter" ? "Client ↔ Recruiter" : "Recruiter ↔ VA"}</div>
             </div>
           </div>
           <blockquote style={{ margin: "12px 0", padding: "10px 14px", background: "var(--surface-2)", borderRadius: 8, borderLeft: "3px solid var(--warning)" }}>

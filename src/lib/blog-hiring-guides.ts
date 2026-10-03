@@ -115,17 +115,49 @@ export const BLOG_HIRING_GUIDES: BlogPost[] = [
       }
     ],
     "faqs": [
-      { "question": "How long does it take to onboard a Virtual Assistant?", "answer": "It depends on workflow complexity, access, prior experience, and review speed. Use milestones such as accurate repetition, correct escalation, and independent handling of normal cases instead of one fixed number of days." },
-      { "question": "What should a Virtual Assistant do in the first week?", "answer": "Focus on business context, secure access, communication rules, and repeated practice of two or three starting workflows. The assistant should know where work arrives, what complete means, and which exceptions require approval." },
-      { "question": "Should I give a new Virtual Assistant access to every tool?", "answer": "No. Use least privilege and staged access. Start with the systems and permissions required for approved first workflows, then expand access only when the scope grows." },
-      { "question": "How do I measure onboarding success?", "answer": "Measure accuracy, on-time completion, appropriate escalation, documentation quality, backlog control, and decreasing manager intervention for normal cases." }
+      {
+        "question": "How long does it take to onboard a Virtual Assistant?",
+        "answer": "It depends on workflow complexity, access, prior experience, and review speed. Use milestones such as accurate repetition, correct escalation, and independent handling of normal cases instead of one fixed number of days."
+      },
+      {
+        "question": "What should a Virtual Assistant do in the first week?",
+        "answer": "Focus on business context, secure access, communication rules, and repeated practice of two or three starting workflows. The assistant should know where work arrives, what complete means, and which exceptions require approval."
+      },
+      {
+        "question": "Should I give a new Virtual Assistant access to every tool?",
+        "answer": "No. Use least privilege and staged access. Start with the systems and permissions required for approved first workflows, then expand access only when the scope grows."
+      },
+      {
+        "question": "How do I measure onboarding success?",
+        "answer": "Measure accuracy, on-time completion, appropriate escalation, documentation quality, backlog control, and decreasing manager intervention for normal cases."
+      }
     ],
     "internalLinks": [
-      { "label": "Managing Virtual Assistants guides", "href": "/blog/topic/managing", "description": "Browse guidance for delegation, access, feedback, and performance." },
-      { "label": "Sample Virtual Assistant contract", "href": "/blog/sample-virtual-assistant-contract", "description": "Document scope, hours, payment, confidentiality, and termination before onboarding." },
-      { "label": "Secure password and account sharing", "href": "/blog/how-to-securely-share-passwords-and-credit-cards-with-an-overseas-va-2", "description": "Set least-privilege access and credential controls." },
-      { "label": "Virtual Assistant tools", "href": "/blog/virtual-assistant-tools", "description": "Choose a small stack with clear sources of truth." },
-      { "label": "Hire a Virtual Assistant", "href": "/hire", "description": "Share the role, schedule, systems, and outcomes for recruiter review." }
+      {
+        "label": "Managing Virtual Assistants guides",
+        "href": "/blog/topic/managing",
+        "description": "Browse guidance for delegation, access, feedback, and performance."
+      },
+      {
+        "label": "Sample Virtual Assistant contract",
+        "href": "/blog/sample-virtual-assistant-contract",
+        "description": "Document scope, hours, payment, confidentiality, and termination before onboarding."
+      },
+      {
+        "label": "Secure password and account sharing",
+        "href": "/blog/how-to-securely-share-passwords-and-credit-cards-with-an-overseas-va-2",
+        "description": "Set least-privilege access and credential controls."
+      },
+      {
+        "label": "Virtual Assistant tools",
+        "href": "/blog/virtual-assistant-tools",
+        "description": "Choose a small stack with clear sources of truth."
+      },
+      {
+        "label": "Hire a Virtual Assistant",
+        "href": "/hire",
+        "description": "Share the role, schedule, systems, and outcomes for recruiter review."
+      }
     ]
   },
   {
@@ -244,18 +276,54 @@ export const BLOG_HIRING_GUIDES: BlogPost[] = [
       }
     ],
     "faqs": [
-      { "question": "How many hours a week should I hire a Virtual Assistant?", "answer": "Calculate recurring volume and handling time, then add meetings, communication, quality checks, live coverage, and a buffer. The result may be part-time or full-time depending on the workflow." },
-      { "question": "Is 10 hours a week enough for a Virtual Assistant?", "answer": "It can be enough for one narrow, documented queue with flexible timing. It is unlikely to support broad daily coverage or many unrelated responsibilities." },
-      { "question": "Should I hire a part-time or full-time Virtual Assistant?", "answer": "Choose part-time for contained work and defined availability blocks. Choose full-time when related recurring work fills most of the week or sustained live coverage is genuinely required." },
-      { "question": "Can I increase Virtual Assistant hours later?", "answer": "Yes, when both sides agree and the arrangement is updated. Use actual workload, backlog, quality, and coverage data to justify the change." }
+      {
+        "question": "How many hours a week should I hire a Virtual Assistant?",
+        "answer": "Calculate recurring volume and handling time, then add meetings, communication, quality checks, live coverage, and a buffer. The result may be part-time or full-time depending on the workflow."
+      },
+      {
+        "question": "Is 10 hours a week enough for a Virtual Assistant?",
+        "answer": "It can be enough for one narrow, documented queue with flexible timing. It is unlikely to support broad daily coverage or many unrelated responsibilities."
+      },
+      {
+        "question": "Should I hire a part-time or full-time Virtual Assistant?",
+        "answer": "Choose part-time for contained work and defined availability blocks. Choose full-time when related recurring work fills most of the week or sustained live coverage is genuinely required."
+      },
+      {
+        "question": "Can I increase Virtual Assistant hours later?",
+        "answer": "Yes, when both sides agree and the arrangement is updated. Use actual workload, backlog, quality, and coverage data to justify the change."
+      }
     ],
     "internalLinks": [
-      { "label": "Virtual Assistant pricing guides", "href": "/blog/topic/pricing", "description": "Browse rate, salary, budget, and capacity-planning guidance." },
-      { "label": "Virtual Assistant pricing", "href": "/pricing", "description": "See how scope, hours, schedule, and experience affect the setup." },
-      { "label": "Virtual Assistant hourly rate guide", "href": "/average-hourly-rate-virtual-assistants-philippines", "description": "Use rate context after defining workload and responsibility." },
-      { "label": "Virtual Assistant cost calculator", "href": "/tools/virtual-assistant-cost-calculator", "description": "Model weekly hours and an hourly rate." },
-      { "label": "Virtual Assistant job description", "href": "/resources/virtual-assistant-job-description", "description": "Turn the capacity plan into a clear role and schedule." },
-      { "label": "Hire a Virtual Assistant", "href": "/hire", "description": "Share the workload, hours, timezone, and systems for review." }
+      {
+        "label": "Virtual Assistant pricing guides",
+        "href": "/blog/topic/pricing",
+        "description": "Browse rate, salary, budget, and capacity-planning guidance."
+      },
+      {
+        "label": "Virtual Assistant pricing",
+        "href": "/pricing",
+        "description": "See how scope, hours, schedule, and experience affect the setup."
+      },
+      {
+        "label": "Virtual Assistant hourly rate guide",
+        "href": "/average-hourly-rate-virtual-assistants-philippines",
+        "description": "Use rate context after defining workload and responsibility."
+      },
+      {
+        "label": "Virtual Assistant cost calculator",
+        "href": "/tools/virtual-assistant-cost-calculator",
+        "description": "Model weekly hours and an hourly rate."
+      },
+      {
+        "label": "Virtual Assistant job description",
+        "href": "/resources/virtual-assistant-job-description",
+        "description": "Turn the capacity plan into a clear role and schedule."
+      },
+      {
+        "label": "Hire a Virtual Assistant",
+        "href": "/hire",
+        "description": "Share the workload, hours, timezone, and systems for review."
+      }
     ]
   }
 ];

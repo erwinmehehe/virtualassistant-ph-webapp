@@ -187,7 +187,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
               <CheckCircle2 size={17}/>
               <div>
                 <strong>Application submitted.</strong>
-                <span>Your application is now in recruiter review. The hiring company is contacted through the VAPH recruiting flow.</span>
+                <span>The job poster has been notified. Your application is now in recruiter review.</span>
               </div>
             </div>
           ) : null}
@@ -327,7 +327,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                   applied ? (
                     <div className="success-state">
                       <strong>Application submitted</strong>
-                      <span className="small">Your application is in recruiter review. VAPH will handle the next employer step.</span>
+                      <span className="small">The job poster has been notified. Your application is now in recruiter review.</span>
                       <Link className="btn" href="/workspace/va/applications">View my applications</Link>
                     </div>
                   ) : vetted ? (
@@ -339,24 +339,42 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                         <span className="small muted">Keep it specific. One or two short paragraphs is enough.</span>
                       </div>
                       <button className="btn btn-primary btn-lg job-apply-primary" type="submit">Apply for this job</button>
+                      <p className="small muted job-apply-note">The job poster is notified when you apply. Your private details stay protected until candidate access is active.</p>
                     </form>
                   ) : (
                     <>
                       <div className="job-apply-lock">
                         <ShieldCheck size={19}/>
-                        <div><strong>Complete vetting to apply</strong><span>Approved and bench-vetted VAs can apply directly to published roles.</span></div>
+                        <div><strong>Complete vetting to apply</strong><span>Once your vetting stage is approved or bench, you can apply directly to published jobs.</span></div>
                       </div>
                       <Link className="btn btn-primary" href="/workspace/va/vetting">Continue vetting</Link>
                     </>
                   )
+                ) : profile?.role === "client" ? (
+                  <div className="stack">
+                    <div className="job-apply-lock">
+                      <BriefcaseBusiness size={19}/>
+                      <div><strong>You’re signed in as a client</strong><span>VA applications are available to vetted VA accounts. Manage your roles from the client dashboard.</span></div>
+                    </div>
+                    <Link className="btn btn-primary btn-lg" href="/workspace/client/jobs">Manage my jobs</Link>
+                    <Link className="btn" href="/workspace/client/jobs/new">Post another job</Link>
+                  </div>
+                ) : user ? (
+                  <div className="stack">
+                    <div className="job-apply-lock">
+                      <ShieldCheck size={19}/>
+                      <div><strong>You’re already signed in</strong><span>This account cannot apply to VA jobs. Open your workspace to continue.</span></div>
+                    </div>
+                    <Link className="btn btn-primary btn-lg" href="/workspace">Go to workspace</Link>
+                  </div>
                 ) : (
                   <>
                     <div className="job-apply-intro">
-                      <strong>Vetted VAs can apply directly.</strong>
-                      <p>Log in to use your existing profile, or create a free VA profile and complete vetting.</p>
+                      <strong>Want to apply?</strong>
+                      <p>Create your free VA profile. We’ll return you to this exact job after signup, then you can complete vetting and apply once approved.</p>
                     </div>
-                    <Link className="btn btn-primary btn-lg job-apply-primary" href={`/auth/login?next=${encodeURIComponent(canonicalHref)}`}>Log in to apply</Link>
-                    <Link className="btn" href={`/auth/join/va?next=${encodeURIComponent(canonicalHref)}`}>Create VA profile</Link>
+                    <Link className="btn btn-primary btn-lg job-apply-primary" href={`/auth/join/va?next=${encodeURIComponent(canonicalHref)}`}>Create VA profile to apply</Link>
+                    <Link className="btn" href={`/auth/login?next=${encodeURIComponent(canonicalHref)}`}>Already have an account? Log in</Link>
                   </>
                 )}
 

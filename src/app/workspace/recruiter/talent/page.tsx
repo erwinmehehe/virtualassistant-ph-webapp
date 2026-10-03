@@ -94,7 +94,7 @@ export default async function RecruiterTalentDirectory({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query: any = admin
     .from("recruiter_va_directory_health")
-    .select("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status,classification_status,classification_evidence_count,classification_missing,registration_health,email_confirmed,last_sign_in_at,has_private_address,has_resume,address_resume_status,address_resume_checked_at", { count: "exact" });
+    .select("user_id,full_name,avatar_url,headline,primary_category,categories,skills,availability_status,stage,completion_score,missing_items,directory_visible,years_experience,hourly_rate,last_activity_at,email_verified,account_created_at,account_status,classification_status,classification_evidence_count,classification_missing,registration_health,email_confirmed,last_sign_in_at,has_resume", { count: "exact" });
 
   if (sort === "completion") query = query.order("completion_score", { ascending: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
   else if (sort === "experience") query = query.order("years_experience", { ascending: false, nullsFirst: false }).order("last_activity_at", { ascending: false, nullsFirst: false });
@@ -109,7 +109,6 @@ export default async function RecruiterTalentDirectory({
     category_match: categoryMatch,
     classification: effective.classification,
     registration: effective.registration,
-    address: effective.address,
     stage: effective.stage,
     readiness: effective.readiness,
     photo: effective.photo,
@@ -130,8 +129,6 @@ export default async function RecruiterTalentDirectory({
     { count: emailUnconfirmedCount, error: emailUnconfirmedError },
     { count: profileIncompleteCount, error: profileIncompleteError },
     { count: missingResumeCount, error: missingResumeError },
-    { count: missingAddressCount, error: missingAddressError },
-    { count: addressReviewCount, error: addressReviewError },
   ] = await Promise.all([
     query.range(from, from + PAGE_SIZE - 1),
     admin
@@ -149,8 +146,6 @@ export default async function RecruiterTalentDirectory({
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "email_unconfirmed"),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("registration_health", "profile_incomplete"),
     admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_resume", false),
-    admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false),
-    admin.from("recruiter_va_registration_health").select("va_id", { count: "exact", head: true }).eq("has_private_address", false).eq("address_resume_status", "review"),
   ]);
   if (error) throw error;
   if (rolesError) throw rolesError;
@@ -159,8 +154,6 @@ export default async function RecruiterTalentDirectory({
   if (emailUnconfirmedError) throw emailUnconfirmedError;
   if (profileIncompleteError) throw profileIncompleteError;
   if (missingResumeError) throw missingResumeError;
-  if (missingAddressError) throw missingAddressError;
-  if (addressReviewError) throw addressReviewError;
 
   const summary = summaryData as RecruiterTalentSummaryRow;
   const newAccountsCount = Number(summary.new_accounts_7d || 0);
@@ -200,8 +193,6 @@ export default async function RecruiterTalentDirectory({
     ["email_unconfirmed", Number(emailUnconfirmedCount || 0)],
     ["profile_incomplete", Number(profileIncompleteCount || 0)],
     ["missing_resume", Number(missingResumeCount || 0)],
-    ["missing_address", Number(missingAddressCount || 0)],
-    ["address_review", Number(addressReviewCount || 0)],
   ]);
   const primarySavedViews = SAVED_VIEWS.filter((view) => PRIMARY_SAVED_VIEW_KEYS.has(view.key));
   const secondarySavedViews = SAVED_VIEWS.filter((view) => !PRIMARY_SAVED_VIEW_KEYS.has(view.key));
@@ -218,7 +209,6 @@ export default async function RecruiterTalentDirectory({
       filter_q: effective.q,
       filter_classification: effective.classification,
       filter_registration: effective.registration,
-      filter_address: effective.address,
       filter_stage: effective.stage,
       filter_readiness: effective.readiness,
       filter_photo: effective.photo,
@@ -237,7 +227,7 @@ export default async function RecruiterTalentDirectory({
   const advancedFiltersActive = Boolean(
     selectedCategories.length
     || (effective.classification && effective.classification !== "classified")
-    || effective.registration || effective.address || effective.photo || effective.resume || effective.skill || effective.min_experience
+    || effective.registration || effective.photo || effective.resume || effective.skill || effective.min_experience
     || effective.max_rate || effective.availability || effective.stale
   );
   const readinessLabels: Record<string, string> = {
@@ -261,11 +251,7 @@ export default async function RecruiterTalentDirectory({
         ? "0% VA registrations"
         : params.view === "email_unconfirmed"
           ? "Unconfirmed VA emails"
-          : params.view === "missing_address"
-            ? "Missing addresses"
-            : params.view === "address_review"
-              ? "Resume address review"
-              : "Talent pool";
+          : "Talent pool";
   const directoryDescription = params.view === "incomplete_profiles"
     ? "Profiles without enough role evidence stay here until the VA adds enough information for reliable classification."
     : params.view === "ready_to_classify"
@@ -274,18 +260,13 @@ export default async function RecruiterTalentDirectory({
         ? "Email-confirmed VA accounts that never started profile setup. These stay outside the normal talent pool."
         : params.view === "email_unconfirmed"
           ? "VA registrations that have not confirmed their email address yet."
-          : params.view === "missing_address"
-            ? "Address is missing. Resume-backed recovery runs automatically when a safe labeled address is available."
-            : params.view === "address_review"
-              ? "A resume appears to contain a location, but it was not explicit enough to save automatically."
-              : "Classified VAs stay in the working talent pool. Incomplete profiles are separated into their own rescue queue.";
+          : "Classified VAs stay in the working talent pool. Incomplete profiles are separated into their own rescue queue.";
   const activeFilters = [
     effective.q ? { key: "q", label: `Search: ${effective.q}` } : null,
     !params.view && effective.classification && effective.classification !== "classified"
       ? { key: "classification", label: classificationLabels[effective.classification] || effective.classification }
       : null,
     effective.registration ? { key: "registration", label: effective.registration === "email_unconfirmed" ? "Email unconfirmed" : effective.registration === "never_started" ? "Never started" : "Profile incomplete" } : null,
-    effective.address ? { key: "address", label: effective.address === "review" ? "Resume address review" : "Missing address" } : null,
     effective.stage ? { key: "stage", label: `Stage: ${vettingStatusLabel(effective.stage)}` } : null,
     effective.readiness ? { key: "readiness", label: readinessLabels[effective.readiness] || effective.readiness } : null,
     effective.photo ? { key: "photo", label: effective.photo === "yes" ? "Has photo" : "Missing photo" } : null,
@@ -334,7 +315,7 @@ export default async function RecruiterTalentDirectory({
         <div>
           <div className="kicker">Profile health</div>
           <h2>Fix the exact missing thing</h2>
-          <p>Email confirmation, profile completion, and address are separate health signals. A VA can have one problem without being treated as 0% or incomplete everywhere.</p>
+          <p>Email confirmation, profile completion, resume readiness, and vetting are separate health signals. A VA can have one problem without being treated as 0% or incomplete everywhere.</p>
         </div>
         <ShieldCheck size={20} />
       </div>
@@ -347,12 +328,6 @@ export default async function RecruiterTalentDirectory({
         </Link>
         <Link className="stat-card" href="/workspace/recruiter/talent?view=missing_resume">
           <span className="small muted">Missing resume</span><strong>{Number(missingResumeCount || 0)}</strong><small className="muted">Client-readiness blocker</small>
-        </Link>
-        <Link className="stat-card" href="/workspace/recruiter/talent?view=missing_address">
-          <span className="small muted">Address missing</span><strong>{Number(missingAddressCount || 0)}</strong><small className="muted">Never public</small>
-        </Link>
-        <Link className="stat-card" href="/workspace/recruiter/talent?view=address_review">
-          <span className="small muted">Resume address review</span><strong>{Number(addressReviewCount || 0)}</strong><small className="muted">Needs recruiter judgment</small>
         </Link>
       </div>
     </section>
@@ -465,7 +440,6 @@ export default async function RecruiterTalentDirectory({
           <label className="filter-field"><span>Readiness</span><select name="readiness" defaultValue={effective.readiness || ""}><option value="">Any readiness</option><option value="zero">Not started</option><option value="incomplete">Below {APPROVAL_MIN_COMPLETION}%</option><option value="approval_ready">Approval-ready ({APPROVAL_MIN_COMPLETION}%+)</option><option value="approval_cleanup">Approved below {APPROVAL_MIN_COMPLETION}%</option><option value="ready">{PUBLIC_VA_MIN_COMPLETION}%+ with photo</option><option value="vetted_hidden">Approved, not public</option></select></label>
           <label className="filter-field"><span>Classification</span><select name="classification" defaultValue={effective.classification || ""}><option value="">Any classification state</option><option value="classified">Classified talent</option><option value="ready_to_classify">Ready to classify</option><option value="incomplete_profile">Incomplete profile</option></select></label>
           <label className="filter-field"><span>Registration</span><select name="registration" defaultValue={effective.registration || ""}><option value="">Any registration state</option><option value="never_started">Never started</option><option value="email_unconfirmed">Email unconfirmed</option><option value="profile_incomplete">Profile incomplete</option></select></label>
-          <label className="filter-field"><span>Address</span><select name="address" defaultValue={effective.address || ""}><option value="">Any address state</option><option value="missing">Missing address</option><option value="review">Resume needs review</option></select></label>
           <label className="filter-field"><span>Photo</span><select name="photo" defaultValue={effective.photo || ""}><option value="">Any</option><option value="yes">Has photo</option><option value="no">Missing photo</option></select></label>
           <label className="filter-field"><span>Resume</span><select name="resume" defaultValue={effective.resume || ""}><option value="">Any</option><option value="yes">Has resume</option><option value="no">Missing resume</option></select></label>
           <label className="filter-field"><span>Activity</span><select name="stale" defaultValue={effective.stale || ""}><option value="">Any</option><option value="30">Inactive 30+ days</option><option value="60">Inactive 60+ days</option><option value="90">Inactive 90+ days</option></select></label>
@@ -599,7 +573,6 @@ export default async function RecruiterTalentDirectory({
                 ...matchedCategories.map((category) => vaCategoryLabel(category)),
                 ...(matchedSkill ? [`Skill: ${matchedSkill}`] : []),
               ];
-              const hasPrivateAddress = Boolean(row.has_private_address);
               const registrationHealth = String(row.registration_health || "");
               const registrationLabel = registrationHealth === "email_unconfirmed"
                 ? "Email unconfirmed"
@@ -608,20 +581,6 @@ export default async function RecruiterTalentDirectory({
                   : registrationHealth === "profile_incomplete"
                     ? "Profile incomplete"
                     : "";
-              const addressStatus = String(row.address_resume_status || "");
-              const addressCopy = hasPrivateAddress
-                ? "Address recorded"
-                : addressStatus === "review"
-                  ? "Resume address needs recruiter review"
-                  : addressStatus === "no_match"
-                    ? "No address found in resume"
-                    : addressStatus === "unsupported"
-                      ? "Resume format needs manual address review"
-                      : addressStatus === "error"
-                        ? "Resume address check failed"
-                        : row.has_resume
-                          ? "Address missing · resume pending"
-                          : "Address missing · no resume source";
 
               return <tr key={row.user_id}>
                 <td data-label="Select"><input type="checkbox" name="va_id" value={row.user_id} aria-label={`Select ${row.full_name || "VA"}`} /></td>
@@ -655,7 +614,6 @@ export default async function RecruiterTalentDirectory({
                     <div className="progress mini"><span style={{ width: `${score}%` }} /></div>
                     {registrationLabel ? <div className="classification-gap-copy"><strong>{registrationLabel}</strong>{registrationHealth === "never_started" && row.last_sign_in_at ? " · Signed in but setup was never started" : ""}</div> : null}
                     <div className="profile-issues">{missing.length ? `Needs: ${missing.slice(0, 2).join(" · ")}${missing.length > 2 ? ` +${missing.length - 2}` : ""}` : "No profile gaps flagged"}</div>
-                    <div className={hasPrivateAddress ? "small muted" : "classification-gap-copy"}>{addressCopy}</div>
                     {classificationStatus === "incomplete_profile" ? <div className="classification-gap-copy">
                       Classification blocked · add {classificationMissing.slice(0, 3).map((key) => classificationMissingLabels[key] || key).join(" · ")}{classificationMissing.length > 3 ? ` +${classificationMissing.length - 3}` : ""}
                     </div> : classificationStatus === "ready_to_classify" ? <div className="classification-ready-copy">Enough profile evidence to classify</div> : null}

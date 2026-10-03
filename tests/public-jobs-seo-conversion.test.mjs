@@ -132,3 +132,16 @@ test("job posting and application CTAs respect the signed-in account", () => {
   assert.match(publicJobDetail, /Complete vetting to apply/);
   assert.match(publicJobDetail, /!user|: user \?/);
 });
+
+
+test("job marketplace CTAs are role-aware for logged-out VAs and signed-in clients", () => {
+  assert.match(jobsPage, /const employerPostHref = isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(jobsPage, /isVa \? <Link className="btn btn-lg" href="\/workspace\/va\/applications">My applications<\/Link> : !user \? <Link className="btn btn-lg" href="\/auth\/join\/va">Create free VA profile<\/Link> : null/);
+  assert.match(publicJobDetail, /profile\?\.role === "client"/);
+  assert.match(publicJobDetail, /You’re signed in as a client/);
+  assert.match(publicJobDetail, /Create VA profile/);
+  assert.match(publicJobDetail, /auth\/join\/va\?next=\$\{encodeURIComponent\(canonicalHref\)\}/);
+  assert.match(publicJobDetail, /Apply for this job/);
+  assert.match(postJobPage, /if \(profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
+  assert.match(postJobPage, /if \(user\) redirect\(profile\?\.role === "va" \? "\/workspace\/va" : "\/workspace"\)/);
+});

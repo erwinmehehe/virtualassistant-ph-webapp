@@ -19,10 +19,10 @@ test("runtime health exposes strict launch controls without exposing secret valu
   assert.match(status, /automationCallbackSecret\.length >= 32/);
   assert.match(status, /triggerAutomationsActive === "1"/);
 
-  assert.doesNotMatch(status, /detail:\s*turnstileSecret/);
-  assert.doesNotMatch(status, /detail:\s*resendWebhookSecret/);
-  assert.doesNotMatch(status, /detail:\s*triggerSecret/);
-  assert.doesNotMatch(status, /detail:\s*automationCallbackSecret/);
+  assert.doesNotMatch(status, /\${turnstileSecret}/);
+  assert.doesNotMatch(status, /\${resendWebhookSecret}/);
+  assert.doesNotMatch(status, /\${triggerSecret}/);
+  assert.doesNotMatch(status, /\${automationCallbackSecret}/);
 });
 
 test("admin release health counts calendar bot webhook and automation configuration as blockers", async () => {

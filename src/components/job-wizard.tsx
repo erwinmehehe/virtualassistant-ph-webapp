@@ -109,10 +109,6 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       title: current.title || suggested.title,
     };
   }
-  function prepareBrief() {
-    setData((current) => ({ ...current, ...starterBriefValues(current) }));
-  }
-
   function validate(targetStep = step, candidate = data) {
     const next: Errors = {};
     const candidateCategories = candidate.categories.split(",").map((x) => x.trim()).filter((x) => categoryOptions.has(x));

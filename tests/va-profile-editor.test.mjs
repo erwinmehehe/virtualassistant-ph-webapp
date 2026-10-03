@@ -116,7 +116,7 @@ test("client profile validates URLs and logo before persisting account edits", a
 });
 
 
-test("VA address is optional and private across profile and onboarding", async () => {
+test("VA address stays optional and private on the profile and is excluded from quick setup", async () => {
   const [profilePage, profileAction, onboarding, onboardingAction, parser, autofill, migration, recruiterPage, maintenance] = await Promise.all([
     source("src/app/workspace/va/profile/page.tsx"),
     source("src/app/actions/profile.ts"),
@@ -138,13 +138,11 @@ test("VA address is optional and private across profile and onboarding", async (
   assert.ok(profileAction.includes('formData.get("address")'));
   assert.ok(!profileAction.includes("Enter your current address"));
 
-  assert.ok(onboarding.includes("Private address (optional)"));
-  assert.ok(onboarding.includes('name="address"'));
-  const onboardingAddressIndex = onboarding.indexOf('name="address"');
-  assert.ok(onboardingAddressIndex >= 0);
-  assert.ok(!onboarding.slice(Math.max(0, onboardingAddressIndex - 180), onboardingAddressIndex + 320).includes("required"));
-  assert.ok(onboardingAction.includes("if (address &&"));
-  assert.ok(onboardingAction.includes("address: address || null"));
+  assert.ok(!onboarding.includes("Private address (optional)"));
+  assert.ok(!onboarding.includes('name="address"'));
+  assert.ok(onboarding.includes("Review & finish"));
+  assert.ok(!onboardingAction.includes('formData.get("address")'));
+  assert.ok(!onboardingAction.includes("address: address || null"));
 
   assert.ok(parser.includes("function extractAddress"));
   assert.ok(autofill.includes('setFormValue(form, "address", fields.address)'));

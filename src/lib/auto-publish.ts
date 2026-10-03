@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
+import { isPublishableCompanyName } from "@/lib/job-publication";
 
 /**
  * Safely handles straightforward curated placements.
@@ -15,7 +16,7 @@ export async function autoQuoteStraightforwardJobs() {
 
   const [{ data: settings }, { data: pendingJobs }, { data: commercials }] = await Promise.all([
     admin.from("admin_settings").select("default_placement_fee").eq("id", 1).maybeSingle(),
-    admin.from("jobs").select("id,client_id,title,service_model,min_hourly_rate").eq("status", "pending"),
+    admin.from("jobs").select("id,client_id,title,company_name,service_model,min_hourly_rate").eq("status", "pending"),
     admin.from("job_commercials").select("job_id,commercial_status,placement_fee,service_model")
   ]);
   const fee = Number(settings?.default_placement_fee || 0);
@@ -26,6 +27,7 @@ export async function autoQuoteStraightforwardJobs() {
   const eligible = (pendingJobs || []).filter((job: any) =>
     job.service_model !== "managed_service" &&
     job.client_id &&
+    isPublishableCompanyName(job.company_name) &&
     needsQuote(commercialMap.get(job.id)) &&
     job.min_hourly_rate != null &&
     Number(job.min_hourly_rate) >= MIN_HOURLY_RATE
@@ -94,6 +96,7 @@ export async function autoQuoteStraightforwardJobs() {
     const commercial = commercialMap.get(job.id);
     if (
       job.client_id &&
+      isPublishableCompanyName(job.company_name) &&
       job.service_model !== "managed_service" &&
       commercial?.commercial_status === "quoted" &&
       Number(commercial?.placement_fee || 0) === 0

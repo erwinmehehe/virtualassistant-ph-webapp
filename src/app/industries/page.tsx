@@ -15,7 +15,7 @@ import "../hiring-pages.css";
 import "../info-pages.css";
 
 export const metadata: Metadata = {
-  title: "Virtual Assistant Services by Industry",
+  title: { absolute: "Virtual Assistant Services by Industry | Philippines" },
   description: "Explore Virtual Assistant services by industry, including legal, healthcare, real estate, finance, construction, ecommerce, home services and more.",
   keywords: ["virtual assistant services by industry", "industry-specific virtual assistant services", "hire virtual assistant for my industry"],
   alternates: { canonical: canonicalPath("/industries") },

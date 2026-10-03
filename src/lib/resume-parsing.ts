@@ -3,7 +3,6 @@ import { VA_CATEGORIES } from "@/lib/constants";
 import { SPECIALTIES } from "@/lib/specialties";
 
 export type ParsedResumeFields = {
-  address: string | null;
   headline: string | null;
   bio: string | null;
   primary_category: (typeof VA_CATEGORIES)[number] | null;
@@ -16,7 +15,6 @@ export type ParsedResumeFields = {
 };
 
 const EMPTY_RESULT: ParsedResumeFields = {
-  address: null,
   headline: null,
   bio: null,
   primary_category: null,
@@ -149,44 +147,6 @@ function looksLikeSectionHeading(line: string): boolean {
   return letters.length > 2 && letters === letters.toUpperCase();
 }
 
-export type ResumeAddressCandidate = {
-  address: string | null;
-  confidence: "high" | "review" | "none";
-};
-
-export function extractResumeAddressCandidate(text: string): ResumeAddressCandidate {
-  const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, " ").trim()).filter(Boolean);
-  const top = lines.slice(0, 24);
-
-  for (let i = 0; i < top.length; i += 1) {
-    const labeled = top[i].match(/^(?:home\s+)?(?:address|location|residence)\s*[:\-]\s*(.{5,180})$/i);
-    if (labeled?.[1]) return { address: labeled[1].trim().slice(0, 200), confidence: "high" };
-
-    if (/^(?:home\s+)?(?:address|location|residence)\s*:?$/i.test(top[i])) {
-      const next = top[i + 1]?.trim();
-      if (next && next.length >= 5 && next.length <= 200 && !/@|https?:\/\/|linkedin\.com/i.test(next)) {
-        return { address: next.slice(0, 200), confidence: "high" };
-      }
-    }
-  }
-
-  const locality = /\b(?:barangay|brgy\.?|street|st\.?|road|rd\.?|avenue|ave\.?|subdivision|village|city|province|metro manila|pampanga|bulacan|cavite|laguna|rizal|batangas|quezon|cebu|davao|manila|makati|taguig|pasig|parañaque|muntinlupa|caloocan|mandaluyong|valenzuela|las piñas|malabon|navotas|marikina|pasay|san juan)\b/i;
-  const likely = top.find((line) =>
-    line.length >= 8 &&
-    line.length <= 180 &&
-    locality.test(line) &&
-    !/@|https?:\/\/|linkedin\.com|\b(?:experience|education|company|corporation|inc\.?|ltd\.?|university|college)\b/i.test(line) &&
-    !/^\+?\d[\d\s().-]{7,}$/.test(line)
-  );
-
-  return likely
-    ? { address: likely.slice(0, 200), confidence: "review" }
-    : { address: null, confidence: "none" };
-}
-
-function extractAddress(text: string): string | null {
-  return extractResumeAddressCandidate(text).address;
-}
 
 function extractBio(text: string): string | null {
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
@@ -252,7 +212,6 @@ export async function parseResumeWithAI(resumeText: string): Promise<ParsedResum
   const industries = INDUSTRIES.filter((industry) => countMatches(text, industry) > 0).slice(0, 6);
 
   return {
-    address: extractAddress(text),
     headline: primary_category ? `${primary_category} Virtual Assistant` : null,
     bio: extractBio(text),
     primary_category,

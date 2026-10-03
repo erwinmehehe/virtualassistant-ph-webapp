@@ -32,12 +32,12 @@ import "./homepage-seo-evidence.css";
 import "./homepage-growth.css";
 import "./homepage-sections.css";
 import "./homepage-reference-polish.css";
-import { ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
+import { ORGANIZATION_ALTERNATE_NAME, ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
 
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Philippines | Hire Vetted Filipino VAs" },
+  title: { absolute: "Virtual Assistant Philippines | VirtualAssistant.com.ph" },
   description:
-    "Virtual Assistant Philippines: hire vetted Filipino VAs matched to your role, tools, schedule and budget, with recruiter support from shortlist to hire.",
+    "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.",
   keywords: [
     "virtual assistant philippines",
     "hire filipino virtual assistant",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
         url: canonicalUrl("/opengraph-image"),
         width: 1200,
         height: 630,
-        alt: "VirtualAssistant.com.ph - hire vetted Filipino virtual assistants",
+        alt: "Virtual Assistant Philippines - hire vetted Filipino virtual assistants",
       },
     ],
   },
@@ -136,65 +136,131 @@ export default async function HomePage() {
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
     .slice(0, 6);
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": organizationId(base),
-      name: ORGANIZATION_NAME,
-      url: base,
-      logo: `${base}/icon.svg`,
-      sameAs: ORGANIZATION_SAME_AS,
-      description:
-        "Philippines-focused recruiting and managed hiring for businesses looking for vetted Filipino Virtual Assistants.",
-      areaServed: [
-        { "@type": "Country", name: "Australia" },
-        { "@type": "Country", name: "United States" },
-        { "@type": "Country", name: "United Kingdom" },
-      ],
-      knowsAbout: [
-        "Virtual Assistant Philippines",
-        "Filipino Virtual Assistants",
-        "Virtual Assistant recruitment",
-        "Administrative support",
-        "Executive assistance",
-        "Customer service",
-        "Lead generation",
-        "Ecommerce support",
-      ],
-      contactPoint: [
-        {
-          "@type": "ContactPoint",
-          contactType: "sales",
-          url: `${base}/contact`,
-          availableLanguage: ["English"],
-          areaServed: ["AU", "US", "GB"],
-        },
-      ],
-      member: [
-        { "@type": "Person", name: "Jervis Accad" },
-        { "@type": "Person", name: "Bryan Batarina" },
-      ],
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "@id": `${base}/#website`,
-      name: "VirtualAssistant.com.ph",
-      url: base,
-      inLanguage: "en",
-      publisher: { "@id": `${base}/#organization` },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faqs.map(([question, answer]) => ({
-        "@type": "Question",
-        name: question,
-        acceptedAnswer: { "@type": "Answer", text: answer },
-      })),
-    },
-  ];
+  const homeTitle = "Virtual Assistant Philippines | VirtualAssistant.com.ph";
+  const homeDescription =
+    "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.";
+  const websiteId = `${base}/#website`;
+  const webpageId = `${base}/#webpage`;
+  const logoId = `${base}/#logo`;
+  const primaryImageId = `${base}/#primaryimage`;
+  const breadcrumbId = `${base}/#breadcrumb`;
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url: `${base}/`,
+        name: homeTitle,
+        description: homeDescription,
+        inLanguage: "en-US",
+        isPartOf: { "@id": websiteId },
+        about: { "@id": organizationId(base) },
+        primaryImageOfPage: { "@id": primaryImageId },
+        breadcrumb: { "@id": breadcrumbId },
+        potentialAction: [
+          {
+            "@type": "ReadAction",
+            target: [`${base}/`],
+          },
+        ],
+      },
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        url: `${base}/`,
+        name: "Virtual Assistant Philippines",
+        alternateName: ORGANIZATION_ALTERNATE_NAME,
+        description:
+          "Hire vetted Filipino virtual assistants with recruiter support from shortlist to hire.",
+        inLanguage: "en-US",
+        publisher: { "@id": organizationId(base) },
+      },
+      {
+        "@type": "Organization",
+        "@id": organizationId(base),
+        name: ORGANIZATION_NAME,
+        alternateName: ORGANIZATION_ALTERNATE_NAME,
+        url: `${base}/`,
+        logo: { "@id": logoId },
+        image: { "@id": logoId },
+        sameAs: ORGANIZATION_SAME_AS,
+        description:
+          "Philippines-focused recruiting and managed hiring for businesses looking for vetted Filipino Virtual Assistants.",
+        areaServed: [
+          { "@type": "Country", name: "Australia" },
+          { "@type": "Country", name: "United States" },
+          { "@type": "Country", name: "United Kingdom" },
+        ],
+        knowsAbout: [
+          "Virtual Assistant Philippines",
+          "Filipino Virtual Assistants",
+          "Virtual Assistant recruitment",
+          "Administrative support",
+          "Executive assistance",
+          "Customer service",
+          "Lead generation",
+          "Ecommerce support",
+        ],
+        contactPoint: [
+          {
+            "@type": "ContactPoint",
+            contactType: "sales",
+            url: `${base}/contact`,
+            availableLanguage: ["English"],
+            areaServed: ["AU", "US", "GB"],
+          },
+        ],
+        member: [
+          { "@type": "Person", name: "Jervis Accad" },
+          { "@type": "Person", name: "Bryan Batarina" },
+        ],
+      },
+      {
+        "@type": "ImageObject",
+        "@id": logoId,
+        inLanguage: "en-US",
+        url: `${base}/favicon.png`,
+        contentUrl: `${base}/favicon.png`,
+        width: 96,
+        height: 96,
+        caption: "Virtual Assistant Philippines",
+      },
+      {
+        "@type": "ImageObject",
+        "@id": primaryImageId,
+        inLanguage: "en-US",
+        url: `${base}/opengraph-image`,
+        contentUrl: `${base}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        caption: "Virtual Assistant Philippines",
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${base}/`,
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${base}/#faq`,
+        isPartOf: { "@id": webpageId },
+        mainEntity: faqs.map(([question, answer]) => ({
+          "@type": "Question",
+          name: question,
+          acceptedAnswer: { "@type": "Answer", text: answer },
+        })),
+      },
+    ],
+  };
 
   return (
     <>

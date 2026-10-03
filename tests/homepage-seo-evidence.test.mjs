@@ -88,3 +88,34 @@ test("homepage comparison presents marketplace, direct hire, and recruiter-suppo
   assert.match(css, /\.hs-models/);
   assert.match(css, /\.hs-managed/);
 });
+
+test("homepage restores the previous title and uses Virtual Assistant Philippines as the site entity", () => {
+  const home = source("src/app/page.tsx");
+  const layout = source("src/app/layout.tsx");
+  const organization = source("src/lib/organization.ts");
+
+  assert.match(home, /Virtual Assistant Philippines \| VirtualAssistant\.com\.ph/);
+  assert.match(layout, /applicationName: "Virtual Assistant Philippines"/);
+  assert.match(layout, /siteName: "Virtual Assistant Philippines"/);
+  assert.match(organization, /ORGANIZATION_NAME = "Virtual Assistant Philippines"/);
+  assert.match(organization, /ORGANIZATION_ALTERNATE_NAME = "VirtualAssistant\.com\.ph"/);
+});
+
+test("homepage schema exposes a connected WebPage, WebSite, Organization, image and breadcrumb graph", () => {
+  const home = source("src/app/page.tsx");
+
+  assert.match(home, /"@graph"/);
+  assert.match(home, /"@type": "WebPage"/);
+  assert.match(home, /"@type": "WebSite"/);
+  assert.match(home, /"@type": "Organization"/);
+  assert.match(home, /"@type": "ImageObject"/);
+  assert.match(home, /"@type": "BreadcrumbList"/);
+  assert.match(home, /name: "Virtual Assistant Philippines"/);
+  assert.match(home, /alternateName: ORGANIZATION_ALTERNATE_NAME/);
+  assert.match(home, /primaryImageOfPage/);
+  assert.match(home, /breadcrumb:/);
+  assert.match(home, /isPartOf:/);
+  assert.match(home, /about:/);
+  assert.match(home, /"@type": "ReadAction"/);
+  assert.doesNotMatch(home, /SearchAction/);
+});

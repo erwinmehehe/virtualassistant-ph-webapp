@@ -24,12 +24,12 @@ const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"),
-  applicationName: "VirtualAssistant.com.ph",
-  title: { default: "Hire Vetted Filipino Virtual Assistants | VirtualAssistant.com.ph", template: "%s | VirtualAssistant.com.ph" },
+  applicationName: "Virtual Assistant Philippines",
+  title: { default: "Hire Vetted Filipino Virtual Assistants | Virtual Assistant Philippines", template: "%s | Virtual Assistant Philippines" },
   description: "Hire vetted virtual assistants from the Philippines. Browse screened talent or send a role brief and get help shortlisting the right fit.",
-  authors: [{ name: "VirtualAssistant.com.ph" }],
-  creator: "VirtualAssistant.com.ph",
-  publisher: "VirtualAssistant.com.ph",
+  authors: [{ name: "Virtual Assistant Philippines" }],
+  creator: "Virtual Assistant Philippines",
+  publisher: "Virtual Assistant Philippines",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
@@ -40,14 +40,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "VirtualAssistant.com.ph",
+    siteName: "Virtual Assistant Philippines",
     title: "Hire Vetted Filipino Virtual Assistants",
     description: "Skip the open-marketplace resume pile. Meet screened Filipino Virtual Assistants and move from role brief to hire with a clearer process.",
     images: [{
       url: "/opengraph-image",
       width: 1200,
       height: 630,
-      alt: "VirtualAssistant.com.ph - vetted Filipino virtual assistants"
+      alt: "Virtual Assistant Philippines - vetted Filipino virtual assistants"
     }]
   },
   twitter: {

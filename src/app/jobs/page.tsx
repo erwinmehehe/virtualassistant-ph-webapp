@@ -229,23 +229,6 @@ export default async function PublicJobsPage({
           </div>
         </section>
 
-        <section className="jobs-market-paths">
-          <div className="container jobs-market-path-grid">
-            <div>
-              <UsersRound size={20} />
-              <span>Looking for work?</span>
-              <strong>Browse and apply to VA jobs without paying a VA-side platform fee.</strong>
-              <Link href="/auth/join/va">Create free VA profile <ArrowRight size={14} /></Link>
-            </div>
-            <div>
-              <BriefcaseBusiness size={20} />
-              <span>Hiring a Virtual Assistant?</span>
-              <strong>Post a complete role with pay, hours, timezone, and required skills.</strong>
-              <Link href={EMPLOYER_POST_HREF}>Post a VA job <ArrowRight size={14} /></Link>
-            </div>
-          </div>
-        </section>
-
         <section className="section jobs-directory" id="open-jobs">
           <div className="container">
             <div className="jobs-directory-intro">
@@ -404,25 +387,6 @@ export default async function PublicJobsPage({
               </ol>
             </div>
 
-            <div className="jobs-employer-cta">
-              <div>
-                <span className="kicker">Hiring Filipino talent</span>
-                <h2>Post a Virtual Assistant job in the Philippines</h2>
-                <p>
-                  Give applicants the details they need to self-qualify: responsibilities, required skills, weekly
-                  hours, compensation range, timezone, and working expectations. Clear postings attract stronger
-                  matches and reduce unnecessary back-and-forth.
-                </p>
-              </div>
-              <div className="jobs-employer-cta-action">
-                <strong>Ready to hire?</strong>
-                <span>Create the role in your client workspace and send it through the appropriate publication flow.</span>
-                <Link className="btn btn-primary btn-lg" href={EMPLOYER_POST_HREF}>
-                  Post a VA job <ArrowRight size={16} />
-                </Link>
-              </div>
-            </div>
-
             <div className="jobs-faq">
               <div className="jobs-faq-head">
                 <span className="kicker">VA jobs FAQ</span>
@@ -441,7 +405,7 @@ export default async function PublicJobsPage({
             <div className="jobs-bottom-cta">
               <div>
                 <span>For employers</span>
-                <h2>Have a Virtual Assistant role to fill?</h2>
+                <h2>Post a Virtual Assistant job in the Philippines</h2>
                 <p>Post the role with clear pay, hours, timezone, and responsibilities so Filipino VAs can evaluate it quickly.</p>
               </div>
               <div className="jobs-bottom-actions">

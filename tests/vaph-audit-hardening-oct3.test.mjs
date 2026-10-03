@@ -60,3 +60,15 @@ test("checkout fails closed instead of using a guessed USD PHP rate", async () =
   assert.match(paymongo, /A current USD\/PHP exchange rate is unavailable/);
   assert.match(paymongo, /fresh USD\/PHP quote unavailable/);
 });
+
+test("live interviews explicitly preserve the anti-circumvention boundary", async () => {
+  const [clientInterviews, vaInterviews] = await Promise.all([
+    read("src/app/workspace/client/interviews/page.tsx"),
+    read("src/app/workspace/va/interviews/page.tsx"),
+  ]);
+
+  assert.match(clientInterviews, /Keep the hiring process inside VAPH/);
+  assert.match(clientInterviews, /applicable VAPH commercial fee has been paid/);
+  assert.match(vaInterviews, /Keep the hiring process inside VAPH/);
+  assert.match(vaInterviews, /Do not exchange personal contact details, accept direct payment/);
+});

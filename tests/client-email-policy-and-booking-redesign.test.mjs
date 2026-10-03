@@ -51,7 +51,8 @@ test("pre-shortlist workflows do not call client email helpers", async () => {
   ]);
 
   assert.doesNotMatch(agency,/sendClaimDraftEmail|sendRoleDetailsRequestEmail/);
-  assert.doesNotMatch(applications,/sendApplicationEmail/);
+  assert.match(applications,/sendApplicationEmail/);
+  assert.match(applications,/New application employer notification failed/);
   assert.doesNotMatch(cleanup,/sendStaffClientFollowupEmail|send_followup/);
   assert.doesNotMatch(recruiterOps,/sendStaffClientFollowupEmail/);
   assert.doesNotMatch(ops,/to: clientAuth\.user\?\.email/);
@@ -61,6 +62,22 @@ test("pre-shortlist workflows do not call client email helpers", async () => {
   assert.doesNotMatch(rolePage,/sendClientAccountClaimAction|role_details_email_warning/);
   assert.doesNotMatch(today,/cleanup_action" value="send_followup"/);
   assert.doesNotMatch(today,/sendDiscoveryNoShowRebookAction|Send rebooking link/);
+});
+
+test("new applications may send one privacy-safe activity email before shortlist", async () => {
+  const [email,applications]=await Promise.all([
+    read("src/lib/email.ts"),
+    read("src/app/actions/applications.ts"),
+  ]);
+  const start=email.indexOf("export async function sendApplicationEmail");
+  const end=email.indexOf("export async function sendLeadNotificationEmail",start);
+  const applicationEmail=email.slice(start,end);
+  assert.match(applications,/sendApplicationEmail/);
+  assert.match(applicationEmail,/A vetted Virtual Assistant just applied/);
+  assert.match(applicationEmail,/Candidate details remain protected/);
+  assert.doesNotMatch(applicationEmail,/applicantName/);
+  assert.match(applicationEmail,/priority: "critical"/);
+  assert.match(applicationEmail,/new-application-\$\{args\.applicationId\}/);
 });
 
 test("releasing recruiter-approved VAs sends the next automated client hiring email", async () => {

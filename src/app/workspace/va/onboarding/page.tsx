@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, LockKeyhole, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import {
   completeVaQuickSetupAction,
   saveVaOnboardingBasicsAction,
@@ -32,7 +32,6 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
     va?.weekly_hours != null &&
     va?.hourly_rate != null
   );
-  const addressDone = Boolean(String(va?.address || "").trim());
 
   let step = requestedStep(params.step) || (!basicsDone ? 1 : !workDone ? 2 : 3);
   if (!basicsDone) step = 1;
@@ -41,7 +40,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
   const stepStatus = [
     { number: 1, label: "Specialty", done: basicsDone },
     { number: 2, label: "Work setup", done: workDone },
-    { number: 3, label: "Private address", done: addressDone },
+    { number: 3, label: "Ready for vetting", done: basicsDone && workDone },
   ];
 
   return <div className="va-quick-setup-page">
@@ -75,7 +74,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
             <span>{item.done ? "✓" : item.number}</span>
             <div>
               <strong>{item.label}</strong>
-              <small>{item.number === 1 ? "Role and headline" : item.number === 2 ? "Experience, availability, and rate" : "Recruiter-only contact detail"}</small>
+              <small>{item.number === 1 ? "Role and headline" : item.number === 2 ? "Experience, availability, and rate" : "Confirm and continue to vetting"}</small>
             </div>
           </div>)}
         </div>
@@ -148,18 +147,13 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
 
         {step === 3 ? <>
           <div className="va-quick-setup-card-head">
-            <span className="small">Step 3 · Private address</span>
-            <h2>Where are you currently based?</h2>
-            <p>We try to pick this up when your resume clearly includes it. If it is missing, outdated, or uncertain, enter your current address here.</p>
+            <span className="small">Step 3 · Ready for vetting</span>
+            <h2>Your quick setup is ready.</h2>
+            <p>We have enough professional information to continue. Sensitive personal details such as a home address are not required at this stage.</p>
           </div>
 
           <form id="va-onboarding-step-3" action={completeVaQuickSetupAction} className="va-quick-setup-form va-onboarding-form">
-            <div className="field">
-              <label htmlFor="quick-address">Current home address <span className="muted">(private)</span></label>
-              <input id="quick-address" name="address" minLength={5} maxLength={200} required defaultValue={va?.address || ""} placeholder="Street / barangay, city, province" autoComplete="street-address"/>
-              <span className="field-help"><LockKeyhole size={13}/> Recruiter/admin hiring operations only. This is never shown on your public VA profile.</span>
-            </div>
-
+            <div className="info-banner"><ShieldCheck size={16}/><div><strong>What happens next</strong><p style={{margin:"4px 0 0"}}>Continue with your full profile, resume, skills test, video introduction, and recruiter review. We only collect additional sensitive information later when a confirmed placement or documented compliance need requires it.</p></div></div>
             <div className="va-quick-setup-actions va-onboarding-actions">
               <Link className="btn btn-ghost" href="/workspace/va/onboarding?step=2"><ArrowLeft size={16}/> Back</Link>
               <button className="btn btn-primary btn-lg" type="submit">Finish quick setup <ArrowRight size={16}/></button>

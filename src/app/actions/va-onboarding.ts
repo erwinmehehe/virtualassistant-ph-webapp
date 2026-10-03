@@ -106,58 +106,18 @@ export async function saveVaOnboardingWorkAction(formData: FormData) {
     metadata: { step: 2, section: "work_preferences" },
   });
 
-  revalidateVaOnboarding();
-  redirect("/workspace/va/onboarding?step=3&saved=1");
-}
-
-export async function completeVaQuickSetupAction(formData: FormData) {
-  const { user } = await requireRole("va");
-  const address = String(formData.get("address") || "").replace(/\s+/g, " ").trim();
-
-  if (address.length < 5 || address.length > 200) {
-    return onboardingError(user.id, 3, "address", "Enter your current home address.");
-  }
-
-  const admin = createAdminClient();
-  const { data: updatedProfile, error: profileError } = await admin
-    .from("va_profiles")
-    .update({ address })
-    .eq("user_id", user.id)
-    .select("user_id,primary_category,headline,years_experience,weekly_hours,hourly_rate,address")
-    .maybeSingle();
-
-  if (profileError || !updatedProfile) {
-    return onboardingError(user.id, 3, "save", "We could not save your address. Please try again.");
-  }
-
-  if (!updatedProfile.primary_category || String(updatedProfile.headline || "").trim().length < 8) {
-    return onboardingError(user.id, 1, "incomplete_step", "Finish your specialty and headline first.");
-  }
-  if (
-    updatedProfile.years_experience == null ||
-    updatedProfile.weekly_hours == null ||
-    updatedProfile.hourly_rate == null
-  ) {
-    return onboardingError(user.id, 2, "incomplete_step", "Finish your experience, availability, and rate first.");
-  }
-
   const { error: vettingError } = await admin.from("va_vetting").upsert(
     { va_id: user.id },
     { onConflict: "va_id", ignoreDuplicates: true }
   );
   if (vettingError) {
-    return onboardingError(user.id, 3, "vetting", "Your profile was saved, but we could not initialize vetting. Please try again.");
+    return onboardingError(user.id, 2, "vetting", "Your profile was saved, but we could not initialize vetting. Please try again.");
   }
 
-  await recordProductEvent("va_onboarding_step_saved", {
-    userId: user.id,
-    path: "/workspace/va/onboarding",
-    metadata: { step: 3, section: "private_address" },
-  });
   await recordProductEvent("va_onboarding_complete", {
     userId: user.id,
     path: "/workspace/va/onboarding",
-    metadata: { steps: 3 },
+    metadata: { steps: 2 },
   });
 
   revalidateVaOnboarding();

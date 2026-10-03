@@ -173,7 +173,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
     <aside className="wizard-steps" aria-label="Job form steps">
       {steps.map((label, index) => <button key={label} type="button" className={`wizard-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`} onClick={() => index <= step ? setStep(index) : undefined} disabled={index > step} aria-current={index === step ? "step" : undefined}>
         <span className="wizard-number">{index < step ? <CheckCircle2 size={15}/> : index + 1}</span>
-        <span className="wizard-step-copy"><strong>{label}</strong><small>{index < step ? "Complete" : index === step ? "Current step" : "Up next"}</small></span>
+        <div className="wizard-step-copy"><strong className="wizard-step-title">{label}</strong><small className="wizard-step-meta">{index < step ? "Complete" : index === step ? "Current step" : "Up next"}</small></div>
       </button>)}
     </aside>
 

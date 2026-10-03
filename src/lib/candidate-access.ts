@@ -12,7 +12,7 @@ export type CandidateAccessRecord = {
 };
 
 export function candidateAccessUnlocked(status?: string | null) {
-  return status === "paid" || status === "comped";
+  return status === "paid";
 }
 
 export function candidateAccessLabel(status?: string | null) {
@@ -21,7 +21,7 @@ export function candidateAccessLabel(status?: string | null) {
     case "quoted": return "Access price ready";
     case "invoiced": return "Access being finalized";
     case "paid": return "Candidate access active";
-    case "comped": return "Candidate access active";
+    case "comped": return "Candidate access requires payment";
     default: return "Candidate identity protected";
   }
 }

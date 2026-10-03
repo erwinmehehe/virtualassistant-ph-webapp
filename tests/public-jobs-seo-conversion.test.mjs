@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const page = readFileSync("src/app/jobs/page.tsx", "utf8");
 const css = readFileSync("src/app/jobs/jobs-marketplace.css", "utf8");
 const postJobPage = readFileSync("src/app/workspace/client/jobs/new/page.tsx", "utf8");
-const keywordGuides = readFileSync("src/lib/blog-keyword-support-guides.ts", "utf8");
+const jobSearchGuides = readFileSync("src/lib/blog-job-search-guides.ts", "utf8");
 
 test("jobs page targets the Philippines VA jobs keyword cluster", () => {
   assert.match(page, /Virtual Assistant Jobs Philippines \| Free VA Job Website/);
@@ -40,8 +40,8 @@ test("jobs page states applicant fees precisely", () => {
 
 test("jobs hub and comparison guide reinforce separate search intents", () => {
   assert.match(page, /\/blog\/free-virtual-assistant-job-websites-philippines/);
-  assert.match(keywordGuides, /"slug": "free-virtual-assistant-job-websites-philippines"/);
-  assert.match(keywordGuides, /Free Virtual Assistant Job Websites Philippines \| 2026 Guide/);
-  assert.match(keywordGuides, /"href": "\/jobs"/);
-  assert.match(keywordGuides, /"href": "\/auth\/join\/client\?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew"/);
+  assert.match(jobSearchGuides, /"slug": "free-virtual-assistant-job-websites-philippines"/);
+  assert.match(jobSearchGuides, /Free Virtual Assistant Job Websites Philippines \| 2026 Guide/);
+  assert.match(jobSearchGuides, /"href": "\/jobs"/);
+  assert.match(jobSearchGuides, /"href": "\/auth\/join\/client\?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew"/);
 });

@@ -11,7 +11,10 @@ test("public talent directory behaves like managed recruiting, not a marketplace
 
   assert.doesNotMatch(directory, /TalentShortlistButton|TalentShortlistBar|Save for recruiter|Saved for recruiter/);
   assert.doesNotMatch(directory, /last_active_at|Active \{/);
-  assert.doesNotMatch(directory, /hourly_rate|min_rate|max_rate|Lowest rate/);
+  assert.match(directory, /name="min_rate"/);
+  assert.match(directory, /name="max_rate"/);
+  assert.match(directory, /Lowest rate/);
+  assert.doesNotMatch(directory, /va\.hourly_rate|USD \{va\.hourly_rate\}/);
   assert.doesNotMatch(directory, /Email verified|Identity verified/);
   assert.doesNotMatch(directory, /Get candidates like this|View profile|requestHref/);
   assert.doesNotMatch(directory, /href=\{`\/va\/\$\{va\.slug\}`\}/);

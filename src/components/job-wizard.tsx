@@ -253,7 +253,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
         <div className="job-post-preview">
           <div className="job-post-preview-head">
             <div className="review-icon"><FileText size={22}/></div>
-            <div><span>Job preview</span><h3>{data.title || "Virtual Assistant"}</h3><p>{data.company_name || "Your company"} · {data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible timezone"}</p></div>
+            <div><span>Client-facing job preview</span><h3>{data.title || "Virtual Assistant"}</h3><p>{data.company_name || "Your company"} · {data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible timezone"}</p></div>
             <strong className="job-post-preview-rate">${data.min_hourly_rate || MIN_HOURLY_RATE}{data.max_hourly_rate ? `–${data.max_hourly_rate}` : "+"}/hr</strong>
           </div>
           <p className="job-post-preview-summary">{data.summary || "Add a summary before submitting."}</p>
@@ -266,13 +266,14 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
           <div><span>VA budget</span><strong>${data.min_hourly_rate || MIN_HOURLY_RATE}{data.max_hourly_rate ? `–$${data.max_hourly_rate}` : "+"}/hr</strong></div>
           <div><span>Start timing</span><strong>{data.start_timing || "Flexible"}</strong></div>
         </div>
-        <div className="review-edit-row"><button className="text-button" type="button" onClick={() => setStep(0)}>Edit role details</button><button className="text-button" type="button" onClick={() => setStep(1)}>Edit schedule & pay</button></div>
+        <div className="review-edit-row"><button className="text-button" type="button" onClick={() => setStep(0)}>Edit role</button><button className="text-button" type="button" onClick={() => setStep(1)}>Edit schedule & budget</button></div>
         <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div>{publicMode ? <ul className="check-list compact"><li>Your draft stays saved on this device.</li><li>Create or sign in to a client account to attach the draft to your workspace.</li><li>Review the final posting, then send it for publication or recruiting review.</li><li>Your contact details stay private from applicants.</li></ul> : canSelfPublishJobs && data.service_model === "curated_placement" ? <ul className="check-list compact"><li>Your complete role publishes to the public Virtual Assistant jobs directory immediately.</li><li>Only vetted VAs can enter the recruiter-managed candidate flow.</li><li>Your company name is public on the job post; your personal contact details remain private.</li><li>You can edit or close the role from your client workspace.</li></ul> : <ul className="check-list compact"><li>Your role is saved immediately.</li><li>Our recruiting team checks the brief and confirms any service terms separately.</li><li>You approve commercial terms before recruiting begins.</li><li>Once approved, we shortlist vetted VAs against this exact role.</li></ul>}</div>
       </div> : null}
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>{step === 0 ? "Continue to schedule & pay" : "Preview job"}</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save role changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Submit job for review"}</button>}</div>
+        <div className="wizard-actions-context">{step < 2 ? <span>{step === 0 ? "Next: working hours and budget" : "Next: final review"}</span> : <span>{canSelfPublishJobs ? "You can edit this role after publishing." : "Your recruiter will review this before recruiting starts."}</span>}</div>
+        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>{step === 0 ? "Continue" : "Review request"}</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Send to recruiter"}</button>}</div>
       </div>
     </div>
   </form>;

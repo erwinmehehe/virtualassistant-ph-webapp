@@ -3,7 +3,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PublicAvatar } from "@/components/public-avatar";
 import { addBenchMemberAction } from "@/app/actions/vetting";
-import { bulkApproveExperiencedVAsFormAction, bulkAddApprovedToBenchFormAction, sendProfileStageNudgesAction } from "@/app/actions/admin";
+import { bulkAddApprovedToBenchFormAction, sendProfileStageNudgesAction } from "@/app/actions/admin";
 import { VA_CATEGORIES } from "@/lib/constants";
 import { dateShort } from "@/lib/format";
 import type { VettingStageRow } from "@/lib/workspace-rows";
@@ -17,9 +17,6 @@ export default async function AdminVettingPage({ searchParams }: { searchParams:
   await requireRoleFast("admin"); const admin=createAdminClient();
   const {data:pendingStages}=await admin.from("va_vetting").select("va_id,stage").not("stage","in","(approved,bench,rejected)");
   const pendingStageRows=(pendingStages||[]) as VettingStageRow[];
-  const pendingIds=pendingStageRows.map((x)=>x.va_id);
-  const {data:pendingVaProfiles}=pendingIds.length?await admin.from("va_profiles").select("user_id,years_experience").in("user_id",pendingIds):{data:[]};
-  const experiencedCount=((pendingVaProfiles||[]) as {user_id:string;years_experience:number|null}[]).filter((x)=>Number(x.years_experience||0)>=2).length;
   const profileStageCount=pendingStageRows.filter((x)=>x.stage==="profile").length;
   const {data:rowData}=await admin.from("va_vetting").select("*").in("stage",["finalist","approved","bench"]).order("updated_at",{ascending:false}).limit(200);
   const rows=(rowData||[]) as VettingReviewRow[];
@@ -34,17 +31,12 @@ export default async function AdminVettingPage({ searchParams }: { searchParams:
   const approvedNotBenchCount=rows.filter((x)=>x.stage==="approved").length;
   return <>
     <div className="page-head"><div><h1>Final vetting review</h1><p>Review the complete evidence package before approving a recruiter finalist for client matching.</p></div></div>
-    {params.bulk_approved?<div className="alert alert-success" style={{marginBottom:18}}>Bulk-approved {params.bulk_approved} VA{params.bulk_approved==="1"?"":"s"} with 2+ years of experience.</div>:null}
     {params.nudges_sent!=null?<div className="alert alert-success" style={{marginBottom:18}}>Sent {params.nudges_sent} reminder email{params.nudges_sent==="1"?"":"s"} to VAs stuck at the profile stage.</div>:null}
     {params.bulk_benched?<div className="alert alert-success" style={{marginBottom:18}}>Added {params.bulk_benched} VA{params.bulk_benched==="1"?"":"s"} to their category talent pool.</div>:null}
     <div className="card" style={{marginBottom:18}}>
       <h3 style={{marginTop:0}}>Backlog shortcuts</h3>
-      <p className="small muted" style={{marginBottom:14}}>These skip or nudge the normal pipeline &mdash; use them to clear a real backlog quickly, not as a permanent replacement for recruiter review.</p>
+      <p className="small muted" style={{marginBottom:14}}>Use these operational shortcuts without bypassing skills evidence, recruiter review, or final approval.</p>
       <div className="row wrap" style={{gap:14}}>
-        <form action={bulkApproveExperiencedVAsFormAction}>
-          <button className="btn btn-primary btn-sm" type="submit" disabled={!experiencedCount}>Bulk-approve {experiencedCount} VA{experiencedCount===1?"":"s"} with 2+ years experience</button>
-          <div className="small muted" style={{marginTop:4}}>Skips the remaining skills test, video, and recruiter review steps for these candidates only.</div>
-        </form>
         <form action={sendProfileStageNudgesAction}>
           <button className="btn btn-sm" type="submit" disabled={!profileStageCount}>Email {profileStageCount} VA{profileStageCount===1?"":"s"} stuck at profile stage</button>
           <div className="small muted" style={{marginTop:4}}>Reminds candidates who signed up but never finished their profile.</div>

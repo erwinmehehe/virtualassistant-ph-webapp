@@ -44,7 +44,7 @@ export default async function ClientJobsPage(){
         <h1>Your hiring requests</h1>
         <p>See what is moving, what needs you, and what your recruiter is handling next.</p>
       </div>
-      <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new"><Plus size={16}/>{clientProfile?.can_self_publish_jobs?"Post a job":"Start a hiring request"}</Link>
+      <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new"><Plus size={16}/>Post a job</Link>
     </div>
 
     <div className="client-jobs-summary" aria-label="Hiring request summary">
@@ -79,6 +79,6 @@ export default async function ClientJobsPage(){
           </div>
         </article>;
       })}
-    </div>:<div className="empty client-jobs-empty"><BriefcaseBusiness size={28}/><h2>No hiring requests yet</h2><p>Tell us the work you need handled. We will shape the brief and manage the search from there.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Start your first hiring request</Link></div>}
+    </div>:<div className="empty client-jobs-empty"><BriefcaseBusiness size={28}/><h2>No jobs yet</h2><p>Tell us the work you need handled. We will shape the brief and manage the search from there.</p><Link className="btn btn-primary" href="/workspace/client/jobs/new">Post your first job</Link></div>}
   </div>;
 }

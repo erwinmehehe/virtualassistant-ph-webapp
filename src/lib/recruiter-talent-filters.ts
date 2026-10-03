@@ -10,7 +10,6 @@ export type RecruiterTalentFilters = {
   category_match?: string | null;
   classification?: string | null;
   registration?: string | null;
-  address?: string | null;
   stage?: string | null;
   readiness?: string | null;
   photo?: string | null;
@@ -51,7 +50,6 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   const categoryMatch = String(filters.category_match || "any") === "all" ? "all" : "any";
   const classification = String(filters.classification || "");
   const registration = String(filters.registration || "");
-  const address = String(filters.address || "");
   const stage = String(filters.stage || "");
   const readiness = String(filters.readiness || "");
   const photo = String(filters.photo || "");
@@ -83,9 +81,6 @@ export function applyRecruiterTalentFilters(query: any, filters: RecruiterTalent
   if (registration === "email_unconfirmed") query = query.eq("registration_health", "email_unconfirmed");
   if (registration === "never_started") query = query.eq("registration_health", "never_started");
   if (registration === "profile_incomplete") query = query.eq("registration_health", "profile_incomplete");
-  if (address === "missing") query = query.eq("has_private_address", false);
-  if (address === "review") query = query.eq("has_private_address", false).eq("address_resume_status", "review");
-
   if (stage) query = query.eq("stage", stage);
   if (availability) query = query.eq("availability_status", availability);
 

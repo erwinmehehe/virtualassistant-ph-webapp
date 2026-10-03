@@ -116,6 +116,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Agency Funnel", "/workspace/admin/funnel", Activity],
         ["Analytics", "/workspace/admin/analytics", BarChart3],
         ["Users", "/workspace/admin/users", UsersRound],
+        ["Moderation", "/workspace/admin/moderation", ShieldCheck],
         ["Account settings", "/workspace/account", Settings],
       ],
     },

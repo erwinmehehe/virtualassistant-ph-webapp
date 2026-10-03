@@ -168,3 +168,12 @@ test("logged-out and signed-in job journeys do not cross auth roles", () => {
   assert.match(postJobPublicPage, /if \(isClient\) redirect\("\/workspace\/client\/jobs\/new"\)/);
   assert.match(postJobPublicPage, /isVa \? <div className="post-job-role-guard">/);
 });
+
+
+test("public jobs and post-job routes respect logged-out, VA, and client sessions", () => {
+  assert.match(jobsPage, /const employerPostHref = isClient \? "\/workspace\/client\/jobs\/new" : EMPLOYER_POST_HREF/);
+  assert.match(jobsPage, /!user \? "\/auth\/join\/va\?next=%2Fjobs" : "\/workspace"/);
+  assert.match(postJobPage, /if \(profile\?\.role === "client"\) redirect\("\/workspace\/client\/jobs\/new"\)/);
+  assert.match(postJobPage, /if \(user\) redirect\(profile\?\.role === "va" \? "\/workspace\/va" : "\/workspace"\)/);
+  assert.match(postJobPage, /<JobWizard publicMode/);
+});

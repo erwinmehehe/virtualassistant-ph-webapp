@@ -329,7 +329,7 @@ export async function saveJobShortlistAction(formData: FormData) {
     const message = String(error.message || "");
     if (message.includes("Agency Certified")) {
       console.info("[shortlist] blocked by release-readiness guardrail");
-      return fail("A selected VA is not currently client-release ready. Confirm active talent-pool membership and current availability first.");
+      return fail("A selected VA is not currently client-release ready. Confirm approval and current availability first.");
     }
     if (message.includes("Client review is not ready yet")) {
       console.info("[shortlist] blocked by client-review guardrail");

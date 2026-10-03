@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, CheckCircle2, DollarSign, FileText, Sparkles } from "lucide-react";
+import { Check, CheckCircle2, FileText, Sparkles } from "lucide-react";
 import { createJobAction } from "@/app/actions/jobs";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { mergeUniqueStrings } from "@/lib/collections";
@@ -13,17 +13,6 @@ const COMMON_SKILLS = [
   "Administrative support", "Calendar management", "Inbox management", "Customer service",
   "Appointment setting", "Lead generation", "Bookkeeping", "Data entry", "Research", "Reporting",
   "Social media management", "Project coordination", "Recruiting support", "Ecommerce operations"
-] as const;
-
-const COMMON_TOOLS = [
-  "Google Workspace", "Microsoft Office", "Slack", "Zoom", "Canva", "HubSpot", "Salesforce",
-  "ClickUp", "Asana", "Trello", "QuickBooks", "Shopify", "WordPress", "Notion"
-] as const;
-
-const BUDGET_GUIDANCE = [
-  { label: "General support", range: "$5–$8/hr", note: "Admin, data entry, straightforward support" },
-  { label: "Experienced specialist", range: "$8–$12/hr", note: "EA, customer support, ecommerce, bookkeeping" },
-  { label: "Senior / niche", range: "$12+/hr", note: "Specialist tools, complex ownership, senior experience" }
 ] as const;
 
 type JobDraft = {
@@ -191,7 +180,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
 
     <div className="wizard-panel">
       <div className="wizard-head row-between wrap">
-        <div><div className="wizard-step-label">Step {step + 1} of 4</div><h2>{steps[step]}</h2>{requestedVaName ? <p className="small muted wizard-requested">Requested VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}</div>
+        <div><div className="wizard-step-label">Step {step + 1} of 3</div><h2>{steps[step]}</h2>{requestedVaName ? <p className="small muted wizard-requested">Requested VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}</div>
         <div className="wizard-save"><span>{savedAt ? `Draft saved on this device at ${savedAt}` : "Local autosave is on"}</span>{publicMode ? null : <button className="btn btn-sm" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
@@ -240,7 +229,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       </div> : null}
 
                   {step === 2 ? <div className="stack">
-        <div className="review-hero"><div className="review-icon"><FileText size={22}/></div><div><span>Ready to send</span><h3>{data.title || "Untitled role"}</h3><p>{data.summary || "Add a summary before submitting."}</p></div></div>
+        <div className="review-hero"><div className="review-icon"><FileText size={22}/></div><div><span>Your job preview</span><h3>{data.title || "Untitled role"}</h3><p>{data.summary || "Add a summary before submitting."}</p></div></div>
         <div className="review-grid">
           <div><span>Specialty</span><strong>{selectedCategories.join(" · ") || "Not set"}</strong></div>
           <div><span>Schedule</span><strong>{data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible"}</strong></div><div><span>Experience</span><strong>{data.experience_level.charAt(0).toUpperCase()+data.experience_level.slice(1)}</strong></div>

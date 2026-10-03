@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+<title id="title">VA introduction video recording checklist</title>
+<desc id="desc">Checklist for clear audio, front lighting, eye-level camera, clean background, and final playback test.</desc>
+<rect width="960" height="600" rx="32" fill="#eef2ff"/>
+<text x="64" y="72" font-family="Arial, sans-serif" font-size="29" font-weight="700" fill="#0f172a">Record cleanly without expensive gear</text>
+<text x="64" y="105" font-family="Arial, sans-serif" font-size="16" fill="#64748b">Five basics matter more than cinematic editing.</text>
+
+<g font-family="Arial, sans-serif">
+  <rect x="64" y="150" width="250" height="138" rx="22" fill="#fff"/>
+  <circle cx="101" cy="190" r="19" fill="#2563eb"/><path d="M92 190l6 6 12-14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="132" y="188" font-size="17" font-weight="700" fill="#0f172a">Clear audio</text>
+  <text x="88" y="230" font-size="14" fill="#475569">Quiet room</text><text x="88" y="253" font-size="14" fill="#475569">Mic close enough</text>
+
+  <rect x="355" y="150" width="250" height="138" rx="22" fill="#fff"/>
+  <circle cx="392" cy="190" r="19" fill="#4f46e5"/><path d="M383 190l6 6 12-14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="423" y="188" font-size="17" font-weight="700" fill="#0f172a">Front lighting</text>
+  <text x="379" y="230" font-size="14" fill="#475569">Face a window</text><text x="379" y="253" font-size="14" fill="#475569">Avoid backlight</text>
+
+  <rect x="646" y="150" width="250" height="138" rx="22" fill="#fff"/>
+  <circle cx="683" cy="190" r="19" fill="#059669"/><path d="M674 190l6 6 12-14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="714" y="188" font-size="17" font-weight="700" fill="#0f172a">Eye-level frame</text>
+  <text x="670" y="230" font-size="14" fill="#475569">Head + shoulders</text><text x="670" y="253" font-size="14" fill="#475569">Look at the lens</text>
+
+  <rect x="210" y="330" width="250" height="138" rx="22" fill="#fff"/>
+  <circle cx="247" cy="370" r="19" fill="#d97706"/><path d="M238 370l6 6 12-14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="278" y="368" font-size="17" font-weight="700" fill="#0f172a">Clean background</text>
+  <text x="234" y="410" font-size="14" fill="#475569">No distractions</text><text x="234" y="433" font-size="14" fill="#475569">No heavy filters</text>
+
+  <rect x="500" y="330" width="250" height="138" rx="22" fill="#fff"/>
+  <circle cx="537" cy="370" r="19" fill="#0284c7"/><path d="M528 370l6 6 12-14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="568" y="368" font-size="17" font-weight="700" fill="#0f172a">Playback test</text>
+  <text x="524" y="410" font-size="14" fill="#475569">Check the link</text><text x="524" y="433" font-size="14" fill="#475569">Test permissions</text>
+</g>
+<text x="480" y="548" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#3730a3">Clarity and credibility are the production goal.</text>
+</svg>

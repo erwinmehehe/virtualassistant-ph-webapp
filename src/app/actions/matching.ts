@@ -72,6 +72,29 @@ export async function updateCandidateAccessAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: job } = await admin.from("jobs").select("id,title,client_id").eq("id", jobId).single();
   if (!job) throw new Error("Job not found.");
+
+  if (status === "paid") {
+    if (!job.client_id) throw new Error("Candidate access cannot be paid before a client account is linked.");
+    if (!paymentReference || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(paymentReference)) {
+      throw new Error("A settled VAPH payment ID is required before candidate access can be marked paid.");
+    }
+    const { data: settledPayment, error: paymentError } = await admin
+      .from("payments")
+      .select("id,job_id,client_id,amount_total,status,paid_at")
+      .eq("id", paymentReference)
+      .eq("job_id", jobId)
+      .eq("client_id", job.client_id)
+      .in("status", ["paid", "released"])
+      .maybeSingle();
+    if (paymentError) throw paymentError;
+    if (!settledPayment?.paid_at) {
+      throw new Error("Candidate access remains locked until the referenced VAPH payment is settled.");
+    }
+    if (fee == null || Number(settledPayment.amount_total || 0) < fee) {
+      throw new Error("The settled payment does not cover the candidate access fee.");
+    }
+  }
+
   const active = candidateAccessUnlocked(status);
   const payload: Record<string, unknown> = {
     job_id: jobId,

@@ -129,24 +129,24 @@ test("VA address is optional and private across profile and onboarding", async (
     source("src/app/api/cron/maintenance/route.ts"),
   ]);
 
-  assert.match(profilePage, /name="address"/);
-  assert.match(profilePage, /Current home address/);
-  assert.match(profilePage, /optional, private/);
+  assert.ok(profilePage.includes('name="address"'));
+  assert.ok(profilePage.includes("Current home address"));
+  assert.ok(profilePage.includes("optional, private"));
   assert.doesNotMatch(profilePage.match(/name="address"[\\s\\S]{0,300}/)?.[0] || "", /required/);
-  assert.match(profileAction, /formData\\.get\\("address"\\)/);
-  assert.doesNotMatch(profileAction, /Enter your current address/);
+  assert.ok(profileAction.includes('formData.get("address")'));
+  assert.ok(!profileAction.includes("Enter your current address"));
 
-  assert.match(onboarding, /Private address \\(optional\\)/);
-  assert.match(onboarding, /name="address"/);
+  assert.ok(onboarding.includes("Private address (optional)"));
+  assert.ok(onboarding.includes('name="address"'));
   assert.doesNotMatch(onboarding.match(/name="address"[\\s\\S]{0,300}/)?.[0] || "", /required/);
-  assert.match(onboardingAction, /if \\(address &&/);
-  assert.match(onboardingAction, /address: address \\|\\| null/);
+  assert.ok(onboardingAction.includes("if (address &&"));
+  assert.ok(onboardingAction.includes("address: address || null"));
 
-  assert.match(parser, /function extractAddress/);
-  assert.match(autofill, /setFormValue\\(form, "address", fields\\.address\\)/);
-  assert.doesNotMatch(maintenance, /runVaAddressResumeBackfill/);
+  assert.ok(parser.includes("function extractAddress"));
+  assert.ok(autofill.includes('setFormValue(form, "address", fields.address)'));
+  assert.ok(!maintenance.includes("runVaAddressResumeBackfill"));
 
-  assert.match(migration, /add column if not exists address text/);
-  assert.doesNotMatch(migration, /create or replace view public\\.public_va_directory/);
-  assert.doesNotMatch(recruiterPage, /Request address/);
+  assert.ok(migration.includes("add column if not exists address text"));
+  assert.ok(!migration.includes("create or replace view public.public_va_directory"));
+  assert.ok(!recruiterPage.includes("Request address"));
 });

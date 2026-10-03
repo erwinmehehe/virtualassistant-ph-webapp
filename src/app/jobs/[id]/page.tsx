@@ -66,11 +66,12 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
   const job = await getPublishedJob(id);
   if (!job) return { title: "Virtual Assistant Job", robots: { index: false, follow: false } };
   const company = publicCompanyFromJob(job);
-  if (!isPublishableCompanyName(company?.company_name)) {
+  const companyName = String(company?.company_name || "").trim();
+  if (!isPublishableCompanyName(companyName)) {
     return { title: "Virtual Assistant Job", robots: { index: false, follow: false } };
   }
-  const title = `${job.title} | ${company.company_name}`;
-  const description = job.summary || `${job.title} virtual assistant opportunity with ${company.company_name}.`;
+  const title = `${job.title} | ${companyName}`;
+  const description = job.summary || `${job.title} virtual assistant opportunity with ${companyName}.`;
   const canonical = canonicalPath(jobPublicHref(job));
   return {
     title,
@@ -81,7 +82,7 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
       description,
       path: canonical,
       category: "jobs",
-      eyebrow: company.company_name,
+      eyebrow: companyName,
       points: [
         job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Remote role",
         job.timezone || "Schedule in listing",

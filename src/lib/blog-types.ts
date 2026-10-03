@@ -21,6 +21,18 @@ export type BlogSection = {
 export type BlogFaq = { question: string; answer: string };
 export type BlogInternalLink = { label: string; href: string; description: string };
 
+export type BlogImage = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  caption?: string;
+};
+
+export type BlogSectionImage = BlogImage & {
+  afterSection: number;
+};
+
 export type BlogPost = {
   slug: string;
   legacyPath?: string;
@@ -45,4 +57,6 @@ export type BlogPost = {
   sections: BlogSection[];
   faqs: BlogFaq[];
   internalLinks: BlogInternalLink[];
+  heroImage?: BlogImage;
+  sectionImages?: BlogSectionImage[];
 };

@@ -114,8 +114,9 @@ export async function updateVaProfileAction(formData: FormData) {
 
   const fullName = String(formData.get("full_name") ?? "").trim();
   if (fullName.length < 2 || fullName.length > 100) throw new Error("Enter your full name.");
-  const address = String(formData.get("address") ?? "").replace(/\s+/g, " ").trim();
-  if (address && (address.length < 5 || address.length > 200)) throw new Error("Enter a valid current address or leave it blank.");
+  const addressProvided = formData.has("address");
+  const submittedAddress = addressProvided ? String(formData.get("address") ?? "").replace(/\s+/g, " ").trim() : null;
+  if (submittedAddress && (submittedAddress.length < 5 || submittedAddress.length > 200)) throw new Error("Enter a valid current address or leave it blank.");
   const hourlyRate = numberOrNull(formData.get("hourly_rate"));
   const yearsExperience = numberOrNull(formData.get("years_experience"));
   const weeklyHours = numberOrNull(formData.get("weekly_hours"));
@@ -167,6 +168,7 @@ export async function updateVaProfileAction(formData: FormData) {
     admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
   ]);
   if (!current) throw new Error("VA profile not found.");
+  const address = addressProvided ? submittedAddress || "" : String(current.address || "");
 
   const inferenceAllowed = !["approved", "bench"].includes(String(vetting?.stage || ""));
   const proposedPrimaryCategory = selectedPrimaryCategory || inferredPrimaryCategory || inferredCategories[0] || null;

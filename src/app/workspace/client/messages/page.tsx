@@ -62,8 +62,13 @@ export default async function ClientMessagesPage({ searchParams }: {
       </div>
     </div> : null}
 
-    {selectedJob ? <div className="small muted" style={{ marginBottom: 10 }}>
-      Conversation for <strong>{selectedJob.title || "this hiring role"}</strong>
+    {selectedJob ? <div className={pageStyles.roleContext}>
+      <div>
+        <span className="small muted">Hiring role</span>
+        <strong>{selectedJob.title || "This hiring role"}</strong>
+        <small>Status: {String(selectedJob.status || "in progress").replaceAll("_", " ")}</small>
+      </div>
+      <Link className="btn btn-sm" href={"/workspace/client/jobs/" + encodeURIComponent(selectedJob.id)}>View hiring progress</Link>
     </div> : null}
 
     <RecruiterClientChatPanel

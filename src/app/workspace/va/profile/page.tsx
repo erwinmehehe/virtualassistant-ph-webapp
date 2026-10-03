@@ -78,7 +78,7 @@ export default async function VaProfilePage({
       <div className="page-head va-profile-head va-profile-mobile-head">
         <div>
           <h1>Your profile</h1>
-          <p>Keep the details recruiters and clients use to understand your fit current.</p>
+          <p>Keep only the work details recruiters and clients use to understand your fit current. Private placement information is collected separately only when needed.</p>
         </div>
         <Link className="btn btn-sm va-profile-preview" href="/workspace/va/profile/preview" target="_blank">
           <Eye size={16} /> Preview
@@ -109,17 +109,6 @@ export default async function VaProfilePage({
                   <label>Full legal name <span className="muted">(private)</span></label>
                   <input name="full_name" defaultValue={profile.full_name || ""} required />
                   <span className="field-help">Public pages show first name + last initial only.</span>
-                </div>
-                <div className="field">
-                  <label>Current home address <span className="muted">(optional, private)</span></label>
-                  <input
-                    name="address"
-                    defaultValue={va?.address || ""}
-                    placeholder="Street / barangay, city, province"
-                    autoComplete="street-address"
-                    maxLength={200}
-                  />
-                  <span className="field-help">Optional. Only provide this when VAPH asks for it during placement or compliance. It is never shown to clients or on your public profile.</span>
                 </div>
                 <div className="field">
                   <label>Professional headline</label>

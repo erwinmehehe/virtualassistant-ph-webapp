@@ -150,7 +150,7 @@ function CourseCard({ course, position }: { course: PublicTrainingCourse; positi
   );
 }
 
-const META_TITLE = "Free Virtual Assistant Training Philippines | Free Certificates";
+const META_TITLE = "Free Virtual Assistant Training Philippines | Certificates";
 const META_DESCRIPTION =
   "Free virtual assistant training with certificate in the Philippines. Learn practical VA skills online, complete courses, and earn certificates at no cost.";
 
@@ -168,7 +168,7 @@ export const metadata: Metadata = {
       url: "/training/opengraph-image",
       width: 1200,
       height: 630,
-      alt: "VirtualAssistant.com.ph training"
+      alt: META_TITLE
     }]
   },
   twitter: {

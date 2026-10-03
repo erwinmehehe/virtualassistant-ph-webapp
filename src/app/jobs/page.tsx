@@ -66,6 +66,89 @@ const jobFaqs = [
   ],
 ] as const;
 
+const commonVaRoles = [
+  {
+    title: "Executive Assistant",
+    specialty: "Executive Assistance",
+    summary: "Inbox, calendar, meeting preparation, follow-ups, travel coordination, and founder support.",
+    hours: "30–40 hrs/week",
+    rate: "$8–$12/hr",
+    skills: ["Calendar management", "Inbox management", "Google Workspace"],
+  },
+  {
+    title: "Bookkeeping & Xero Virtual Assistant",
+    specialty: "Bookkeeping & Finance",
+    summary: "Transaction coding, reconciliations, receivables follow-up, expense records, and monthly reporting support.",
+    hours: "20–30 hrs/week",
+    rate: "$9–$14/hr",
+    skills: ["Xero", "Reconciliation", "Google Sheets"],
+  },
+  {
+    title: "Dental Insurance Virtual Assistant",
+    specialty: "Dental & Healthcare",
+    summary: "Insurance verification, claim follow-up, patient-account notes, and dental billing administration.",
+    hours: "30–40 hrs/week",
+    rate: "$8–$13/hr",
+    skills: ["Insurance verification", "Claims follow-up", "Dental admin"],
+  },
+  {
+    title: "Real Estate Admin & CRM Virtual Assistant",
+    specialty: "Real Estate",
+    summary: "CRM upkeep, lead follow-up, appointment coordination, listing administration, and transaction checklists.",
+    hours: "20–30 hrs/week",
+    rate: "$8–$12/hr",
+    skills: ["CRM management", "Scheduling", "Real estate admin"],
+  },
+  {
+    title: "Shopify Ecommerce Operations Virtual Assistant",
+    specialty: "Ecommerce",
+    summary: "Order support, product updates, returns, inventory checks, customer administration, and store operations.",
+    hours: "30–40 hrs/week",
+    rate: "$8–$12/hr",
+    skills: ["Shopify", "Order management", "Customer support"],
+  },
+  {
+    title: "Customer Support Virtual Assistant",
+    specialty: "Customer Service",
+    summary: "Email and chat support, ticket triage, routine issue resolution, escalation, and help-centre upkeep.",
+    hours: "30–40 hrs/week",
+    rate: "$8–$11/hr",
+    skills: ["Customer service", "Zendesk", "Written English"],
+  },
+  {
+    title: "Lead Generation & Appointment Setting VA",
+    specialty: "Lead Generation & Sales",
+    summary: "Prospect research, list building, outreach follow-up, CRM updates, and qualified appointment booking.",
+    hours: "20–30 hrs/week",
+    rate: "$8–$13/hr",
+    skills: ["Lead generation", "HubSpot", "Appointment setting"],
+  },
+  {
+    title: "Social Media & Canva Virtual Assistant",
+    specialty: "Marketing & Social Media",
+    summary: "Content scheduling, Canva graphics, caption support, content repurposing, and calendar management.",
+    hours: "15–25 hrs/week",
+    rate: "$8–$12/hr",
+    skills: ["Canva", "Social media", "Content scheduling"],
+  },
+  {
+    title: "SEO & WordPress Virtual Assistant",
+    specialty: "SEO",
+    summary: "WordPress publishing, on-page SEO, internal linking, content updates, and search-performance reporting.",
+    hours: "20–30 hrs/week",
+    rate: "$9–$14/hr",
+    skills: ["WordPress", "On-page SEO", "Search Console"],
+  },
+  {
+    title: "Property Management Administration VA",
+    specialty: "Real Estate",
+    summary: "Inbox triage, maintenance coordination, tenant administration, inspections, and property-record updates.",
+    hours: "30–40 hrs/week",
+    rate: "$8–$13/hr",
+    skills: ["Property management", "Task coordination", "Client communication"],
+  },
+] as const;
+
 function pageHref(params: Record<string, string | undefined>, page: number) {
   const out = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (value && key !== "page") out.set(key, value);
@@ -309,6 +392,40 @@ export default async function PublicJobsPage({
                 <Link className={`btn btn-sm ${page >= pages ? "disabled" : ""}`} aria-disabled={page >= pages} href={pageHref(params, Math.min(pages, page + 1))}>Next</Link>
               </nav>
             ) : null}
+
+            <section className="jobs-common-roles" aria-labelledby="common-va-roles">
+              <div className="jobs-common-roles-head">
+                <div>
+                  <span className="kicker">Popular hiring briefs</span>
+                  <h2 id="common-va-roles">Common VA roles clients hire for</h2>
+                  <p>These are hiring templates, not active openings. Use them to compare typical scope, hours, skills, and pay before posting a role.</p>
+                </div>
+                <Link className="btn" href={EMPLOYER_POST_HREF}>Post one of these roles <ArrowRight size={15} /></Link>
+              </div>
+
+              <div className="jobs-common-role-grid">
+                {commonVaRoles.map((role) => (
+                  <article className="jobs-common-role-card" key={role.title}>
+                    <div className="jobs-common-role-top">
+                      <span>{role.specialty}</span>
+                      <strong>{role.rate}</strong>
+                    </div>
+                    <h3>{role.title}</h3>
+                    <p>{role.summary}</p>
+                    <div className="jobs-common-role-meta">
+                      <span>{role.hours}</span>
+                      <span>Remote</span>
+                    </div>
+                    <div className="jobs-common-role-skills">
+                      {role.skills.map((skill) => <span key={skill}>{skill}</span>)}
+                    </div>
+                    <Link href={EMPLOYER_POST_HREF} className="jobs-common-role-link">
+                      Use this hiring brief <ArrowRight size={14} />
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            </section>
           </div>
         </section>
 

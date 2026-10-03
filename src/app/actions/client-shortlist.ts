@@ -336,11 +336,10 @@ export async function clientShortlistDecisionAction(formData: FormData) {
         ? "Client placed a VA on hold"
         : "Client passed on a VA";
   await resolveRecruiterClientReviewNotifications(admin, jobId);
-  await resolveRecruiterClientReviewNotifications(admin, jobId);
   const recipientIds = new Set<string>();
   if (job.recruiter_id) recipientIds.add(String(job.recruiter_id));
   if (!recipientIds.size) {
-    const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
+    const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter").eq("account_status", "active");
     for (const row of recruiters || []) recipientIds.add(String(row.id));
   }
   if (recipientIds.size) {
@@ -514,7 +513,7 @@ export async function clientShortlistMessageAction(formData: FormData) {
   const recipientIds = new Set<string>();
   if (job.recruiter_id) recipientIds.add(String(job.recruiter_id));
   if (!recipientIds.size) {
-    const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter");
+    const { data: recruiters } = await admin.from("profiles").select("id").eq("role", "recruiter").eq("account_status", "active");
     for (const row of recruiters || []) recipientIds.add(String(row.id));
   }
   if (recipientIds.size) {

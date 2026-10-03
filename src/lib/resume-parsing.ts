@@ -184,10 +184,6 @@ export function extractResumeAddressCandidate(text: string): ResumeAddressCandid
     : { address: null, confidence: "none" };
 }
 
-function extractAddress(text: string): string | null {
-  return extractResumeAddressCandidate(text).address;
-}
-
 function extractBio(text: string): string | null {
   const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   const headingIdx = lines.findIndex((line) => /^(summary|profile|objective|about|professional summary)\b/i.test(line));

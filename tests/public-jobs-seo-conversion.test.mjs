@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = readFileSync("src/app/jobs/page.tsx", "utf8");
 const css = readFileSync("src/app/jobs/jobs-marketplace.css", "utf8");
+const postJobPage = readFileSync("src/app/workspace/client/jobs/new/page.tsx", "utf8");
 
 test("jobs page targets the Philippines VA jobs keyword cluster", () => {
   assert.match(page, /Virtual Assistant Jobs Philippines \| Free VA Job Website/);
@@ -18,6 +19,8 @@ test("jobs page makes job posting a prominent employer conversion path", () => {
   assert.match(page, /Post a Virtual Assistant job in the Philippines/);
   assert.match(page, /Post a VA job/);
   assert.match(page, /EMPLOYER_POST_HREF/);
+  assert.match(postJobPage, /<h1>Post a Virtual Assistant job<\/h1>/);
+  assert.doesNotMatch(postJobPage, /<h1>Start a hiring request<\/h1>/);
   assert.match(css, /\.jobs-employer-card/);
   assert.match(css, /\.jobs-employer-cta/);
 });

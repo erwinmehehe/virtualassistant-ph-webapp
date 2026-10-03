@@ -47,3 +47,12 @@ test("VA saved jobs stack metadata and actions cleanly on phones", async () => {
   assert.match(css, /\.va-saved-row \.va-job-actions[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(css, /@media \(max-width: 420px\)[\s\S]*\.va-saved-row \.va-job-actions[\s\S]*grid-template-columns: 1fr/);
 });
+
+
+test("VA application history confirms successful and duplicate submissions cleanly", async () => {
+  const page = await read("src/app/workspace/va/applications/page.tsx");
+  assert.match(page, /params\.applied === "1"/);
+  assert.match(page, /Application submitted\. The job poster has been notified/);
+  assert.match(page, /params\.applied === "already"/);
+  assert.match(page, /You already applied to this role/);
+});

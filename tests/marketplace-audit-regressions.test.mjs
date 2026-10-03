@@ -67,7 +67,7 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   assert.match(migration, /p_max_rate numeric/);
   assert.match(migration, /private\.public_va_directory_rows\(\)/);
   assert.match(migration, /websearch_to_tsquery/);
-  assert.match(migration, /vector_cosine_ops/);
+  assert.match(migration, /operator\(extensions\.<=>\)/);
 });
 
 test("privacy and compliance records explicitly classify candidate matching as profiling", async () => {

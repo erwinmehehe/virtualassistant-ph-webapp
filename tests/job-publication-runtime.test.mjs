@@ -80,3 +80,26 @@ test("public jobs require a real company name", async () => {
   });
   assert.ok(missing.includes("company name"));
 });
+
+
+test("publication validator rejects compensation below the product floor", async () => {
+  const { publicationMissingDetails, publicationBlocker } = await import("../src/lib/job-publication.ts");
+  const job = {
+    status: "published",
+    client_id: "client-1",
+    title: "Executive Assistant",
+    company_name: "Acme Studio",
+    summary: "A sufficiently detailed role summary for publication.",
+    responsibilities: ["Manage executive calendar"],
+    required_skills: ["Calendar management"],
+    hours_per_week: 40,
+    timezone: "Australia/Sydney",
+    min_hourly_rate: 5,
+    start_timing: "Within 2 weeks",
+  };
+
+  assert.deepEqual(publicationMissingDetails(job), ["budget"]);
+  const result = publicationBlocker(job, { commercial_status: "accepted" });
+  assert.equal(result.key, "brief_incomplete");
+  assert.match(result.detail, /budget/i);
+});

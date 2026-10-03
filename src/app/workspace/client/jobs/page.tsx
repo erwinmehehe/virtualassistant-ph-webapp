@@ -27,14 +27,20 @@ export default async function ClientJobsPage(){
 
   const ids=(jobs||[]).map((job:any)=>job.id);
   const admin=createAdminClient();
-  const {data:shortlistRows}=ids.length
-    ? await admin.from("job_shortlist_candidates").select("job_id").in("job_id",ids).eq("shortlist_status","released")
-    : {data:[]};
+  const [{data:applicationRows},{data:shortlistRows}]=ids.length
+    ? await Promise.all([
+        admin.from("applications").select("job_id").in("job_id",ids),
+        admin.from("job_shortlist_candidates").select("job_id").in("job_id",ids).eq("shortlist_status","released")
+      ])
+    : [{data:[]},{data:[]}];
+  const applicationCounts=new Map<string,number>();
+  for(const row of applicationRows||[]) applicationCounts.set(row.job_id,(applicationCounts.get(row.job_id)||0)+1);
   const shortlistCounts=new Map<string,number>();
   for(const row of shortlistRows||[]) shortlistCounts.set(row.job_id,(shortlistCounts.get(row.job_id)||0)+1);
 
   const active=(jobs||[]).filter((job:any)=>job.status==="published").length;
   const inReview=(jobs||[]).filter((job:any)=>job.status==="pending").length;
+  const applicationTotal=[...applicationCounts.values()].reduce((sum,count)=>sum+count,0);
   const shortlistTotal=[...shortlistCounts.values()].reduce((sum,count)=>sum+count,0);
 
   return <div className="client-jobs-page">
@@ -50,6 +56,7 @@ export default async function ClientJobsPage(){
     <div className="client-jobs-summary" aria-label="Hiring request summary">
       <div><BriefcaseBusiness size={17}/><span><strong>{active}</strong> recruiting</span></div>
       <div><Clock3 size={17}/><span><strong>{inReview}</strong> in review</span></div>
+      <div><UsersRound size={17}/><span><strong>{applicationTotal}</strong> applications</span></div>
       <div><UsersRound size={17}/><span><strong>{shortlistTotal}</strong> shortlisted</span></div>
     </div>
 
@@ -58,6 +65,7 @@ export default async function ClientJobsPage(){
     {jobs?.length?<div className="client-jobs-grid">
       {jobs.map((job:any)=>{
         const status=roleStatus(job.status);
+        const applicationCount=applicationCounts.get(job.id)||0;
         const shortlistCount=shortlistCounts.get(job.id)||0;
         return <article className="client-job-card" key={job.id}>
           <div className="client-job-card-top">
@@ -71,7 +79,8 @@ export default async function ClientJobsPage(){
           <div className="client-job-card-meta">
             <div><span>Hours</span><strong>{job.hours_per_week?`${job.hours_per_week}/week`:"Flexible"}</strong></div>
             <div><span>VA budget</span><strong>{job.min_hourly_rate?`USD ${job.min_hourly_rate}${job.max_hourly_rate?`–${job.max_hourly_rate}`:"+"}/hr`:"Not set"}</strong></div>
-            <div><span>Shortlist</span><strong>{shortlistCount ? `${shortlistCount} ready` : "Not sent yet"}</strong></div>
+            <div><span>Applications</span><strong>{applicationCount ? `${applicationCount} received` : "Waiting"}</strong></div>
+            <div><span>Shortlist</span><strong>{shortlistCount ? `${shortlistCount} ready` : applicationCount ? "Recruiter reviewing" : "Not sent yet"}</strong></div>
           </div>
           <div className="client-job-card-footer">
             <span className="small muted">{job.timezone||"Timezone not set"}</span>

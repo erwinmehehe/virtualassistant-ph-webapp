@@ -3050,7 +3050,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
   {
     "slug": "free-virtual-assistant-job-websites-philippines",
     "title": "Free Virtual Assistant Job Websites in the Philippines: 2026 Guide",
-    "metaTitle": "Free Virtual Assistant Job Websites Philippines (2026)",
+    "metaTitle": "Free Virtual Assistant Job Websites Philippines | 2026 Guide",
     "description": "Compare free virtual assistant job websites in the Philippines for 2026. See where Filipino VAs can search, apply, compare fees, and avoid common job scams.",
     "excerpt": "A practical comparison of free-to-start VA job websites for Filipino applicants, including live job boards, freelance marketplaces, fee caveats, and scam checks.",
     "topic": "philippines",

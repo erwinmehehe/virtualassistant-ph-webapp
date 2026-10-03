@@ -116,7 +116,7 @@ test("client profile validates URLs and logo before persisting account edits", a
 });
 
 
-test("VA address stays optional and private on the profile and is excluded from quick setup", async () => {
+test("VA address is retained privately but not requested in routine profile or onboarding UI", async () => {
   const [profilePage, profileAction, onboarding, onboardingAction, parser, autofill, migration, recruiterPage, maintenance] = await Promise.all([
     source("src/app/workspace/va/profile/page.tsx"),
     source("src/app/actions/profile.ts"),
@@ -129,26 +129,19 @@ test("VA address stays optional and private on the profile and is excluded from 
     source("src/app/api/cron/maintenance/route.ts"),
   ]);
 
-  assert.ok(profilePage.includes('name="address"'));
-  assert.ok(profilePage.includes("Current home address"));
-  assert.ok(profilePage.includes("optional, private"));
-  const profileAddressIndex = profilePage.indexOf('name="address"');
-  assert.ok(profileAddressIndex >= 0);
-  assert.ok(!profilePage.slice(Math.max(0, profileAddressIndex - 180), profileAddressIndex + 320).includes("required"));
-  assert.ok(profileAction.includes('formData.get("address")'));
-  assert.ok(!profileAction.includes("Enter your current address"));
+  assert.doesNotMatch(profilePage, /Current home address/);
+  assert.doesNotMatch(profilePage, /name="address"/);
+  assert.match(profileAction, /const addressProvided = formData\.has\("address"\)/);
+  assert.match(profileAction, /const address = addressProvided \? submittedAddress \|\| "" : String\(current\.address \|\| ""\)/);
 
-  assert.ok(!onboarding.includes("Private address (optional)"));
-  assert.ok(!onboarding.includes('name="address"'));
-  assert.ok(onboarding.includes("Review & finish"));
-  assert.ok(!onboardingAction.includes('formData.get("address")'));
-  assert.ok(!onboardingAction.includes("address: address || null"));
+  assert.doesNotMatch(onboarding, /Private address/);
+  assert.doesNotMatch(onboarding, /name="address"/);
+  assert.match(onboarding, /Review & finish/);
+  assert.doesNotMatch(onboardingAction, /formData\.get\("address"\)/);
 
-  assert.ok(parser.includes("function extractAddress"));
-  assert.ok(autofill.includes('setFormValue(form, "address", fields.address)'));
-  assert.ok(!maintenance.includes("runVaAddressResumeBackfill"));
-
-  assert.ok(migration.includes("add column if not exists address text"));
-  assert.ok(!migration.includes("create or replace view public.public_va_directory"));
-  assert.ok(!recruiterPage.includes("Request address"));
+  assert.match(parser, /function extractAddress/);
+  assert.match(autofill, /setFormValue\(form, "address", fields\.address\)/);
+  assert.doesNotMatch(maintenance, /runVaAddressResumeBackfill/);
+  assert.match(migration, /add column if not exists address text/);
+  assert.doesNotMatch(recruiterPage, /Request address/);
 });

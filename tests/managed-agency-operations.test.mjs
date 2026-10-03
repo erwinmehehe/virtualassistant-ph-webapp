@@ -57,3 +57,11 @@ test("workroom onboarding actions enforce participant ownership on both UI and s
   assert.match(va,/toggleOwnedChecklistAction/);
   assert.doesNotMatch(va,/toggleChecklistAction/);
 });
+
+
+test("client dashboard provides direct authenticated job posting entry points",()=>{
+  const dashboard=read("src/app/workspace/client/page.tsx");
+  assert.match(dashboard,/href="\/workspace\/client\/jobs\/new"/);
+  assert.match(dashboard,/Post a job/);
+  assert.match(dashboard,/Post your first VA job/);
+});

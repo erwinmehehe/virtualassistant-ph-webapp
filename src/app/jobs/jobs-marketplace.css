@@ -374,6 +374,40 @@
   box-shadow: 0 8px 22px rgba(16,24,40,.045);
 }
 
+.jobs-common-role-company {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.jobs-common-role-company-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d9d6fe;
+  border-radius: 10px;
+  background: #f4f3ff;
+  color: #444ce7;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.jobs-common-role-company > div:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.jobs-common-role-company strong {
+  color: #344054;
+  font-size: 11.5px;
+}
+
+.jobs-common-role-company span {
+  color: #98a2b3;
+  font-size: 10px;
+}
+
 .jobs-common-role-top {
   display: flex;
   align-items: center;
@@ -439,20 +473,12 @@
   font-size: 10.5px;
 }
 
-.jobs-common-role-link {
+.jobs-common-role-register {
+  width: fit-content;
+  margin-top: 3px;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  width: fit-content;
-  margin-top: 2px;
-  color: #444ce7;
-  font-size: 11.5px;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.jobs-common-role-link:hover {
-  color: #3538cd;
+  gap: 6px;
 }
 
 .jobs-seo-section {
@@ -733,7 +759,8 @@
   }
 
   .jobs-directory-post,
-  .jobs-common-roles-head > .btn {
+  .jobs-common-roles-head > .btn,
+  .jobs-common-role-register {
     width: 100%;
     justify-content: center;
   }

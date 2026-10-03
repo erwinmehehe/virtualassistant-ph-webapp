@@ -1693,6 +1693,31 @@
   line-height: 1.48;
 }
 
+.tr-course-outcome {
+  display: grid;
+  gap: 2px;
+  margin-top: 11px;
+  padding: 9px 10px;
+  border: 1px solid var(--course-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--course-bg) 72%, #fff);
+}
+
+.tr-course-outcome span {
+  color: var(--course-fg);
+  font-size: .58rem;
+  font-weight: 850;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.tr-course-outcome strong {
+  color: #344054;
+  font-size: .69rem;
+  font-weight: 720;
+  line-height: 1.38;
+}
+
 .tr-course-card-v2 .tr-course-card-meta {
   display: flex;
   gap: 6px;

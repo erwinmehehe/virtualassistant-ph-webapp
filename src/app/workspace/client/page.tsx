@@ -35,14 +35,14 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
   const pipeline=dashboard?.pipeline||{applied:0,shortlisted:0,interview:0,offered:0,hired:0,rejected:0};
 
   const attention:AttentionItem[]=[];
-  if(!jobCount) attention.push({title:"Start your first hiring request",copy:"Tell us the role, schedule, budget, and must-haves. Your recruiter will shape the brief and source the VA.",href:"/workspace/client/jobs/new",count:1,icon:Plus});
+  if(!jobCount) attention.push({title:"Post your first VA job",copy:"Describe the role, schedule, budget, and must-haves. Preview the job, then submit it for recruiting.",href:"/workspace/client/jobs/new",count:1,icon:Plus});
   if(pipeline.shortlisted) attention.push({title:"Recruiter shortlist waiting",copy:"Review only the vetted VAs your recruiter selected for you.",href:"/workspace/client/candidates",count:pipeline.shortlisted,icon:Sparkles});
   if(pipeline.interview) attention.push({title:"Interview action needed",copy:"Schedule, join, or record a Proceed / Hold / Pass decision.",href:"/workspace/client/interviews",count:pipeline.interview,icon:CalendarDays});
   if(pipeline.offered) attention.push({title:"Final offer in progress",copy:"Review the final placement terms once the VA has accepted or when confirmation is required.",href:"/workspace/client/offers",count:pipeline.offered,icon:Sparkles});
 
   const steps=[
     {label:"Complete your company profile",description:"Add company details and hiring context.",done:Boolean(company?.company_name&&company?.timezone),href:"/workspace/client/company"},
-    {label:"Send your first hiring request",description:"Tell us what you need. Your recruiter will refine the role and manage the search.",done:Boolean(jobCount),href:"/workspace/client/jobs/new"},
+    {label:"Post your first VA job",description:"Create the role, review the posting, and submit it for recruiting.",done:Boolean(jobCount),href:"/workspace/client/jobs/new"},
     {label:"Review a recruiter shortlist",description:"You only review candidates already screened and selected by our recruiting team.",done:Boolean(shortlistCount),href:"/workspace/client/candidates"},
     {label:"Confirm a placement",description:"After interview and final terms, confirm the VA and start the managed workroom.",done:Boolean(hires),href:"/workspace/client/workroom"}
   ];
@@ -55,13 +55,13 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
         ? {title:`${pipeline.shortlisted} recruiter-selected VA${pipeline.shortlisted===1?"":"s"} ready`,copy:"Review the shortlist and tell your recruiter who should move forward.",href:"/workspace/client/candidates",label:"Review shortlist",step:2}
         : jobCount
           ? {title:"Your recruiter is working the role",copy:"We are screening the vetted VA pool and will only send people ready for your review.",href:"/workspace/client/jobs",label:"View role progress",step:1}
-          : {title:"Tell us who you need",copy:"Share the work in your own words. We will turn it into a clear hiring brief and manage the search.",href:"/workspace/client/jobs/new",label:"Start hiring",step:0};
+          : {title:"Post your first VA job",copy:"Describe the work in your own words, set schedule and pay, then preview the job before submitting.",href:"/workspace/client/jobs/new",label:"Post a job",step:0};
 
   return <div className="dash-page role-overview client-overview client-mobile-dashboard">
     <DashboardDegradedNotice issues={issues}/>
     {requested?<div className="intent-banner"><div><strong>{requested.full_name}</strong><span className="small muted"> · {requested.headline||requested.primary_category||"Virtual Assistant"}</span><p className="small muted">This preference will be treated as a recruiter lead, not a direct marketplace hire.</p></div><Link className="btn btn-primary" href={`/workspace/client/jobs/new?talent=${encodeURIComponent(requested.slug)}`}>Create hiring request</Link></div>:null}
 
-    <div className="client-mobile-dashboard-head"><DashHeader kicker="Managed VA hiring" title="Your hiring progress" subtitle={<>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} actions={<Link className="dash-btn dash-btn-dark" href="/workspace/client/jobs/new"><Plus size={17}/> Start a hiring request</Link>}/></div>
+    <div className="client-mobile-dashboard-head"><DashHeader kicker="Managed VA hiring" title="Your hiring progress" subtitle={<>Your recruiter manages sourcing, vetting, matching, and follow-up. You step in only when a decision needs you. <span className="dash-freshness">Live data · refreshed when this page opened</span></>} actions={<Link className="dash-btn dash-btn-dark" href="/workspace/client/jobs/new"><Plus size={17}/> Post a job</Link>}/></div>
 
     <section className="client-concierge-strip client-mobile-concierge"><div><span className="small">Your recruiter</span><h2>{hiringOwner?.full_name||"VirtualAssistant.com.ph recruiting team"}</h2><p>One accountable hiring owner handles the role from brief to placement and post-hire follow-up.</p></div><Link className="btn" href="/workspace/client/messages"><LifeBuoy size={16}/> Message your recruiter</Link></section>
 

@@ -27,9 +27,9 @@ test("current managed chats feed an admin-only circumvention moderation queue", 
   ]);
   assert.match(migration, /client_recruiter_messages/);
   assert.match(migration, /recruiter_va_messages/);
-  assert.match(migration, /off-platform-payment/);
-  assert.match(migration, /direct-contact-app/);
+  assert.match(migration, /external_payment/);
+  assert.match(migration, /external_contact_channel/);
   assert.match(migration, /revoke all on public\.message_flags from public, anon, authenticated/);
-  assert.match(page, /body_snapshot/);
+  assert.match(page, /body_snapshot/);\n  assert.match(page, /channel,message_id,thread_id/);\n  assert.doesNotMatch(page, /source_type|source_message_id/);
   assert.doesNotMatch(page, /from\("messages"\)/);
 });

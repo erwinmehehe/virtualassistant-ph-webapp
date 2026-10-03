@@ -661,7 +661,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "softwareSlug": "salesforce",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -997,7 +997,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "softwareSlug": "klaviyo",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -1165,7 +1165,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "softwareSlug": "xero",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -1333,7 +1333,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "softwareSlug": "quickbooks",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -1501,7 +1501,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "softwareSlug": "canva",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -1669,7 +1669,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "creative-virtual-assistant",
     "intent": "comparison",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -1864,7 +1864,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "event-planning-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -2039,7 +2039,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "real-estate",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -2207,7 +2207,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "amazon-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -2375,7 +2375,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "research-data",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -2544,7 +2544,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "medical-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "reviewNote": "This article covers administrative role design only. Clinical decisions, diagnosis, treatment advice, regulated professional duties, and privacy obligations should remain with qualified and authorized staff under the rules that apply to the practice.",
@@ -2719,7 +2719,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "digital-marketing-virtual-assistant",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [
@@ -2887,7 +2887,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
     "serviceSlug": "bookkeeping",
     "intent": "informational",
     "publishedAt": "2026-09-23",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-09-23",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
     "keyTakeaways": [

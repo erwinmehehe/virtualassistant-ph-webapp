@@ -398,16 +398,23 @@ export default async function PublicJobsPage({
                 <div>
                   <span className="kicker">Popular hiring briefs</span>
                   <h2 id="common-va-roles">Common VA roles clients hire for</h2>
-                  <p>These are hiring templates, not active openings. Use them to compare typical scope, hours, skills, and pay before posting a role.</p>
+                  <p>Register interest in the kinds of VA work clients commonly request. These cards describe role types, not current employer vacancies.</p>
                 </div>
-                <Link className="btn" href={EMPLOYER_POST_HREF}>Post one of these roles <ArrowRight size={15} /></Link>
+                <Link className="btn" href="/auth/join/va?next=%2Fworkspace%2Fva%2Fjobs">Join the VA marketplace <ArrowRight size={15} /></Link>
               </div>
 
               <div className="jobs-common-role-grid">
                 {commonVaRoles.map((role) => (
                   <article className="jobs-common-role-card" key={role.title}>
+                    <div className="jobs-common-role-company">
+                      <div className="jobs-common-role-company-mark" aria-hidden="true">V</div>
+                      <div>
+                        <strong>VAPH Talent Marketplace</strong>
+                        <span>{role.specialty}</span>
+                      </div>
+                    </div>
                     <div className="jobs-common-role-top">
-                      <span>{role.specialty}</span>
+                      <span>Typical role profile</span>
                       <strong>{role.rate}</strong>
                     </div>
                     <h3>{role.title}</h3>
@@ -419,8 +426,11 @@ export default async function PublicJobsPage({
                     <div className="jobs-common-role-skills">
                       {role.skills.map((skill) => <span key={skill}>{skill}</span>)}
                     </div>
-                    <Link href={EMPLOYER_POST_HREF} className="jobs-common-role-link">
-                      Use this hiring brief <ArrowRight size={14} />
+                    <Link
+                      href="/auth/join/va?next=%2Fworkspace%2Fva%2Fjobs"
+                      className="btn btn-primary jobs-common-role-register"
+                    >
+                      Register interest <ArrowRight size={14} />
                     </Link>
                   </article>
                 ))}

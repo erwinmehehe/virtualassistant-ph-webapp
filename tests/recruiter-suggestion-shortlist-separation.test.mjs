@@ -56,11 +56,11 @@ test("matching defaults to agency-certified client-ready talent and blocks near-
   ]);
   assert.match(matching, /isTalentAgencyCertified/);
   assert.match(matching, /talentReadinessActions/);
-  assert.match(matching, /bench_memberships/);
+  assert.doesNotMatch(matching, /bench_memberships/);
   assert.match(matching, /clientReadyCount/);
   assert.match(matching, /row\.clientReady&&row\.score>=60/);
   assert.match(table, /selectionBlocked/);
-  assert.match(table, /Not client-ready yet/);
+  assert.match(table, /Not client-ready/);
   assert.match(table, /Strongest client-ready candidates first|strongest client-ready candidates first/i);
   assert.match(table, /row\.clientReady\)/);
   assert.match(table, /\["proposed", "released"\]/);
@@ -93,18 +93,19 @@ test("role queues only mark fully client-ready human shortlists as ready to send
 test("quick shortlist preparation only chooses client-ready talent", async () => {
   const action = await read("src/app/actions/matching.ts");
   assert.match(action, /isTalentAgencyCertified/);
-  assert.match(action, /bench_memberships/);
-  assert.match(action, /activePoolIds/);
+  assert.doesNotMatch(action, /bench_memberships/);
+  assert.doesNotMatch(action, /activePoolIds/);
   assert.match(action, /availabilityConfirmedAt: va\.availability_confirmed_at/);
   assert.doesNotMatch(action, /workSetupVerifiedAt: va\.work_setup_verified_at/);
   assert.match(action, /No client-ready 60%\+ matches are available yet/);
 });
 
 
-test("role readiness blockers support one bulk talent-pool action without auto-verifying evidence", async () => {
+test("role readiness blockers no longer expose talent-pool membership as a client gate", async () => {
   const detail = await read("src/app/workspace/recruiter/roles/[id]/page.tsx");
-  assert.match(detail, /poolBlockedIds/);
-  assert.match(detail, /Add \{poolBlockedIds\.length\} to talent pool/);
+  assert.doesNotMatch(detail, /poolBlockedIds/);
+  assert.doesNotMatch(detail, /Add .* to talent pool/);
+  assert.match(detail, /needsAvailability/);
   assert.doesNotMatch(detail, /workSetupBlockedCount/);
   assert.doesNotMatch(detail, /need verified work setup/);
   assert.doesNotMatch(detail, /work_setup_verified_at:\s*new Date/);

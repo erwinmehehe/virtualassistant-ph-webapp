@@ -11,11 +11,12 @@ const jobWizard = readFileSync("src/components/job-wizard.tsx", "utf8");
 const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
 
-test("jobs page targets live Philippines VA job intent without keyword stuffing", () => {
-  assert.match(page, /Virtual Assistant Jobs Philippines \| Free VA Job Website/);
-  assert.match(page, /<h1>Virtual Assistant Jobs Philippines<\/h1>/);
-  assert.match(page, /remote VA roles with pay, weekly hours, and timezone expectations shown upfront/i);
-  assert.match(page, /\/blog\/free-virtual-assistant-job-websites-philippines/);
+test("jobs page is client-first without keyword stuffing", () => {
+  assert.match(page, /Post Virtual Assistant Jobs Philippines \| Hire Filipino VAs/);
+  assert.match(page, /<h1>Post a Virtual Assistant Job in the Philippines<\/h1>/);
+  assert.match(page, /Hire vetted Filipino Virtual Assistants/);
+  assert.doesNotMatch(page, /Browse open VA jobs/);
+  assert.doesNotMatch(page, /Create free VA profile/);
   assert.doesNotMatch(page, /keywords:\s*\[/);
 });
 
@@ -37,18 +38,19 @@ test("jobs collection exposes crawlable structured data", () => {
   assert.match(page, /jobPublicHref\(job\)/);
 });
 
-test("jobs page states applicant fees precisely", () => {
-  assert.match(page, /without a VA-side platform fee/);
-  assert.match(page, /Employer recruiting, candidate-access, placement, or managed-service fees are separate/);
+test("jobs page states employer fee handling precisely", () => {
+  assert.match(page, /Employer recruiting, candidate-access, placement, or managed-service fees depend on the hiring model/);
+  assert.match(page, /commercial terms are confirmed separately from VA compensation/);
+  assert.doesNotMatch(page, /posting a job is free/i);
 });
 
 
-test("jobs hub and comparison guide reinforce separate search intents", () => {
-  assert.match(page, /\/blog\/free-virtual-assistant-job-websites-philippines/);
+test("job-site comparison content stays separate from the client posting surface", () => {
   assert.match(jobSearchGuides, /"slug": "free-virtual-assistant-job-websites-philippines"/);
   assert.match(jobSearchGuides, /Free Virtual Assistant Job Websites Philippines \| 2026 Guide/);
   assert.match(jobSearchGuides, /"href": "\/jobs"/);
   assert.match(jobSearchGuides, /"href": "\/post-a-job"/);
+  assert.doesNotMatch(page, /Comparing job sites first/);
 });
 
 

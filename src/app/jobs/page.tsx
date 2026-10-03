@@ -17,6 +17,7 @@ import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { jobPublicHref } from "@/lib/public-routing";
 import { socialMetadata } from "@/lib/og";
+import { getSessionProfile } from "@/lib/auth";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
@@ -79,7 +80,11 @@ export default async function PublicJobsPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const [params, settings] = await Promise.all([searchParams, getBusinessSettings()]);
+  const [params, settings, session] = await Promise.all([searchParams, getBusinessSettings(), getSessionProfile()]);
+  const { user, profile } = session;
+  const isVa = profile?.role === "va";
+  const isClient = profile?.role === "client";
+  const employerPostHref = isClient ? "/workspace/client/jobs/new" : EMPLOYER_POST_HREF;
   const q = String(params.q || "").trim().replace(/[,%()]/g, " ");
   const category = String(params.category || "").trim();
   const minRate = Number(params.min_rate || 0);
@@ -185,9 +190,7 @@ export default async function PublicJobsPage({
                 <Link className="btn btn-primary btn-lg" href="#open-jobs">
                   Browse open VA jobs <ArrowRight size={16} />
                 </Link>
-                <Link className="btn btn-lg" href="/auth/join/va">
-                  Create free VA profile
-                </Link>
+                {isVa ? <Link className="btn btn-lg" href="/workspace/va/applications">My applications</Link> : !user ? <Link className="btn btn-lg" href="/auth/join/va">Create free VA profile</Link> : null}
               </div>
               <div className="jobs-market-proof" aria-label="Job marketplace benefits">
                 <span><CheckCircle2 size={15} /> Free for VA applicants</span>
@@ -208,10 +211,10 @@ export default async function PublicJobsPage({
                 <li><CheckCircle2 size={15} /> Set compensation and schedule up front</li>
                 <li><CheckCircle2 size={15} /> Review the posting before signup</li>
               </ul>
-              <Link className="btn btn-primary btn-lg jobs-employer-button" href={EMPLOYER_POST_HREF}>
+              <Link className="btn btn-primary btn-lg jobs-employer-button" href={employerPostHref}>
                 Post a VA job <ArrowRight size={16} />
               </Link>
-              <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link>
+              {isClient ? <Link className="jobs-employer-note" href="/workspace/client">Manage my jobs</Link> : !user ? <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link> : null}
             </aside>
           </div>
         </section>
@@ -224,7 +227,7 @@ export default async function PublicJobsPage({
                 <h2>Latest virtual assistant jobs in the Philippines</h2>
                 <p>Search current Philippines virtual assistant jobs by specialty, hours, pay, and recency.</p>
               </div>
-              <Link className="btn jobs-directory-post" href={EMPLOYER_POST_HREF}>
+              <Link className="btn jobs-directory-post" href={employerPostHref}>
                 <BriefcaseBusiness size={16} /> Post a job
               </Link>
             </div>
@@ -268,7 +271,7 @@ export default async function PublicJobsPage({
                 <strong>{total} open role{total === 1 ? "" : "s"}</strong>
                 <span>Rates shown are client-posted Virtual Assistant compensation.</span>
               </div>
-              <Link href="/auth/join/va" className="text-link">Create a Virtual Assistant profile</Link>
+              {isVa ? <Link href="/workspace/va/applications" className="text-link">View my applications</Link> : !user ? <Link href="/auth/join/va" className="text-link">Create a Virtual Assistant profile</Link> : null}
             </div>
 
             <div className="jobs-list">
@@ -294,7 +297,7 @@ export default async function PublicJobsPage({
                     <p>Only published roles appear here. Create your VA profile and complete vetting so you can apply when a suitable role opens.</p>
                   </div>
                   <div className="jobs-empty-actions">
-                    <Link className="btn btn-primary" href="/auth/join/va">Create VA profile</Link>
+                    {isVa ? <Link className="btn btn-primary" href="/workspace/va/vetting">Check my vetting</Link> : !user ? <Link className="btn btn-primary" href="/auth/join/va">Create VA profile</Link> : null}
                     {(q || category || minRate || hours) ? <Link className="btn" href="/jobs">Clear filters</Link> : null}
                   </div>
                 </div>
@@ -392,8 +395,8 @@ export default async function PublicJobsPage({
                 <p>Post the role with clear pay, hours, timezone, and responsibilities so Filipino VAs can evaluate it quickly.</p>
               </div>
               <div className="jobs-bottom-actions">
-                <Link className="btn btn-primary btn-lg" href={EMPLOYER_POST_HREF}>Post a VA job</Link>
-                <Link className="btn btn-lg" href="/auth/join/va">I’m looking for VA work</Link>
+                <Link className="btn btn-primary btn-lg" href={employerPostHref}>Post a VA job</Link>
+                {isVa ? <Link className="btn btn-lg" href="/workspace/va/applications">My applications</Link> : !user ? <Link className="btn btn-lg" href="/auth/join/va">I’m looking for VA work</Link> : null}
               </div>
             </div>
           </div>

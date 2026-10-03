@@ -406,6 +406,7 @@ export async function cancelCandidateInterviewAction(formData: FormData) {
   if (!row) throw new Error("Interview not found.");
   if (profile.role === "client" && row.client_id !== user.id) throw new Error("Interview not found.");
   if (profile.role === "va" && row.va_id !== user.id) throw new Error("Interview not found.");
+  if (!["requested", "scheduled"].includes(String(row.status))) throw new Error("Only requested or scheduled interviews can be cancelled.");
   if (row.calendar_event_id) { try { await cancelGoogleMeetDiscoveryMeeting(row.calendar_event_id); } catch {} }
   const cancelledAt = new Date().toISOString();
   await admin.from("candidate_interviews").update({ status: "cancelled", cancelled_at: cancelledAt, updated_at: cancelledAt }).eq("id", interviewId);

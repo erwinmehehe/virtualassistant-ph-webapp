@@ -86,3 +86,19 @@ test("candidate access has a real VAPH invoice and PayMongo settlement path", as
   assert.match(webhook, /\.eq\("payment_reference", payment\.id\)/);
   assert.match(clientPayments, /createCheckoutSessionAction/);
 });
+
+test("stale interview and offer records cannot bypass the paid access entitlement", async () => {
+  const [ops, resumeRoute, applications] = await Promise.all([
+    read("src/app/actions/recruiter-operations-system.ts"),
+    read("src/app/api/resume/[applicationId]/route.ts"),
+    read("src/app/actions/applications.ts"),
+  ]);
+
+  assert.match(ops, /Candidate access payment is required before scheduling this interview/);
+  assert.match(ops, /Candidate access payment is required before confirming this placement/);
+  assert.match(ops, /candidateAccessUnlocked\(access\?\.access_status\)/);
+  assert.match(ops, /candidateAccessUnlocked\(candidateAccess\?\.access_status\)/);
+  assert.match(resumeRoute, /Clients are deliberately excluded/);
+  assert.doesNotMatch(resumeRoute, /candidateAccessUnlocked/);
+  assert.match(applications, /curatedAccess = Boolean\(released && candidateAccessUnlocked/);
+});

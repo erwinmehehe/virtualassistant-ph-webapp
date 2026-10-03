@@ -25,7 +25,7 @@ test("desktop and mobile navigation use simplified durable workspace groups", ()
     "Hiring",
     "My Team",
     "Home",
-    "Opportunities",
+    "Find Jobs",
     "My Day",
     "Clients",
     "Roles",

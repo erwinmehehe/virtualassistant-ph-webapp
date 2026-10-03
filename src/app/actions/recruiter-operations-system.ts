@@ -717,7 +717,7 @@ export async function confirmPlacementOfferAction(formData: FormData) {
   const { user } = await requireRole("client");
   const offerId = String(formData.get("offer_id") || "");
   const admin = createAdminClient();
-  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
+  const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_client") throw new Error("This placement is not waiting for client confirmation.");
   let applicationId = offer.application_id;
   if (!applicationId) {

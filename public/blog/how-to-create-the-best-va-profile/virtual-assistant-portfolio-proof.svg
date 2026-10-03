@@ -8,8 +8,8 @@
 <g filter="url(#s)"><rect x="70" y="150" width="820" height="360" rx="28" fill="#fff"/></g>
 <rect x="70" y="150" width="260" height="360" rx="28" fill="url(#g)"/>
 <text x="106" y="205" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#bfdbfe">PORTFOLIO SAMPLE</text>
-<text x="106" y="246" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#fff">Customer Follow-Up</text>
-<text x="106" y="276" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#fff">Tracker</text>
+<text x="106" y="246" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#fff">Customer</text>
+<text x="106" y="276" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#fff">Follow-Up Tracker</text>
 <rect x="106" y="316" width="176" height="38" rx="19" fill="#fff" opacity=".16"/>
 <text x="194" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">Google Sheets</text>
 <text x="106" y="399" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#dbeafe">Practice project</text>

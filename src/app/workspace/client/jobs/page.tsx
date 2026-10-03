@@ -13,7 +13,7 @@ export default async function ClientJobsPage(){
     .select("id,title,status,hours_per_week,min_hourly_rate,created_at")
     .eq("client_id",userId)
     .order("created_at",{ascending:false}),
-    supabase.from("client_profiles").select("can_self_publish_jobs").eq("user_id",userId).maybeSingle()
+    supabase.from("client_profiles").select("can_self_publish_jobs,verified_at").eq("user_id",userId).maybeSingle()
   ]);
 
   const ids=(jobs||[]).map((job:any)=>job.id);
@@ -27,10 +27,10 @@ export default async function ClientJobsPage(){
   return <div className="client-jobs-page">
     <div className="page-head client-jobs-head">
       <div><h1>Your hiring requests</h1><p>Follow each role from brief review through recruiting, shortlist, interviews, and hire.</p></div>
-      <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new">{clientProfile?.can_self_publish_jobs?"Post a job":"New hiring request"}</Link>
+      <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new">{clientProfile?.can_self_publish_jobs&&clientProfile?.verified_at?"Post a job":"New hiring request"}</Link>
     </div>
     <div className="table-wrap responsive-table client-jobs-table">
-      {clientProfile?.can_self_publish_jobs?<div className="success-banner" style={{marginBottom:18}}>Direct publishing is enabled for your account. Complete curated-placement roles can go live on the public jobs page immediately.</div>:null}
+      {clientProfile?.can_self_publish_jobs&&clientProfile?.verified_at?<div className="success-banner" style={{marginBottom:18}}>Direct publishing is enabled for this verified company account. Complete curated-placement roles can go live on the public jobs page immediately.</div>:clientProfile?.can_self_publish_jobs?<div className="alert" style={{marginBottom:18}}>Direct publishing permission is approved, but company verification is still required before a role can go live without recruiter review.</div>:null}
       {jobs?.length?<table>
         <thead><tr><th>Role</th><th>Status</th><th>Hours</th><th>Candidates</th><th>Created</th><th></th></tr></thead>
         <tbody>{jobs.map((job:any)=><tr className="client-job-row" key={job.id}>

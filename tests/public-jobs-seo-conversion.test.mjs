@@ -55,7 +55,7 @@ test("job-site comparison content stays separate from the client posting surface
 
 
 test("employers can draft and preview a job before account creation", () => {
-  assert.match(postJobPublicPage, /Create the job first/);
+  assert.match(postJobPublicPage, /Tell us what you need\./);
   assert.match(postJobPublicPage, /<JobWizard publicMode/);
   assert.match(jobWizard, /const steps = \["Role", "Schedule & budget", "Review"\]/);
   assert.match(jobWizard, /publicMode \? "Create free account to post"/);

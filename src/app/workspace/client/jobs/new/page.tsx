@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { JobWizard } from "@/components/job-wizard";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -44,7 +45,7 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
   return <div className="client-role-editor client-role-new">
     <div className="client-role-editor-intro">
       <div>
-        <a className="text-link small" href="/workspace/client/jobs">← Hiring requests</a>
+        <Link className="text-link small" href="/workspace/client/jobs">← Hiring requests</Link>
         <div className="kicker" style={{marginTop:10}}>{fromPublicDraft ? "Final review" : "Post a Virtual Assistant job"}</div>
         <h1>{fromPublicDraft ? "Review and post your job" : "Tell us who you need"}</h1>
         <p>{fromPublicDraft

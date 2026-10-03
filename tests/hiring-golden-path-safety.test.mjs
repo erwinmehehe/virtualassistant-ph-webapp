@@ -108,6 +108,7 @@ test("placement offers cannot be accepted after their start date has passed", as
   const confirmBlock = operations.slice(confirmStart);
 
   assert.match(respondBlock, /todayForOffer/);
+  assert.match(respondBlock, /decision === "accept"/);
   assert.match(respondBlock, /This offer start date has passed/);
   assert.match(confirmBlock, /todayForConfirmation/);
   assert.match(confirmBlock, /refresh the final terms before confirming/);

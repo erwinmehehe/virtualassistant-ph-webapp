@@ -370,7 +370,7 @@ export async function saveJobShortlistAction(formData: FormData) {
         firstName,
         subject: `Your VA shortlist is ready to review: ${job.title}`,
         heading: "Your recruiter has a shortlist ready",
-        body: `We reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
+        body: `We reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates can be opened for client review after your account is linked and candidate-access payment is confirmed.`,
         href: claimUrl,
         hrefLabel: "Review my shortlist",
         senderName: "VirtualAssistant.com.ph Hiring Team",

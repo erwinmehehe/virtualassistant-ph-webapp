@@ -74,3 +74,15 @@ test("vetted VAs get a real apply path for published jobs", async () => {
   assert.match(applicationsAction, /redirect\("\/workspace\/va\/applications\?applied=already"\)/);
   assert.match(applicationsAction, /sendApplicationEmail/);
 });
+
+
+test("vetted VA applications notify employer and recruiter without making delivery a submission blocker", async () => {
+  const applicationsAction = await read("src/app/actions/applications.ts");
+  assert.match(applicationsAction, /title: `New VA application: ${job.title}`/);
+  assert.match(applicationsAction, /href: `\/workspace\/recruiter\/matching\/${jobId}`/);
+  assert.match(applicationsAction, /title: `New application for ${job.title}`/);
+  assert.match(applicationsAction, /sendApplicationEmail/);
+  assert.match(applicationsAction, /Recruiter application notification failed/);
+  assert.match(applicationsAction, /Employer application notification failed/);
+  assert.match(applicationsAction, /New application employer notification failed/);
+});

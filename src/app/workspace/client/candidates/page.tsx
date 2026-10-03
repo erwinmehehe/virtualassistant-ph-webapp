@@ -5,6 +5,8 @@ import { clientRequestMoreOptionsAction, clientShortlistDecisionAction } from "@
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
 import { ClientCandidateViewTracker } from "@/components/client-candidate-view-tracker";
+import { ClientCandidateCompareBar } from "@/components/client-candidate-compare-bar";
+import { maskVaName } from "@/lib/va-identity";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import {
   getClientHiringRoomSummary,
@@ -199,6 +201,11 @@ export default async function ClientCandidatesPage({
         <div><span>Interview</span><strong>{interviewRequested}</strong></div>
         <div><span>Passed</span><strong>{passed}</strong></div>
       </div> : null}
+
+      {selectedReleased.length >= 2 && selectedPublished && selectedAccessUnlocked ? <ClientCandidateCompareBar candidates={selectedReleased.map((row) => {
+        const profile = profileMap.get(row.va_id);
+        return { id: row.id, label: profile?.full_name ? maskVaName(profile.full_name) : "Vetted VA" };
+      })}/> : null}
 
       {selectedReleased.length && selectedJob && selectedPublished && selectedAccessUnlocked ? (
         <div className="client-more-options card">

@@ -33,10 +33,27 @@ export async function updateTaskStatusAction(formData: FormData) {
   const taskId = String(formData.get("task_id"));
   const status = String(formData.get("status"));
   if (!["todo","in_progress","review","done"].includes(status)) throw new Error("Invalid task status.");
-  const supabase = await createClient();
-  const { data: task } = await supabase.from("workroom_tasks").select("id").eq("id",taskId).single();
+
+  const admin = createAdminClient();
+  const { data: task } = await admin
+    .from("workroom_tasks")
+    .select("id,status,assigned_to,workroom_id,workrooms!inner(client_id,va_id)")
+    .eq("id",taskId)
+    .maybeSingle();
   if (!task) throw new Error("Task not found.");
-  const { error } = await createAdminClient().from("workroom_tasks").update({ status, updated_at: new Date().toISOString() }).eq("id",taskId);
+
+  const room:any=Array.isArray((task as any).workrooms)?(task as any).workrooms[0]:(task as any).workrooms;
+  const isClient=profile.role==="client"&&room?.client_id===user.id;
+  const isVa=profile.role==="va"&&room?.va_id===user.id&&(!task.assigned_to||task.assigned_to===user.id);
+  if(!isClient&&!isVa) throw new Error("You are not part of this placement.");
+
+  if(isClient){
+    if(task.status!=="review"||status!=="done") throw new Error("Clients can only accept tasks that are ready for review.");
+  }else if(status==="done"){
+    throw new Error("Submit the task for client review instead of marking it done.");
+  }
+
+  const { error } = await admin.from("workroom_tasks").update({ status, updated_at: new Date().toISOString() }).eq("id",taskId);
   if (error) throw error;
   revalidatePath("/workspace/client/workroom");
   revalidatePath("/workspace/va/workroom");

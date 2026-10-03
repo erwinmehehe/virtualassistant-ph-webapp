@@ -154,22 +154,214 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   };
 
   const rateText = job.max_hourly_rate ? `${money(job.min_hourly_rate)}–${money(job.max_hourly_rate)}/hr` : `${money(job.min_hourly_rate)}/hr`;
-  return <><SiteHeader/><main id="main-content" className="public-job-detail"><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd).replace(/</g,"\\u003c")}}/><div className="container">
-    <Link className="profile-back-link" href="/jobs"><ArrowLeft size={15}/> Back to VA jobs</Link>
-    {query.applied ? <div className="success-banner" role="status">Application submitted. The job poster has been notified and your application is now in recruiter review.</div> : null}
-    <div className="public-job-grid">
-      <article className="public-job-main">
-        <header className="public-job-hero-card"><div className="job-detail-badges"><span className="badge badge-success"><ShieldCheck size={14}/> Recruiter-reviewed role</span>{job.engagement_length ? <span className="badge">{job.engagement_length}</span> : null}</div><h1>{job.title}</h1><div className="public-job-company"><BriefcaseBusiness size={16}/><strong>{companyName || "Confidential Client"}</strong>{company?.verified_at ? <span className="badge badge-success">Verified client</span> : null}{companyHiresCount>0 ? <span>{companyHiresCount} hire{companyHiresCount===1?"":"s"}</span> : null}{job.published_at ? <span>Posted {dateShort(job.published_at)}</span> : null}{job.expires_at ? <span>Applications close {dateShort(job.expires_at)}</span> : null}</div>{job.summary ? <p>{job.summary}</p> : null}<div className="job-detail-facts"><div><WalletCards size={18}/><span>Compensation<strong>{rateText}</strong></span></div><div><Clock3 size={18}/><span>Hours<strong>{job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Flexible"}</strong></span></div><div><Globe2 size={18}/><span>Working region<strong>{job.timezone || "Flexible"}</strong></span></div></div></header>
+  const employerLabel = companyName || "Private employer";
+  const skillsAndTools = mergeUniqueStrings(job.required_skills, job.required_tools);
+  const responsibilities = uniqueStrings(job.responsibilities);
 
-        <section className="job-detail-section"><h2>About the role</h2><p>{job.description || "The client will share additional context during the hiring process."}</p><div className="job-detail-note"><strong>Location</strong><p>This is a 100% remote role for applicants based in the Philippines.</p></div></section>{company?<section className="job-detail-section company-public-card"><div className="row wrap">{company.logo_url?<img className="company-logo-public" src={company.logo_url} alt={`${companyName || "Company"} logo`}/>:null}<div><h2>About {companyName || "the client"}</h2><p className="small muted">{[company.industry,company.location,company.team_size?`${company.team_size} people`:null].filter(Boolean).join(" · ")}</p></div></div>{company.company_description?<p>{company.company_description}</p>:null}{companyWebsite?<a className="text-link" href={companyWebsite} target="_blank" rel="noreferrer">Visit company website</a>:null}</section>:null}
-        <section className="job-detail-section"><h2>What you will own</h2>{uniqueStrings(job.responsibilities).length ? <ul className="job-responsibility-list">{uniqueStrings(job.responsibilities).map((x,index)=><li key={`${String(x)}-${index}`}><CheckCircle2 size={17}/><span>{x}</span></li>)}</ul> : <p className="muted">Responsibilities will be discussed with recruiter-selected candidates.</p>}</section>
-        <section className="job-detail-section"><h2>Skills & tools</h2><div className="pill-list job-detail-skill-list">{mergeUniqueStrings(job.required_skills, job.required_tools).length ? mergeUniqueStrings(job.required_skills, job.required_tools).map((x,index)=><span className="badge" key={`${String(x)}-${index}`}>{x}</span>) : <span className="small muted">No specific tools listed.</span>}</div></section>
-        <section className="job-detail-section"><h2>Working setup</h2><div className="job-working-grid"><div><span>Live overlap</span><strong>{job.overlap_hours ? `${job.overlap_hours} hrs/day` : "Not required"}</strong></div><div><span>Start timing</span><strong>{job.start_timing || "Flexible"}</strong></div><div><span>Engagement</span><strong>{job.engagement_length || "Not specified"}</strong></div><div><span>Feedback</span><strong>{job.direct_feedback ? "Direct manager access" : "To be confirmed"}</strong></div></div>{job.schedule_notes ? <div className="job-detail-note"><strong>Schedule notes</strong><p>{job.schedule_notes}</p></div> : null}</section>
-        <section className="job-detail-section"><h2>How selection works</h2><p>Approved and bench-vetted Virtual Assistants can apply directly to published roles. The job poster is notified when you apply, while candidate identity and hiring actions stay protected until the role has the required candidate access. New applications begin in recruiter review.</p></section>
-      </article>
+  return (
+    <>
+      <SiteHeader />
+      <main id="main-content" className="public-job-detail">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+        <div className="container">
+          <Link className="profile-back-link" href="/jobs"><ArrowLeft size={15}/> Back to jobs</Link>
 
-      <aside className="public-job-sidebar"><div className="job-apply-card"><div className="job-apply-head"><span className="job-apply-eyebrow">Applications</span><span className="job-apply-rate">{rateText}</span><small>{job.hours_per_week ? `${job.hours_per_week} hours/week` : "Flexible weekly hours"}</small></div>{profile?.role === "va" ? applied ? <div className="success-state"><strong>Application submitted</strong><span className="small">Your application is in recruiter review. The job poster has been notified, and candidate details stay protected until candidate access is active.</span><Link className="btn" href="/workspace/va/applications">View my applications</Link></div> : vetted ? <form action={applyToJobAction} className="stack"><input type="hidden" name="job_id" value={job.id}/><div className="field"><label>Short note to the recruiter</label><textarea name="cover_note" minLength={20} maxLength={1500} placeholder="What experience or result is most relevant to this role?" required/><span className="small muted">Keep it specific. One or two short paragraphs is enough.</span></div><button className="btn btn-primary btn-lg" type="submit">Apply for this job</button><p className="small muted job-apply-note">Approved and bench-vetted VAs can apply. The employer is notified, but your private details stay protected until candidate access is active.</p></form> : <><div className="job-apply-lock"><ShieldCheck size={19}/><div><strong>Complete vetting to apply</strong><span>Once your vetting stage is approved or bench, you can apply directly to published jobs.</span></div></div><Link className="btn btn-primary" href="/workspace/va/vetting">Continue vetting</Link></> : <><p className="small muted">Create your free VA profile and complete vetting to apply to published client jobs.</p><Link className="btn btn-primary btn-lg" href={`/auth/join/va?next=${encodeURIComponent(canonicalHref)}`}>Create VA profile</Link><Link className="btn" href={`/auth/login?next=${encodeURIComponent(canonicalHref)}`}>Log in</Link></>}
-        {profile?.role === "va" ? <form action={saveJobAction}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={canonicalHref}/><button className="btn" style={{width:"100%"}} type="submit">{saved ? "Remove saved job" : "Save job"}</button></form> : null}<div className="job-apply-privacy"><ShieldCheck size={15}/><span>Your contact details stay private until the hiring workflow allows access.</span></div></div></aside>
-    </div>
-  </div></main><SiteFooter/></>;
+          {query.applied ? (
+            <div className="success-banner job-success-banner" role="status">
+              <CheckCircle2 size={17}/>
+              <div>
+                <strong>Application submitted.</strong>
+                <span>The employer has been notified and your application is now in recruiter review.</span>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="public-job-grid">
+            <article className="public-job-main">
+              <header className="public-job-hero-card">
+                <div className="job-detail-badges">
+                  <span className="badge badge-success"><ShieldCheck size={14}/> Recruiter reviewed</span>
+                  <span className="badge">Remote · Philippines</span>
+                </div>
+
+                <h1>{job.title}</h1>
+
+                <div className="job-employer-row">
+                  <div className="job-employer-mark"><BriefcaseBusiness size={18}/></div>
+                  <div>
+                    <span className="job-employer-label">Hiring company</span>
+                    <strong>{employerLabel}</strong>
+                  </div>
+                  {company?.verified_at ? <span className="badge badge-success">Verified employer</span> : null}
+                </div>
+
+                {job.summary ? <p className="job-hero-summary">{job.summary}</p> : null}
+
+                <div className="job-detail-facts">
+                  <div>
+                    <WalletCards size={18}/>
+                    <span>Compensation<strong>{rateText}</strong></span>
+                  </div>
+                  <div>
+                    <Clock3 size={18}/>
+                    <span>Hours<strong>{job.hours_per_week ? `${job.hours_per_week} hrs/week` : "Flexible"}</strong></span>
+                  </div>
+                  <div>
+                    <Globe2 size={18}/>
+                    <span>Working region<strong>{job.timezone || "Flexible"}</strong></span>
+                  </div>
+                  <div>
+                    <BriefcaseBusiness size={18}/>
+                    <span>Engagement<strong>{job.engagement_length || "Ongoing role"}</strong></span>
+                  </div>
+                </div>
+
+                <div className="job-post-meta">
+                  {job.published_at ? <span>Posted {dateShort(job.published_at)}</span> : null}
+                  {job.expires_at ? <span>Applications close {dateShort(job.expires_at)}</span> : null}
+                  {companyHiresCount > 0 ? <span>{companyHiresCount} previous hire{companyHiresCount === 1 ? "" : "s"}</span> : null}
+                </div>
+              </header>
+
+              <section className="job-detail-section">
+                <span className="job-section-kicker">Role overview</span>
+                <h2>About the role</h2>
+                <p>{job.description || "Additional role context will be shared with recruiter-selected candidates."}</p>
+              </section>
+
+              <section className="job-detail-section">
+                <span className="job-section-kicker">Responsibilities</span>
+                <h2>What you will own</h2>
+                {responsibilities.length ? (
+                  <ul className="job-responsibility-list">
+                    {responsibilities.map((item, index) => (
+                      <li key={`${String(item)}-${index}`}>
+                        <span className="job-check"><CheckCircle2 size={16}/></span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p className="muted">Responsibilities will be confirmed during recruiter review.</p>}
+              </section>
+
+              <section className="job-detail-section">
+                <span className="job-section-kicker">Requirements</span>
+                <h2>Skills and tools</h2>
+                <div className="pill-list job-detail-skill-list">
+                  {skillsAndTools.length
+                    ? skillsAndTools.map((item, index) => <span className="badge" key={`${String(item)}-${index}`}>{item}</span>)
+                    : <span className="small muted">No specific tools listed.</span>}
+                </div>
+              </section>
+
+              <section className="job-detail-section">
+                <span className="job-section-kicker">Schedule</span>
+                <h2>Working setup</h2>
+                <div className="job-working-grid">
+                  <div><span>Timezone</span><strong>{job.timezone || "Flexible"}</strong></div>
+                  <div><span>Live overlap</span><strong>{job.overlap_hours ? `${job.overlap_hours} hrs/day` : "Not required"}</strong></div>
+                  <div><span>Start</span><strong>{job.start_timing || "Flexible"}</strong></div>
+                  <div><span>Manager feedback</span><strong>{job.direct_feedback ? "Direct access" : "To be confirmed"}</strong></div>
+                </div>
+                {job.schedule_notes ? (
+                  <div className="job-detail-note"><strong>Schedule notes</strong><p>{job.schedule_notes}</p></div>
+                ) : null}
+              </section>
+
+              {company && (company.company_description || company.industry || company.location || company.team_size || companyWebsite) ? (
+                <section className="job-detail-section company-public-card">
+                  <span className="job-section-kicker">Employer</span>
+                  <div className="company-public-head">
+                    {company.logo_url ? <img className="company-logo-public" src={company.logo_url} alt={`${employerLabel} logo`}/> : <div className="company-logo-fallback"><BriefcaseBusiness size={18}/></div>}
+                    <div>
+                      <h2>About {employerLabel}</h2>
+                      <p className="small muted">{[company.industry, company.location, company.team_size ? `${company.team_size} people` : null].filter(Boolean).join(" · ")}</p>
+                    </div>
+                  </div>
+                  {company.company_description ? <p>{company.company_description}</p> : null}
+                  {companyWebsite ? <a className="text-link" href={companyWebsite} target="_blank" rel="noreferrer">Visit company website</a> : null}
+                </section>
+              ) : null}
+
+              <section className="job-detail-section job-hiring-process">
+                <span className="job-section-kicker">Hiring process</span>
+                <h2>What happens after you apply</h2>
+                <div className="job-process-grid">
+                  <div><span>1</span><strong>Apply</strong><p>Send a short note about the experience most relevant to this role.</p></div>
+                  <div><span>2</span><strong>Recruiter review</strong><p>VAPH checks role fit and your vetted profile before client presentation.</p></div>
+                  <div><span>3</span><strong>Employer review</strong><p>Approved candidates move into the client interview and decision flow.</p></div>
+                </div>
+              </section>
+            </article>
+
+            <aside className="public-job-sidebar">
+              <div className="job-apply-card">
+                <div className="job-apply-head">
+                  <span className="job-apply-eyebrow">Apply to this role</span>
+                  <span className="job-apply-rate">{rateText}</span>
+                  <small>{job.hours_per_week ? `${job.hours_per_week} hours/week` : "Flexible weekly hours"} · Remote</small>
+                </div>
+
+                <div className="job-sidebar-employer">
+                  <BriefcaseBusiness size={16}/>
+                  <div><span>Employer</span><strong>{employerLabel}</strong></div>
+                </div>
+
+                {profile?.role === "va" ? (
+                  applied ? (
+                    <div className="success-state">
+                      <strong>Application submitted</strong>
+                      <span className="small">Your application is in recruiter review. The employer has been notified.</span>
+                      <Link className="btn" href="/workspace/va/applications">View my applications</Link>
+                    </div>
+                  ) : vetted ? (
+                    <form action={applyToJobAction} className="stack">
+                      <input type="hidden" name="job_id" value={job.id}/>
+                      <div className="field">
+                        <label>Short note to the recruiter</label>
+                        <textarea name="cover_note" minLength={20} maxLength={1500} placeholder="What experience or result is most relevant to this role?" required/>
+                        <span className="small muted">Keep it specific. One or two short paragraphs is enough.</span>
+                      </div>
+                      <button className="btn btn-primary btn-lg job-apply-primary" type="submit">Apply for this job</button>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="job-apply-lock">
+                        <ShieldCheck size={19}/>
+                        <div><strong>Complete vetting to apply</strong><span>Approved and bench-vetted VAs can apply directly to published roles.</span></div>
+                      </div>
+                      <Link className="btn btn-primary" href="/workspace/va/vetting">Continue vetting</Link>
+                    </>
+                  )
+                ) : (
+                  <>
+                    <div className="job-apply-intro">
+                      <strong>Vetted VAs can apply directly.</strong>
+                      <p>Log in to use your existing profile, or create a free VA profile and complete vetting.</p>
+                    </div>
+                    <Link className="btn btn-primary btn-lg job-apply-primary" href={`/auth/login?next=${encodeURIComponent(canonicalHref)}`}>Log in to apply</Link>
+                    <Link className="btn" href={`/auth/join/va?next=${encodeURIComponent(canonicalHref)}`}>Create VA profile</Link>
+                  </>
+                )}
+
+                {profile?.role === "va" ? (
+                  <form action={saveJobAction}>
+                    <input type="hidden" name="job_id" value={job.id}/>
+                    <input type="hidden" name="return_to" value={canonicalHref}/>
+                    <button className="btn" style={{ width: "100%" }} type="submit">{saved ? "Remove saved job" : "Save job"}</button>
+                  </form>
+                ) : null}
+
+                <div className="job-apply-privacy">
+                  <ShieldCheck size={15}/>
+                  <span>Your private contact details stay protected until candidate access is active.</span>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+      <SiteFooter/>
+    </>
+  );
 }

@@ -94,52 +94,6 @@ export async function convertLeadToJobAction(formData: FormData) {
 }
 
 /**
- * Bulk-approves every VA currently mid-pipeline (not already
- * approved/bench/rejected) who reports 2+ years of experience, skipping the
- * remaining skills test / video / recruiter review steps. This is a
- * deliberate shortcut to clear a real backlog quickly, not a permanent
- * replacement for the normal pipeline -- use sparingly.
- */
-export async function bulkApproveExperiencedVAsAction() {
-  await requireRole("admin");
-  const admin = createAdminClient();
-
-  const { data: pending } = await admin.from("va_vetting").select("va_id").or("stage.is.null,and(stage.neq.approved,stage.neq.bench,stage.neq.rejected)");
-  const pendingIds = (pending || []).map((row: any) => row.va_id);
-  const { data: experienced } = pendingIds.length
-    ? await admin
-        .from("recruiter_va_directory")
-        .select("user_id,completion_score,years_experience")
-        .in("user_id", pendingIds)
-        .gte("years_experience", 2)
-        .gte("completion_score", APPROVAL_MIN_COMPLETION)
-    : { data: [] as any[] };
-  const ids = (experienced || []).filter(isRowApprovable).map((row: any) => row.user_id);
-  if (!ids.length) {
-    revalidatePath("/workspace/admin/vetting");
-    return { approved: 0 };
-  }
-
-  const now = new Date().toISOString();
-  await admin.from("va_vetting").update({ stage: "approved", approved_at: now, admin_notes: `Bulk-approved: 2+ years experience and ${APPROVAL_MIN_COMPLETION}%+ profile completion (skipped remaining vetting steps).` }).in("va_id", ids);
-  await admin.from("notifications").insert(ids.map((id: string) => ({
-    user_id: id,
-    title: "Your Virtual Assistant profile is approved",
-    body: "Your profile has been approved based on your experience level. You can now apply to published roles and appear in client matching.",
-    href: "/workspace/va/vetting"
-  })));
-
-  revalidatePath("/workspace/admin/vetting");
-  revalidatePath("/workspace/recruiter/queue");
-  return { approved: ids.length };
-}
-
-export async function bulkApproveExperiencedVAsFormAction() {
-  await bulkApproveExperiencedVAsAction();
-  redirect("/workspace/admin/vetting?bulk_approved=1");
-}
-
-/**
  * Emails every VA currently stuck at the very first vetting stage
  * ("profile") encouraging them to finish it. Triggered manually by an
  * admin so it can never turn into an automatic spam loop.

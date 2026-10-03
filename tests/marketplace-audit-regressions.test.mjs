@@ -38,13 +38,15 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   const [page, service, migration, edge, edgeConfig] = await Promise.all([
     read("src/app/find-talent/page.tsx"),
     read("src/lib/talent-search.ts"),
-    read("supabase/migrations/20260924204500_public_talent_hybrid_search.sql"),
+    read("supabase/migrations/20261003095000_talent_rate_filter_search.sql"),
     read("supabase/functions/talent-embeddings/index.ts"),
     read("supabase/config.toml"),
   ]);
   assert.match(page, /searchPublicTalent/);
   assert.doesNotMatch(page, /\.limit\(200\)/);
-  assert.match(service, /search_public_va_directory_hybrid/);
+  assert.match(service, /search_public_va_directory_hybrid_v2/);
+  assert.match(service, /p_min_rate/);
+  assert.match(service, /p_max_rate/);
   assert.match(service, /syncPublicTalentEmbeddings/);
   assert.match(service, /await syncPublicTalentEmbeddings\(12\)/);
   assert.match(service, /page === 1/);
@@ -60,7 +62,9 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   assert.match(edge, /upsert_public_va_search_embedding/);
   assert.match(edgeConfig, /\[functions\.talent-embeddings\]/);
   assert.match(edgeConfig, /verify_jwt = false/);
-  assert.match(migration, /create extension if not exists vector/i);
+  assert.match(migration, /search_public_va_directory_hybrid_v2/);
+  assert.match(migration, /p_min_rate numeric/);
+  assert.match(migration, /p_max_rate numeric/);
   assert.match(migration, /private\.public_va_directory_rows\(\)/);
   assert.match(migration, /websearch_to_tsquery/);
   assert.match(migration, /vector_cosine_ops/);

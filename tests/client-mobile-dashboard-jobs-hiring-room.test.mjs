@@ -13,12 +13,13 @@ test("client dashboard is compact and decision-first on phones", async () => {
 
   assert.match(layout, /client-mobile\.css/);
   assert.match(page, /client-mobile-dashboard/);
-  assert.match(page, /client-mobile-workflow/);
-  assert.match(page, /client-mobile-attention/);
-  assert.match(page, /client-mobile-pipeline/);
-  assert.match(css, /Client workspace mobile completion pass/);
-  assert.match(css, /\.client-mobile-workflow \.workflow-steps[\s\S]*grid-auto-columns: minmax\(116px, 1fr\)/);
-  assert.match(css, /\.client-mobile-after-onboarding[\s\S]*grid-template-columns: 1fr/);
+  assert.match(page, /client-dashboard-simplified/);
+  assert.match(page, /client-dashboard-next/);
+  assert.match(page, /client-dashboard-roles/);
+  assert.match(page, /client-dashboard-recruiter/);
+  assert.match(css, /Client dashboard simplified decision hierarchy/);
+  assert.match(css, /\.client-dashboard-next[\s\S]*grid-template-columns: 36px minmax\(0, 1fr\)/);
+  assert.match(css, /\.client-dashboard-placement \.btn[\s\S]*min-height: 44px/);
 });
 
 test("client hiring requests render as decision-first role cards on mobile", async () => {

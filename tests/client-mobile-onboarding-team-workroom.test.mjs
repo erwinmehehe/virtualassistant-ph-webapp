@@ -15,16 +15,17 @@ test("client onboarding becomes a compact phone flow", async () => {
     "client-onboarding-hero",
     "client-onboarding-form",
     "client-onboarding-step",
+    "client-onboarding-layout",
     "client-onboarding-budget-grid",
     "client-onboarding-finish",
   ]) {
     assert.match(page, new RegExp(className));
   }
 
-  assert.match(css, /Client mobile pass: onboarding, My Team, workroom/);
-  assert.match(css, /\.client-onboarding-step input,[\s\S]*font-size: 16px/);
+  assert.match(css, /Client workspace canonical 2026-10: dashboard, onboarding, workroom/);
+  assert.match(css, /\.client-onboarding-layout[\s\S]*grid-template-columns: minmax\(0, 1\.45fr\) minmax\(280px, \.55fr\)/);
   assert.match(css, /\.client-onboarding-finish \.btn[\s\S]*min-height: 46px/);
-  assert.match(css, /@media \(max-width: 420px\)[\s\S]*\.client-onboarding-budget-grid[\s\S]*grid-template-columns: 1fr/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.client-onboarding-company-grid,[\s\S]*\.client-onboarding-budget-grid[\s\S]*grid-template-columns: 1fr/);
 });
 
 test("My Team makes placement health and check-ins tappable on phones", async () => {
@@ -50,28 +51,35 @@ test("My Team makes placement health and check-ins tappable on phones", async ()
   assert.match(css, /\.client-team-actions \.btn[\s\S]*min-height: 44px/);
 });
 
-test("client workroom converts tasks and time review into a mobile-first flow", async () => {
-  const [page, css] = await Promise.all([
+test("client workroom is action-first and keeps VA task execution with the VA", async () => {
+  const [page, css, action] = await Promise.all([
     read("src/app/workspace/client/workroom/page.tsx"),
     read("src/app/workspace/client/client-mobile.css"),
+    read("src/app/actions/workroom.ts"),
   ]);
 
   for (const className of [
     "client-workroom-page",
     "client-workroom-card",
-    "client-workroom-terms",
+    "client-workroom-attention",
     "client-workroom-main-grid",
     "client-workroom-task-form",
-    "client-workroom-task-table",
-    "client-workroom-time-table",
+    "client-workroom-task-list",
+    "client-workroom-task-row",
+    "client-workroom-time-list",
+    "client-workroom-task-list",
+    "client-workroom-time-list",
     "client-workroom-time-review-panel",
   ]) {
     assert.match(page, new RegExp(className));
   }
 
+  assert.match(page, /Accept as done/);
+  assert.doesNotMatch(page, /<option value="in_progress">In progress<\/option>/);
+  assert.match(action, /Clients can only accept tasks that are ready for review/);
+  assert.match(action, /Submit the task for client review instead of marking it done/);
   assert.match(css, /\.client-workroom-main-grid[\s\S]*grid-template-columns: 1fr/);
-  assert.match(css, /\.client-workroom-task-table thead,[\s\S]*display: none/);
-  assert.match(css, /\.client-workroom-task-status select[\s\S]*font-size: 16px/);
+  assert.match(css, /\.client-workroom-task-row[\s\S]*grid-template-columns: 1fr/);
   assert.match(css, /\.client-workroom-time-review-panel textarea[\s\S]*font-size: 16px/);
   assert.match(css, /@media \(max-width: 420px\)[\s\S]*\.client-workroom-stats[\s\S]*grid-template-columns: 1fr/);
 });

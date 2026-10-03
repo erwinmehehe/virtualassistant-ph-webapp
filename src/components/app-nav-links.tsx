@@ -43,17 +43,27 @@ const nav: Record<Role, readonly NavGroup[]> = {
       items: [
         ["Overview", "/workspace/client", LayoutDashboard],
         ["Hiring", "/workspace/client/jobs", BriefcaseBusiness],
-        ["Proposals", "/workspace/client/proposals", FileText],
-        ["Hiring Room", "/workspace/client/candidates", UsersRound],
         ["Messages", "/workspace/client/messages", MessageCircle],
+        ["My Team", "/workspace/client/team", UsersRound],
+        ["Payments", "/workspace/client/payments", CircleDollarSign],
+        ["Account settings", "/workspace/account", Settings],
+      ],
+    },
+    {
+      label: "Hiring stages",
+      items: [
+        ["Hiring Room", "/workspace/client/candidates", UsersRound],
         ["Interviews", "/workspace/client/interviews", CalendarDays],
         ["Offers", "/workspace/client/offers", ClipboardCheck],
-        ["My Team", "/workspace/client/team", UsersRound],
+        ["Proposals", "/workspace/client/proposals", FileText],
         ["Workroom", "/workspace/client/workroom", Wrench],
+      ],
+    },
+    {
+      label: "More",
+      items: [
         ["Notifications", "/workspace/client/notifications", Bell],
-        ["Payments", "/workspace/client/payments", CircleDollarSign],
         ["Support", "/workspace/client/support", LifeBuoy],
-        ["Account settings", "/workspace/account", Settings],
       ],
     },
   ],
@@ -62,16 +72,22 @@ const nav: Record<Role, readonly NavGroup[]> = {
       label: "Workspace",
       items: [
         ["Home", "/workspace/va", LayoutDashboard],
-        ["Profile", "/workspace/va/profile", CircleUserRound],
         ["Opportunities", "/workspace/va/jobs", Search],
-        ["Interviews", "/workspace/va/interviews", CalendarDays],
-        ["Recruiter messages", "/workspace/va/messages", MessageCircle],
+        ["Applications", "/workspace/va/applications", BriefcaseBusiness],
+        ["Profile", "/workspace/va/profile", CircleUserRound],
         ["My Placement", "/workspace/va/workroom", Wrench],
+        ["Recruiter messages", "/workspace/va/messages", MessageCircle],
+        ["Account settings", "/workspace/account", Settings],
+      ],
+    },
+    {
+      label: "Growth & support",
+      items: [
+        ["Vetting", "/workspace/va/vetting", ShieldCheck],
         ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
         ["Training", "/workspace/training", GraduationCap],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
         ["Support", "/workspace/va/support", LifeBuoy],
-        ["Account settings", "/workspace/account", Settings],
       ],
     },
   ],
@@ -134,7 +150,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
 
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/candidates", "/workspace/client/messages"],
-  va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/workroom", "/workspace/va/support"],
+  va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/workroom"],
   recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/crm", "/workspace/recruiter/messages", "/workspace/recruiter/roles"],
   admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };

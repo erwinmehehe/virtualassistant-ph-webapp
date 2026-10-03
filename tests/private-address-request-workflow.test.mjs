@@ -4,18 +4,19 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("VA home address is optional and no longer promoted as a profile blocker", async () => {
-  const [action, dashboard, profile] = await Promise.all([
+test("VA home address is not part of routine profile or onboarding UX", async () => {
+  const [action, dashboard, profile, onboarding] = await Promise.all([
     read("src/app/actions/profile.ts"),
     read("src/app/workspace/va/page.tsx"),
     read("src/app/workspace/va/profile/page.tsx"),
+    read("src/app/workspace/va/onboarding/page.tsx"),
   ]);
-  assert.doesNotMatch(action, /if \(address\.length < 5/);
-  assert.match(action, /if \(address &&/);
+  assert.match(action, /formData\.has\("address"\)/);
   assert.doesNotMatch(dashboard, /title:"Add your address"/);
-  assert.match(profile, /Current home address/);
-  assert.match(profile, /optional, private/);
-  assert.doesNotMatch(profile.match(/name="address"[\s\S]{0,300}/)?.[0] || "", /required/);
+  assert.doesNotMatch(profile, /name="address"/);
+  assert.doesNotMatch(profile, /Current home address/);
+  assert.doesNotMatch(onboarding, /name="address"/);
+  assert.doesNotMatch(onboarding, /Private address/);
 });
 
 test("recruiter UI cannot send private-address requests", async () => {

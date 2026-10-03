@@ -35,5 +35,5 @@ test("client mobile primary follows the hiring decision flow while support remai
   assert.match(nav,/\["Support", "\/workspace\/client\/support", LifeBuoy\]/);
   assert.match(nav,/\["Support", "\/workspace\/va\/support", LifeBuoy\]/);
   assert.match(nav,/client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/candidates", "\/workspace\/client\/messages"\]/);
-  assert.match(nav,/va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/workroom", "\/workspace\/va\/support"\]/);
+  assert.match(nav,/va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/applications", "\/workspace\/va\/workroom"\]/);
 });

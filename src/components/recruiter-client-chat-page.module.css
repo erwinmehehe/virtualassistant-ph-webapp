@@ -20,3 +20,7 @@
   .threadMeta{min-width:28px}
   .chatPane{width:100%}
 }
+
+.roleContext{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #e4e7ec;border-radius:13px;background:#fcfcfd}.roleContext>div{display:grid;gap:2px;min-width:0}.roleContext strong{overflow-wrap:anywhere;color:#101828;font-size:13px}.roleContext small{color:#667085;font-size:10px}
+@media(max-width:560px){.roleContext{align-items:stretch;flex-direction:column}.roleContext .btn{width:100%;justify-content:center}}
+.roleContext{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;border:1px solid #e4e7ec;border-radius:13px;background:#fff}.roleContext>div{display:grid;gap:2px;min-width:0}.roleContext span{color:#667085;font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.05em}.roleContext strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.roleContext small{color:#667085;font-size:10px;text-transform:capitalize}@media(max-width:480px){.roleContext{align-items:stretch;flex-direction:column}.roleContext .btn{width:100%;min-height:40px;justify-content:center}}

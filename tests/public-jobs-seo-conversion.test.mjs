@@ -54,8 +54,12 @@ test("jobs hub and comparison guide reinforce separate search intents", () => {
 test("employers can draft and preview a job before account creation", () => {
   assert.match(postJobPublicPage, /Build the role before creating an account/);
   assert.match(postJobPublicPage, /<JobWizard publicMode/);
-  assert.match(jobWizard, /const steps = \["Describe the role", "Schedule & pay", "Preview & post"\]/);
+  assert.match(jobWizard, /const steps = \["Describe the work", "Schedule & pay", "Preview & post"\]/);
   assert.match(jobWizard, /publicMode \? "Create free account to post"/);
+  assert.match(jobWizard, /What should your VA handle\?/);
+  assert.match(jobWizard, /job-post-preview/);
+  assert.doesNotMatch(jobWizard, /if \(data\.title\.trim\(\)\.length < 3\) next\.title/);
+  assert.doesNotMatch(jobWizard, /if \(!selectedCategories\.length\) next\.categories/);
   assert.match(jobWizard, /Plain English is enough/);
   assert.match(jobWizard, /starterBriefValues/);
   assert.match(jobWizard, /window\.location\.assign\("\/auth\/join\/client\?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew%3Ffrom_post%3D1"\)/);

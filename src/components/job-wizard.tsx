@@ -7,7 +7,7 @@ import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { ROLE_TEMPLATES, type RoleTemplate } from "@/lib/role-templates";
 
-const steps = ["Describe the role", "Schedule & pay", "Preview & post"] as const;
+const steps = ["Describe the work", "Schedule & pay", "Preview & post"] as const;
 
 const COMMON_SKILLS = [
   "Administrative support", "Calendar management", "Inbox management", "Customer service",

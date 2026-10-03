@@ -17,7 +17,7 @@ test("VA applications require a vetted VA, an open moderated role, and reject du
 test("recruiter shortlist release cannot bypass client-review guardrails", async () => {
   const matching = await read("src/app/actions/matching.ts");
 
-  assert.match(matching, /mode === "release" && selected\.length > 5/);
+  assert.match(matching, /\["release", "invite"\]\.includes\(mode\) && selected\.length > 5/);
   assert.match(matching, /mode === "release" && !job\.client_id/);
   assert.match(matching, /mode === "release" && job\.status !== "published"/);
   assert.match(matching, /mode === "release" && commercial\?\.commercial_status !== "accepted"/);

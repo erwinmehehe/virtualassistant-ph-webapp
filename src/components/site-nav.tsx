@@ -4,6 +4,7 @@ import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { trainingJoinHref, trainingLoginHref } from "@/lib/training-intent";
 import { TrainingSectionObserver } from "@/components/training-section-observer";
+import { getSessionProfile } from "@/lib/auth";
 
 const serviceGroups = Array.from(
   SERVICE_PAGES.reduce((groups, page) => {
@@ -122,7 +123,7 @@ function TrainingNav({
   );
 }
 
-export function SiteNav({
+export async function SiteNav({
   mode = "default",
   trainingCourseSlug,
   trainingCurrent = "landing",
@@ -140,6 +141,8 @@ export function SiteNav({
   const isTrainingContext = actionContext === "training";
   const trainingContextLoginHref = trainingLoginHref();
   const trainingContextJoinHref = trainingJoinHref();
+  const { user, profile } = await getSessionProfile();
+  const workspaceHref = profile?.role === "client" ? "/workspace/client" : profile?.role === "va" ? "/workspace/va" : profile?.role === "recruiter" ? "/workspace/recruiter/today" : profile?.role === "admin" ? "/workspace/admin/today" : "/workspace";
 
   return (
     <header className="site-header va-site-nav">
@@ -189,6 +192,8 @@ export function SiteNav({
         <div className="nav-actions">
           {isTrainingContext ? (
             <Link className="va-nav-account-login" href={trainingContextLoginHref} data-track="training_login_click">Training login</Link>
+          ) : user ? (
+            <Link className="va-nav-account-login" href={workspaceHref}>My workspace</Link>
           ) : (
             <Link className="va-nav-account-login" href={ACCOUNT_LOGIN}>Log in</Link>
           )}
@@ -202,6 +207,10 @@ export function SiteNav({
             >
               Start free training <ArrowRight size={14} aria-hidden="true"/>
             </Link>
+          ) : profile?.role === "client" ? (
+            <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/workspace/client/jobs/new">Post a job</Link>
+          ) : profile?.role === "va" ? (
+            <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/jobs">Browse VA jobs</Link>
           ) : (
             <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
           )}
@@ -218,6 +227,10 @@ export function SiteNav({
                 >
                   Start free training
                 </Link>
+              ) : profile?.role === "client" ? (
+                <Link className="mobile-menu-primary" href="/workspace/client/jobs/new">Post a job</Link>
+              ) : profile?.role === "va" ? (
+                <Link className="mobile-menu-primary" href="/jobs">Browse VA jobs</Link>
               ) : (
                 <Link className="mobile-menu-primary" href="/hire">Hire a Virtual Assistant</Link>
               )}
@@ -232,12 +245,14 @@ export function SiteNav({
               {!isTrainingContext ? (
                 <>
                   <Link href="/jobs">Browse Virtual Assistant jobs</Link>
-                  <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
+                  {!user ? <Link href="/auth/join/va">Apply as a Virtual Assistant</Link> : null}
                 </>
               ) : null}
               <span className="va-mobile-panel-label">Account</span>
               {isTrainingContext ? (
                 <Link href={trainingContextLoginHref} data-track="training_login_click">Training login</Link>
+              ) : user ? (
+                <Link href={workspaceHref}>My workspace</Link>
               ) : (
                 <Link href={ACCOUNT_LOGIN}>Log in</Link>
               )}

@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { clientMatchLabel } from "@/lib/matching";
 import { uniqueStrings } from "@/lib/collections";
 import { recordProductEvent } from "@/lib/product-events";
-import { candidateAccessUnlocked } from "@/lib/candidate-access";
+import { candidateAccessUnlocked, candidatePrivateEvidencePaid } from "@/lib/candidate-access";
 import { CandidateAccessGate } from "@/components/candidate-access-gate";
 import { maskVaName } from "@/lib/va-identity";
 import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
@@ -32,8 +32,11 @@ export default async function CandidateReviewPage({params}:{params:Promise<{id:s
   await recordProductEvent("candidate_viewed",{userId:userId,path:`/workspace/client/candidates/${id}`,metadata:{application_id:id,job_id:summary.job_id,recruiter_released:true}});
   try{const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();const {count}=await admin.from("recruiter_activity").select("id",{count:"exact",head:true}).eq("subject_type","va").eq("subject_id",summary.va_id).eq("action","client_viewed").gte("created_at",cutoff).contains("metadata",{application_id:id});if(!count)await admin.from("recruiter_activity").insert({subject_type:"va",subject_id:summary.va_id,action:"client_viewed",description:`Client viewed recruiter-released candidate for ${job?.title||"role"}`,actor_id:userId,metadata:{application_id:id,job_id:summary.job_id}});}catch{}
 
+  const privateEvidencePaid = candidatePrivateEvidencePaid(access?.access_status);
   const [{data:vetting},trainingCredentials]=await Promise.all([
-    admin.from("va_vetting").select("video_url").eq("va_id",summary.va_id).maybeSingle(),
+    privateEvidencePaid
+      ? admin.from("va_vetting").select("video_url").eq("va_id",summary.va_id).maybeSingle()
+      : Promise.resolve({data:null}),
     getTrainingCredentialsForUser(summary.va_id),
   ]);
   const profile:any=summary.profile_snapshot||{};const score=Number(shortlist.match_score??summary.match_score??0);
@@ -47,7 +50,7 @@ export default async function CandidateReviewPage({params}:{params:Promise<{id:s
         {shortlist.client_recommendation?<div className="info-banner" style={{marginTop:16}}><strong>Why we recommend this VA</strong><p style={{margin:"6px 0 0"}}>{shortlist.client_recommendation}</p></div>:null}
         <h2>Professional summary</h2><p className="muted profile-copy">{profile.bio||"This VA has completed our screening process. Your recruiter can provide additional role-specific context."}</p>
         {summary.cover_note?<><h2>VA interest note</h2><div className="detail-note"><p>{summary.cover_note}</p></div></>:null}
-        {vetting?.video_url?<><h2>Vetting video</h2><div className="candidate-video-row client-candidate-video-row"><PlayCircle size={20}/><div><strong>Recorded introduction</strong><span className="small muted">Recorded during vetting and provided as supporting evidence.</span></div><a className="btn btn-primary" href={vetting.video_url} target="_blank" rel="noopener noreferrer">Watch video</a></div></>:null}
+        {vetting?.video_url?<><h2>Vetting video</h2><div className="candidate-video-row client-candidate-video-row"><PlayCircle size={20}/><div><strong>Recorded introduction</strong><span className="small muted">Paid candidate access is active. This private vetting evidence is provided for hiring review and remains subject to the anti-circumvention terms.</span></div><a className="btn btn-primary" href={vetting.video_url} target="_blank" rel="noopener noreferrer">Watch video</a></div></>:null}
         <div className="grid-2 client-candidate-skill-grid"><section><h2>Skills</h2><div className="pill-list">{uniqueStrings(profile.skills).length?uniqueStrings(profile.skills).map((value,index)=><span className="badge" key={`${String(value)}-${index}`}>{value}</span>):<span className="small muted">No skills listed.</span>}</div></section><section><h2>Tools</h2><div className="pill-list">{uniqueStrings(profile.tools).length?uniqueStrings(profile.tools).map((value,index)=><span className="badge" key={`${String(value)}-${index}`}>{value}</span>):<span className="small muted">No tools listed.</span>}</div></section></div>
         {uniqueStrings(profile.industries).length?<><h2>Industries</h2><div className="pill-list">{uniqueStrings(profile.industries).map((value,index)=><span className="badge" key={`${String(value)}-${index}`}>{value}</span>)}</div></>:null}
         <TrainingCredentials credentials={trainingCredentials} heading="Training completed"/>

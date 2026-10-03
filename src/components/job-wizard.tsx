@@ -170,7 +170,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       : <input key={key} type="hidden" name={key} value={value}/>) }
 
     <aside className="wizard-steps" aria-label="Job form steps">
-      {steps.map((label, index) => <button key={label} type="button" className={`wizard-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`} onClick={() => index <= step ? setStep(index) : undefined}>
+      {steps.map((label, index) => <button key={label} type="button" className={`wizard-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`} onClick={() => index <= step ? setStep(index) : undefined} disabled={index > step} aria-current={index === step ? "step" : undefined}>
         <span className="wizard-number">{index < step ? <CheckCircle2 size={15}/> : index + 1}</span><span>{label}</span>
       </button>)}
     </aside>
@@ -261,7 +261,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>Continue</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save role changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Submit job for review"}</button>}</div>
+        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>{step === 0 ? "Continue to schedule & pay" : "Preview job"}</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save role changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Submit job for review"}</button>}</div>
       </div>
     </div>
   </form>;

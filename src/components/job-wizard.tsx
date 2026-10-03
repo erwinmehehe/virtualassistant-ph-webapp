@@ -9,7 +9,10 @@ import { ROLE_TEMPLATES, type RoleTemplate } from "@/lib/role-templates";
 import { suggestJobDraft } from "@/lib/job-draft-suggestions";
 import { isPublishableCompanyName } from "@/lib/job-publication";
 
-const steps = ["Describe the work", "Schedule & pay", "Preview & post"] as const;
+const steps = ["Role & outcomes", "Schedule & budget", "Review & submit"] as const;
+const stepDescriptions = ["Start with the outcome. We can help shape the hiring brief around it.","Set working hours, timezone and VA compensation.","Review the complete role before submitting."] as const;
+const HOURS_PRESETS = ["10", "20", "30", "40"] as const;
+const START_PRESETS = ["ASAP", "Within 2 weeks", "Within a month", "Flexible"] as const;
 
 const COMMON_SKILLS = [
   "Administrative support", "Calendar management", "Inbox management", "Customer service",
@@ -173,14 +176,20 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
 
     <aside className="wizard-steps" aria-label="Job form steps">
       {steps.map((label, index) => <button key={label} type="button" className={`wizard-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`} onClick={() => index <= step ? setStep(index) : undefined} disabled={index > step} aria-current={index === step ? "step" : undefined}>
-        <span className="wizard-number">{index < step ? <CheckCircle2 size={15}/> : index + 1}</span><span>{label}</span>
+        <span className="wizard-number">{index < step ? <CheckCircle2 size={15}/> : index + 1}</span>
+        <span className="wizard-step-copy"><strong>{label}</strong><small>{index < step ? "Complete" : index === step ? "Current step" : "Up next"}</small></span>
       </button>)}
     </aside>
 
     <div className="wizard-panel">
       <div className="wizard-head row-between wrap">
-        <div><div className="wizard-step-label">Step {step + 1} of 3</div><h2>{steps[step]}</h2>{requestedVaName ? <p className="small muted wizard-requested">Requested VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}</div>
-        <div className="wizard-save"><span>{savedAt ? `Draft saved on this device at ${savedAt}` : "Local autosave is on"}</span>{publicMode ? null : <button className="btn btn-sm" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
+        <div className="wizard-head-copy">
+          <div className="wizard-step-label">Step {step + 1} of 3</div>
+          <h2>{steps[step]}</h2>
+          <p>{stepDescriptions[step]}</p>
+          {requestedVaName ? <p className="small muted wizard-requested">Preferred VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}
+        </div>
+        <div className="wizard-save"><span>{savedAt ? `Saved at ${savedAt}` : "Autosave on"}</span>{publicMode ? null : <button className="text-button" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
 
@@ -204,10 +213,10 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
             <div className="field span-2"><label>Detailed responsibilities <span className="muted">(optional)</span></label><textarea className="textarea-mini" value={data.responsibilities} onChange={(e) => set("responsibilities", e.target.value)} placeholder={'Manage calendar and meeting requests\nTriage inbox and draft replies\nTrack follow-ups and weekly priorities'}/></div>
           </div>
         </details>
-      </div> : <div className="form-grid">
-        <div className="field span-2"><label>What do you need this person to own?</label><textarea className="textarea-compact post-job-primary-input" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." autoFocus aria-invalid={Boolean(errors.summary)}/><span className="small muted">Write the work in your own words. If you leave the fields below blank, the next step fills in a draft title, specialty, skills, and responsibilities for review.</span>{error("summary")}</div>
-        <div className="field span-2"><label>Company name</label><input value={data.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Acme Studio" aria-invalid={Boolean(errors.company_name)}/><span className="small muted">Published job posts always show the company name.</span>{error("company_name")}</div>
-        <div className="field span-2"><label>Job title <span className="muted">(optional, we can suggest one)</span></label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder" aria-invalid={Boolean(errors.title)}/>{error("title")}</div>
+      </div> : <div className="form-grid wizard-role-grid">
+        <div className="field span-2 wizard-primary-card"><label>What should this person take off your plate?</label><textarea className="textarea-compact post-job-primary-input" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." autoFocus aria-invalid={Boolean(errors.summary)}/><span className="small muted">Describe the outcome in plain English. We can suggest the title, specialty, skills and responsibilities from this.</span>{error("summary")}</div>
+        <div className="field"><label>Company name</label><input value={data.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Acme Studio" aria-invalid={Boolean(errors.company_name)}/><span className="small muted">Published job posts always show the company name.</span>{error("company_name")}</div>
+        <div className="field"><label>Job title <span className="muted">(we can suggest one)</span></label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder" aria-invalid={Boolean(errors.title)}/>{error("title")}</div>
         <div className="field span-2"><label>Specialty <span className="muted">(optional, choose up to 3)</span></label><div className="category-picker category-picker-tight">{VA_CATEGORIES.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip ${selectedCategories.includes(item) ? "selected" : ""}`} onClick={() => toggleCategory(item)} disabled={!selectedCategories.includes(item) && selectedCategories.length >= 3}>{selectedCategories.includes(item) ? <Check size={13}/> : null}{item}</button>)}</div>{error("categories")}</div>
         <div className="field span-2"><label>Required skills <span className="muted">(optional, we can suggest these)</span></label><input value={data.required_skills} onChange={(e) => set("required_skills", e.target.value)} placeholder="Calendar management, inbox management"/><div className="suggestion-chips">{COMMON_SKILLS.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip compact ${hasCsvItem("required_skills", item) ? "selected" : ""}`} onClick={() => toggleCsvItem("required_skills", item)}>{item}</button>)}</div>{error("required_skills")}</div>
         <details className="wizard-optional span-2">
@@ -220,12 +229,12 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       </div> : null}
 
             {step === 1 ? <div className="stack wizard-budget-step">
-        <div className="form-grid">
-          <div className="field"><label>Hours per week</label><input type="number" min="1" max="80" value={data.hours_per_week} onChange={(e) => set("hours_per_week", e.target.value)} aria-invalid={Boolean(errors.hours_per_week)}/>{error("hours_per_week")}</div>
-          <div className="field"><label>Timezone / working region</label><input value={data.timezone} onChange={(e) => set("timezone", e.target.value)} placeholder="Australia/Sydney or US Eastern" aria-invalid={Boolean(errors.timezone)}/>{error("timezone")}</div>
-          <div className="field"><label>Minimum hourly rate, USD</label><input type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.min_hourly_rate} onChange={(e) => set("min_hourly_rate", e.target.value)} aria-invalid={Boolean(errors.min_hourly_rate)}/>{error("min_hourly_rate")}</div>
-          <div className="field"><label>Maximum hourly rate, USD <span className="muted">(optional)</span></label><input type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.max_hourly_rate} onChange={(e) => set("max_hourly_rate", e.target.value)} placeholder="12" aria-invalid={Boolean(errors.max_hourly_rate)}/>{error("max_hourly_rate")}</div>
-          <div className="field span-2"><label>When do you want them to start? <span className="muted">(optional)</span></label><input value={data.start_timing} onChange={(e) => set("start_timing", e.target.value)} placeholder="Within 2 weeks"/></div>
+        <div className="form-grid wizard-schedule-grid">
+          <div className="field"><label>Hours per week</label><input type="number" min="1" max="80" value={data.hours_per_week} onChange={(e) => set("hours_per_week", e.target.value)} aria-invalid={Boolean(errors.hours_per_week)}/><div className="wizard-choice-row" aria-label="Common weekly hours">{HOURS_PRESETS.map((value)=><button type="button" key={value} className={`wizard-choice ${data.hours_per_week===value?"selected":""}`} onClick={()=>set("hours_per_week",value)}>{value} hrs</button>)}</div>{error("hours_per_week")}</div>
+          <div className="field"><label>Timezone / working region</label><input list="job-timezones" value={data.timezone} onChange={(e) => set("timezone", e.target.value)} placeholder="Australia/Sydney or US Eastern" aria-invalid={Boolean(errors.timezone)}/><datalist id="job-timezones"><option value="Australia/Sydney"/><option value="Australia/Melbourne"/><option value="Australia/Brisbane"/><option value="Europe/London"/><option value="America/New_York"/><option value="America/Chicago"/><option value="America/Los_Angeles"/></datalist><span className="small muted">Use the timezone the VA should work around.</span>{error("timezone")}</div>
+          <div className="field"><label>Minimum hourly rate, USD</label><div className="wizard-money-input"><span>$</span><input type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.min_hourly_rate} onChange={(e) => set("min_hourly_rate", e.target.value)} aria-invalid={Boolean(errors.min_hourly_rate)}/></div>{error("min_hourly_rate")}</div>
+          <div className="field"><label>Maximum hourly rate, USD <span className="muted">(optional)</span></label><div className="wizard-money-input"><span>$</span><input type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.max_hourly_rate} onChange={(e) => set("max_hourly_rate", e.target.value)} placeholder="12" aria-invalid={Boolean(errors.max_hourly_rate)}/></div>{error("max_hourly_rate")}</div>
+          <div className="field span-2"><label>When would you like them to start? <span className="muted">(optional)</span></label><input value={data.start_timing} onChange={(e) => set("start_timing", e.target.value)} placeholder="Within 2 weeks"/><div className="wizard-choice-row">{START_PRESETS.map((value)=><button type="button" key={value} className={`wizard-choice ${data.start_timing===value?"selected":""}`} onClick={()=>set("start_timing",value)}>{value}</button>)}</div></div>
         </div>
         {monthlyLow ? <div className="estimate-strip"><span>Estimated VA compensation</span><strong>${monthlyLow.toLocaleString()}{monthlyHigh > monthlyLow ? `–$${monthlyHigh.toLocaleString()}` : "+"}/month</strong><small>Based on {hours} hrs/week × 4.33 weeks. Any VAPH service fee is separate and confirmed before recruiting begins.</small></div> : null}
         <details className="wizard-optional">
@@ -244,7 +253,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
         <div className="job-post-preview">
           <div className="job-post-preview-head">
             <div className="review-icon"><FileText size={22}/></div>
-            <div><span>Job preview</span><h3>{data.title || "Virtual Assistant"}</h3><p>{data.company_name || "Your company"} · {data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible timezone"}</p></div>
+            <div><span>Client-facing job preview</span><h3>{data.title || "Virtual Assistant"}</h3><p>{data.company_name || "Your company"} · {data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible timezone"}</p></div>
             <strong className="job-post-preview-rate">${data.min_hourly_rate || MIN_HOURLY_RATE}{data.max_hourly_rate ? `–${data.max_hourly_rate}` : "+"}/hr</strong>
           </div>
           <p className="job-post-preview-summary">{data.summary || "Add a summary before submitting."}</p>
@@ -257,13 +266,14 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
           <div><span>VA budget</span><strong>${data.min_hourly_rate || MIN_HOURLY_RATE}{data.max_hourly_rate ? `–$${data.max_hourly_rate}` : "+"}/hr</strong></div>
           <div><span>Start timing</span><strong>{data.start_timing || "Flexible"}</strong></div>
         </div>
-        <div className="review-edit-row"><button className="text-button" type="button" onClick={() => setStep(0)}>Edit role details</button><button className="text-button" type="button" onClick={() => setStep(1)}>Edit schedule & pay</button></div>
+        <div className="review-edit-row"><button className="text-button" type="button" onClick={() => setStep(0)}>Edit role</button><button className="text-button" type="button" onClick={() => setStep(1)}>Edit schedule & budget</button></div>
         <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div>{publicMode ? <ul className="check-list compact"><li>Your draft stays saved on this device.</li><li>Create or sign in to a client account to attach the draft to your workspace.</li><li>Review the final posting, then send it for publication or recruiting review.</li><li>Your contact details stay private from applicants.</li></ul> : canSelfPublishJobs && data.service_model === "curated_placement" ? <ul className="check-list compact"><li>Your complete role publishes to the public Virtual Assistant jobs directory immediately.</li><li>Only vetted VAs can enter the recruiter-managed candidate flow.</li><li>Your company name is public on the job post; your personal contact details remain private.</li><li>You can edit or close the role from your client workspace.</li></ul> : <ul className="check-list compact"><li>Your role is saved immediately.</li><li>Our recruiting team checks the brief and confirms any service terms separately.</li><li>You approve commercial terms before recruiting begins.</li><li>Once approved, we shortlist vetted VAs against this exact role.</li></ul>}</div>
       </div> : null}
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>{step === 0 ? "Continue to schedule & pay" : "Preview job"}</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save role changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Submit job for review"}</button>}</div>
+        <div className="wizard-actions-context">{step < 2 ? <span>{step === 0 ? "Next: working hours and budget" : "Next: final review"}</span> : <span>{canSelfPublishJobs ? "You can edit this role after publishing." : "Your recruiter will review this before recruiting starts."}</span>}</div>
+        <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>{step === 0 ? "Continue" : "Review request"}</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Send to recruiter"}</button>}</div>
       </div>
     </div>
   </form>;

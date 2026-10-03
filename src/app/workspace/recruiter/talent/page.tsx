@@ -38,8 +38,6 @@ const SAVED_VIEWS = [
   { key: "email_unconfirmed", label: "Email unconfirmed", filters: { classification: undefined, registration: "email_unconfirmed" } },
   { key: "profile_incomplete", label: "Profile incomplete", filters: { classification: undefined, registration: "profile_incomplete" } },
   { key: "missing_resume", label: "Missing resume", filters: { classification: undefined, resume: "no" } },
-  { key: "missing_address", label: "Missing address", filters: { classification: undefined, address: "missing" } },
-  { key: "address_review", label: "Resume address review", filters: { classification: undefined, address: "review" } },
 ] as const;
 
 const PRIMARY_SAVED_VIEW_KEYS = new Set(["all", "incomplete_profiles", "approval_ready", "available", "needs_review"]);
@@ -521,7 +519,6 @@ export default async function RecruiterTalentDirectory({
           <option value="approve_publish">Approve + publish if public-ready</option>
           <option value="mark_reviewed">Mark profile edit reviewed</option>
           <option value="request_changes">Request profile changes</option>
-          <option value="request_address">Request address</option>
           <option value="remind">Email completion reminder</option>
           <option value="hide">Hide from public directory</option>
           <option value="reject">Reject</option>

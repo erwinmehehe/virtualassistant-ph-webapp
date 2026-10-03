@@ -1,34 +1,17 @@
 import { JobWizard } from "@/components/job-wizard";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { suggestJobDraft } from "@/lib/job-draft-suggestions";
 
 function starterBrief(needs: string) {
-  const words = needs.toLowerCase();
-  const ecommerce = /shopify|ecommerce|e-commerce|product|orders|inventory/.test(words);
-  const support = /support|customer|email|inbox|tickets/.test(words);
-  const admin = /calendar|admin|assistant|schedule|follow-up|follow up/.test(words);
-  const category = ecommerce ? "Ecommerce" : support ? "Customer Support" : admin ? "Administrative Support" : "General Virtual Assistance";
-  const skills = ecommerce
-    ? "Ecommerce operations, Customer service, Data entry"
-    : support
-      ? "Customer service, Written communication, Problem solving"
-      : admin
-        ? "Administrative support, Calendar management, Inbox management"
-        : "Administrative support, Communication, Research";
-  const responsibilities = ecommerce
-    ? "Maintain product listings\nRespond to customer questions\nKeep orders and inventory information current"
-    : support
-      ? "Respond to customer messages\nResolve routine requests and escalate exceptions\nKeep support records current"
-      : admin
-        ? "Manage calendars and scheduling\nOrganize inboxes and follow-ups\nPrepare weekly updates"
-        : "Complete recurring administrative tasks\nMaintain accurate records\nEscalate questions and blockers";
+  const suggested = suggestJobDraft(needs);
   return {
-    title: `${category} VA`,
-    categories: category,
+    title: suggested.title,
+    categories: suggested.category,
     summary: needs,
     description: `We need a reliable Virtual Assistant to help with: ${needs}. The right person will communicate clearly, keep work organized, and raise blockers early.`,
-    responsibilities,
-    required_skills: skills
+    responsibilities: suggested.responsibilities,
+    required_skills: suggested.skills,
   };
 }
 

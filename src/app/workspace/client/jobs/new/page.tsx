@@ -56,10 +56,11 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
     max_hourly_rate:company?.budget_max?String(company.budget_max):undefined
   };
   const fromOnboarding=params.onboarded==="1"&&Boolean(needs);
+  const fromPublicDraft=params.from_post==="1";
 
   return <div className="client-role-editor client-role-new">
-    <div className="page-head client-role-editor-head"><div><h1>Post a Virtual Assistant job</h1><p>{company?.can_self_publish_jobs ? "Your account can publish complete curated-placement roles directly to the public jobs directory. Managed-service roles still go through team review." : fromOnboarding?"We turned your onboarding answers into a starter job posting. Review it, change anything you want, then submit it to our recruiting team for publication review.":"Create your job posting with the role, hours, pay, timezone, and skills you need. We will review the posting and move it through the appropriate recruiting and publication flow."}</p></div></div>
+    <div className="page-head client-role-editor-head"><div><h1>{fromPublicDraft ? "Review and post your job" : "Post a Virtual Assistant job"}</h1><p>{fromPublicDraft ? "Your public draft is saved on this device. Check the preview, make any final edits, then submit the role." : company?.can_self_publish_jobs ? "Your account can publish complete curated-placement roles directly to the public jobs directory. Managed-service roles still go through team review." : fromOnboarding?"We turned your onboarding answers into a starter job posting. Review it, change anything you want, then submit it to our recruiting team for publication review.":"Create your job posting with the role, hours, pay, timezone, and skills you need. We will review the posting and move it through the appropriate recruiting and publication flow."}</p></div></div>
     {requested?<div className="success-banner client-role-requested-banner" style={{marginBottom:18}}>Requested Virtual Assistant preserved: <strong>{requested.full_name}</strong>. This preference will stay attached to the hiring request.</div>:null}
-    <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromOnboarding?3:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={Boolean(company?.can_self_publish_jobs)}/></div>
+    <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={Boolean(company?.can_self_publish_jobs)}/></div>
   </div>;
 }

@@ -45,5 +45,8 @@ test("release readiness names missing production Turnstile as an explicit blocke
   assert.match(readiness, /missing Cloudflare Turnstile protection/);
   assert.match(readiness, /no Turnstile widget or Cloudflare challenge script/);
   assert.match(readiness, /Turnstile bot protection: BLOCKED/);
+  assert.match(readiness, /11 client Hiring Room summaries/);
+  assert.match(readiness, /0 foreign jobs were exposed/);
+  assert.match(readiness, /Client Hiring Room privacy boundary: PASS/);
   assert.match(readiness, /Go\/no-go: HOLD/);
 });

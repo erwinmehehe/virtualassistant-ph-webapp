@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
-import { APPROVAL_MIN_COMPLETION, isRowApprovable } from "@/lib/public-visibility";
 import { publicationMissingDetails } from "@/lib/job-publication";
 
 export async function reviewJobAction(formData: FormData) {

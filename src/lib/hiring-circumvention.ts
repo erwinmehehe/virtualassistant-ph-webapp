@@ -1,5 +1,5 @@
 const EMAIL_PATTERN = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
-const PHONE_PATTERN = /(?:\+?\d[\d ().-]{7,}\d)/;
+const PHONE_PATTERN = /(?:\+\d[\d ().-]{7,}\d|\b(?:phone|mobile|call|text|sms)\s*[:\-]?\s*\d[\d ().-]{7,}\d|\(\d{2,4}\)\s*\d[\d -]{5,}\d|\b09\d{9}\b)/i;
 const EXTERNAL_CONTACT_PATTERN = /\b(?:whats?app|telegram|skype|viber|discord|messenger)\b|(?:facebook|linkedin|instagram)\.com|\b(?:mailto|tel):/i;
 const DIRECT_PAYMENT_PATTERN = /(?:(?:pay|send|transfer|settle).{0,40}(?:gcash|maya|paymaya|wise|payoneer|bank transfer|instapay|pesonet)|(?:gcash|maya|paymaya|wise|payoneer|bank transfer|instapay|pesonet).{0,40}(?:pay|send|transfer|settle))/i;
 const CIRCUMVENTION_PATTERN = /\b(?:off[- ]platform|outside (?:of )?(?:the )?platform|hire (?:me|him|her|them) directly|direct hire|bypass.{0,40}(?:fee|platform)|avoid.{0,40}(?:fee|platform))\b/i;

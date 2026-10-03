@@ -73,13 +73,16 @@ export async function applyToJobAction(formData: FormData) {
       admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle(),
       admin.auth.admin.getUserById(job.client_id),
     ]);
-    await sendApplicationEmail({
+    const emailDelivery = await sendApplicationEmail({
       to: clientAuth.user?.email,
       clientName: clientProfile?.full_name,
       jobTitle: job.title,
       jobId: job.id,
       applicationId: application.id,
     });
+    if (!emailDelivery.sent) {
+      console.warn("[email] New application employer notification was not sent", emailDelivery.reason);
+    }
   } catch (emailError) {
     console.error("[email] New application employer notification failed", emailError);
   }

@@ -55,6 +55,6 @@ test("all VA approval actions enforce the shared 80 percent completion floor",as
   ]);
   assert.match(visibility,/APPROVAL_MIN_COMPLETION = 80/);
   assert.match(recruiter,/rows\.filter\(isRowApprovable\)/);
-  assert.match(admin,/gte\("completion_score", APPROVAL_MIN_COMPLETION\)/);
+  assert.doesNotMatch(admin,/bulkApproveExperiencedVAs/);
   assert.match(vetting,/assertApprovalCompletion\(completion\)/);
 });

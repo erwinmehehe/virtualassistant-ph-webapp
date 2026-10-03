@@ -61,7 +61,7 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
     }
 
     const fields = await parseResumeWithAI(text);
-    const gotAnything = Boolean(fields.address || fields.headline || fields.bio || fields.skills.length || fields.tools.length || fields.years_experience != null || fields.primary_category);
+    const gotAnything = Boolean(fields.headline || fields.bio || fields.skills.length || fields.tools.length || fields.years_experience != null || fields.primary_category);
     if (!gotAnything) {
       return { status: "error", message: "We couldn't confidently pull details from this resume. Please fill the form in manually." };
     }

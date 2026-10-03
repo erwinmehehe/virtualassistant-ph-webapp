@@ -54,3 +54,15 @@ test("profiles that stop being VAs are removed from active shortlists",()=>{
   assert.match(migration,/p\.role <> 'va'::public\.user_role/);
   assert.match(migration,/revoke execute on function private\.hide_shortlists_when_va_role_removed\(\) from public, anon, authenticated/);
 });
+
+
+test("recruiter matching keeps client notes compact until a candidate is selected",()=>{
+  const table=source("src/components/matching-candidate-table.tsx");
+  const css=source("src/app/workspace/recruiter-role-workspace.css");
+  assert.match(table,/Select this VA to add a client note/);
+  assert.match(table,/Add a short client-facing reason \(optional\)/);
+  assert.doesNotMatch(table,/Why this VA is a strong fit for this client/);
+  assert.match(table,/matching-readiness-note/);
+  assert.match(css,/\.matching-recommendation-cell/);
+  assert.match(css,/\.matching-readiness-note/);
+});

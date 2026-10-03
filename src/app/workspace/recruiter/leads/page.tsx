@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 import Link from "next/link";
 import { BriefcaseBusiness, CalendarClock, CheckCircle2, Clock3, DollarSign, ExternalLink, FileCheck2, LayoutDashboard, Search, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
@@ -143,7 +145,7 @@ function usd(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
 }
 
-export default async function RecruiterLeadsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
+async function LegacyRecruiterLeadsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
   await requireRoleFast("recruiter");
   const admin = createAdminClient();
@@ -619,3 +621,17 @@ export default async function RecruiterLeadsPage({searchParams}:{searchParams:Pr
     </div>
   );
 }
+
+export default async function RecruiterLeadsRedirect({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const params = await searchParams;
+  const legacyQuery = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) if (value) legacyQuery.set(key, value);
+  const legacyHref = `/workspace/recruiter/leads${legacyQuery.size ? `?${legacyQuery.toString()}` : ""}`;
+  redirect(canonicalRecruiterHref(legacyHref, "/workspace/recruiter/crm") || "/workspace/recruiter/crm");
+}
+
+void LegacyRecruiterLeadsPage;

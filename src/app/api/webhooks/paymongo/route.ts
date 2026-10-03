@@ -205,6 +205,43 @@ async function unlockCandidateAccessAfterSettlement(
   });
 }
 
+async function relockCandidateAccessForPayment(
+  admin: ReturnType<typeof createAdminClient>,
+  payment: PaymentRow,
+  reason: string,
+) {
+  if (!payment.job_id) return;
+  const { data: access, error: readError } = await admin
+    .from("job_candidate_access")
+    .select("job_id,access_status,payment_reference,notes")
+    .eq("job_id", payment.job_id)
+    .eq("payment_reference", payment.id)
+    .maybeSingle();
+  if (readError) throw readError;
+  if (!access || access.access_status !== "paid") return;
+
+  const { error: updateError } = await admin
+    .from("job_candidate_access")
+    .update({
+      access_status: "locked",
+      unlocked_at: null,
+      unlocked_by: null,
+      notes: [String(access.notes || "").trim(), reason].filter(Boolean).join(" | ").slice(0, 2000),
+    })
+    .eq("job_id", payment.job_id)
+    .eq("payment_reference", payment.id);
+  if (updateError) throw updateError;
+
+  await admin.from("notifications").insert({
+    user_id: payment.client_id,
+    title: "Candidate access paused",
+    body: "Candidate access is temporarily locked because the related payment is no longer settled. Contact your recruiter if you need help.",
+    href: `/workspace/client/jobs/${payment.job_id}`,
+    type: "candidate_access_payment",
+    priority: "high",
+  });
+}
+
 async function sendPaidSideEffects(
   admin: ReturnType<typeof createAdminClient>,
   payment: PaymentRow,
@@ -387,6 +424,7 @@ export async function POST(request: Request) {
         );
         if (error) throw error;
         payment = (refundedRow as PaymentRow | null) || payment;
+        await relockCandidateAccessForPayment(admin, payment, "Candidate-access payment refunded.");
 
         if (wasReleased) {
           await notifyAdmins(
@@ -423,6 +461,7 @@ export async function POST(request: Request) {
         );
         if (error) throw error;
         payment = (disputedRow as PaymentRow | null) || payment;
+        await relockCandidateAccessForPayment(admin, payment, "Candidate-access payment disputed by provider.");
 
         await notifyAdmins(
           admin,
@@ -465,6 +504,11 @@ export async function POST(request: Request) {
         );
         if (error) throw error;
         payment = (resolvedRow as PaymentRow | null) || payment;
+        if ((providerStatus === "won" || providerStatus === "closed_won") && ["paid", "released"].includes(payment.status)) {
+          await unlockCandidateAccessAfterSettlement(admin, payment);
+        } else if (providerStatus === "lost" || providerStatus === "closed_lost") {
+          await relockCandidateAccessForPayment(admin, payment, "Candidate-access payment dispute was lost.");
+        }
 
         if (providerStatus === "lost" || providerStatus === "closed_lost") {
           await notifyAdmins(
@@ -509,6 +553,7 @@ export async function POST(request: Request) {
       );
       if (error) throw error;
       payment = (disputedRow as PaymentRow | null) || payment;
+      await relockCandidateAccessForPayment(admin, payment, "Candidate-access payment disputed by provider.");
 
       await notifyAdmins(
         admin,

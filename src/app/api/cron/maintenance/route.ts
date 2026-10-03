@@ -6,7 +6,6 @@ import { BLOG_POSTS, blogHref } from "@/lib/blog";
 import { syncPublicTalentEmbeddings } from "@/lib/talent-search";
 import { reconcilePaymongoPayments } from "@/lib/payment-reconciliation";
 import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement";
-import { runVaAddressResumeBackfill } from "@/lib/va-address-backfill";
 import { bearerTokenFromRequest, timingSafeSecretMatches } from "@/lib/http-security";
 import { proposalAutomationConfigured, triggerAutomationsActive } from "@/lib/trigger-automation";
 import { syncPlacementRetentionRecovery } from "@/lib/placement-retention-automation";

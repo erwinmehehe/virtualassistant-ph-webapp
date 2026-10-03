@@ -294,14 +294,24 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         "description": "Improve the profile employers and recruiters see before you apply."
       },
       {
+        "label": "Virtual Assistant introduction video",
+        "href": "/blog/virtual-assistant-introduction-video",
+        "description": "Prepare a one-minute introduction for applications that request video."
+      },
+      {
+        "label": "Virtual Assistant proposal sample",
+        "href": "/blog/virtual-assistant-proposal-sample",
+        "description": "Write a concise job-specific message instead of mass applying with generic text."
+      },
+      {
+        "label": "How to apply as a Virtual Assistant",
+        "href": "/blog/how-to-apply-as-a-virtual-assistant",
+        "description": "Use a selective application process across legitimate job channels."
+      },
+      {
         "label": "Free Virtual Assistant training",
         "href": "/training",
         "description": "Build practical VA skills with free training and certificates."
-      },
-      {
-        "label": "Post a Virtual Assistant job",
-        "href": "/post-a-job",
-        "description": "Create a client account and publish a clear role for Filipino Virtual Assistants."
       }
     ]
   }

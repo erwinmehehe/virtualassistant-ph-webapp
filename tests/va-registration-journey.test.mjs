@@ -52,3 +52,22 @@ test("public job application journey requires recruiter-ready vetting", async ()
   assert.match(job, /approved and bench-vetted VAs/i);
   assert.match(job, /private details stay protected until candidate access is active/i);
 });
+
+
+test("public job CTAs respect the signed-in account role", async () => {
+  const job = await read("src/app/jobs/[id]/page.tsx");
+
+  assert.match(job, /profile\?\.role === "va"/);
+  assert.match(job, /Apply for this job/);
+  assert.match(job, /Complete vetting to apply/);
+
+  assert.match(job, /profile\?\.role === "client"/);
+  assert.match(job, /You’re signed in as a client/);
+  assert.match(job, /Go to client workspace/);
+  assert.match(job, /Post another job/);
+
+  assert.match(job, /user \? <div className="stack">/);
+  assert.match(job, /You’re already signed in/);
+
+  assert.match(job, /: user \? [\s\S]* : <>[\s\S]*Create VA profile[\s\S]*Log in/);
+});

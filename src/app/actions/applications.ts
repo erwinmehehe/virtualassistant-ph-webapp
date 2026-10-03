@@ -11,6 +11,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import type { ApplicationStatus } from "@/lib/types";
 import { recordProductEvent } from "@/lib/product-events";
+import { isValidTimeZone } from "@/lib/timezone";
 
 function snapshot(profile: any, va: any, vettingStage?: string | null) {
   return {
@@ -36,7 +37,7 @@ function snapshot(profile: any, va: any, vettingStage?: string | null) {
 
 async function getClientApplicationWithAccess(applicationId: string, clientId: string) {
   const admin = createAdminClient();
-  const { data: application } = await admin.from("applications").select("id,job_id,va_id,status,jobs!inner(client_id,title)").eq("id", applicationId).eq("jobs.client_id", clientId).single();
+  const { data: application } = await admin.from("applications").select("id,job_id,va_id,status,jobs!inner(client_id,title,timezone)").eq("id", applicationId).eq("jobs.client_id", clientId).single();
   if (!application) throw new Error("Application not found.");
   const { data: access } = await admin.from("job_candidate_access").select("access_status").eq("job_id", application.job_id).maybeSingle();
   if (!candidateAccessUnlocked(access?.access_status)) throw new Error("Candidate details and hiring actions are locked until candidate access is activated for this role.");
@@ -207,12 +208,14 @@ export async function hireCandidateAction(formData: FormData) {
   const acknowledgement = formData.get("confirm_hire") === "on";
   if (!Number.isFinite(agreedRate) || agreedRate < MIN_HOURLY_RATE || agreedRate > 1000) throw new Error(`Final hourly rate must be at least USD ${MIN_HOURLY_RATE}.`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) throw new Error("Choose a start date.");
-  const todayManila = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  if (startDate < todayManila) throw new Error("Start date cannot be in the past.");
   if (agreedSchedule.length < 3 || agreedSchedule.length > 500) throw new Error("Confirm the expected working schedule.");
   if (!acknowledgement) throw new Error("Confirm that the final rate, start date, and schedule have been agreed with the candidate.");
 
   const { admin, application } = await getClientApplicationWithAccess(applicationId, user.id);
+  const applicationJob = Array.isArray(application.jobs) ? application.jobs[0] : application.jobs;
+  const startDateZone = isValidTimeZone((applicationJob as any)?.timezone) ? String((applicationJob as any).timezone) : "UTC";
+  const todayForRole = new Intl.DateTimeFormat("en-CA", { timeZone: startDateZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (startDate < todayForRole) throw new Error("Start date cannot be in the past for the client timezone.");
   if (["hired","rejected","withdrawn"].includes(application.status)) throw new Error("This application cannot be hired from its current status.");
   const { error: hireError } = await admin.rpc("confirm_hire_transaction", {
     p_application_id: application.id,
@@ -224,7 +227,7 @@ export async function hireCandidateAction(formData: FormData) {
     p_schedule: agreedSchedule
   });
   if (hireError) throw hireError;
-  const jobTitle = Array.isArray(application.jobs) ? application.jobs[0]?.title : (application.jobs as any)?.title;
+  const jobTitle = applicationJob?.title;
   await admin.from("notifications").insert({ user_id: application.va_id, title: `You were hired for ${jobTitle || "a role"}`, body: `Start date: ${startDate}. Open your workroom for onboarding details.`, href: "/workspace/va/workroom" });
   try { const { writeRecruiterActivity } = await import("@/lib/recruiter-activity"); await writeRecruiterActivity({ subjectType: "job", subjectId: application.job_id, action: "hired", description: `Candidate hired for ${jobTitle || "role"}`, actorId: user.id, metadata: { application_id: application.id, va_id: application.va_id } }); await writeRecruiterActivity({ subjectType: "va", subjectId: application.va_id, action: "hired", description: `Hired for ${jobTitle || "role"}`, actorId: user.id, metadata: { application_id: application.id, job_id: application.job_id } }); } catch {}
   revalidatePath(`/workspace/client/jobs/${application.job_id}`); revalidatePath(`/workspace/client/candidates/${application.id}`); revalidatePath("/workspace/client/candidates"); revalidatePath("/workspace/client/workroom");

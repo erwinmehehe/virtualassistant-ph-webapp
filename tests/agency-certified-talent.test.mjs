@@ -9,15 +9,16 @@ const matching = read("src/app/actions/matching.ts");
 
 test("Agency Certified client matching no longer depends on work-setup verification", () => {
   assert.match(model, /export function isTalentAgencyCertified/);
-  assert.match(model, /approved && input\.activePool && available && freshAvailability/);
+  assert.match(model, /approved && available && freshAvailability/);
+  assert.doesNotMatch(model, /approved && input\.activePool/);
   assert.doesNotMatch(model, /setupVerified/);
   assert.match(model, /TALENT_AVAILABILITY_FRESH_DAYS = 30/);
   assert.match(model, /isTalentAgencyCertified\(input, nowMs, freshnessDays\)/);
 
-  const currentMigration = read("supabase/migrations/20261001093000_remove_work_setup_matching_gate_and_rank_role_identity.sql");
+  const currentMigration = read("supabase/migrations/20261003195500_remove_talent_pool_shortlist_gate.sql");
   assert.match(currentMigration, /p\.account_status = 'active'/);
   assert.match(currentMigration, /vv\.stage in \('approved', 'bench'\)/);
-  assert.match(currentMigration, /from public\.bench_memberships bm[\s\S]*bm\.status = 'active'/);
+  assert.doesNotMatch(currentMigration, /from public\.bench_memberships bm/);
   assert.match(currentMigration, /v\.availability_status = 'available'/);
   assert.match(currentMigration, /v\.availability_confirmed_at >= p_as_of - interval '30 days'/);
   assert.doesNotMatch(currentMigration, /work_setup_verified_at is not null/);
@@ -30,12 +31,12 @@ test("Agency Certified enforcement is staged off by default", () => {
 });
 
 test("once enabled, new client releases are still blocked when core client readiness is stale", () => {
-  const currentMigration = read("supabase/migrations/20261001093000_remove_work_setup_matching_gate_and_rank_role_identity.sql");
+  const currentMigration = read("supabase/migrations/20261003195500_remove_talent_pool_shortlist_gate.sql");
   assert.match(migration, /create trigger job_shortlist_agency_certified_release_guard/);
   assert.match(migration, /before insert or update of shortlist_status on public\.job_shortlist_candidates/);
   assert.match(currentMigration, /if new\.shortlist_status <> 'released' then/);
   assert.match(currentMigration, /if not public\.is_va_agency_certified\(new\.va_id, now\(\)\) then/);
-  assert.match(currentMigration, /active talent-pool membership and current availability first/);
+  assert.match(currentMigration, /Confirm approval and current availability first/);
 });
 
 test("internal shortlist work and already-released client records stay intact", () => {

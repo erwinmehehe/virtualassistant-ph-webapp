@@ -28,6 +28,7 @@ import { TrainingNextSteps } from "@/components/training-next-steps";
 import { TrainingSaveCourseButton } from "@/components/training-save-course-button";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
+import { trainingCourseOutcome } from "@/lib/training-card-copy";
 import { vaCategoryLabel } from "@/lib/constants";
 import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
 import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES } from "@/lib/training-specializations";
@@ -241,6 +242,10 @@ function CourseCard({
         <div className="training-course-card-copy">
           <h3>{course.title}</h3>
           <p>{course.summary || "Practical training with realistic examples, exercises, handoffs, and QA checks."}</p>
+          <div className="training-course-outcome">
+            <span>Practise</span>
+            <strong>{trainingCourseOutcome(course)}</strong>
+          </div>
         </div>
 
         <div className="training-course-meta">

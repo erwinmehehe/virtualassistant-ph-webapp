@@ -90,7 +90,9 @@ test("approved client publishing UI explains when a job will go live", async () 
   assert.match(wizard, /canSelfPublishJobs/);
   assert.match(wizard, /Publish job/);
   assert.match(wizard, /public Virtual Assistant jobs directory immediately/);
-  assert.match(clientJobs, /Direct publishing is enabled for your account/);
+  assert.match(clientJobs, /can_self_publish_jobs&&clientProfile\?\.verified_at/);
+  assert.match(clientJobs, /Direct publishing is enabled for this verified company account/);
+  assert.match(clientJobs, /company verification is still required/);
 });
 
 

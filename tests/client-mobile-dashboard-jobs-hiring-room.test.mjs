@@ -60,3 +60,17 @@ test("client Hiring Room stacks shortlist cards and actions safely", async () =>
   assert.match(css, /\.client-shortlist-decision-form select,[\s\S]*font-size: 16px/);
   assert.match(css, /@media \(max-width: 420px\)[\s\S]*\.client-shortlist-action-grid[\s\S]*grid-template-columns: 1fr/);
 });
+
+
+test("client dashboard exposes direct job-posting entry points without signup",()=>{
+  const dashboard=read("src/app/workspace/client/page.tsx");
+  const jobs=read("src/app/workspace/client/jobs/page.tsx");
+  const post=read("src/app/post-a-job/page.tsx");
+  assert.match(dashboard,/href="\/workspace\/client\/jobs\/new"/);
+  assert.match(dashboard,/Post a job/);
+  assert.match(jobs,/client-jobs-new/);
+  assert.match(jobs,/Post a job/);
+  assert.match(post,/isClient \? "You’re signed in as a client"/);
+  assert.match(post,/Post a job from my dashboard/);
+  assert.match(post,/isVa \? "Browse VA jobs"/);
+});

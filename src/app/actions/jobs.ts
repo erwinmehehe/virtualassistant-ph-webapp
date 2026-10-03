@@ -78,11 +78,11 @@ export async function createJobAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: clientProfile } = await admin
     .from("client_profiles")
-    .select("can_self_publish_jobs")
+    .select("can_self_publish_jobs,verified_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const canSelfPublish = Boolean(clientProfile?.can_self_publish_jobs) && serviceModel === "curated_placement";
+  const canSelfPublish = Boolean(clientProfile?.can_self_publish_jobs && clientProfile?.verified_at) && serviceModel === "curated_placement";
   if (canSelfPublish && submitMode !== "draft") {
     const selfPublishMissing = publicationMissingDetails({
       title,

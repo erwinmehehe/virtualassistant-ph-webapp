@@ -8,6 +8,7 @@ const hiringGuidesPath = path.join(root, 'src/lib/blog-hiring-guides.ts');
 const demandGuidesPath = path.join(root, 'src/lib/blog-demand-guides.ts');
 const keywordSupportGuidesPath = path.join(root, 'src/lib/blog-keyword-support-guides.ts');
 const candidateGuidesPath = path.join(root, 'src/lib/blog-candidate-profile-guides.ts');
+const jobSearchGuidesPath = path.join(root, 'src/lib/blog-job-search-guides.ts');
 const servicePath = path.join(root, 'src/lib/service-pages.ts');
 const softwarePath = path.join(root, 'src/lib/software-pages.ts');
 const industryPath = path.join(root, 'src/lib/industries.ts');
@@ -22,6 +23,7 @@ function readPosts() {
     ...readPostArray(demandGuidesPath, 'export const BLOG_DEMAND_GUIDES: BlogPost[] = '),
     ...readPostArray(keywordSupportGuidesPath, 'export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = '),
     ...readPostArray(candidateGuidesPath, 'export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = '),
+    ...readPostArray(jobSearchGuidesPath, 'export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = '),
   ];
 }
 function readPostArray(file, marker) {

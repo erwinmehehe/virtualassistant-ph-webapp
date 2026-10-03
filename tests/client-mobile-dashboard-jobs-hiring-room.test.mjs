@@ -74,3 +74,17 @@ test("client dashboard exposes direct job-posting entry points without signup",(
   assert.match(post,/Post a job from my dashboard/);
   assert.match(post,/isVa \? "Browse VA jobs"/);
 });
+
+
+test("client dashboard connects posted jobs to recruiter-managed application activity", async () => {
+  const [dashboard,jobs]=await Promise.all([
+    read("src/app/workspace/client/page.tsx"),
+    read("src/app/workspace/client/jobs/page.tsx"),
+  ]);
+  assert.match(dashboard,/applications received/);
+  assert.match(dashboard,/Vetted VAs are applying/);
+  assert.match(dashboard,/job\.applicants/);
+  assert.match(jobs,/<th>Applications<\/th>/);
+  assert.match(jobs,/Recruiter reviewing/);
+  assert.doesNotMatch(jobs,/<th>Candidates<\/th>/);
+});

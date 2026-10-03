@@ -669,7 +669,7 @@ export async function respondPlacementOfferAction(formData: FormData) {
   const offerJob = Array.isArray(offer.jobs) ? offer.jobs[0] : offer.jobs;
   const offerTimeZone = isValidTimeZone(offer.timezone) ? String(offer.timezone) : isValidTimeZone(offerJob?.timezone) ? String(offerJob?.timezone) : "UTC";
   const todayForOffer = new Intl.DateTimeFormat("en-CA", { timeZone: offerTimeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  if (offer.start_date && String(offer.start_date) < todayForOffer) throw new Error("This offer start date has passed. Ask the recruiter to update the final terms.");
+  if (decision === "accept" && offer.start_date && String(offer.start_date) < todayForOffer) throw new Error("This offer start date has passed. Ask the recruiter to update the final terms.");
   const now = new Date().toISOString();
   const jobTitle = offerJob?.title;
   const offerTitle = jobTitle || "role";
@@ -719,10 +719,6 @@ export async function confirmPlacementOfferAction(formData: FormData) {
   const admin = createAdminClient();
   const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_client") throw new Error("This placement is not waiting for client confirmation.");
-  const confirmationJob = Array.isArray(offer.jobs) ? offer.jobs[0] : offer.jobs;
-  const confirmationTimeZone = isValidTimeZone(offer.timezone) ? String(offer.timezone) : isValidTimeZone(confirmationJob?.timezone) ? String(confirmationJob?.timezone) : "UTC";
-  const todayForConfirmation = new Intl.DateTimeFormat("en-CA", { timeZone: confirmationTimeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  if (offer.start_date && String(offer.start_date) < todayForConfirmation) throw new Error("This offer start date has passed. Ask the recruiter to refresh the final terms before confirming.");
   let applicationId = offer.application_id;
   if (!applicationId) {
     const { data: existing } = await admin.from("applications").select("id,status").eq("job_id", offer.job_id).eq("va_id", offer.va_id).maybeSingle();

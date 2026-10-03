@@ -96,7 +96,7 @@ test("interview state changes reject stale scheduling, cancellation, and prematu
   assert.match(clientInterviews, /feedbackAvailableAt=scheduledAtMs\+Number\(row\.duration_minutes\|\|30\)\*60\*1000/);
 });
 
-test("placement offers cannot be accepted after their start date has passed", async () => {
+test("stale placement offers cannot be accepted by the VA but remain recoverable", async () => {
   const [operations, clientOffers] = await Promise.all([
     read("src/app/actions/recruiter-operations-system.ts"),
     read("src/app/workspace/client/offers/page.tsx"),
@@ -108,8 +108,8 @@ test("placement offers cannot be accepted after their start date has passed", as
   const confirmBlock = operations.slice(confirmStart);
 
   assert.match(respondBlock, /todayForOffer/);
+  assert.match(respondBlock, /decision === "accept"/);
   assert.match(respondBlock, /This offer start date has passed/);
-  assert.match(confirmBlock, /todayForConfirmation/);
-  assert.match(confirmBlock, /refresh the final terms before confirming/);
+  assert.doesNotMatch(confirmBlock, /todayForConfirmation/);
   assert.match(clientOffers, /name="confirm_terms" required/);
 });

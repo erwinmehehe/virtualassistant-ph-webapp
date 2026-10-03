@@ -45,22 +45,9 @@ test("Talent exposes exact zero-percent and address rescue queues with bulk-safe
   assert.match(recruiter, /recruiter_va_directory_health/);
 });
 
-test("resume address backfill only auto-saves explicit high-confidence addresses", async () => {
-  const [parser, worker, maintenance] = await Promise.all([
-    read("src/lib/resume-parsing.ts"),
-    read("src/lib/va-address-backfill.ts"),
-    read("src/app/api/cron/maintenance/route.ts"),
-  ]);
+test("maintenance no longer mines resumes for home addresses", async () => {
+  const maintenance = await read("src/app/api/cron/maintenance/route.ts");
 
-  assert.match(parser, /extractResumeAddressCandidate/);
-  assert.match(parser, /confidence: "high"/);
-  assert.match(parser, /confidence: "review"/);
-  assert.match(worker, /candidate\.confidence === "high"/);
-  assert.match(worker, /candidate\.confidence === "review" \? "review" : "no_match"/);
-  assert.match(worker, /address_resume_status: status/);
-  
-  assert.match(worker, /address_resume_status: "unsupported"/);
-  assert.match(worker, /address_resume_status: "error"/);
-  assert.match(worker, /storage\.from\("resumes"\)\.download/);
-  assert.match(maintenance, /runVaAddressResumeBackfill\(8\)/);
+  assert.doesNotMatch(maintenance, /runVaAddressResumeBackfill/);
+  assert.doesNotMatch(maintenance, /va-address-backfill/);
 });

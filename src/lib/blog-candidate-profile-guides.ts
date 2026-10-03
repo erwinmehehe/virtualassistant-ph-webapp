@@ -465,6 +465,16 @@ export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = [
         "label": "Virtual Assistant hiring guides",
         "href": "/blog/topic/hiring",
         "description": "Browse hiring, screening, interview, onboarding, and role-design guidance."
+      },
+      {
+        "label": "Virtual Assistant introduction video",
+        "href": "/blog/virtual-assistant-introduction-video",
+        "description": "Turn your profile positioning into a clear one-minute introduction."
+      },
+      {
+        "label": "Virtual Assistant proposal sample",
+        "href": "/blog/virtual-assistant-proposal-sample",
+        "description": "Use the strongest profile evidence in a tailored application message."
       }
     ]
   },
@@ -831,6 +841,11 @@ export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = [
         "label": "Virtual Assistant hiring guides",
         "href": "/blog/topic/hiring",
         "description": "Browse more VAPH guidance for applications, screening, interviews, and hiring."
+      },
+      {
+        "label": "Virtual Assistant proposal sample",
+        "href": "/blog/virtual-assistant-proposal-sample",
+        "description": "Write the short job-specific message that goes with your profile and introduction."
       }
     ]
   },

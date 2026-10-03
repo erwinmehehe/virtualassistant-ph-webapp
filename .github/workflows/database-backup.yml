@@ -1,0 +1,49 @@
+name: Encrypted production database backup
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Require backup secrets
+        shell: bash
+        run: |
+          test -n "$SUPABASE_DB_URL" || { echo "SUPABASE_DB_URL is not configured."; exit 1; }
+          test -n "$BACKUP_ENCRYPTION_PASSPHRASE" || { echo "BACKUP_ENCRYPTION_PASSPHRASE is not configured."; exit 1; }
+          test "${#BACKUP_ENCRYPTION_PASSPHRASE}" -ge 32 || { echo "Backup encryption passphrase must be at least 32 characters."; exit 1; }
+
+      - name: Create encrypted production dump
+        id: backup
+        shell: bash
+        run: |
+          chmod +x scripts/create-encrypted-db-backup.sh scripts/verify-encrypted-db-backup.sh
+          backup_path="$(scripts/create-encrypted-db-backup.sh backup | tail -n 1)"
+          echo "path=$backup_path" >> "$GITHUB_OUTPUT"
+
+      - name: Verify encrypted archive
+        shell: bash
+        run: scripts/verify-encrypted-db-backup.sh "${{ steps.backup.outputs.path }}"
+
+      - name: Upload encrypted off-site artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vaph-production-db-backup
+          path: |
+            ${{ steps.backup.outputs.path }}
+            ${{ steps.backup.outputs.path }}.sha256
+          if-no-files-found: error
+          retention-days: 2

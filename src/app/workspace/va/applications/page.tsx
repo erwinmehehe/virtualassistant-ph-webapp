@@ -46,13 +46,18 @@ export default async function VaApplicationsPage({
 
   return (
     <div className="va-applications-page">
+      {params.applied === "1" ? (
+        <div className="success-banner" role="status">
+          <CheckCircle2 size={17} /> Application submitted. The job poster has been notified and your application is now in recruiter review.
+        </div>
+      ) : null}
       {params.interest === "1" ? (
         <div className="success-banner" role="status">
-          <CheckCircle2 size={17} /> Interest sent. A recruiter will review the role before presenting candidates to the client.
+          <CheckCircle2 size={17} /> Application submitted. Your application is now in recruiter review.
         </div>
       ) : null}
       {params.interest === "already" ? (
-        <div className="alert" role="status">You already expressed interest in this role.</div>
+        <div className="alert" role="status">You already applied to this role.</div>
       ) : null}
       {params.invite ? (
         <div className="success-banner" role="status">

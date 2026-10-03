@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { BriefcaseBusiness, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -28,8 +27,9 @@ export const metadata: Metadata = {
 
 export default async function PostAJobPage() {
   const { user, profile } = await getSessionProfile();
-  if (profile?.role === "client") redirect("/workspace/client/jobs/new");
-  if (user) redirect(profile?.role === "va" ? "/workspace/va" : "/workspace");
+  const isClient = profile?.role === "client";
+  const isVa = profile?.role === "va";
+  const primaryHref = isClient ? "/workspace/client/jobs/new" : undefined;
 
   return (
     <>
@@ -50,9 +50,9 @@ export default async function PostAJobPage() {
               </div>
             </div>
             <aside className="post-job-side-note">
-              <span>Already have a client account?</span>
-              <strong>Open your workspace and post from there.</strong>
-              <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
+              <span>{isClient ? "You’re signed in as a client" : isVa ? "You’re signed in as a Virtual Assistant" : user ? "You’re already signed in" : "Already have a client account?"}</span>
+              <strong>{isClient ? "Post directly from your client workspace." : isVa ? "Job posting requires a client account." : user ? "Open your workspace to continue with this account." : "Open your workspace and post from there."}</strong>
+              {isClient ? <Link href="/workspace/client/jobs/new">Post from client dashboard</Link> : isVa ? <Link href="/workspace/va">Go to VA workspace</Link> : user ? <Link href="/workspace">Go to workspace</Link> : <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>}
             </aside>
           </div>
         </section>
@@ -66,15 +66,23 @@ export default async function PostAJobPage() {
               </div>
               <p>Three short steps. Add more detail only when it matters.</p>
             </div>
-            <div className="post-job-wizard-shell">
+            {isClient ? <div className="post-job-authenticated-cta">
+              <strong>You already have a client account.</strong>
+              <p>Skip signup and create the job directly inside your dashboard.</p>
+              <Link className="btn btn-primary btn-lg" href={primaryHref!}>Post a job from my dashboard</Link>
+            </div> : isVa || user ? <div className="post-job-authenticated-cta">
+              <strong>This signed-in account is not a client account.</strong>
+              <p>VA accounts can browse and apply to jobs. Employer job posting is kept in the client workspace.</p>
+              <Link className="btn btn-primary" href={isVa ? "/workspace/va/jobs" : "/workspace"}>{isVa ? "Browse VA jobs" : "Go to workspace"}</Link>
+            </div> : <div className="post-job-wizard-shell">
               <JobWizard publicMode />
-            </div>
-            <div className="post-job-after">
+            </div>}
+            {!user ? <div className="post-job-after">
               <strong>What happens after the preview?</strong>
               <p>
                 Create or sign in to your client account, confirm the saved draft, and submit it. If the role needs recruiter review or commercial approval, you will see that clearly after submission.
               </p>
-            </div>
+            </div> : null}
           </div>
         </section>
       </main>

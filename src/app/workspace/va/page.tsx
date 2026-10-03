@@ -62,14 +62,14 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
     }else if(completion.score<100&&completion.next){
     nextAction={title:"Keep your vetted profile current",copy:`Complete ${completion.next.label} to keep your profile current.`,href:completion.next.href,label:"Update profile",icon:FileText};
   }else{
-    nextAction={title:"Your vetted profile is ready",copy:"Your profile is ready. Keep your availability and rate current while you browse roles.",href:"/workspace/va/jobs",label:"Browse roles",icon:BriefcaseBusiness};
+    nextAction={title:"Your vetted profile is ready to apply",copy:"Browse published roles and apply directly when the work, schedule, and pay fit you.",href:"/workspace/va/jobs",label:"Browse jobs",icon:BriefcaseBusiness};
   }
   const NextIcon=nextAction.icon;
 
   const steps=[
     ...completion.items.slice(0,4).map((x)=>({label:x.label,done:x.done,href:x.href,description:undefined})),
     {label:"Complete VA vetting",description:"Skills test, video intro, recruiter review, and final approval are required before client presentation.",done:vetted,href:"/workspace/va/vetting"},
-    {label:"Express interest in a role",description:"Your recruiter reviews your fit before anything is sent to a client.",done:Boolean(applicationCount),href:vetted?"/workspace/va/jobs":"/workspace/va/vetting"},
+    {label:"Apply to a published role",description:"Once vetted, you can apply directly. Your application starts in recruiter review and the job poster is notified.",done:Boolean(applicationCount),href:vetted?"/workspace/va/jobs":"/workspace/va/vetting"},
     {label:"Start your first managed placement",description:"A workroom opens after the VA accepts final terms and the client confirms the placement.",done:Boolean(workroomCount),href:"/workspace/va/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);

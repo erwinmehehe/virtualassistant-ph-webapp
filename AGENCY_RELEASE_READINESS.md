@@ -1,6 +1,6 @@
 # Agency release readiness
 Reviewed 2026-10-03 (Asia/Manila) against production release `038f318838727e4a6f8abbb01346e0a93e2c16f1`, the connected production Supabase project, Resend delivery telemetry, and the runtime checks recorded below.
-Decision: HOLD final launch sign-off. Core database acceptance for both service models, live intake, primary auth and hiring email delivery, Google Meet booking, scheduler operation, public proposal rendering, and current-release error health are verified. The remaining hard blocker is recoverable off-site database backup on the Supabase Free plan; browser Auth/workspace handoff, the rest of the proposal response lifecycle, final privacy/regression QA, and monitoring ownership also remain open.
+Decision: HOLD final launch sign-off. Core database acceptance for both service models, live intake, primary auth and hiring email delivery, Google Meet booking, scheduler operation, public proposal rendering, and current-release error health are verified. Hard blockers now include recoverable off-site database backup on the Supabase Free plan and missing Cloudflare Turnstile protection on the production hiring form; browser Auth/workspace handoff, the rest of the proposal response lifecycle, final privacy/regression QA, and monitoring ownership also remain open.
 
 ## 2026-10-02 production refresh
 - Production Vercel deployment `dpl_HjUZfp2ArGZC8vJx4wiW4zwqACkH` is READY for main SHA `634618ff1167f798c06ba4d13b0b80004d3ec013` and is aliased to `virtualassistant.com.ph` and `www.virtualassistant.com.ph`.
@@ -35,6 +35,8 @@ Decision: HOLD final launch sign-off. Core database acceptance for both service 
 - The Supabase organization is on the Free plan. Current Supabase backup guidance does not provide managed daily backup recovery for Free projects and recommends regular off-site `db dump` exports. No recoverable off-site dump or restore rehearsal is currently recorded.
 - The earlier October 3 operations pass also retired the original demo workroom and closed its 10 stale check-in notifications without modifying a real client workroom.
 - All synthetic acceptance-smoke records were transactionally rolled back. A residue check found 0 synthetic leads, jobs, or proposals after testing.
+- A live production fetch of `/hire` returned HTTP 200 with the expected hiring form and timezone field, but no Turnstile widget or Cloudflare challenge script. The component only omits the widget when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is absent, so bot protection is currently not configured on the public hiring form. The admin health gate now treats Turnstile as a launch blocker until both site and server keys are present.
+- Admin production health now applies the same strict runtime controls as the CLI preflight for Google Calendar/Meet, Turnstile, Resend webhook verification, and Trigger.dev signed automations, preventing a partially configured environment from appearing release-clear.
 
 ## Remaining release gates
 | Complete | Owner | Action | Required evidence |
@@ -43,7 +45,7 @@ Decision: HOLD final launch sign-off. Core database acceptance for both service 
 | [ ] | Database owner | Establish recoverable production backup | Project is on Supabase Free; create a regular off-site `db dump`, record its timestamp/location, and rehearse restore to a non-production database |
 | [x] | Engineering | Harden acceptance as one consistent business operation | Atomic acceptance RPC, row locks, idempotent retry, release-safety tests and rollback-only constraint-failure coverage |
 | [ ] | Engineering + QA | Verify client identity handoff end to end | Acceptance with a valid client identity and invalid-identity blocking are production-tested; still record runtime new/existing-client Auth invite/magic-link and role-conflict evidence |
-| [ ] | Release operator | Verify production environment | App URL, Supabase runtime, Resend sending, primary account-confirmation delivery, Google Calendar/Meet, deployment identity and schedulers are live; strict secret/callback inventory still needs operator verification without exposing values |
+| [ ] | Release operator | Verify production environment | App URL, Supabase runtime, Resend sending, account-confirmation delivery, Google Calendar/Meet and deployment identity are live. Turnstile is currently missing on `/hire`; configure both Turnstile keys and clear the admin runtime checks for Resend webhook and Trigger.dev without exposing secret values |
 | [x] | Release operator | Verify tested release on the production domain | Production SHA/aliases verified, smoke checks passed, rollback candidate recorded |
 | [x] | Recruiter + QA | Hiring brief and CRM | Current post-migration client-hiring sample is persisted, acknowledged, owner-assigned, timezone-tagged, beyond new, and has a concrete next state |
 | [ ] | Recruiter + QA | Discovery | Live bookings prove scheduling plus Google Meet/Calendar creation; still record attended/completed outcome and delivery-failure feedback |
@@ -80,6 +82,7 @@ Production acceptance QA: PASS for curated placement, managed service, audit/ana
 Current-release error health: 0 release-tagged unresolved app errors; no Vercel runtime error groups in the post-deploy observation window
 Primary email delivery: PASS; verified sending domain and 29/29 delivered on October 2 UTC with 0 failures/bounces/complaints
 Backup/recovery evidence: BLOCKED; Supabase Free project has no recorded recoverable off-site dump or restore rehearsal
+Turnstile bot protection: BLOCKED; production `/hire` currently renders without the Turnstile widget because the public site key is not configured
 Browser Auth/workspace and remaining proposal-response lifecycle: pending
 Monitoring owner/window: pending
 Go/no-go: HOLD

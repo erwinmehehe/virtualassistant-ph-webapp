@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -34,7 +35,8 @@ const CANDIDATE_LEARNING_GUIDES = new Set([
   "best-laptop-for-virtual-assistant",
   "freelance-platforms-for-virtual-assistants",
   "how-to-start-a-virtual-assistant-business",
-  "become-virtual-assistant-no-experience"
+  "become-virtual-assistant-no-experience",
+  "how-to-create-the-best-va-profile"
 ]);
 
 function idFor(value: string) {
@@ -124,7 +126,23 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             </div>
           </div>
 
-          <BlogFeaturedVisual topic={post.topic} title={post.title} label={topic.label} detail={post.clusterLabel} />
+{post.heroImage ? (
+            <figure className="blog-article-hero-image">
+              <Image
+                src={post.heroImage.src}
+                alt={post.heroImage.alt}
+                width={post.heroImage.width}
+                height={post.heroImage.height}
+                sizes="(max-width: 900px) 100vw, 46vw"
+                priority
+                fetchPriority="high"
+                unoptimized
+              />
+              {post.heroImage.caption ? <figcaption>{post.heroImage.caption}</figcaption> : null}
+            </figure>
+          ) : (
+            <BlogFeaturedVisual topic={post.topic} title={post.title} label={topic.label} detail={post.clusterLabel} />
+          )}
         </div>
       </div>
     </header>
@@ -198,6 +216,21 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
             {index === 2 ? <ContextLinks post={post} start={0} count={2}/> : null}
             {index === 5 ? <ContextLinks post={post} start={2} count={2}/> : null}
+
+            {post.sectionImages?.filter((image) => image.afterSection === index).map((image) => (
+              <figure className="blog-article-figure" key={image.src}>
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  width={image.width}
+                  height={image.height}
+                  sizes="(max-width: 900px) 100vw, 760px"
+                  loading="lazy"
+                  unoptimized
+                />
+                {image.caption ? <figcaption>{image.caption}</figcaption> : null}
+              </figure>
+            ))}
           </section>)}
 
           <section className="blog-faqs" id="frequently-asked-questions" aria-labelledby="faq-heading">

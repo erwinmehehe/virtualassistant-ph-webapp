@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+<title id="title">Virtual Assistant portfolio proof example</title>
+<desc id="desc">Portfolio card example showing project goal, role, tools and quality checks.</desc>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#4f46e5"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-opacity=".12"/></filter></defs>
+<rect width="960" height="600" rx="32" fill="#eef2ff"/>
+<text x="70" y="78" font-family="Arial, sans-serif" font-size="29" font-weight="700" fill="#0f172a">Turn a sample into proof</text>
+<text x="70" y="110" font-family="Arial, sans-serif" font-size="16" fill="#64748b">Give the reviewer context, not just a screenshot.</text>
+<g filter="url(#s)"><rect x="70" y="150" width="820" height="360" rx="28" fill="#fff"/></g>
+<rect x="70" y="150" width="260" height="360" rx="28" fill="url(#g)"/>
+<text x="106" y="205" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#bfdbfe">PORTFOLIO SAMPLE</text>
+<text x="106" y="251" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#fff">Customer Follow-Up</text>
+<text x="106" y="283" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#fff">Tracker</text>
+<rect x="106" y="326" width="176" height="38" rx="19" fill="#fff" opacity=".16"/>
+<text x="194" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#fff">Google Sheets</text>
+<text x="106" y="414" font-family="Arial, sans-serif" font-size="14" fill="#dbeafe">Practice project</text>
+<text x="106" y="440" font-family="Arial, sans-serif" font-size="13" fill="#dbeafe">Dummy data. No client claims.</text>
+<g font-family="Arial, sans-serif">
+<text x="380" y="202" font-size="14" font-weight="700" fill="#2563eb">01  GOAL</text>
+<text x="380" y="230" font-size="15" fill="#334155">Track enquiries, owners, follow-up dates</text>
+<text x="380" y="253" font-size="15" fill="#334155">and next actions in one clean view.</text>
+<text x="380" y="302" font-size="14" font-weight="700" fill="#4f46e5">02  MY ROLE</text>
+<text x="380" y="330" font-size="15" fill="#334155">Structured the sheet, standardized statuses,</text>
+<text x="380" y="353" font-size="15" fill="#334155">added formulas and created a handoff view.</text>
+<text x="380" y="402" font-size="14" font-weight="700" fill="#059669">03  QUALITY CHECKS</text>
+<text x="380" y="430" font-size="15" fill="#334155">Checked duplicates, missing fields, dates,</text>
+<text x="380" y="453" font-size="15" fill="#334155">formula ranges and sample edge cases.</text>
+</g>
+<rect x="70" y="536" width="820" height="1" fill="#c7d2fe"/>
+<text x="480" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#3730a3">Project + goal + role + tools + quality checks = evidence a recruiter can evaluate</text>
+</svg>

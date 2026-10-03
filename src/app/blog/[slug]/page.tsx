@@ -46,12 +46,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: post.metaTitle },
     description: post.description,
     alternates: { canonical: canonicalPath(blogHref(post)) },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
     ...socialMetadata({
       title: post.metaTitle,
       description: post.description,
       path: canonicalPath(blogHref(post)),
       category: "blog",
       type: "article",
+      locale: "en_PH",
       publishedTime: post.publishedAt,
       ...(hasMeaningfulUpdate ? { modifiedTime: post.updatedAt } : {}),
       eyebrow: post.clusterLabel,
@@ -113,6 +125,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         ...(post.updatedAt !== post.publishedAt ? { dateModified: post.updatedAt } : {}),
         mainEntityOfPage: url,
         articleSection: post.clusterLabel,
+        inLanguage: "en-PH",
+        isAccessibleForFree: true,
+        ...(post.heroImage ? {
+          image: {
+            "@type": "ImageObject",
+            url: `${base}${post.heroImage.src}`,
+            width: post.heroImage.width,
+            height: post.heroImage.height,
+            caption: post.heroImage.caption || post.heroImage.alt
+          }
+        } : {}),
         author: {
           "@type": post.author.includes("Editorial") ? "Organization" : "Person",
           name: post.author,

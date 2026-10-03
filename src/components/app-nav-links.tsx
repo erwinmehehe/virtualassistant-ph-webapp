@@ -122,6 +122,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "Administration",
       items: [
+        ["Moderation", "/workspace/admin/moderation", ShieldCheck],
         ["Audit Log", "/workspace/admin/audit", Activity],
         ["Email Health", "/workspace/admin/email-health", Activity],
         ["Training", "/workspace/admin/training", GraduationCap],

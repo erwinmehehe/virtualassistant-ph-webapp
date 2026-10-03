@@ -10,8 +10,9 @@ test("recruiter matching no longer depends on AI recommendation controls",async(
   assert.doesNotMatch(table,/Regenerate with AI/);
   assert.doesNotMatch(table,/Generating recommendation/);
   assert.doesNotMatch(table,/AI-generated, recruiter editable/);
-  assert.match(table,/Save client note/);
-  assert.match(table,/Saved separately, or automatically when you Save\/Send selected candidates/);
+  assert.match(table,/Save note/);
+  assert.match(table,/Select this VA to add a client note/);
+  assert.match(table,/Add a short client-facing reason \(optional\)/);
 });
 
 test("automatic match suggestions are not preselected for client send",async()=>{

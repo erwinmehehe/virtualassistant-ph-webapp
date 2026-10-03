@@ -120,7 +120,7 @@ export async function RecruiterTalentOperationsPanel() {
     </div>
 
     <div className="stats" style={{ marginBottom: 18 }}>
-      <div className="stat-card"><span className="small muted">Client-ready now</span><strong>{readyRows.length}</strong><small className="muted">Approved, active pool, fresh availability, setup verified</small></div>
+      <div className="stat-card"><span className="small muted">Client-ready now</span><strong>{readyRows.length}</strong><small className="muted">Approved with fresh availability</small></div>
       <div className="stat-card"><span className="small muted">Source-now categories</span><strong>{sourceNext.length}</strong><small className="muted">Current pool + near-ready supply cannot cover demand/target</small></div>
       <div className="stat-card"><span className="small muted">Near-ready talent</span><strong>{nearReadyRows.length}</strong><small className="muted">Closest candidates to client-ready</small></div>
       <div className="stat-card"><span className="small muted">Open roles</span><strong>{openJobs.length}</strong><small className="muted">Pending + published hiring demand</small></div>
@@ -155,7 +155,7 @@ export async function RecruiterTalentOperationsPanel() {
 
     <div className="grid-2" style={{ alignItems: "start", marginBottom: 18 }}>
       <section className="card dashboard-section-card">
-        <div className="dashboard-section-head"><div><h2>Client-ready now</h2><p>Only approved pool members with availability confirmed in the last {TALENT_AVAILABILITY_FRESH_DAYS} days and recruiter-verified work setup appear here.</p></div><UsersRound size={20}/></div>
+        <div className="dashboard-section-head"><div><h2>Client-ready now</h2><p>Approved VAs with availability confirmed in the last {TALENT_AVAILABILITY_FRESH_DAYS} days appear here. Bench membership is for internal capacity planning, not client eligibility.</p></div><UsersRound size={20}/></div>
         {readyRows.length ? <div className="compact-list">{readyRows.slice(0, 12).map((candidate) => <Link prefetch={false} href={`/workspace/recruiter/candidates/${candidate.vaId}`} key={candidate.vaId}>
           <span><strong>{candidate.profile?.full_name || "VA"}</strong><small>{vaCategoryLabel(candidate.category)} · {candidate.va?.weekly_hours ? `${candidate.va.weekly_hours} hrs/week` : "Hours not set"}</small></span>
           <span className={`badge ${HEALTH_TONE[candidate.health?.health ?? ""] || "badge-success"}`}>{candidate.health?.health || "Ready"}</span>
@@ -172,8 +172,8 @@ export async function RecruiterTalentOperationsPanel() {
     </div>
 
     <details className="card dashboard-section-card" style={{ marginBottom: 18 }}>
-      <summary style={{ cursor: "pointer" }}><strong>Manage current talent pool</strong> <span className="small muted">· {members.length} membership{members.length === 1 ? "" : "s"}</span></summary>
-      <p className="small muted">Activation and category assignment remain manual recruiter decisions. Talent OS only calculates operational readiness and coverage from recorded evidence.</p>
+      <summary style={{ cursor: "pointer" }}><strong>Manage optional recruiter bench</strong> <span className="small muted">· {members.length} membership{members.length === 1 ? "" : "s"}</span></summary>
+      <p className="small muted">Bench membership is optional internal capacity planning. It can help recruiters track specialty coverage and priority, but it does not control whether an approved VA can be shortlisted.</p>
       {members.length ? <div className="table-wrap responsive-table"><table><thead><tr><th>VA</th><th>Health</th><th>Category</th><th>Priority</th><th>Hours</th><th>Availability</th><th>Status</th><th></th></tr></thead><tbody>{members.map((member) => {
         const profile = profileMap.get(member.va_id); const va = vaMap.get(member.va_id); const health = healthMap.get(member.va_id);
         return <tr key={member.id}><td data-label="VA"><strong>{profile?.full_name || "VA"}</strong><div className="small muted">{va?.headline || va?.primary_category}</div></td><td data-label="Health"><span className={`badge ${HEALTH_TONE[health?.health ?? ""] || ""}`}>{health?.health || "Unknown"}</span></td><td data-label="Category">{member.category}</td><td data-label="Priority">{member.priority}/5</td><td data-label="Hours">{va?.weekly_hours ? `${va.weekly_hours}/week` : "Not set"}</td><td data-label="Availability">{va?.availability_status || "unknown"}</td><td data-label="Status"><span className={`badge ${member.status === "active" ? "badge-success" : ""}`}>{member.status}</span></td><td data-label="Action"><div className="row wrap"><Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/candidates/${member.va_id}`}>Profile</Link><form action={updateBenchMemberAction}><input type="hidden" name="membership_id" value={member.id}/><input type="hidden" name="status" value={member.status === "active" ? "paused" : "active"}/><button className="btn btn-sm" type="submit">{member.status === "active" ? "Pause" : "Activate"}</button></form></div></td></tr>;

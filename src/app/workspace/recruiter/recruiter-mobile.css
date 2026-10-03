@@ -617,18 +617,15 @@
     margin: 0;
   }
 
-  .workspace-role-recruiter .matching-table td[data-label="VA"],
-  .workspace-role-recruiter .matching-table td[data-label="Match"],
-  .workspace-role-recruiter .matching-table td[data-label="Availability"],
-  .workspace-role-recruiter .matching-table td[data-label="Client recommendation"],
-  .workspace-role-recruiter .matching-table td[data-label="Client review"] {
+  .workspace-role-recruiter .matching-table td[data-label="Candidate"],
+  .workspace-role-recruiter .matching-table td[data-label="Fit"],
+  .workspace-role-recruiter .matching-table td[data-label="Availability & rate"],
+  .workspace-role-recruiter .matching-table td[data-label="Client note"],
+  .workspace-role-recruiter .matching-table td[data-label="Status"] {
     grid-column: 1 / -1;
   }
 
-  .workspace-role-recruiter .matching-table td[data-label="Select"],
-  .workspace-role-recruiter .matching-table td[data-label="Rank"],
-  .workspace-role-recruiter .matching-table td[data-label="Hours"],
-  .workspace-role-recruiter .matching-table td[data-label="Rate"] {
+  .workspace-role-recruiter .matching-table td[data-label="Select"] {
     grid-column: auto;
   }
 
@@ -647,7 +644,7 @@
   }
 
   .workspace-role-recruiter .matching-table textarea {
-    min-height: 96px;
+    min-height: 72px;
   }
 
   .workspace-role-recruiter .staff-matching-card,

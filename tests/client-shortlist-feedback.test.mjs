@@ -21,7 +21,7 @@ test("client shortlist feedback is authorized and keeps release state separate f
 });
 
 test("recruiters can attach client-facing recommendations while availability stays informational", () => {
-  assert.match(matchingTable, /Why this VA is a strong fit for this client/);
+  assert.match(matchingTable, /Add a short client-facing reason \(optional\)/);
   assert.match(matchingTable, /availabilityLabel\(row\.va\.availability_status\)/);
   assert.doesNotMatch(matchingTable, /Confirmation needed/);
   assert.doesNotMatch(matchingTable, /confirmed within the last 14 days/);

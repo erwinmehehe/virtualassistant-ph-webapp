@@ -23,19 +23,17 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   ]);
 
   const ids=[...new Set((vettingRows||[]).map((row:any)=>row.va_id))];
-  const [{data:profiles},{data:vas},{data:releasedAcross},{data:processRows},{data:activeJobs},{data:activeMemberships}]=ids.length?await Promise.all([
+  const [{data:profiles},{data:vas},{data:releasedAcross},{data:processRows},{data:activeJobs}]=ids.length?await Promise.all([
     admin.from("profiles").select("id,full_name,avatar_url").in("id",ids),
     admin.from("va_profiles").select("*").in("user_id",ids),
     admin.from("job_shortlist_candidates").select("job_id,va_id,client_decision").in("va_id",ids).eq("shortlist_status","released"),
     admin.from("applications").select("job_id,va_id,status").in("va_id",ids).in("status",["interview","offered","hired"]),
-    admin.from("jobs").select("id,title,hours_per_week,status").neq("status","closed"),
-    admin.from("bench_memberships").select("va_id").in("va_id",ids).eq("status","active")
-  ]):[{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]}];
+    admin.from("jobs").select("id,title,hours_per_week,status").neq("status","closed")
+  ]):[{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]},{data:[] as any[]}];
 
   const trainingByUser = ids.length ? await getTrainingCredentialsForUsers(ids) : new Map();
   const profileMap=new Map((profiles||[]).map((p:any)=>[p.id,p]));
   const stageMap=new Map((vettingRows||[]).map((row:any)=>[row.va_id,row.stage]));
-  const activePoolIds=new Set((activeMemberships||[]).map((row:any)=>row.va_id));
   const shortlistMap=new Map((shortlistRows||[]).map((row:any)=>[row.va_id,row]));
   const interestMap=new Map((interestRows||[]).map((row:any)=>[row.va_id,row]));
   const activeJobMap=new Map((activeJobs||[]).map((row:any)=>[row.id,row]));
@@ -50,7 +48,7 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     const potentialCommittedHours=activeProcesses.filter((row:any)=>["offered","hired"].includes(row.status)).reduce((sum:number,row:any)=>sum+Number((activeJobMap.get(row.job_id) as any)?.hours_per_week||0),0);
     const readinessInput={
       stage:stageMap.get(va.user_id),
-      activePool:activePoolIds.has(va.user_id),
+      activePool:false,
       availabilityStatus:va.availability_status,
       availabilityConfirmedAt:va.availability_confirmed_at
     };

@@ -76,6 +76,10 @@ export default async function AdminHealthPage({ searchParams }: { searchParams: 
     ["Lead intake protection", runtime.leadIngest.configured, runtime.leadIngest.detail],
     ["Transactional email", runtime.appEmail.configured, runtime.appEmail.detail],
     ["Production URL", runtime.appUrl.configured, runtime.appUrl.detail],
+    ["Google Calendar & Meet", runtime.googleCalendar.configured, runtime.googleCalendar.detail],
+    ["Turnstile bot protection", runtime.turnstile.configured, runtime.turnstile.detail],
+    ["Resend webhook verification", runtime.resendWebhook.configured, runtime.resendWebhook.detail],
+    ["Trigger.dev automations", runtime.triggerAutomations.configured, runtime.triggerAutomations.detail],
     ["Deployment identity", runtime.deployment.configured, runtime.deployment.detail]
   ] as const;
 

@@ -31,6 +31,18 @@ export type RuntimeSetupStatus = {
     configured: boolean;
     detail: string;
   };
+  turnstile: {
+    configured: boolean;
+    detail: string;
+  };
+  resendWebhook: {
+    configured: boolean;
+    detail: string;
+  };
+  triggerAutomations: {
+    configured: boolean;
+    detail: string;
+  };
   deployment: {
     configured: boolean;
     environment: string;
@@ -52,6 +64,17 @@ export function getRuntimeSetupStatus(): RuntimeSetupStatus {
     GOOGLE_CALENDAR_REFRESH_TOKEN: process.env.GOOGLE_CALENDAR_REFRESH_TOKEN?.trim() || ""
   };
   const missingGoogleCalendar = Object.entries(googleCalendarRequired).filter(([, value]) => !value).map(([name]) => name);
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || "";
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim() || "";
+  const turnstileConfigured = turnstileSiteKey.length > 0 && turnstileSecret.length > 0;
+  const resendWebhookSecret = process.env.RESEND_WEBHOOK_SECRET?.trim() || "";
+  const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
+  const automationCallbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
+  const triggerAutomationsActive = process.env.TRIGGER_AUTOMATIONS_ACTIVE?.trim() || "";
+  const triggerAutomationsConfigured =
+    triggerSecret.length >= 20 &&
+    automationCallbackSecret.length >= 32 &&
+    triggerAutomationsActive === "1";
   const deploymentEnvironment = process.env.VERCEL_ENV?.trim() || process.env.NODE_ENV || "unknown";
   const deploymentCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
   const deploymentHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() || process.env.VERCEL_URL?.trim() || null;
@@ -85,6 +108,30 @@ export function getRuntimeSetupStatus(): RuntimeSetupStatus {
       detail: missingGoogleCalendar.length === 0
         ? `Google Calendar OAuth is configured for automatic event creation and Google Meet links${process.env.GOOGLE_CALENDAR_ID?.trim() ? ` on calendar ${process.env.GOOGLE_CALENDAR_ID.trim()}` : " on the authenticated primary calendar"}.`
         : `Automatic Google Calendar booking is missing: ${missingGoogleCalendar.join(", ")}.`
+    },
+    turnstile: {
+      configured: turnstileConfigured,
+      detail: turnstileConfigured
+        ? "Cloudflare Turnstile site and server keys are configured for protected public forms."
+        : turnstileSiteKey || turnstileSecret
+          ? "Turnstile is only partially configured. Configure both NEXT_PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY before launch."
+          : "Cloudflare Turnstile is disabled. Configure both free Turnstile keys before launch."
+    },
+    resendWebhook: {
+      configured: resendWebhookSecret.length >= 16,
+      detail: resendWebhookSecret.length >= 16
+        ? "Resend webhook signature verification is configured."
+        : "Set RESEND_WEBHOOK_SECRET so delivery webhooks can be authenticated."
+    },
+    triggerAutomations: {
+      configured: triggerAutomationsConfigured,
+      detail: triggerAutomationsConfigured
+        ? "Trigger.dev automations and the signed callback are active."
+        : triggerAutomationsActive !== "1"
+          ? "Trigger.dev automations are not marked active. Keep this blocked until tasks and callback secrets are deployed."
+          : triggerSecret.length < 20
+            ? "TRIGGER_AUTOMATIONS_ACTIVE is enabled but TRIGGER_SECRET_KEY is missing or unexpectedly short."
+            : "TRIGGER_AUTOMATIONS_ACTIVE is enabled but AUTOMATION_CALLBACK_SECRET is missing or shorter than 32 characters."
     },
     deployment: {
       configured: deploymentIdentified,

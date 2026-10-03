@@ -39,6 +39,7 @@ type PaymentRow = {
   id: string;
   status: string;
   client_id: string;
+  job_id?: string | null;
   description: string | null;
   amount_total: number | string;
   released_at?: string | null;
@@ -47,7 +48,7 @@ type PaymentRow = {
 };
 
 const PAYMENT_SELECT =
-  "id,status,client_id,description,amount_total,released_at,provider_dispute_id,provider_dispute_status";
+  "id,status,client_id,job_id,description,amount_total,released_at,provider_dispute_id,provider_dispute_status";
 
 function isUuid(value?: string | null) {
   return Boolean(
@@ -164,6 +165,44 @@ async function completeProviderEvent(
     p_mark_processed: args.processed !== false,
   });
   if (error) throw error;
+}
+
+async function unlockCandidateAccessAfterSettlement(
+  admin: ReturnType<typeof createAdminClient>,
+  payment: PaymentRow,
+) {
+  if (!payment.job_id) return;
+  const { data: access, error: accessReadError } = await admin
+    .from("job_candidate_access")
+    .select("job_id,access_status,access_fee,payment_reference")
+    .eq("job_id", payment.job_id)
+    .eq("payment_reference", payment.id)
+    .maybeSingle();
+  if (accessReadError) throw accessReadError;
+  if (!access || access.access_status === "paid") return;
+
+  const fee = Number(access.access_fee || 0);
+  if (!(fee > 0) || Number(payment.amount_total || 0) < fee) return;
+
+  const { error: accessError } = await admin
+    .from("job_candidate_access")
+    .update({
+      access_status: "paid",
+      unlocked_at: new Date().toISOString(),
+      unlocked_by: null,
+    })
+    .eq("job_id", payment.job_id)
+    .eq("payment_reference", payment.id);
+  if (accessError) throw accessError;
+
+  await admin.from("notifications").insert({
+    user_id: payment.client_id,
+    title: "Candidate access unlocked",
+    body: "Your candidate-access payment has been confirmed. You can now review the recruiter-released shortlist for this role.",
+    href: `/workspace/client/jobs/${payment.job_id}`,
+    type: "candidate_access_payment",
+    priority: "high",
+  });
 }
 
 async function sendPaidSideEffects(
@@ -287,6 +326,7 @@ export async function POST(request: Request) {
         payment = (paidRow as PaymentRow | null) || payment;
 
         if (payment?.client_id && !wasPaid) {
+          await unlockCandidateAccessAfterSettlement(admin, payment);
           await sendPaidSideEffects(admin, payment);
         }
       }
@@ -305,6 +345,7 @@ export async function POST(request: Request) {
       payment = (paidRow as PaymentRow | null) || payment;
 
       if (payment?.client_id && !wasPaid) {
+        await unlockCandidateAccessAfterSettlement(admin, payment);
         await sendPaidSideEffects(admin, payment);
       }
     }

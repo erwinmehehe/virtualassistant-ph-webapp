@@ -6,8 +6,7 @@ import {
   CheckCircle2,
   Globe2,
   Search,
-  ShieldCheck,
-  UsersRound,
+  ShieldCheck
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";

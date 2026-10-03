@@ -21,18 +21,20 @@ test("client dashboard is compact and decision-first on phones", async () => {
   assert.match(css, /\.client-mobile-after-onboarding[\s\S]*grid-template-columns: 1fr/);
 });
 
-test("client hiring requests become readable cards on mobile", async () => {
+test("client hiring requests render as decision-first role cards on mobile", async () => {
   const [page, css] = await Promise.all([
     read("src/app/workspace/client/jobs/page.tsx"),
     read("src/app/workspace/client/client-mobile.css"),
   ]);
 
   assert.match(page, /client-jobs-page/);
-  assert.match(page, /client-jobs-table/);
-  assert.match(page, /client-job-row/);
+  assert.match(page, /client-jobs-summary/);
+  assert.match(page, /client-jobs-grid/);
+  assert.match(page, /client-job-card/);
   assert.match(page, /client-job-progress/);
-  assert.match(css, /\.client-jobs-table thead[\s\S]*display: none/);
-  assert.match(css, /\.client-jobs-table \.client-job-row[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(page, /shortlist_status","released"/);
+  assert.doesNotMatch(page, /from\("applications"\)/);
+  assert.match(css, /\.client-job-card-meta[\s\S]*grid-template-columns: 1fr/);
   assert.match(css, /\.client-job-progress[\s\S]*min-height: 42px/);
 });
 

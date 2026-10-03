@@ -13,6 +13,8 @@ type TalentSearchParams = {
   minOverlap?: number;
   timezone?: string;
   portfolioOnly?: boolean;
+  minRate?: number;
+  maxRate?: number;
   sort?: string;
   page?: number;
   pageSize?: number;
@@ -84,7 +86,7 @@ export async function searchPublicTalent(params: TalentSearchParams) {
   }
 
   const admin = createAdminClient();
-  const { data, error } = await admin.rpc("search_public_va_directory_hybrid", {
+  const { data, error } = await admin.rpc("search_public_va_directory_hybrid_v2", {
     p_query: query || null,
     p_query_embedding: queryEmbedding,
     p_category: params.category || null,
@@ -94,6 +96,8 @@ export async function searchPublicTalent(params: TalentSearchParams) {
     p_min_overlap: Math.max(0, Number(params.minOverlap || 0)),
     p_timezone: params.timezone || null,
     p_portfolio_only: Boolean(params.portfolioOnly),
+    p_min_rate: Math.max(0, Number(params.minRate || 0)),
+    p_max_rate: Number(params.maxRate || 0) > 0 ? Number(params.maxRate) : null,
     p_sort: params.sort || "recommended",
     p_offset: (page - 1) * pageSize,
     p_limit: pageSize,

@@ -6,6 +6,7 @@ import { createJobAction } from "@/app/actions/jobs";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { mergeUniqueStrings } from "@/lib/collections";
 import { ROLE_TEMPLATES, type RoleTemplate } from "@/lib/role-templates";
+import { suggestJobDraft } from "@/lib/job-draft-suggestions";
 
 const steps = ["Describe the work", "Schedule & pay", "Preview & post"] as const;
 
@@ -99,22 +100,15 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
     data[key].split(",").some((x) => x.trim().toLowerCase() === item.toLowerCase());
 
   function starterBriefValues(current: JobDraft) {
-    const words = `${current.title} ${current.summary}`.toLowerCase();
-    const ecommerce = /shopify|ecommerce|e-commerce|product/.test(words);
-    const support = /support|customer|email|inbox/.test(words);
-    const admin = /calendar|admin|assistant|schedule/.test(words);
-    const category = ecommerce ? "Ecommerce" : support ? "Customer Support" : admin ? "Administrative Support" : "General Virtual Assistance";
-    const skills = ecommerce ? "Ecommerce operations, Customer service, Data entry" : support ? "Customer service, Written communication, Problem solving" : admin ? "Administrative support, Calendar management, Inbox management" : "Administrative support, Communication, Research";
-    const responsibilities = ecommerce ? "Maintain product listings\nRespond to customer questions\nKeep orders and inventory information current" : support ? "Respond to customer messages\nResolve routine requests and escalate exceptions\nKeep support records current" : admin ? "Manage calendars and scheduling\nOrganize inboxes and follow-ups\nPrepare weekly updates" : "Complete recurring administrative tasks\nMaintain accurate records\nEscalate questions and blockers";
+    const suggested = suggestJobDraft(`${current.title} ${current.summary}`);
     return {
-      categories: current.categories || category,
-      required_skills: current.required_skills || skills,
-      responsibilities: current.responsibilities || responsibilities,
+      categories: current.categories || suggested.category,
+      required_skills: current.required_skills || suggested.skills,
+      responsibilities: current.responsibilities || suggested.responsibilities,
       description: current.description || `We need a reliable Virtual Assistant to help with: ${current.summary || "the responsibilities described above"}. The right person will communicate clearly, keep work organized, and raise blockers early.`,
-      title: current.title || `${category} VA`,
+      title: current.title || suggested.title,
     };
   }
-
   function prepareBrief() {
     setData((current) => ({ ...current, ...starterBriefValues(current) }));
   }

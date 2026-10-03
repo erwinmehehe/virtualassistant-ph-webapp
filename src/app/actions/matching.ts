@@ -168,21 +168,17 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
   const approvedIds = [...new Set((directory || []).map((row: any) => String(row.user_id)).filter(Boolean))];
   if (!approvedIds.length) return fail("No approved or bench Virtual Assistants are available to review.");
 
-  const [{ data: vas, error: vaError }, { data: activeMemberships, error: membershipError }] = await Promise.all([
-    admin.from("va_profiles").select("*").in("user_id", approvedIds),
-    admin.from("bench_memberships").select("va_id").in("va_id", approvedIds).eq("status", "active"),
-  ]);
-  if (vaError || membershipError) return fail("Could not load the client-ready VA pool. Please try again.");
+  const { data: vas, error: vaError } = await admin.from("va_profiles").select("*").in("user_id", approvedIds);
+  if (vaError) return fail("Could not load client-ready VAs. Please try again.");
 
   const stageMap = new Map((directory || []).map((row: any) => [String(row.user_id), row.stage]));
-  const activePoolIds = new Set((activeMemberships || []).map((row: any) => String(row.va_id)));
   const candidates = (vas || [])
     .filter((va: any) => {
       const vaId = String(va?.user_id || "");
       if (!vaId || alreadyChosen.has(vaId) || releasedIds.has(vaId) || hiddenIds.has(vaId)) return false;
       return isTalentAgencyCertified({
         stage: stageMap.get(vaId) as string | null | undefined,
-        activePool: activePoolIds.has(vaId),
+        activePool: false,
         availabilityStatus: va.availability_status,
         availabilityConfirmedAt: va.availability_confirmed_at,
       });
@@ -193,7 +189,7 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
     .slice(0, needed);
 
   if (!candidates.length) {
-    return fail("No client-ready 60%+ matches are available yet. Check talent-pool membership, availability, and the role requirements.");
+    return fail("No client-ready 60%+ matches are available yet. Check availability and the role requirements.");
   }
 
   const startOrder = existingHuman.reduce((max: number, row: any) => Math.max(max, Number(row.shortlist_order || 0)), 0);

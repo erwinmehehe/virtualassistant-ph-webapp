@@ -1,5 +1,5 @@
 import { SiteNav } from "@/components/site-nav";
 
-export function SiteHeader() {
+export async function SiteHeader() {
   return <SiteNav />;
 }

@@ -113,6 +113,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         ...(post.updatedAt !== post.publishedAt ? { dateModified: post.updatedAt } : {}),
         mainEntityOfPage: url,
         articleSection: post.clusterLabel,
+        inLanguage: "en-PH",
+        isAccessibleForFree: true,
+        ...(post.heroImage ? {
+          image: {
+            "@type": "ImageObject",
+            url: `${base}${post.heroImage.src}`,
+            width: post.heroImage.width,
+            height: post.heroImage.height,
+            caption: post.heroImage.caption || post.heroImage.alt
+          }
+        } : {}),
         author: {
           "@type": post.author.includes("Editorial") ? "Organization" : "Person",
           name: post.author,

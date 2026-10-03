@@ -521,7 +521,6 @@ export default async function RecruiterTalentDirectory({
           <option value="approve_publish">Approve + publish if public-ready</option>
           <option value="mark_reviewed">Mark profile edit reviewed</option>
           <option value="request_changes">Request profile changes</option>
-          <option value="request_address">Request address</option>
           <option value="remind">Email completion reminder</option>
           <option value="hide">Hide from public directory</option>
           <option value="reject">Reject</option>

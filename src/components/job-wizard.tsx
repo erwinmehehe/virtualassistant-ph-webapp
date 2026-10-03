@@ -9,8 +9,8 @@ import { ROLE_TEMPLATES, type RoleTemplate } from "@/lib/role-templates";
 import { suggestJobDraft } from "@/lib/job-draft-suggestions";
 import { isPublishableCompanyName } from "@/lib/job-publication";
 
-const steps = ["Role & outcomes", "Schedule & budget", "Review & submit"] as const;
-const stepDescriptions = ["Start with the outcome. We can help shape the hiring brief around it.","Set working hours, timezone and VA compensation.","Review the complete role before submitting."] as const;
+const steps = ["Role", "Schedule & budget", "Review"] as const;
+const stepDescriptions = ["Tell us what this person should own. We will help shape the brief.","Set hours, working timezone, budget and start timing.","Check exactly what will be sent before you submit."] as const;
 const HOURS_PRESETS = ["10", "20", "30", "40"] as const;
 const START_PRESETS = ["ASAP", "Within 2 weeks", "Within a month", "Flexible"] as const;
 
@@ -253,7 +253,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
         <div className="job-post-preview">
           <div className="job-post-preview-head">
             <div className="review-icon"><FileText size={22}/></div>
-            <div><span>Client-facing job preview</span><h3>{data.title || "Virtual Assistant"}</h3><p>{data.company_name || "Your company"} · {data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible timezone"}</p></div>
+            <div><span>Job post preview</span><h3>{data.title || "Virtual Assistant"}</h3><p>{data.company_name || "Your company"} · {data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible timezone"}</p></div>
             <strong className="job-post-preview-rate">${data.min_hourly_rate || MIN_HOURLY_RATE}{data.max_hourly_rate ? `–${data.max_hourly_rate}` : "+"}/hr</strong>
           </div>
           <p className="job-post-preview-summary">{data.summary || "Add a summary before submitting."}</p>
@@ -272,7 +272,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="wizard-actions-context">{step < 2 ? <span>{step === 0 ? "Next: working hours and budget" : "Next: final review"}</span> : <span>{canSelfPublishJobs ? "You can edit this role after publishing." : "Your recruiter will review this before recruiting starts."}</span>}</div>
+        <div className="wizard-actions-context">{step < 2 ? <span>{step === 0 ? "Next: schedule and budget" : "Next: final review"}</span> : <span>{canSelfPublishJobs ? "You can edit this role after publishing." : "Your recruiter will review this before recruiting starts."}</span>}</div>
         <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>{step === 0 ? "Continue" : "Review request"}</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Send to recruiter"}</button>}</div>
       </div>
     </div>

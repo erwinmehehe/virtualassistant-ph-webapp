@@ -113,8 +113,11 @@ test("public marketplace never exposes jobs below the product rate floor", () =>
 test("common VA role cards make the marketplace fuller without becoming fake openings", () => {
   assert.match(page, /const commonVaRoles = \[/);
   assert.match(page, /Common VA roles clients hire for/);
-  assert.match(page, /These are hiring templates, not active openings/);
-  assert.match(page, /Use this hiring brief/);
+  assert.match(page, /VAPH Talent Marketplace/);
+  assert.match(page, /These cards describe role types, not current employer vacancies/);
+  assert.match(page, /Register interest/);
+  assert.match(page, /\/auth\/join\/va\?next=%2Fworkspace%2Fva%2Fjobs/);
   assert.doesNotMatch(page, /commonVaRoles\.map\([\s\S]*?<JobCard/);
   assert.doesNotMatch(page, /commonVaRoles\.map\([\s\S]*?jobPublicHref/);
+  assert.doesNotMatch(page, /commonVaRoles\.map\([\s\S]*?>Apply</);
 });

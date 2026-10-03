@@ -46,7 +46,7 @@ test("candidate access stays paid-only and recruiter-mediated", async () => {
 
   assert.match(matching, /ACCESS_STATUSES[^\n]+\["locked", "requested", "quoted", "invoiced", "paid"\]/);
   assert.doesNotMatch(matching, /ACCESS_STATUSES[^\n]+comped/);
-  assert.doesNotMatch(gate, /direct messaging|contact candidates directly/i);
+  assert.doesNotMatch(gate, /direct messaging|direct candidate messaging|contact candidates directly|contact details/i);
   assert.match(gate, /candidate communication stay recruiter-coordinated/);
   assert.doesNotMatch(staff, /comp candidate access/i);
   assert.doesNotMatch(adminJob, /paid or comped/i);

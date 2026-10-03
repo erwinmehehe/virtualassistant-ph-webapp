@@ -146,3 +146,14 @@ test("public job UI always exposes the submitted company name and never anonymou
   assert.doesNotMatch(card, /Confidential Client/);
   assert.match(autoPublish, /isPublishableCompanyName\(job\.company_name\)/);
 });
+
+
+test("public jobs always expose the submitted company name while richer profile fields stay opt-in", async () => {
+  const migration = await read("supabase/migrations/20261003203000_publish_job_company_names.sql");
+  assert.match(migration, /j\.company_name/);
+  assert.match(migration, /c\.public_company_visible = true/);
+  assert.match(migration, /lower\(btrim\(j\.company_name\)\) not in/);
+  assert.match(migration, /'private employer'/);
+  assert.match(migration, /'confidential client'/);
+  assert.doesNotMatch(migration, /select[\s\S]*?c\.company_name,/);
+});

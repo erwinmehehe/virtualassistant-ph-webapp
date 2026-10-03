@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, LockKeyhole, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import {
   completeVaQuickSetupAction,
   saveVaOnboardingBasicsAction,
@@ -13,7 +13,7 @@ import { getBusinessSettings } from "@/lib/business-settings";
 
 function requestedStep(value?: string) {
   const parsed = Number(value || "");
-  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 3 ? parsed : null;
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 2 ? parsed : null;
 }
 
 export default async function VaOnboardingPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -32,23 +32,19 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
     va?.weekly_hours != null &&
     va?.hourly_rate != null
   );
-  const addressDone = Boolean(String(va?.address || "").trim());
-
-  let step = requestedStep(params.step) || (!basicsDone ? 1 : !workDone ? 2 : 3);
+  let step = requestedStep(params.step) || (!basicsDone ? 1 : 2);
   if (!basicsDone) step = 1;
-  else if (!workDone && step > 2) step = 2;
 
   const stepStatus = [
     { number: 1, label: "Specialty", done: basicsDone },
     { number: 2, label: "Work setup", done: workDone },
-    { number: 3, label: "Private address", done: addressDone },
   ];
 
   return <div className="va-quick-setup-page">
     <div className="page-head va-quick-setup-head va-onboarding-head">
       <div>
         <div className="kicker">VA quick setup</div>
-        <h1>Build your profile in three saved steps</h1>
+        <h1>Build your profile in two saved steps</h1>
         <p>Each step saves before you continue. If you leave and come back, you will resume from the first unfinished step instead of starting over.</p>
       </div>
     </div>
@@ -63,11 +59,11 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
             <span className="small muted">Current profile strength</span>
             <h2>{completion.score}% complete</h2>
           </div>
-          <span className="badge"><Sparkles size={13}/> Step {step} of 3</span>
+          <span className="badge"><Sparkles size={13}/> Step {step} of 2</span>
         </div>
 
-        <progress className="va-quick-setup-meter" value={step - 1} max={3} aria-label={`Quick setup step ${step} of 3`}>
-          {step - 1} of 3
+        <progress className="va-quick-setup-meter" value={step - 1} max={2} aria-label={`Quick setup step ${step} of 2`}>
+          {step - 1} of 2
         </progress>
 
         <div className="va-quick-setup-step-list" aria-label="Quick setup checklist">
@@ -75,7 +71,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
             <span>{item.done ? "✓" : item.number}</span>
             <div>
               <strong>{item.label}</strong>
-              <small>{item.number === 1 ? "Role and headline" : item.number === 2 ? "Experience, availability, and rate" : "Recruiter-only contact detail"}</small>
+              <small>{item.number === 1 ? "Role and headline" : "Experience, availability, and rate"}</small>
             </div>
           </div>)}
         </div>
@@ -141,27 +137,6 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
 
             <div className="va-quick-setup-actions va-onboarding-actions">
               <Link className="btn btn-ghost" href="/workspace/va/onboarding?step=1"><ArrowLeft size={16}/> Back</Link>
-              <button className="btn btn-primary btn-lg" type="submit">Save step 2 <ArrowRight size={16}/></button>
-            </div>
-          </form>
-        </> : null}
-
-        {step === 3 ? <>
-          <div className="va-quick-setup-card-head">
-            <span className="small">Step 3 · Private address</span>
-            <h2>Where are you currently based?</h2>
-            <p>We try to pick this up when your resume clearly includes it. If it is missing, outdated, or uncertain, enter your current address here.</p>
-          </div>
-
-          <form id="va-onboarding-step-3" action={completeVaQuickSetupAction} className="va-quick-setup-form va-onboarding-form">
-            <div className="field">
-              <label htmlFor="quick-address">Current home address <span className="muted">(private)</span></label>
-              <input id="quick-address" name="address" minLength={5} maxLength={200} required defaultValue={va?.address || ""} placeholder="Street / barangay, city, province" autoComplete="street-address"/>
-              <span className="field-help"><LockKeyhole size={13}/> Recruiter/admin hiring operations only. This is never shown on your public VA profile.</span>
-            </div>
-
-            <div className="va-quick-setup-actions va-onboarding-actions">
-              <Link className="btn btn-ghost" href="/workspace/va/onboarding?step=2"><ArrowLeft size={16}/> Back</Link>
               <button className="btn btn-primary btn-lg" type="submit">Finish quick setup <ArrowRight size={16}/></button>
             </div>
           </form>

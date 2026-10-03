@@ -18,7 +18,7 @@ test("public job CTA respects logged-out, VA, and client sessions", async () => 
   assert.match(job, /Already have an account\? Log in/);
   assert.match(job, /auth\/join\/va\?next=/);
   assert.match(job, /auth\/login\?next=/);
-  assert.match(job, /The job poster has been notified/);
+  assert.match(job, /notify the job poster when a client account is attached/);
 });
 
 test("post-a-job skips signup for an already signed-in client", async () => {
@@ -41,7 +41,8 @@ test("client dashboard exposes direct job-posting entry points", async () => {
   assert.match(dashboard, /href="\/workspace\/client\/jobs\/new"><Plus size=\{17\}\/> Post a job/);
   assert.match(dashboard, /Post your first VA job/);
   assert.match(dashboard, /label:"Post a job"/);
-  assert.match(jobs, /href="\/workspace\/client\/jobs\/new">Post a job/);
+  assert.match(jobs, /href="\/workspace\/client\/jobs\/new"/);
+  assert.match(jobs, />Post a job<\/Link>/);
 });
 
 test("client and public composers use the same easy first step", async () => {

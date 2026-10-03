@@ -29,6 +29,7 @@ export const metadata: Metadata = {
 export default async function PostAJobPage() {
   const { user, profile } = await getSessionProfile();
   if (profile?.role === "client") redirect("/workspace/client/jobs/new");
+  if (user) redirect(profile?.role === "va" ? "/workspace/va" : "/workspace");
 
   return (
     <>
@@ -49,15 +50,9 @@ export default async function PostAJobPage() {
               </div>
             </div>
             <aside className="post-job-side-note">
-              {user ? <>
-                <span>You’re already signed in</span>
-                <strong>This account is not a client account.</strong>
-                <Link href="/workspace">Open your workspace</Link>
-              </> : <>
-                <span>Already have a client account?</span>
-                <strong>Open your workspace and post from there.</strong>
-                <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
-              </>}
+              <span>Already have a client account?</span>
+              <strong>Open your workspace and post from there.</strong>
+              <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
             </aside>
           </div>
         </section>

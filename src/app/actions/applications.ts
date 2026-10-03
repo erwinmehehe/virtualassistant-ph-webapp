@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchScore } from "@/lib/matching";
-import { sendApplicationStatusEmail } from "@/lib/email";
+import { sendApplicationEmail, sendApplicationStatusEmail } from "@/lib/email";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import type { ApplicationStatus } from "@/lib/types";
@@ -67,8 +67,28 @@ export async function applyToJobAction(formData: FormData) {
   await admin.from("application_status_history").insert({ application_id: application.id, from_status: null, to_status: "new", changed_by: user.id, note: "Application submitted" });
   await recordProductEvent("application_submitted", { userId: user.id, path: `/jobs/${jobId}`, metadata: { job_id: jobId } });
   await admin.from("notifications").insert({ user_id: job.client_id, title: `New application for ${job.title}`, body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.", href: `/workspace/client/jobs/${job.id}` });
+
+  try {
+    const [{ data: clientProfile }, { data: clientAuth }] = await Promise.all([
+      admin.from("profiles").select("full_name").eq("id", job.client_id).maybeSingle(),
+      admin.auth.admin.getUserById(job.client_id),
+    ]);
+    await sendApplicationEmail({
+      to: clientAuth.user?.email,
+      clientName: clientProfile?.full_name,
+      jobTitle: job.title,
+      jobId: job.id,
+      applicationId: application.id,
+    });
+  } catch (emailError) {
+    console.error("[email] New application employer notification failed", emailError);
+  }
+
   revalidatePath("/workspace/va/applications");
   revalidatePath(`/jobs/${jobId}`);
+  revalidatePath("/workspace/client");
+  revalidatePath("/workspace/client/notifications");
+  revalidatePath(`/workspace/client/jobs/${job.id}`);
   redirect("/workspace/va/applications?applied=1");
 }
 

@@ -74,3 +74,42 @@ test("canonical managed path still requires interview proceed before an offer an
   assert.match(confirmBlock, /offer\.status !== "pending_client"/);
   assert.match(confirmBlock, /confirm_hire_transaction/);
 });
+
+
+test("interview state changes reject stale scheduling, cancellation, and premature feedback", async () => {
+  const operations = await read("src/app/actions/recruiter-operations-system.ts");
+  const clientInterviews = await read("src/app/workspace/client/interviews/page.tsx");
+
+  const scheduleStart = operations.indexOf("export async function scheduleCandidateInterviewAction");
+  const cancelStart = operations.indexOf("export async function cancelCandidateInterviewAction", scheduleStart);
+  const feedbackStart = operations.indexOf("export async function submitCandidateInterviewFeedbackAction", cancelStart);
+  const offerStart = operations.indexOf("export async function createPlacementOfferAction", feedbackStart);
+  const scheduleBlock = operations.slice(scheduleStart, cancelStart);
+  const cancelBlock = operations.slice(cancelStart, feedbackStart);
+  const feedbackBlock = operations.slice(feedbackStart, offerStart);
+
+  assert.match(scheduleBlock, /Interview request is no longer schedulable/);
+  assert.match(scheduleBlock, /\["requested", "scheduled"\]\.includes\(String\(row\.status\)\)/);
+  assert.match(cancelBlock, /Only requested or scheduled interviews can be cancelled/);
+  assert.match(feedbackBlock, /row\.status !== "scheduled" \|\| !row\.scheduled_at/);
+  assert.match(feedbackBlock, /interviewEndsAtMs > Date\.now\(\)/);
+  assert.match(clientInterviews, /feedbackAvailableAt=scheduledAtMs\+Number\(row\.duration_minutes\|\|30\)\*60\*1000/);
+});
+
+test("placement offers cannot be accepted after their start date has passed", async () => {
+  const [operations, clientOffers] = await Promise.all([
+    read("src/app/actions/recruiter-operations-system.ts"),
+    read("src/app/workspace/client/offers/page.tsx"),
+  ]);
+
+  const respondStart = operations.indexOf("export async function respondPlacementOfferAction");
+  const confirmStart = operations.indexOf("export async function confirmPlacementOfferAction", respondStart);
+  const respondBlock = operations.slice(respondStart, confirmStart);
+  const confirmBlock = operations.slice(confirmStart);
+
+  assert.match(respondBlock, /todayForOffer/);
+  assert.match(respondBlock, /This offer start date has passed/);
+  assert.match(confirmBlock, /todayForConfirmation/);
+  assert.match(confirmBlock, /refresh the final terms before confirming/);
+  assert.match(clientOffers, /name="confirm_terms" required/);
+});

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { JobWizard } from "@/components/job-wizard";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -42,8 +43,26 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
   const fromPublicDraft=params.from_post==="1";
 
   return <div className="client-role-editor client-role-new">
-    <div className="page-head client-role-editor-head"><div><h1>{fromPublicDraft ? "Review and post your job" : "Post a Virtual Assistant job"}</h1><p>{fromPublicDraft ? "Your public draft is saved on this device. Check the preview, make any final edits, then submit the role." : company?.can_self_publish_jobs ? "Your account can publish complete curated-placement roles directly to the public jobs directory. Managed-service roles still go through team review." : fromOnboarding?"We turned your onboarding answers into a starter job posting. Review it, change anything you want, then submit it to our recruiting team for publication review.":"Create your job posting with the role, hours, pay, timezone, and skills you need. We will review the posting and move it through the appropriate recruiting and publication flow."}</p></div></div>
-    {requested?<div className="success-banner client-role-requested-banner" style={{marginBottom:18}}>Requested Virtual Assistant preserved: <strong>{requested.full_name}</strong>. This preference will stay attached to the hiring request.</div>:null}
+    <div className="client-role-editor-intro">
+      <div>
+        <Link className="text-link small" href="/workspace/client/jobs">← Hiring requests</Link>
+        <div className="kicker" style={{marginTop:10}}>{fromPublicDraft ? "Final review" : "Post a Virtual Assistant job"}</div>
+        <h1>{fromPublicDraft ? "Review and post your job" : "Tell us who you need"}</h1>
+        <p>{fromPublicDraft
+          ? "Check the role, schedule and budget below. You can edit anything before you submit."
+          : company?.can_self_publish_jobs
+            ? "Describe the work, set the schedule and budget, then review the public job before it goes live."
+            : fromOnboarding
+              ? "We used your onboarding answers to prepare a starter brief. Review it, adjust anything you want, then send it to your recruiter."
+              : "Start with the work you need handled. We will help turn it into a clear brief your recruiter can actually hire against."}</p>
+      </div>
+      <div className="client-role-editor-meta" aria-label="Hiring request form details">
+        <span><strong>3</strong> short steps</span>
+        <span><strong>Auto</strong> saved</span>
+        <span><strong>Recruiter</strong> supported</span>
+      </div>
+    </div>
+    {requested?<div className="success-banner client-role-requested-banner"><strong>{requested.full_name}</strong> is attached as your preferred VA. Your recruiter will keep that preference with this role.</div>:null}
     <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={Boolean(company?.can_self_publish_jobs)}/></div>
   </div>;
 }

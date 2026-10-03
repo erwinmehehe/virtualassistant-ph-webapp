@@ -85,7 +85,7 @@ test("approved client publishing UI explains when a job will go live", async () 
   const clientJobs = await read("src/app/workspace/client/jobs/page.tsx");
 
   assert.match(newJob, /can_self_publish_jobs/);
-  assert.match(newJob, /Post a Virtual Assistant job/);
+  assert.match(newJob, /Tell us who you need/);
   assert.match(wizard, /canSelfPublishJobs/);
   assert.match(wizard, /Publish job/);
   assert.match(wizard, /public Virtual Assistant jobs directory immediately/);

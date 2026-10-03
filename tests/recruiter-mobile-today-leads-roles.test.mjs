@@ -81,12 +81,12 @@ test("recruiter role matching renders as viewport-safe candidate cards on phones
   ]);
 
   assert.match(table, /className="table-wrap responsive-table matching-table"/);
-  assert.match(table, /data-label="Availability"/);
-  assert.match(table, /data-label="Client recommendation"/);
+  assert.match(table, /data-label="Availability & rate"/);
+  assert.match(table, /data-label="Client note"/);
   assert.match(css, /\.workspace-role-recruiter \.responsive-table table,[\s\S]*min-width: 0 !important/);
   assert.match(css, /\.workspace-role-recruiter \.matching-table tbody tr[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(css, /td\[data-label="Client recommendation"\][\s\S]*grid-column: 1 \/ -1/);
-  assert.match(css, /\.workspace-role-recruiter \.matching-table textarea[\s\S]*min-height: 96px/);
+  assert.match(css, /td\[data-label="Client note"\][\s\S]*grid-column: 1 \/ -1/);
+  assert.match(css, /\.workspace-role-recruiter \.matching-table textarea[\s\S]*min-height: 72px/);
   assert.match(css, /padding-bottom: calc\(128px \+ env\(safe-area-inset-bottom\)\)/);
 });
 

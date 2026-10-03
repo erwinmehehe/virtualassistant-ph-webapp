@@ -50,5 +50,5 @@ test("public job application journey requires recruiter-ready vetting", async ()
   assert.match(job, /Continue vetting/);
   assert.match(job, /Apply for this job/);
   assert.match(job, /approved and bench-vetted VAs/i);
-  assert.match(job, /private details stay protected until candidate access is active/i);
+  assert.match(job, /private contact details stay protected until candidate access is active/i);
 });

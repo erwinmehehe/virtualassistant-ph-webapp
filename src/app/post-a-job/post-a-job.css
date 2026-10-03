@@ -25,6 +25,7 @@
 .post-job-wizard-shell .wizard-step.active { background: #eef2ff; color: #3538cd; border-color: #c7d7fe; }
 .post-job-wizard-shell .wizard-panel { min-height: 0; padding: 28px; border-radius: 20px; box-shadow: 0 12px 34px rgba(16,24,40,.06); }
 .post-job-wizard-shell .brief-helper { margin-bottom: 18px; }
+.post-job-wizard-shell .post-job-primary-input { min-height: 148px; font-size: 16px; line-height: 1.6; padding: 14px; }
 .post-job-wizard-shell .role-template-picker { margin-bottom: 20px; }
 .wizard-optional { border: 1px solid #e4e7ec; border-radius: 13px; background: #f9fafb; }
 .wizard-optional > summary { cursor: pointer; padding: 13px 14px; color: #344054; font-size: 13px; font-weight: 750; }

@@ -57,6 +57,79 @@ export async function requestCandidateAccessAction(formData: FormData) {
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}access_requested=1`);
 }
 
+export async function createCandidateAccessInvoiceAction(formData: FormData) {
+  const { user } = await requireRole("admin");
+  const jobId = String(formData.get("job_id") || "").trim();
+  const fee = Number(formData.get("access_fee"));
+  const returnTo = safeReturnTo(formData.get("return_to"), `/workspace/admin/jobs/${jobId}`);
+  if (!jobId) throw new Error("Job is required.");
+  if (!Number.isFinite(fee) || fee <= 0 || fee > 100000) throw new Error("Enter a valid candidate access fee.");
+
+  const admin = createAdminClient();
+  const [{ data: job }, { data: current }] = await Promise.all([
+    admin.from("jobs").select("id,title,client_id").eq("id", jobId).single(),
+    admin.from("job_candidate_access").select("access_status,payment_reference").eq("job_id", jobId).maybeSingle(),
+  ]);
+  if (!job?.client_id) throw new Error("Link a client account before creating a candidate access invoice.");
+  if (candidateAccessUnlocked(current?.access_status)) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}candidate_access=already_paid#matching`);
+  }
+
+  if (current?.payment_reference) {
+    const { data: existingPayment } = await admin
+      .from("payments")
+      .select("id,status,client_id,job_id")
+      .eq("id", current.payment_reference)
+      .eq("client_id", job.client_id)
+      .eq("job_id", jobId)
+      .maybeSingle();
+    if (existingPayment && ["awaiting_payment","checkout_pending","paid","released"].includes(existingPayment.status)) {
+      redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}candidate_access=invoice_exists#matching`);
+    }
+  }
+
+  const { data: payment, error: paymentError } = await admin.from("payments").insert({
+    workroom_id: null,
+    job_id: jobId,
+    client_id: job.client_id,
+    va_id: null,
+    description: `Candidate access · ${job.title}`,
+    amount_total: fee,
+    platform_cut_percent: 0,
+    status: "awaiting_payment",
+    created_by: user.id,
+  }).select("id").single();
+  if (paymentError || !payment) throw paymentError || new Error("Could not create the candidate access invoice.");
+
+  const { error: accessError } = await admin.from("job_candidate_access").upsert({
+    job_id: jobId,
+    access_status: "invoiced",
+    access_fee: fee,
+    currency: "USD",
+    payment_reference: payment.id,
+    unlocked_at: null,
+    unlocked_by: null,
+  }, { onConflict: "job_id" });
+  if (accessError) {
+    await admin.from("payments").update({ status: "void" }).eq("id", payment.id);
+    throw accessError;
+  }
+
+  await admin.from("notifications").insert({
+    user_id: job.client_id,
+    title: "Candidate access invoice ready",
+    body: `Candidate access for ${job.title} is ready for payment. Access stays locked until PayMongo confirms settlement.`,
+    href: "/workspace/client/payments",
+    type: "candidate_access_payment",
+    priority: "high",
+  });
+
+  revalidatePath("/workspace/client/payments");
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath(returnTo);
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}candidate_access=invoiced#matching`);
+}
+
 export async function updateCandidateAccessAction(formData: FormData) {
   const { user } = await requireRole("admin");
   const jobId = String(formData.get("job_id") || "");

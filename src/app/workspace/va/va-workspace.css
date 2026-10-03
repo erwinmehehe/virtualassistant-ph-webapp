@@ -3595,3 +3595,1218 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* VA workspace hierarchy pass: readiness, applications, vetting, job discovery */
+.va-overview {
+  width: min(100%, 1160px);
+  margin-inline: auto;
+}
+
+.va-readiness-summary {
+  grid-column: span 2;
+  gap: 10px;
+}
+
+.va-readiness-lines {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.va-readiness-lines > a {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fcfcfd;
+  text-decoration: none;
+}
+
+.va-readiness-lines span {
+  color: #667085;
+  font-size: 9.5px;
+  font-weight: 650;
+}
+
+.va-readiness-lines strong {
+  overflow-wrap: anywhere;
+  color: #101828;
+  font-size: 12px;
+}
+
+.va-readiness-summary > p {
+  margin: 0;
+  color: #667085;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.va-dashboard-applications-summary {
+  min-width: 0;
+}
+
+.va-applications-page {
+  width: min(100%, 1080px);
+  margin-inline: auto;
+}
+
+.va-applications-head {
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.va-application-journey {
+  display: grid;
+  grid-template-columns: minmax(190px, .8fr) minmax(320px, 1.5fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 15px 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(16,24,40,.025);
+}
+
+.va-application-role {
+  min-width: 0;
+}
+
+.va-application-role > strong {
+  display: block;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  color: #101828;
+  font-size: 14px;
+}
+
+.va-application-role > span {
+  display: block;
+  margin-top: 2px;
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.va-application-timeline {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.va-application-timeline > div {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  min-width: 0;
+  text-align: center;
+}
+
+.va-application-timeline > div::before {
+  position: absolute;
+  top: 12px;
+  left: calc(-50% + 14px);
+  right: calc(50% + 14px);
+  height: 2px;
+  background: #eaecf0;
+  content: "";
+}
+
+.va-application-timeline > div:first-child::before {
+  display: none;
+}
+
+.va-application-timeline > div.done::before,
+.va-application-timeline > div.current::before {
+  background: #84adff;
+}
+
+.va-application-timeline > div > span {
+  z-index: 1;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 1px solid #d0d5dd;
+  border-radius: 50%;
+  background: #fff;
+  color: #667085;
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.va-application-timeline > div.done > span,
+.va-application-timeline > div.current > span {
+  border-color: #84adff;
+  background: #eef4ff;
+  color: #3538cd;
+}
+
+.va-application-timeline small {
+  overflow-wrap: anywhere;
+  color: #667085;
+  font-size: 8.75px;
+  line-height: 1.25;
+}
+
+.va-application-timeline .current small {
+  color: #344054;
+  font-weight: 750;
+}
+
+.va-application-closed {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fcfcfd;
+}
+
+.va-application-closed span {
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.va-application-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.va-vetting-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.va-vetting-flow-step {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 11px;
+  background: #fff;
+  text-decoration: none;
+}
+
+.va-vetting-flow-step > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f2f4f7;
+  color: #667085;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.va-vetting-flow-step.done {
+  border-color: #abefc6;
+  background: #f6fef9;
+}
+
+.va-vetting-flow-step.done > span {
+  background: #dcfae6;
+  color: #067647;
+}
+
+.va-vetting-flow-step > div {
+  min-width: 0;
+}
+
+.va-vetting-flow-step strong,
+.va-vetting-flow-step small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.va-vetting-flow-step strong {
+  color: #101828;
+  font-size: 11px;
+}
+
+.va-vetting-flow-step small {
+  margin-top: 2px;
+  color: #667085;
+  font-size: 8.75px;
+}
+
+.va-job-filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) minmax(160px, 1fr) minmax(130px, .7fr) auto auto auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 10px;
+  padding: 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.va-job-filters label:not(.va-job-filter-check) {
+  display: grid;
+  gap: 5px;
+}
+
+.va-job-filters label > span {
+  color: #475467;
+  font-size: 9.5px;
+  font-weight: 750;
+}
+
+.va-job-filters input,
+.va-job-filters select {
+  min-width: 0;
+  min-height: 38px;
+  border-radius: 9px;
+}
+
+.va-job-filter-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 7px;
+  white-space: nowrap;
+}
+
+.va-job-filter-check input {
+  width: 15px;
+  min-height: 0;
+}
+
+.va-job-results-summary {
+  margin: 0 1px 10px;
+}
+
+.va-workroom-tasks select:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 980px) {
+  .va-job-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .va-job-filter-check {
+    align-self: end;
+  }
+
+  .va-application-journey {
+    grid-template-columns: 1fr;
+  }
+
+  .va-application-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 680px) {
+  .va-readiness-summary {
+    grid-column: 1 / -1;
+  }
+
+  .va-readiness-lines,
+  .va-vetting-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .va-vetting-flow-step {
+    padding: 9px 10px;
+  }
+
+  .va-job-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .va-job-filters input,
+  .va-job-filters select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .va-job-filters .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .va-application-journey {
+    padding: 13px;
+  }
+
+  .va-application-timeline {
+    overflow-x: auto;
+    grid-template-columns: repeat(5, minmax(92px, 1fr));
+    padding-bottom: 4px;
+  }
+
+  .va-application-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .va-application-actions .btn {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .va-readiness-lines {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* VA dashboard simplified action hierarchy */
+.va-dashboard-simplified {
+  width: min(100%, 1160px);
+  margin-inline: auto;
+}
+
+.va-dashboard-simplified > * + * {
+  margin-top: 14px;
+}
+
+.va-dashboard-next {
+  border-radius: 15px;
+}
+
+.va-readiness-card,
+.va-dashboard-opportunities {
+  padding: 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(16,24,40,.03);
+}
+
+.va-readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.va-readiness-grid > a,
+.va-readiness-visibility {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid #eaecf0;
+  border-radius: 11px;
+  background: #fcfcfd;
+  text-decoration: none;
+}
+
+.va-readiness-grid > a > span,
+.va-readiness-visibility > span {
+  color: #667085;
+  font-size: 9.75px;
+  font-weight: 700;
+}
+
+.va-readiness-grid > a > strong,
+.va-readiness-visibility > strong {
+  color: #101828;
+  font-size: 15px;
+}
+
+.va-readiness-grid small {
+  color: #667085;
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+.va-readiness-visibility .btn {
+  margin-top: 3px;
+  justify-self: start;
+}
+
+.va-dashboard-opportunities .pipeline-summary {
+  margin-top: 12px;
+}
+
+.va-dashboard-activity-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.va-dashboard-activity-links > a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fcfcfd;
+  color: #344054;
+  text-decoration: none;
+}
+
+.va-dashboard-activity-links strong {
+  color: #101828;
+  font-size: 14px;
+}
+
+.va-dashboard-activity-links span {
+  min-width: 0;
+  font-size: 9.75px;
+  line-height: 1.3;
+}
+
+.va-dashboard-matches-section {
+  padding: 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 15px;
+  background: #fff;
+}
+
+.va-dashboard-training {
+  margin-top: 14px;
+}
+
+.va-dashboard-notification-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid #d6e4ff;
+  border-radius: 10px;
+  background: #f8faff;
+  color: #344054;
+  text-decoration: none;
+}
+
+.va-dashboard-notification-link span {
+  display: grid;
+  gap: 2px;
+}
+
+.va-dashboard-notification-link strong {
+  font-size: 11px;
+}
+
+.va-dashboard-notification-link small {
+  color: #667085;
+  font-size: 9.5px;
+}
+
+@media (max-width: 850px) {
+  .va-readiness-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .va-dashboard-activity-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .va-readiness-card,
+  .va-dashboard-opportunities,
+  .va-dashboard-matches-section {
+    padding: 13px;
+  }
+
+  .va-dashboard-activity-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* VA workspace canonical 2026-10: next action, readiness, applications and job discovery */
+.va-dashboard-simplified,
+.va-applications-hub {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+
+.va-dashboard-simplified {
+  display: grid;
+  gap: 14px;
+}
+
+.va-dashboard-next {
+  margin: 0;
+  border: 1px solid #c7d7fe;
+  border-radius: 16px;
+  background: linear-gradient(135deg,#f7faff 0%,#fff 78%);
+  box-shadow: 0 7px 24px rgba(16,24,40,.035);
+}
+
+.va-readiness-card,
+.va-dashboard-opportunities {
+  padding: 18px;
+  border-radius: 16px;
+}
+
+.va-readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 9px;
+}
+
+.va-readiness-grid > a,
+.va-readiness-visibility {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.va-readiness-grid > a:hover {
+  border-color: #c7d7fe;
+  background: #f8faff;
+}
+
+.va-readiness-grid span {
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.va-readiness-grid strong {
+  font-size: 20px;
+  letter-spacing: -.025em;
+}
+
+.va-readiness-grid small {
+  color: #667085;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.va-readiness-grid .progress {
+  height: 6px;
+  margin: 2px 0;
+}
+
+.va-readiness-visibility form {
+  margin-top: 3px;
+}
+
+.va-dashboard-opportunities .pipeline-summary {
+  grid-template-columns: repeat(5,minmax(0,1fr));
+}
+
+.va-dashboard-activity-links {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.va-dashboard-activity-links > a {
+  display: grid;
+  grid-template-columns: 30px minmax(0,1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 11px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.va-dashboard-activity-links > a:hover {
+  border-color: #c7d7fe;
+  background: #f8faff;
+}
+
+.va-dashboard-activity-links strong {
+  color: #3538cd;
+  font-size: 18px;
+}
+
+.va-dashboard-activity-links span {
+  color: #475467;
+  font-size: 11.5px;
+}
+
+.va-dashboard-matches-section {
+  display: grid;
+  gap: 10px;
+}
+
+.va-dashboard-notification-link {
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr) auto;
+  gap: 9px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.va-dashboard-notification-link span {
+  display: grid;
+}
+
+.va-dashboard-notification-link strong {
+  font-size: 11.5px;
+}
+
+.va-dashboard-notification-link small {
+  color: #667085;
+  font-size: 10.5px;
+}
+
+/* Job filters */
+.va-job-filters {
+  display: grid;
+  grid-template-columns: minmax(240px,1.4fr) repeat(3,minmax(130px,.55fr)) auto auto auto;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.va-job-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.va-job-search:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(10,77,168,.08);
+}
+
+.va-job-search input,
+.va-job-filters select {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #344054;
+  font-size: 12px;
+}
+
+.va-job-filters label:not(.va-job-saved-filter) {
+  min-width: 0;
+  padding: 0 8px;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+}
+
+.va-job-saved-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.va-job-results-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 2px 10px;
+  color: #667085;
+  font-size: 11px;
+}
+
+.va-job-results-head > span {
+  color: #344054;
+  font-weight: 700;
+}
+
+/* Applications become the VA's hiring hub. */
+.va-applications-hub {
+  display: grid;
+  gap: 14px;
+}
+
+.va-applications-head {
+  margin-bottom: 0;
+}
+
+.va-application-section {
+  display: grid;
+  gap: 10px;
+}
+
+.va-application-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.va-application-section-head h2 {
+  margin: 4px 0 2px;
+  font-size: 18px;
+}
+
+.va-application-section-head p {
+  margin: 0;
+  color: #667085;
+  font-size: 11.5px;
+}
+
+.va-application-invites {
+  padding: 14px;
+  border: 1px solid #fedf89;
+  border-radius: 14px;
+  background: #fffcf5;
+}
+
+.va-request-list {
+  display: grid;
+  gap: 7px;
+}
+
+.va-request-row {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.va-request-row > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.va-request-row span,
+.va-request-row p {
+  color: #667085;
+  font-size: 11px;
+}
+
+.va-request-row p {
+  margin: 4px 0 0;
+}
+
+.va-request-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.va-application-timeline-list {
+  display: grid;
+  gap: 10px;
+}
+
+.va-application-card {
+  display: grid;
+  gap: 13px;
+  padding: 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(16,24,40,.025);
+}
+
+.va-application-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.va-application-card-head h3 {
+  margin: 7px 0 2px;
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+
+.va-application-card-head p {
+  margin: 0;
+  color: #667085;
+  font-size: 11.5px;
+}
+
+.va-application-stage-track {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 5px;
+}
+
+.va-application-stage-track > div {
+  display: grid;
+  grid-template-columns: 25px minmax(0,1fr);
+  gap: 6px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 9px;
+  color: #667085;
+  background: #f9fafb;
+}
+
+.va-application-stage-track > div > span {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border-radius: 999px;
+  background: #eaecf0;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.va-application-stage-track > div.current {
+  color: #3538cd;
+  background: #eef4ff;
+}
+
+.va-application-stage-track > div.current > span {
+  color: #fff;
+  background: #444ce7;
+}
+
+.va-application-stage-track > div.done {
+  color: #067647;
+  background: #ecfdf3;
+}
+
+.va-application-stage-track > div.done > span {
+  color: #fff;
+  background: #12b76a;
+}
+
+.va-application-stage-track small {
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.va-application-next {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 11px;
+  background: #fcfcfd;
+}
+
+.va-application-next > div {
+  display: grid;
+  gap: 2px;
+}
+
+.va-application-next span {
+  color: #667085;
+  font-weight: 700;
+}
+
+.va-application-next strong {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.va-application-waiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.va-application-secondary-actions {
+  width: fit-content;
+}
+
+.va-application-secondary-actions > summary,
+.va-application-history > summary {
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.va-application-secondary-actions form {
+  margin-top: 8px;
+}
+
+.va-application-history {
+  padding: 12px 0;
+  border-top: 1px solid #e4e7ec;
+}
+
+.va-application-history > .va-application-list {
+  margin-top: 10px;
+}
+
+/* Vetting: one path, not duplicate dashboard stats. */
+.va-vetting-flow {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.va-vetting-flow-step {
+  display: grid;
+  grid-template-columns: 28px minmax(0,1fr);
+  gap: 7px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #e4e7ec;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.va-vetting-flow-step > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  color: #3538cd;
+  background: #eef4ff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.va-vetting-flow-step.done {
+  border-color: #abefc6;
+  background: #f6fef9;
+}
+
+.va-vetting-flow-step.done > span {
+  color: #067647;
+  background: #dcfae6;
+}
+
+.va-vetting-flow-step div {
+  display: grid;
+  min-width: 0;
+}
+
+.va-vetting-flow-step strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+}
+
+.va-vetting-flow-step small {
+  color: #667085;
+  font-size: 9px;
+}
+
+.va-vetting-summary {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.va-vetting-summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 11px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fcfcfd;
+}
+
+.va-vetting-summary span {
+  color: #667085;
+  font-size: 10.5px;
+}
+
+.va-vetting-summary strong {
+  font-size: 12.5px;
+}
+
+@media (max-width: 980px) {
+  .va-job-filters {
+    grid-template-columns: minmax(220px,1fr) repeat(2,minmax(120px,.55fr)) auto auto;
+  }
+
+  .va-job-filters > label:nth-of-type(3) {
+    display: none;
+  }
+
+  .va-readiness-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .va-readiness-visibility {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .va-dashboard-simplified,
+  .va-applications-hub {
+    gap: 11px;
+  }
+
+  .va-dashboard-next {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-readiness-card,
+  .va-dashboard-opportunities {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-readiness-grid,
+  .va-dashboard-activity-links {
+    grid-template-columns: 1fr;
+  }
+
+  .va-readiness-visibility {
+    grid-column: auto;
+  }
+
+  .va-dashboard-opportunities .pipeline-summary {
+    grid-template-columns: repeat(5,minmax(94px,1fr));
+    overflow-x: auto;
+  }
+
+  .va-job-filters {
+    grid-template-columns: 1fr 1fr;
+    padding: 8px;
+  }
+
+  .va-job-search {
+    grid-column: 1 / -1;
+  }
+
+  .va-job-filters > label:nth-of-type(3) {
+    display: block;
+  }
+
+  .va-job-saved-filter {
+    min-height: 38px;
+  }
+
+  .va-job-filters .btn {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .va-job-clear {
+    grid-column: 1 / -1;
+  }
+
+  .va-application-section-head,
+  .va-application-card-head,
+  .va-request-row {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .va-request-row,
+  .va-application-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .va-request-actions {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .va-request-actions form,
+  .va-request-actions .btn {
+    width: 100%;
+  }
+
+  .va-application-card-head {
+    display: grid;
+  }
+
+  .va-application-card-head > .btn {
+    width: 100%;
+  }
+
+  .va-application-stage-track {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .va-application-stage-track::-webkit-scrollbar { display:none; }
+
+  .va-application-stage-track > div {
+    flex: 0 0 112px;
+  }
+
+  .va-application-next {
+    grid-template-columns: 1fr;
+  }
+
+  .va-application-next .btn {
+    width: 100%;
+  }
+
+  .va-vetting-flow {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .va-vetting-flow::-webkit-scrollbar { display:none; }
+
+  .va-vetting-flow-step {
+    flex: 0 0 150px;
+  }
+
+  .va-vetting-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .va-job-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .va-job-search,
+  .va-job-clear {
+    grid-column: auto;
+  }
+
+  .va-request-actions {
+    grid-template-columns: 1fr;
+  }
+}

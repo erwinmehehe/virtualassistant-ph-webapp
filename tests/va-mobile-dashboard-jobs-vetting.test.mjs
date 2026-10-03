@@ -4,18 +4,19 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("VA dashboard keeps status and pipeline compact on phones", async () => {
+test("VA dashboard keeps one next action and consolidated readiness on phones", async () => {
   const [page, css] = await Promise.all([
     read("src/app/workspace/va/page.tsx"),
     read("src/app/workspace/va/va-workspace.css"),
   ]);
 
   assert.match(page, /va-dashboard-head/);
-  assert.match(page, /va-dashboard-pipeline/);
-  assert.match(css, /VA mobile pass: dashboard, jobs, vetting/);
-  assert.match(css, /\.va-overview \.va-status-strip[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
-  assert.match(css, /\.va-overview \.pipeline-summary[\s\S]*grid-template-columns: repeat\(5, minmax\(92px, 1fr\)\)/);
-  assert.match(css, /@media \(max-width: 420px\)[\s\S]*\.va-overview \.va-status-strip[\s\S]*grid-template-columns: 1fr/);
+  assert.match(page, /va-dashboard-simplified/);
+  assert.match(page, /va-readiness-card/);
+  assert.match(page, /va-dashboard-opportunities/);
+  assert.match(css, /VA dashboard simplified action hierarchy/);
+  assert.match(css, /\.va-readiness-grid[\s\S]*grid-template-columns: 1fr/);
+  assert.match(css, /\.va-dashboard-activity-links[\s\S]*grid-template-columns: 1fr/);
 });
 
 test("VA jobs use a denser mobile browse layout", async () => {
@@ -40,9 +41,9 @@ test("VA vetting has a responsive dedicated screening layout", async () => {
 
   for (const className of [
     "va-vetting-page",
-    "va-vetting-stats",
+    "va-vetting-flow",
+    "va-vetting-summary",
     "va-vetting-layout",
-    "va-vetting-progress-card",
     "va-vetting-skills-card",
     "va-vetting-video-card",
     "va-vetting-sidebar",
@@ -51,7 +52,7 @@ test("VA vetting has a responsive dedicated screening layout", async () => {
   }
 
   assert.match(css, /\.va-vetting-layout[\s\S]*grid-template-columns: minmax\(0, 1fr\) minmax\(220px, 280px\)/);
-  assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.va-vetting-stats[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.va-vetting-flow[\s\S]*grid-template-columns: repeat\(5,minmax\(0,1fr\)\)/);
   assert.match(css, /\.va-vetting-test-form textarea,[\s\S]*font-size: 16px/);
   assert.match(css, /\.va-vetting-video-form[\s\S]*grid-template-columns: 1fr/);
 });

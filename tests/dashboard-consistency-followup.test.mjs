@@ -34,6 +34,6 @@ test("client mobile primary follows the hiring decision flow while support remai
   const nav=await read("src/components/app-nav-links.tsx");
   assert.match(nav,/\["Support", "\/workspace\/client\/support", LifeBuoy\]/);
   assert.match(nav,/\["Support", "\/workspace\/va\/support", LifeBuoy\]/);
-  assert.match(nav,/client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/candidates", "\/workspace\/client\/messages"\]/);
-  assert.match(nav,/va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/workroom", "\/workspace\/va\/support"\]/);
+  assert.match(nav,/client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/messages", "\/workspace\/client\/team"\]/);
+  assert.match(nav,/va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/applications", "\/workspace\/va\/workroom"\]/);
 });

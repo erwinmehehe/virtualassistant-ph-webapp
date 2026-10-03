@@ -25,7 +25,7 @@ test("desktop and mobile navigation use simplified durable workspace groups", ()
     "Hiring",
     "My Team",
     "Home",
-    "Opportunities",
+    "Find Jobs",
     "My Day",
     "Clients",
     "Roles",
@@ -53,7 +53,7 @@ test("role dashboards share the organized dashboard surface", () => {
   assert.match(recruiter, /recruiter_today_summary/);
   assert.match(recruiter, /Needs action/);
   assert.match(client, /refreshed when this page opened/);
-  assert.match(va, /DashHeader title="VA dashboard"/);
+  assert.match(va, /DashHeader kicker="Your VA workspace" title="What needs you next"/);
   assert.match(recruiter, /Less scanning · clearer ownership/);
 });
 

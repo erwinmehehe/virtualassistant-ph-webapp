@@ -9,7 +9,7 @@ import { matchAssessment } from "@/lib/matching";
 import { runRecruiterCopilot, type CopilotTask } from "@/lib/ai-recruiter";
 import { cancelGoogleMeetDiscoveryMeeting, createGoogleMeetDiscoveryMeeting, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { sendTransactionalEventEmail } from "@/lib/email";
-import { VETTING_SCORECARD_PASS } from "@/lib/constants";
+import { MIN_HOURLY_RATE, VETTING_SCORECARD_PASS } from "@/lib/constants";
 import { recordProductEvent } from "@/lib/product-events";
 import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 import { queueInterviewFeedbackAutomation, queueOfferClientConfirmationAutomation, queuePlacementHandoffAutomation } from "@/lib/trigger-automation";
@@ -521,7 +521,7 @@ export async function createPlacementOfferAction(formData: FormData) {
   const timezone = String(formData.get("timezone") || "").trim().slice(0, 100) || null;
   const serviceType = String(formData.get("service_type") || "curated_placement") === "managed_service" ? "managed_service" : "curated_placement";
   const notes = text(formData.get("notes"), 2000);
-  if (!jobId || !vaId || !Number.isFinite(hourlyRate) || hourlyRate < 5 || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80 || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || schedule.length < 3) {
+  if (!jobId || !vaId || !Number.isFinite(hourlyRate) || hourlyRate < MIN_HOURLY_RATE || !Number.isInteger(weeklyHours) || weeklyHours < 1 || weeklyHours > 80 || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || schedule.length < 3) {
     throw new Error("Complete the final rate, weekly hours, schedule, and start date.");
   }
   const admin = createAdminClient();

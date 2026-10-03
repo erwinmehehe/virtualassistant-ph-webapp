@@ -10,6 +10,7 @@ export type PublicationBlocker =
 export type PublicationJob = {
   status?: string | null;
   client_id?: string | null;
+  recruiter_managed_public?: boolean | null;
   title?: string | null;
   company_name?: string | null;
   summary?: string | null;
@@ -50,6 +51,22 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
   label: string;
   detail: string;
 } {
+  if (job.status === "published" && job.recruiter_managed_public) {
+    const missing = publicationMissingDetails(job);
+    if (missing.length) {
+      return {
+        key: "brief_incomplete",
+        label: "Brief incomplete",
+        detail: `This published recruiter-managed role is missing required public content: ${missing.join(", ")}.`,
+      };
+    }
+    return {
+      key: "published",
+      label: "Published",
+      detail: "This recruiter-managed role is live while the client account is being linked.",
+    };
+  }
+
   if (!job.client_id) {
     return {
       key: "needs_client_account",

@@ -187,7 +187,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
               <CheckCircle2 size={17}/>
               <div>
                 <strong>Application submitted.</strong>
-                <span>The employer has been notified and your application is now in recruiter review.</span>
+                <span>Your application is now in recruiter review. The hiring company is contacted through the VAPH recruiting flow.</span>
               </div>
             </div>
           ) : null}
@@ -327,7 +327,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                   applied ? (
                     <div className="success-state">
                       <strong>Application submitted</strong>
-                      <span className="small">Your application is in recruiter review. The employer has been notified.</span>
+                      <span className="small">Your application is in recruiter review. VAPH will handle the next employer step.</span>
                       <Link className="btn" href="/workspace/va/applications">View my applications</Link>
                     </div>
                   ) : vetted ? (

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { BriefcaseBusiness, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { JobWizard } from "@/components/job-wizard";
+import { getSessionProfile } from "@/lib/auth";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
 import "./post-a-job.css";
@@ -24,7 +26,11 @@ export const metadata: Metadata = {
   }),
 };
 
-export default function PostAJobPage() {
+export default async function PostAJobPage() {
+  const { user, profile } = await getSessionProfile();
+  if (profile?.role === "client") redirect("/workspace/client/jobs/new");
+  const isVa = profile?.role === "va";
+
   return (
     <>
       <SiteHeader />
@@ -33,9 +39,9 @@ export default function PostAJobPage() {
           <div className="container post-job-hero-grid">
             <div className="post-job-copy">
               <span className="post-job-kicker"><BriefcaseBusiness size={15}/> Post a VA job</span>
-              <h1>Describe the role. Review the posting before you sign up.</h1>
+              <h1>{isVa ? "You’re signed in as a Virtual Assistant." : user ? "Use the workspace for this account." : "Describe the role. Review the posting before you sign up."}</h1>
               <p>
-                Add the work, hours, timezone, and budget first. Your account comes later, after you review the job exactly as applicants will see it.
+                {isVa ? "Your VA account can browse and apply to jobs. Employer posting belongs to a client account." : user ? "This signed-in account is not a client account, so it cannot post employer jobs." : "Add the work, hours, timezone, and budget first. Your account comes later, after you review the job exactly as applicants will see it."}
               </p>
               <div className="post-job-proof">
                 <span><CheckCircle2 size={16}/> No signup to start</span>
@@ -44,9 +50,9 @@ export default function PostAJobPage() {
               </div>
             </div>
             <aside className="post-job-side-note">
-              <span>Already have a client account?</span>
-              <strong>Open your workspace and post from there.</strong>
-              <Link href="/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew">Sign in to post a job</Link>
+              <span>{isVa ? "Signed in as a Virtual Assistant" : user ? "Already signed in" : "Already have a client account?"}</span>
+              <strong>{isVa ? "Use your VA workspace to browse and apply." : user ? "Open the workspace for this account." : "Sign in and we’ll take you straight to the client job composer."}</strong>
+              <Link href={isVa ? "/workspace/va/jobs" : user ? "/workspace" : "/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew"}>{isVa ? "Browse VA jobs" : user ? "Go to workspace" : "Sign in to post a job"}</Link>
             </aside>
           </div>
         </section>
@@ -60,15 +66,21 @@ export default function PostAJobPage() {
               </div>
               <p>Three short steps. Add more detail only when it matters.</p>
             </div>
-            <div className="post-job-wizard-shell">
-              <JobWizard publicMode />
-            </div>
-            <div className="post-job-after">
-              <strong>What happens after the preview?</strong>
-              <p>
-                Create or sign in to your client account, confirm the saved draft, and submit it. If the role needs recruiter review or commercial approval, you will see that clearly after submission.
-              </p>
-            </div>
+            {user ? <div className="post-job-authenticated-cta">
+              <strong>{isVa ? "This is a VA account." : "This account cannot post client jobs."}</strong>
+              <p>{isVa ? "You can browse jobs, save roles, and apply after vetting from your VA workspace." : "Open your workspace to continue with the tools available to this account."}</p>
+              <Link className="btn btn-primary" href={isVa ? "/workspace/va/jobs" : "/workspace"}>{isVa ? "Browse VA jobs" : "Go to workspace"}</Link>
+            </div> : <>
+              <div className="post-job-wizard-shell">
+                <JobWizard publicMode />
+              </div>
+              <div className="post-job-after">
+                <strong>What happens after the preview?</strong>
+                <p>
+                  Create or sign in to your client account, confirm the saved draft, and submit it. If the role needs recruiter review or commercial approval, you will see that clearly after submission.
+                </p>
+              </div>
+            </>}
           </div>
         </section>
       </main>

@@ -113,10 +113,6 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       title: current.title || suggested.title,
     };
   }
-  function prepareBrief() {
-    setData((current) => ({ ...current, ...starterBriefValues(current) }));
-  }
-
   function validate(targetStep = step, candidate = data) {
     const next: Errors = {};
     const candidateCategories = candidate.categories.split(",").map((x) => x.trim()).filter((x) => categoryOptions.has(x));
@@ -193,35 +189,19 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
 
-      {step===0 && !publicMode?<div className="brief-helper"><div><span className="small">{publicMode ? "Start here" : "Need a starting point?"}</span><strong>{publicMode ? "Describe the work in one or two sentences. The next screen fills in a draft title, specialty, skills, and responsibilities." : "Describe the work in your own words, then review the generated hiring brief before you continue."}</strong></div>{publicMode ? null : <button type="button" className="btn btn-sm" onClick={prepareBrief}><Sparkles size={15}/> Prepare a starter brief</button>}</div>:null}
-
-      {step === 0 && isBlankDraft && !publicMode ? <section className="role-template-picker">
-        <div><strong>Start from a common role</strong><p className="small muted">Fills in the title, specialty, skills, tools and a draft description. You can edit every field afterwards — or just start typing below to write your own.</p></div>
-        <div className="role-template-grid">{ROLE_TEMPLATES.map((template) => <button type="button" key={template.id} className="role-template-card" onClick={() => applyTemplate(template)}><strong>{template.label}</strong><small>{template.blurb}</small></button>)}</div>
-      </section> : null}
-
-      {step === 0 ? publicMode ? <div className="form-grid">
-        <div className="field span-2"><label>What should your VA handle?</label><textarea className="textarea-compact post-job-primary-input" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." autoFocus aria-invalid={Boolean(errors.summary)}/><span className="small muted">Write the work in your own words. The next step fills in a draft title, specialty, skills, and responsibilities that you can edit.</span>{error("summary")}</div>
-        <div className="field span-2"><label>Company name</label><input value={data.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Acme Studio" aria-invalid={Boolean(errors.company_name)}/><span className="small muted">This company name will be shown publicly on the job post.</span>{error("company_name")}</div>
+      {step === 0 ? <div className="form-grid">
+        <div className="field span-2 wizard-primary-card"><label>What should your VA handle?</label><textarea className="textarea-compact post-job-primary-input" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." autoFocus aria-invalid={Boolean(errors.summary)}/><span className="small muted">Write the work in your own words. We’ll suggest the title, specialty, skills, and responsibilities when you continue.</span>{error("summary")}</div>
+        <div className="field span-2"><label>Company name</label><input value={data.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Acme Studio" aria-invalid={Boolean(errors.company_name)}/><span className="small muted">{publicMode ? "This company name will be shown publicly on the job post." : "Prefilled from your client profile when available. Published job posts always show the company name."}</span>{error("company_name")}</div>
+        {isBlankDraft ? <details className="wizard-optional span-2 role-template-picker">
+          <summary>Or start from a common role</summary>
+          <div className="role-template-grid wizard-optional-grid">{ROLE_TEMPLATES.map((template) => <button type="button" key={template.id} className="role-template-card" onClick={() => applyTemplate(template)}><strong>{template.label}</strong><small>{template.blurb}</small></button>)}</div>
+        </details> : null}
         <details className="wizard-optional span-2">
           <summary>I want to add more details now</summary>
           <div className="form-grid wizard-optional-grid">
             <div className="field span-2"><label>Job title <span className="muted">(optional)</span></label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder"/></div>
             <div className="field span-2"><label>Specialty <span className="muted">(optional, choose up to 3)</span></label><div className="category-picker category-picker-tight">{VA_CATEGORIES.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip ${selectedCategories.includes(item) ? "selected" : ""}`} onClick={() => toggleCategory(item)} disabled={!selectedCategories.includes(item) && selectedCategories.length >= 3}>{selectedCategories.includes(item) ? <Check size={13}/> : null}{item}</button>)}</div></div>
             <div className="field span-2"><label>Required skills <span className="muted">(optional)</span></label><input value={data.required_skills} onChange={(e) => set("required_skills", e.target.value)} placeholder="Calendar management, inbox management"/><div className="suggestion-chips">{COMMON_SKILLS.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip compact ${hasCsvItem("required_skills", item) ? "selected" : ""}`} onClick={() => toggleCsvItem("required_skills", item)}>{item}</button>)}</div></div>
-            <div className="field"><label>Tools <span className="muted">(optional)</span></label><input value={data.required_tools} onChange={(e) => set("required_tools", e.target.value)} placeholder="Google Workspace, Slack, Notion"/></div>
-            <div className="field span-2"><label>Detailed responsibilities <span className="muted">(optional)</span></label><textarea className="textarea-mini" value={data.responsibilities} onChange={(e) => set("responsibilities", e.target.value)} placeholder={'Manage calendar and meeting requests\nTriage inbox and draft replies\nTrack follow-ups and weekly priorities'}/></div>
-          </div>
-        </details>
-      </div> : <div className="form-grid wizard-role-grid">
-        <div className="field span-2 wizard-primary-card"><label>What should this person take off your plate?</label><textarea className="textarea-compact post-job-primary-input" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." autoFocus aria-invalid={Boolean(errors.summary)}/><span className="small muted">Describe the outcome in plain English. We can suggest the title, specialty, skills and responsibilities from this.</span>{error("summary")}</div>
-        <div className="field"><label>Company name</label><input value={data.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Acme Studio" aria-invalid={Boolean(errors.company_name)}/><span className="small muted">Published job posts always show the company name.</span>{error("company_name")}</div>
-        <div className="field"><label>Job title <span className="muted">(we can suggest one)</span></label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder" aria-invalid={Boolean(errors.title)}/>{error("title")}</div>
-        <div className="field span-2"><label>Specialty <span className="muted">(optional, choose up to 3)</span></label><div className="category-picker category-picker-tight">{VA_CATEGORIES.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip ${selectedCategories.includes(item) ? "selected" : ""}`} onClick={() => toggleCategory(item)} disabled={!selectedCategories.includes(item) && selectedCategories.length >= 3}>{selectedCategories.includes(item) ? <Check size={13}/> : null}{item}</button>)}</div>{error("categories")}</div>
-        <div className="field span-2"><label>Required skills <span className="muted">(optional, we can suggest these)</span></label><input value={data.required_skills} onChange={(e) => set("required_skills", e.target.value)} placeholder="Calendar management, inbox management"/><div className="suggestion-chips">{COMMON_SKILLS.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip compact ${hasCsvItem("required_skills", item) ? "selected" : ""}`} onClick={() => toggleCsvItem("required_skills", item)}>{item}</button>)}</div>{error("required_skills")}</div>
-        <details className="wizard-optional span-2">
-          <summary>Add tools or detailed responsibilities</summary>
-          <div className="form-grid wizard-optional-grid">
             <div className="field"><label>Tools <span className="muted">(optional)</span></label><input value={data.required_tools} onChange={(e) => set("required_tools", e.target.value)} placeholder="Google Workspace, Slack, Notion"/></div>
             <div className="field span-2"><label>Detailed responsibilities <span className="muted">(optional)</span></label><textarea className="textarea-mini" value={data.responsibilities} onChange={(e) => set("responsibilities", e.target.value)} placeholder={'Manage calendar and meeting requests\nTriage inbox and draft replies\nTrack follow-ups and weekly priorities'}/></div>
           </div>

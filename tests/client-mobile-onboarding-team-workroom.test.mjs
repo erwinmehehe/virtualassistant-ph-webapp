@@ -67,8 +67,6 @@ test("client workroom is action-first and keeps VA task execution with the VA", 
     "client-workroom-task-list",
     "client-workroom-task-row",
     "client-workroom-time-list",
-    "client-workroom-task-list",
-    "client-workroom-time-list",
     "client-workroom-time-review-panel",
   ]) {
     assert.match(page, new RegExp(className));

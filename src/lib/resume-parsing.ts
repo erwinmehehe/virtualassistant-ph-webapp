@@ -252,7 +252,7 @@ export async function parseResumeWithAI(resumeText: string): Promise<ParsedResum
   const industries = INDUSTRIES.filter((industry) => countMatches(text, industry) > 0).slice(0, 6);
 
   return {
-    address: extractAddress(text),
+    address: null,
     headline: primary_category ? `${primary_category} Virtual Assistant` : null,
     bio: extractBio(text),
     primary_category,

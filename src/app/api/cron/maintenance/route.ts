@@ -920,5 +920,38 @@ export async function GET(request: Request) {
     runMaintenanceTask("VA address resume backfill", () => runVaAddressResumeBackfill(8))
   ]);
   const trainingLaunchResult = await runMaintenanceTask("VA training launch announcement", () => sendVaTrainingAnnouncementBatch(20));
-  return NextResponse.json({ ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementHandoffRecovery: handoffRecoveryResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, clientClaimFollowups: clientClaimFollowupResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, addressBackfill: addressBackfillResult, trainingLaunchAnnouncement: trainingLaunchResult });
+  const result = { ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementHandoffRecovery: handoffRecoveryResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, clientClaimFollowups: clientClaimFollowupResult, salesReminders: salesReminderResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, addressBackfill: addressBackfillResult, trainingLaunchAnnouncement: trainingLaunchResult };
+
+  const errorTasks = Object.entries(result)
+    .filter(([key, value]) => key !== "ok" && value && typeof value === "object" && "error" in value)
+    .map(([key]) => key);
+  const deploymentSha =
+    process.env.VERCEL_GIT_COMMIT_SHA?.trim() ||
+    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.trim() ||
+    null;
+
+  try {
+    await admin.from("admin_audit_log").insert({
+      actor_id: null,
+      action: "maintenance_completed",
+      target_type: "system",
+      target_id: "daily_maintenance",
+      metadata: {
+        ok: errorTasks.length === 0,
+        error_tasks: errorTasks,
+        deployment_sha: deploymentSha,
+        environment: process.env.VERCEL_ENV || process.env.NODE_ENV || null,
+      },
+    });
+  } catch (error) {
+    console.error("[maintenance] completion audit failed", error);
+  }
+
+  console.info("[maintenance] completed", {
+    ok: errorTasks.length === 0,
+    errorTasks,
+    deploymentSha,
+  });
+
+  return NextResponse.json(result);
 }

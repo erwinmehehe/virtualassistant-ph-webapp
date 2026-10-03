@@ -20,12 +20,12 @@ import { socialMetadata } from "@/lib/og";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
-  title: "Post Virtual Assistant Jobs Philippines | Hire Filipino VAs",
+  title: { absolute: "Virtual Assistant Jobs Philippines" },
   description:
     "Post a Virtual Assistant job in the Philippines and reach vetted Filipino VAs. Set the work, hours, timezone, and pay before submitting your role.",
   alternates: { canonical: canonicalPath("/jobs") },
   ...socialMetadata({
-    title: "Post Virtual Assistant Jobs Philippines | Hire Filipino VAs",
+    title: "Virtual Assistant Jobs Philippines",
     description:
       "Post a Virtual Assistant job in the Philippines, publish clear pay and hours, and reach vetted Filipino VAs.",
     path: canonicalPath("/jobs"),
@@ -177,7 +177,7 @@ export default async function PublicJobsPage({
               <span className="jobs-market-eyebrow">
                 <ShieldCheck size={15} /> Hire vetted Filipino Virtual Assistants
               </span>
-              <h1>Post a Virtual Assistant Job in the Philippines</h1>
+              <h1>Virtual Assistant Jobs Philippines</h1>
               <p>
                 Create a clear role with the work, weekly hours, timezone, and compensation shown up front. Review the posting before you create an account.
               </p>

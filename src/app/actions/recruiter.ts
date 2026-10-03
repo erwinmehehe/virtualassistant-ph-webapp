@@ -95,7 +95,6 @@ function talentFiltersFromFormData(formData: FormData): RecruiterTalentFilters {
     q: String(formData.get("filter_q") || ""),
     category: String(formData.get("filter_category") || ""),
     registration: String(formData.get("filter_registration") || ""),
-    address: String(formData.get("filter_address") || ""),
     stage: String(formData.get("filter_stage") || ""),
     readiness: String(formData.get("filter_readiness") || ""),
     photo: String(formData.get("filter_photo") || ""),

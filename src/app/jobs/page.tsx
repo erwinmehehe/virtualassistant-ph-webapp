@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 };
 
 const PAGE_SIZE = 20;
-const EMPLOYER_POST_HREF = "/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
+const EMPLOYER_POST_HREF = "/post-a-job";
 const EMPLOYER_LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
 
 const jobFaqs = [
@@ -69,7 +69,7 @@ const jobFaqs = [
   ],
   [
     "How do I post a Virtual Assistant job in the Philippines?",
-    "Create or sign in to a client account, add the role scope, weekly hours, compensation range, timezone, and required skills, then submit the hiring request. Eligible client accounts can publish complete roles directly while other roles go through recruiter review.",
+    "Start on the public Post a Job page with no account required. Add the role, hours, compensation, timezone, and skills, preview the posting, then create or sign in to a client account to submit it.",
   ],
   [
     "Is posting a job free for employers?",
@@ -213,13 +213,13 @@ export default async function PublicJobsPage({
               <div className="jobs-market-summary-icon"><BriefcaseBusiness size={24} /></div>
               <h2>Hiring a Filipino Virtual Assistant?</h2>
               <p>
-                Post a clear role with pay, hours, schedule, and must-have skills so qualified Filipino VAs can
-                understand the opportunity before entering the hiring process.
+                Describe the work, hours, schedule, and budget first. Preview the job before creating an account,
+                then continue into the hiring process when the role looks right.
               </p>
               <ul>
                 <li><CheckCircle2 size={15} /> Reach role-matched Filipino talent</li>
                 <li><CheckCircle2 size={15} /> Set compensation and schedule up front</li>
-                <li><CheckCircle2 size={15} /> Recruiter review when required</li>
+                <li><CheckCircle2 size={15} /> Preview the job before signup</li>
               </ul>
               <Link className="btn btn-primary btn-lg jobs-employer-button" href={EMPLOYER_POST_HREF}>
                 Post a VA job <ArrowRight size={16} />

@@ -77,7 +77,7 @@ test("candidate access has a real VAPH invoice and PayMongo settlement path", as
   ]);
 
   assert.match(matching, /createCandidateAccessInvoiceAction/);
-  assert.match(matching, /description: `Candidate access · ${job\.title}`/);
+  assert.match(matching, /description:\s*`Candidate access · \${job\.title}`/);
   assert.match(matching, /access_status: "invoiced"/);
   assert.match(matching, /payment_reference: payment\.id/);
   assert.match(staff, /Create candidate access invoice/);

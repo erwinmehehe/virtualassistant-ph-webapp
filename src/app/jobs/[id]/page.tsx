@@ -349,11 +349,28 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                       <Link className="btn btn-primary" href="/workspace/va/vetting">Continue vetting</Link>
                     </>
                   )
+                ) : profile?.role === "client" ? (
+                  <div className="stack">
+                    <div className="job-apply-lock">
+                      <BriefcaseBusiness size={19}/>
+                      <div><strong>You’re signed in as a client</strong><span>Client accounts manage hiring from the client workspace. VA applications are available to vetted VA accounts.</span></div>
+                    </div>
+                    <Link className="btn btn-primary btn-lg job-apply-primary" href="/workspace/client">Go to client dashboard</Link>
+                    <Link className="btn" href="/workspace/client/jobs/new">Post another job</Link>
+                  </div>
+                ) : user ? (
+                  <div className="stack">
+                    <div className="job-apply-lock">
+                      <ShieldCheck size={19}/>
+                      <div><strong>You’re already signed in</strong><span>This account cannot apply to VA jobs. Continue from its existing workspace.</span></div>
+                    </div>
+                    <Link className="btn btn-primary btn-lg job-apply-primary" href="/workspace">Go to workspace</Link>
+                  </div>
                 ) : (
                   <>
                     <div className="job-apply-intro">
                       <strong>Vetted VAs can apply directly.</strong>
-                      <p>Log in to use your existing profile, or create a free VA profile and complete vetting.</p>
+                      <p>Log in to use your existing VA profile, or create a free VA profile and complete vetting.</p>
                     </div>
                     <Link className="btn btn-primary btn-lg job-apply-primary" href={`/auth/login?next=${encodeURIComponent(canonicalHref)}`}>Log in to apply</Link>
                     <Link className="btn" href={`/auth/join/va?next=${encodeURIComponent(canonicalHref)}`}>Create VA profile</Link>

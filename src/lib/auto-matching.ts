@@ -64,14 +64,14 @@ async function notifyMatchingVasForPublishedJob(
   ]);
 
   const alreadyNotified = new Set((existingNotifications || []).map((row: { user_id: string }) => row.user_id));
-  const alreadyInterested = new Set((existingApplications || []).map((row: { va_id: string }) => row.va_id));
-  const toNotify = candidates.filter((match) => !alreadyNotified.has(match.vaId) && !alreadyInterested.has(match.vaId));
+  const alreadyApplied = new Set((existingApplications || []).map((row: { va_id: string }) => row.va_id));
+  const toNotify = candidates.filter((match) => !alreadyNotified.has(match.vaId) && !alreadyApplied.has(match.vaId));
   if (!toNotify.length) return 0;
 
   const { error } = await admin.from("notifications").insert(toNotify.map((match) => ({
     user_id: match.vaId,
     title: `New opportunity: ${job.title}`,
-    body: "This role appears to match your approved profile. Review the role and express interest.",
+    body: "This role appears to match your vetted profile. Review the role and apply if it fits your experience and availability.",
     href,
     type: "matching",
     priority: "normal"

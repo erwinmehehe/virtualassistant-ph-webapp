@@ -67,7 +67,35 @@ export async function applyToJobAction(formData: FormData) {
   }).select("id").single();
   if (error) throw error;
   await admin.from("application_status_history").insert({ application_id: application.id, from_status: null, to_status: "new", changed_by: user.id, note: "Application submitted" });
-  await recordProductEvent("application_submitted", { userId: user.id, path: `/jobs/${jobId}`, metadata: { job_id: jobId } });
+  await recordProductEvent("application_submitted", { userId: user.id, path: `/jobs/${jobId}`, metadata: { job_id: jobId, application_id: application.id } });
+
+  try {
+    const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
+    await writeRecruiterActivity({
+      subjectType: "job",
+      subjectId: jobId,
+      action: "application_submitted",
+      description: "A vetted VA applied and is waiting for recruiter review",
+      actorId: user.id,
+      metadata: { va_id: user.id, application_id: application.id, match_score: matchScore(job, va) },
+    });
+  } catch {}
+
+  const recruiterIds = job.recruiter_id
+    ? [job.recruiter_id]
+    : (await admin.from("profiles").select("id").eq("role", "recruiter").eq("account_status", "active")).data?.map((row: any) => row.id) || [];
+
+  if (recruiterIds.length) {
+    await admin.from("notifications").insert(recruiterIds.map((id: string) => ({
+      user_id: id,
+      title: `New VA application: ${job.title}`,
+      body: "A vetted VA applied. Review the application before deciding whether to present the candidate to the client.",
+      href: `/workspace/recruiter/matching/${jobId}`,
+      type: "matching",
+      priority: "normal",
+    })));
+  }
+
   await admin.from("notifications").insert({ user_id: job.client_id, title: `New application for ${job.title}`, body: "A vetted VA submitted an application. Candidate identity remains protected until candidate access is active.", href: `/workspace/client/jobs/${job.id}` });
 
   try {
@@ -94,6 +122,8 @@ export async function applyToJobAction(formData: FormData) {
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/notifications");
   revalidatePath(`/workspace/client/jobs/${job.id}`);
+  revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  revalidatePath("/workspace/recruiter/notifications");
   redirect("/workspace/va/applications?applied=1");
 }
 

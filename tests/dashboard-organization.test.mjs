@@ -15,7 +15,8 @@ test("workspace shell leaves the page heading to the shared dashboard header", (
   assert.equal((shell.match(/<h1/g) || []).length, 0);
   assert.match(dashUi, /export function DashHeader/);
   assert.match(dashUi, /<h1>\{title\}<\/h1>/);
-  assert.match(client, /<ClientKiroHero/);\n  for (const page of [va, recruiter]) assert.match(page, /<DashHeader/);
+  assert.match(client, /<ClientKiroHero/);
+  for (const page of [va, recruiter]) assert.match(page, /<DashHeader/);
 });
 
 test("desktop and mobile navigation use simplified durable workspace groups", () => {

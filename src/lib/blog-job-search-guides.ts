@@ -274,6 +274,11 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
     ],
     "internalLinks": [
       {
+        "label": "Philippines hiring and job guides",
+        "href": "/blog/topic/philippines",
+        "description": "Browse practical Philippines-focused Virtual Assistant guidance."
+      },
+      {
         "label": "Virtual Assistant Jobs Philippines",
         "href": "/jobs",
         "description": "Browse current remote VA opportunities with published role details."

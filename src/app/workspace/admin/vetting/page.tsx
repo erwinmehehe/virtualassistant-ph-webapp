@@ -17,9 +17,6 @@ export default async function AdminVettingPage({ searchParams }: { searchParams:
   await requireRoleFast("admin"); const admin=createAdminClient();
   const {data:pendingStages}=await admin.from("va_vetting").select("va_id,stage").not("stage","in","(approved,bench,rejected)");
   const pendingStageRows=(pendingStages||[]) as VettingStageRow[];
-  const pendingIds=pendingStageRows.map((x)=>x.va_id);
-  const {data:pendingVaProfiles}=pendingIds.length?await admin.from("va_profiles").select("user_id,years_experience").in("user_id",pendingIds):{data:[]};
-  const experiencedCount=((pendingVaProfiles||[]) as {user_id:string;years_experience:number|null}[]).filter((x)=>Number(x.years_experience||0)>=2).length;
   const profileStageCount=pendingStageRows.filter((x)=>x.stage==="profile").length;
   const {data:rowData}=await admin.from("va_vetting").select("*").in("stage",["finalist","approved","bench"]).order("updated_at",{ascending:false}).limit(200);
   const rows=(rowData||[]) as VettingReviewRow[];

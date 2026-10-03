@@ -113,3 +113,21 @@ test("stale placement offers cannot be accepted by the VA but remain recoverable
   assert.doesNotMatch(confirmBlock, /todayForConfirmation/);
   assert.match(clientOffers, /name="confirm_terms" required/);
 });
+
+
+test("database hire transaction keeps the USD 6 floor and stays server-only", async () => {
+  const [schema, migration] = await Promise.all([
+    read("supabase/schema.sql"),
+    read("supabase/migrations/20261003224907_harden_confirm_hire_rate_floor.sql"),
+  ]);
+
+  for (const sql of [schema, migration]) {
+    const start = sql.indexOf("create or replace function public.confirm_hire_transaction");
+    assert.notEqual(start, -1);
+    const block = sql.slice(start, sql.indexOf("grant execute on function public.confirm_hire_transaction", start) + 120);
+    assert.match(block, /p_agreed_rate < 6/);
+    assert.doesNotMatch(block, /p_agreed_rate < 5/);
+    assert.match(block, /revoke all on function public\.confirm_hire_transaction[\s\S]*authenticated/);
+    assert.match(block, /grant execute on function public\.confirm_hire_transaction[\s\S]*service_role/);
+  }
+});

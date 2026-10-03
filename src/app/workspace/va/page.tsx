@@ -62,14 +62,14 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
     }else if(completion.score<100&&completion.next){
     nextAction={title:"Keep your vetted profile current",copy:`Complete ${completion.next.label} to keep your profile current.`,href:completion.next.href,label:"Update profile",icon:FileText};
   }else{
-    nextAction={title:"Your vetted profile is ready",copy:"Your profile is ready. Keep your availability and rate current while you browse roles.",href:"/workspace/va/jobs",label:"Browse roles",icon:BriefcaseBusiness};
+    nextAction={title:"Your vetted profile is ready to apply",copy:"Browse published roles and apply directly when the work, schedule, and pay fit you.",href:"/workspace/va/jobs",label:"Browse jobs",icon:BriefcaseBusiness};
   }
   const NextIcon=nextAction.icon;
 
   const steps=[
     ...completion.items.slice(0,4).map((x)=>({label:x.label,done:x.done,href:x.href,description:undefined})),
     {label:"Complete VA vetting",description:"Skills test, video intro, recruiter review, and final approval are required before client presentation.",done:vetted,href:"/workspace/va/vetting"},
-    {label:"Express interest in a role",description:"Your recruiter reviews your fit before anything is sent to a client.",done:Boolean(applicationCount),href:vetted?"/workspace/va/jobs":"/workspace/va/vetting"},
+    {label:"Apply to a published role",description:"Once vetted, you can apply directly. Your application starts in recruiter review and the job poster is notified.",done:Boolean(applicationCount),href:vetted?"/workspace/va/jobs":"/workspace/va/vetting"},
     {label:"Start your first managed placement",description:"A workroom opens after the VA accepts final terms and the client confirms the placement.",done:Boolean(workroomCount),href:"/workspace/va/workroom"}
   ];
   const onboardingDone=steps.every((step)=>step.done);
@@ -90,7 +90,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
 
     {trainingCredentials.length?<TrainingCredentials credentials={trainingCredentials} heading="Training completed" selfService/>:null}
 
-    <section className="card dashboard-section-card va-dashboard-pipeline"><div className="dashboard-section-head"><div><h2>Application progress</h2><p>Your current activity across recruiter review, interviews, offers, and placements.</p></div><Link className="btn btn-sm" href="/workspace/va/applications">View applications</Link></div><div className="pipeline-summary" aria-label="Recruiting pipeline">{[["Interest sent",pipeline.applied],["Recruiter shortlist",pipeline.shortlisted],["Interview",pipeline.interview],["Offer",pipeline.offered],["Placed",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>{pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} opportunity{pipeline.rejected===1?" was":"ies were"} closed without placement.</div>:null}</section>
+    <section className="card dashboard-section-card va-dashboard-pipeline"><div className="dashboard-section-head"><div><h2>Application progress</h2><p>Your current activity across recruiter review, interviews, offers, and placements.</p></div><Link className="btn btn-sm" href="/workspace/va/applications">View applications</Link></div><div className="pipeline-summary" aria-label="Recruiting pipeline">{[["Applied",pipeline.applied],["Recruiter shortlist",pipeline.shortlisted],["Interview",pipeline.interview],["Offer",pipeline.offered],["Placed",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>{pipeline.rejected?<div className="small muted pipeline-footnote">{pipeline.rejected} opportunity{pipeline.rejected===1?" was":"ies were"} closed without placement.</div>:null}</section>
 
     {recruiterRequests.length?<section className="card dashboard-section-card recruiter-request-card va-dashboard-requests"><div className="dashboard-section-head"><div><h2>Recruiter requests</h2><p>These are operational requests that can affect whether you are ready for client presentation.</p></div><Link className="btn btn-sm" href="/workspace/va/notifications">All updates</Link></div><div className="compact-list">{recruiterRequests.map((request)=><Link href={request.href||"/workspace/va/profile"} key={request.id}><span><strong>{request.title}</strong><small>{request.body||"Open your profile to review the requested change."}</small></span><ArrowRight size={15}/></Link>)}</div></section>:null}
 

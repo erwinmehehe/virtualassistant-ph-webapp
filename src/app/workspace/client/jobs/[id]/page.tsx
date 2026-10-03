@@ -7,12 +7,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { acceptCommercialTermsAction, closeJobAction } from "@/app/actions/jobs";
 import { dateShort, money } from "@/lib/format";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
+import { candidateAccessLabel } from "@/lib/candidate-access";
 
 export default async function ClientJobDetail({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
   const {id}=await params;const query=await searchParams;const {userId}=await requireRoleFast("client");const supabase=await createClient();const {data:job}=await supabase.from("jobs").select("*").eq("id",id).eq("client_id",userId).single();if(!job)notFound();
   const admin=createAdminClient();
-  const [{data:commercial},{data:releasedRows},{data:interviews},{data:offers},{data:workrooms}]=await Promise.all([
+  const [{data:commercial},{data:access},{data:releasedRows},{data:interviews},{data:offers},{data:workrooms}]=await Promise.all([
     supabase.from("job_commercials").select("*").eq("job_id",id).maybeSingle(),
+    admin.from("job_candidate_access").select("access_status").eq("job_id",id).maybeSingle(),
     admin.from("job_shortlist_candidates").select("id,client_decision").eq("job_id",id).eq("shortlist_status","released"),
     admin.from("candidate_interviews").select("id,status,client_decision").eq("job_id",id).neq("status","cancelled"),
     admin.from("placement_offers").select("id,status").eq("job_id",id),
@@ -68,7 +70,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
         </section>
 
         <section className="card client-role-handling">
-          <div className="dashboard-section-head"><div><h2>Your recruiter handles the search</h2><p>You only step in when there is a shortlist, interview or final decision.</p></div>{released.length?<Link className="btn btn-primary btn-sm" href={`/workspace/client/candidates?role=${job.id}`}>Review shortlist</Link>:null}</div>
+          <div className="dashboard-section-head"><div><h2>Your recruiter handles the search</h2><p>You do not need to manage raw applicants. You only step in when there is a shortlist, interview or final decision.</p></div>{released.length?<Link className="btn btn-primary btn-sm" href={`/workspace/client/candidates?role=${job.id}`}>Review shortlist</Link>:null}</div>
           <div className="client-role-managed-steps">
             <div><span>1</span><p><strong>Screen</strong> We check role fit, evidence, schedule, rate and availability.</p></div>
             <div><span>2</span><p><strong>Shortlist</strong> You see only recruiter-selected VAs worth reviewing.</p></div>
@@ -81,7 +83,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
         <div className="client-role-stats">
           <div className="card"><div className="small muted">Shortlisted</div><strong>{released.length}</strong><div className="small muted">{waitingDecisions?"Waiting on your review":"Recruiter-selected VAs"}</div></div>
           <div className="card"><div className="small muted">Interviews</div><strong>{interviewCount}</strong><div className="small muted">{interviewCount?"In the interview stage":"None scheduled yet"}</div></div>
-          <div className="card"><div className="small muted">Role status</div><strong className="client-role-stat-status">{job.status==="published"?"Recruiting":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</strong><div className="small muted">{commercial?.commercial_status?`Terms: ${String(commercial.commercial_status).replaceAll("_"," ")}`:"Service setup in progress"}</div></div>
+          <div className="card"><div className="small muted">Role status</div><strong className="client-role-stat-status">{job.status==="published"?"Recruiting":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</strong><div className="small muted">{candidateAccessLabel(access?.access_status)}</div></div>
         </div>
 
         <div className="card commercial-card client-role-commercial">

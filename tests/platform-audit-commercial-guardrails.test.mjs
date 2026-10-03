@@ -33,3 +33,24 @@ test("current managed chats feed an admin-only circumvention moderation queue", 
   assert.match(page, /body_snapshot/);\n  assert.match(page, /channel,message_id,thread_id/);\n  assert.doesNotMatch(page, /source_type|source_message_id/);
   assert.doesNotMatch(page, /from\("messages"\)/);
 });
+
+
+test("candidate access stays paid-only and recruiter-mediated", async () => {
+  const [matching, gate, staff, adminJob, migration] = await Promise.all([
+    read("src/app/actions/matching.ts"),
+    read("src/components/candidate-access-gate.tsx"),
+    read("src/components/staff-job-matching.tsx"),
+    read("src/app/workspace/admin/jobs/[id]/page.tsx"),
+    read("supabase/migrations/20261003114500_current_chat_moderation_and_bans.sql"),
+  ]);
+
+  assert.match(matching, /ACCESS_STATUSES[^\n]+\["locked", "requested", "quoted", "invoiced", "paid"\]/);
+  assert.doesNotMatch(matching, /ACCESS_STATUSES[^\n]+comped/);
+  assert.doesNotMatch(gate, /direct messaging|contact candidates directly/i);
+  assert.match(gate, /candidate communication stay recruiter-coordinated/);
+  assert.doesNotMatch(staff, /comp candidate access/i);
+  assert.doesNotMatch(adminJob, /paid or comped/i);
+  assert.match(migration, /enforce_paid_candidate_access/);
+  assert.match(migration, /payment_reference/);
+  assert.match(migration, /status in \('paid','released'\)/);
+});

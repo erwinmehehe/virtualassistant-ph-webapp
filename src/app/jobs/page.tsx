@@ -255,6 +255,13 @@ export default async function PublicJobsPage({
                 <small>Need, proof, plan, availability, question.</small>
               </Link>
             </div>
+            <div className="jobs-application-toolkit-foot">
+              <span>Not ready to apply yet? Training is free and optional.</span>
+              <div>
+                <Link href="/training">Explore free VA training <ArrowRight size={13}/></Link>
+                <Link href="/for-virtual-assistants">Open the VA hub <ArrowRight size={13}/></Link>
+              </div>
+            </div>
           </div>
         </section>
 

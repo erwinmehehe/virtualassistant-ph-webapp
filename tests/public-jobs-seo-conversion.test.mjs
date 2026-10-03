@@ -14,6 +14,7 @@ const appNav = readFileSync("src/components/app-nav-links.tsx", "utf8");
 const jobWizard = readFileSync("src/components/job-wizard.tsx", "utf8");
 const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
+const jobDetail = readFileSync("src/app/jobs/[id]/page.tsx", "utf8");
 const siteNav = readFileSync("src/components/site-nav.tsx", "utf8");
 
 test("jobs page targets live Philippines VA job intent without keyword stuffing", () => {
@@ -233,4 +234,17 @@ test("logged-out, VA, and client job CTAs stay role-aware", () => {
   assert.match(clientHome, /href="\/workspace\/client\/jobs\/new"/);
   assert.match(clientHome, /> Post a job</);
   assert.match(clientJobs, /href="\/workspace\/client\/jobs\/new">Post a job</);
+});
+
+
+test("public job and posting journeys are auth-aware and return users to the right workspace", () => {
+  assert.match(jobDetail, /profile\?\.role === "client"/);
+  assert.match(jobDetail, /Go to client workspace/);
+  assert.match(jobDetail, /Create VA profile to apply/);
+  assert.match(jobDetail, /auth\/join\/va\?next=/);
+  assert.match(jobDetail, /Already have an account\? Log in/);
+  assert.match(postAJob, /isClient/);
+  assert.match(postAJob, /Post a job from my dashboard/);
+  assert.match(postAJob, /workspace\/client\/jobs\/new/);
+  assert.match(postAJob, /JobWizard publicMode/);
 });

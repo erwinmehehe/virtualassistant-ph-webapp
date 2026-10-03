@@ -102,3 +102,15 @@ test("stale interview and offer records cannot bypass the paid access entitlemen
   assert.doesNotMatch(resumeRoute, /candidateAccessUnlocked/);
   assert.match(applications, /curatedAccess = Boolean\(released && candidateAccessUnlocked/);
 });
+
+test("refunds and provider disputes revoke candidate access until settlement is restored", async () => {
+  const webhook = await read("src/app/api/webhooks/paymongo/route.ts");
+
+  assert.match(webhook, /relockCandidateAccessForPayment/);
+  assert.match(webhook, /Candidate-access payment refunded/);
+  assert.match(webhook, /Candidate-access payment disputed by provider/);
+  assert.match(webhook, /Candidate-access payment dispute was lost/);
+  assert.match(webhook, /access_status: "locked"/);
+  assert.match(webhook, /providerStatus === "won" \|\| providerStatus === "closed_won"/);
+  assert.match(webhook, /unlockCandidateAccessAfterSettlement\(admin, payment\)/);
+});

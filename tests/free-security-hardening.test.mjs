@@ -80,11 +80,14 @@ test("VA application entry points require moderated public jobs and keep private
   for (const source of [applications, interest]) {
     assert.match(source, /\.eq\("status",\s*"published"\)/);
     assert.match(source, /\.eq\("moderation_status",\s*"clear"\)/);
-    assert.match(source, /\.not\("client_id",\s*"is",\s*null\)/);
     assert.doesNotMatch(source, /resume_path:\s*va\.resume_path/);
     assert.doesNotMatch(source, /linkedin_url:\s*va\.linkedin_url/);
     assert.doesNotMatch(source, /portfolio_url:\s*va\.portfolio_url/);
   }
+
+  assert.match(applications, /recruiterManagedPublic = Boolean\(job\.recruiter_managed_public && job\.lead_id\)/);
+  assert.match(applications, /if \(!job\.client_id && !recruiterManagedPublic\)/);
+  assert.match(interest, /\.not\("client_id",\s*"is",\s*null\)/);
 });
 
 test("Turnstile stays optional only when both keys are absent and fails closed on partial configuration", async () => {

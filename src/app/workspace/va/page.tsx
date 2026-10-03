@@ -49,8 +49,6 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
   let nextAction:DashboardAction;
   if(recruiterRequests.length){
     nextAction={title:"Your recruiter requested an update",copy:recruiterRequests[0]?.body||"Review the request and update your profile before the next matching round.",href:"/workspace/va/profile",label:"Update profile",icon:FileText};
-  }else if(!String(va.address||"").trim()){
-    nextAction={title:"Add your address",copy:"Add your current home address for recruiter/admin hiring operations. It stays private and is never shown on your public profile.",href:"/workspace/va/profile#basics",label:"Add address",icon:FileText};
   }else if(completion.score<VETTING_PROFILE_MIN&&completion.next){
     nextAction={title:"Get your profile ready for screening",copy:`Complete ${completion.next.label} so your profile is ready for vetting.`,href:completion.next.href,label:"Continue profile",icon:FileText};
   }else if(!vetted){

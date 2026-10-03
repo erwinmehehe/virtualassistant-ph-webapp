@@ -20,7 +20,8 @@
 .jobs-employer-card li { display: flex; align-items: center; gap: 8px; color: #344054; font-size: 11.5px; font-weight: 700; }
 .jobs-employer-card li svg { flex: 0 0 auto; color: var(--success); }
 .jobs-employer-button { width: 100%; justify-content: center; }
-.jobs-employer-note { color: var(--muted); font-size: 10.5px; line-height: 1.45; text-align: center; }
+.jobs-employer-note { color: var(--muted); font-size: 10.5px; font-weight: 700; line-height: 1.45; text-align: center; text-decoration: none; }
+.jobs-employer-note:hover { color: var(--brand); }
 
 .jobs-market-paths { position: relative; z-index: 2; margin-top: -20px; }
 .jobs-market-path-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }

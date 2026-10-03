@@ -1,0 +1,62 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+
+const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+
+test("candidate identity and hiring actions require paid candidate access", async () => {
+  const [access, jobs, matching, shortlist] = await Promise.all([
+    read("src/lib/candidate-access.ts"),
+    read("src/app/actions/jobs.ts"),
+    read("src/app/actions/matching.ts"),
+    read("src/app/actions/client-shortlist.ts"),
+  ]);
+
+  assert.match(access, /return status === "paid"/);
+  assert.doesNotMatch(access, /status === "paid" \|\| status === "comped"/);
+  assert.match(jobs, /access_status: "locked"/);
+  assert.doesNotMatch(jobs, /access_status: "comped"/);
+  assert.doesNotMatch(matching, /ACCESS_STATUSES[^\n]*"comped"/);
+  assert.match(shortlist, /candidateAccessUnlocked\(access\?\.access_status\)/);
+  assert.match(shortlist, /Candidate access must be active before recording a shortlist decision/);
+});
+
+test("current recruiter chats are scanned into a server-only moderation queue", async () => {
+  const [migration, page, action] = await Promise.all([
+    read("supabase/migrations/20261003025908_agency_guardrails_moderation_and_paid_candidate_access.sql"),
+    read("src/app/workspace/admin/moderation/page.tsx"),
+    read("src/app/actions/moderation.ts"),
+  ]);
+
+  assert.match(migration, /create table if not exists public\.message_flags/);
+  assert.match(migration, /client_recruiter_messages/);
+  assert.match(migration, /recruiter_va_messages/);
+  assert.match(migration, /circumvention_language/);
+  assert.match(migration, /external_payment/);
+  assert.match(migration, /revoke all on public\.message_flags from public, anon, authenticated/);
+  assert.match(page, /body_snapshot/);
+  assert.match(page, /Client ↔ Recruiter/);
+  assert.match(action, /profileBanError/);
+  assert.match(action, /flagError/);
+});
+
+test("bulk experience shortcut cannot bypass normal VA vetting", async () => {
+  const [adminAction, page] = await Promise.all([
+    read("src/app/actions/admin.ts"),
+    read("src/app/workspace/admin/vetting/page.tsx"),
+  ]);
+
+  assert.doesNotMatch(adminAction, /bulkApproveExperiencedVAsAction/);
+  assert.doesNotMatch(adminAction, /Bulk-approved: 2\+ years experience/);
+  assert.doesNotMatch(page, /Bulk-approve/);
+  assert.doesNotMatch(page, /Skips the remaining skills test/);
+});
+
+test("PayMongo checkout never falls back to a guessed USD PHP rate", async () => {
+  const paymongo = await read("src/lib/paymongo.ts");
+
+  assert.doesNotMatch(paymongo, /FALLBACK_USD_PHP_RATE/);
+  assert.doesNotMatch(paymongo, /const FALLBACK_USD_PHP_RATE = 58/);
+  assert.match(paymongo, /USD\/PHP exchange rate is temporarily unavailable/);
+  assert.match(paymongo, /Checkout is paused to avoid charging an estimated conversion rate/);
+});

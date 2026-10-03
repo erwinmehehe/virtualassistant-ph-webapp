@@ -68,6 +68,7 @@ export async function updateCandidateAccessAction(formData: FormData) {
   if (!jobId || !ACCESS_STATUSES.includes(status)) throw new Error("Invalid candidate access update.");
   if (fee != null && (!Number.isFinite(fee) || fee < 0 || fee > 100000)) throw new Error("Enter a valid candidate access fee.");
   if (["quoted", "invoiced", "paid"].includes(status) && (fee == null || fee <= 0)) throw new Error("Set a candidate access fee before using a paid access status.");
+  if (status === "paid" && !paymentReference) throw new Error("Record the payment reference before marking candidate access as paid.");
 
   const admin = createAdminClient();
   const { data: job } = await admin.from("jobs").select("id,title,client_id").eq("id", jobId).single();

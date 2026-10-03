@@ -26,7 +26,7 @@ export default async function ClientJobsPage(){
 
   return <div className="client-jobs-page">
     <div className="page-head client-jobs-head">
-      <div><h1>Your hiring requests</h1><p>Follow each role from brief review through recruiting, shortlist, interviews, and hire.</p></div>
+      <div><h1>Your job posts</h1><p>Post new roles and follow each job from publication through applications, shortlist, interviews, and hire.</p></div>
       <Link className="btn btn-primary client-jobs-new" href="/workspace/client/jobs/new">Post a job</Link>
     </div>
     <div className="table-wrap responsive-table client-jobs-table">

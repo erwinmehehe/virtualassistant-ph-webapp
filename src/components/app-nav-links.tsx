@@ -52,6 +52,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "More",
       items: [
+        ["Proposals", "/workspace/client/proposals", FileText],
         ["Notifications", "/workspace/client/notifications", Bell],
         ["Support", "/workspace/client/support", LifeBuoy],
       ],

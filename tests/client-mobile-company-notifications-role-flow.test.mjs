@@ -48,9 +48,9 @@ test("client role detail keeps stage terms readiness and brief readable on phone
     read("src/app/workspace/client/jobs/[id]/page.tsx"),
     read("src/app/workspace/client/client-mobile.css"),
   ]);
-  for (const className of ["client-role-detail-page","client-role-detail-actions","client-role-next-action","client-role-commercial","client-role-stats","client-role-handling","client-role-brief-grid"]) assert.match(page, new RegExp(className));
+  for (const className of ["client-role-detail-page","client-role-detail-actions","client-role-stage-card","client-role-progress","client-role-detail-layout","client-role-commercial","client-role-stats","client-role-handling","client-role-brief-grid"]) assert.match(page, new RegExp(className));
   assert.doesNotMatch(page, /role-readiness|RoleReadiness/);
   assert.doesNotMatch(css, /\.client-role-detail-page #role-readiness/);
-  assert.match(css, /\.client-role-next-action > \.btn[\s\S]*min-height: 44px/);
+  assert.match(css, /\.client-role-stage-card \.btn[\s\S]*min-height: 44px/);
   assert.match(css, /\.client-role-brief-grid[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
 });

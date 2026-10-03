@@ -1,3 +1,5 @@
+const MIN_HOURLY_RATE = 6;
+
 export type PublicationBlocker =
   | "published"
   | "needs_client_account"
@@ -42,7 +44,7 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
   // Public hiring forms do not consistently ask for explicit skills,
   // timezone, preferred start, or a fixed weekly hour count. Those can be
   // refined during recruiter discovery and matching.
-  if (job.min_hourly_rate == null) missing.push("budget");
+  if (job.min_hourly_rate == null || Number(job.min_hourly_rate) < MIN_HOURLY_RATE) missing.push("budget");
   return missing;
 }
 

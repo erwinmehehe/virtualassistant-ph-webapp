@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">Virtual Assistant profile guide</title>
+<desc id="desc">Illustration of a professional Virtual Assistant profile with headline, skills, tools, experience and portfolio sections.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef2ff"/><stop offset="1" stop-color="#f8fafc"/></linearGradient>
+  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#4f46e5"/></linearGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0f172a" flood-opacity=".12"/></filter>
+</defs>
+<rect width="1200" height="675" rx="36" fill="url(#bg)"/>
+<circle cx="1070" cy="96" r="120" fill="#ddd6fe" opacity=".55"/>
+<circle cx="120" cy="590" r="150" fill="#dbeafe" opacity=".55"/>
+<g filter="url(#shadow)">
+  <rect x="120" y="72" width="960" height="530" rx="28" fill="#fff"/>
+</g>
+<rect x="120" y="72" width="960" height="66" rx="28" fill="#f8fafc"/>
+<circle cx="158" cy="105" r="7" fill="#cbd5e1"/><circle cx="182" cy="105" r="7" fill="#cbd5e1"/><circle cx="206" cy="105" r="7" fill="#cbd5e1"/>
+<text x="600" y="112" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#64748b">VirtualAssistant.com.ph</text>
+<circle cx="220" cy="224" r="54" fill="url(#accent)"/>
+<text x="220" y="237" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="34" fill="#fff">VA</text>
+<text x="302" y="192" font-family="Arial, sans-serif" font-weight="700" font-size="27" fill="#0f172a">Administrative Virtual Assistant</text>
+<text x="302" y="226" font-family="Arial, sans-serif" font-size="17" fill="#475569">Email, Calendar &amp; Operations Support</text>
+<rect x="302" y="248" width="130" height="30" rx="15" fill="#eff6ff"/><text x="367" y="268" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#1d4ed8">Available full-time</text>
+<rect x="444" y="248" width="119" height="30" rx="15" fill="#ecfdf5"/><text x="503" y="268" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#047857">Profile verified</text>
+<line x1="172" y1="314" x2="1028" y2="314" stroke="#e2e8f0"/>
+<text x="172" y="354" font-family="Arial, sans-serif" font-weight="700" font-size="17" fill="#0f172a">Profile summary</text>
+<rect x="172" y="370" width="520" height="10" rx="5" fill="#cbd5e1"/><rect x="172" y="390" width="470" height="10" rx="5" fill="#e2e8f0"/><rect x="172" y="410" width="400" height="10" rx="5" fill="#e2e8f0"/>
+<text x="756" y="354" font-family="Arial, sans-serif" font-weight="700" font-size="17" fill="#0f172a">Skills &amp; tools</text>
+<g font-family="Arial, sans-serif" font-size="13" fill="#334155">
+<rect x="756" y="370" width="118" height="31" rx="15" fill="#f1f5f9"/><text x="815" y="390" text-anchor="middle">Google Sheets</text>
+<rect x="884" y="370" width="96" height="31" rx="15" fill="#f1f5f9"/><text x="932" y="390" text-anchor="middle">HubSpot</text>
+<rect x="756" y="411" width="96" height="31" rx="15" fill="#f1f5f9"/><text x="804" y="431" text-anchor="middle">ClickUp</text>
+<rect x="862" y="411" width="104" height="31" rx="15" fill="#f1f5f9"/><text x="914" y="431" text-anchor="middle">Canva</text>
+</g>
+<text x="172" y="474" font-family="Arial, sans-serif" font-weight="700" font-size="17" fill="#0f172a">Proof of work</text>
+<g>
+<rect x="172" y="492" width="248" height="74" rx="16" fill="#f8fafc" stroke="#e2e8f0"/>
+<rect x="190" y="511" width="38" height="38" rx="10" fill="#dbeafe"/><path d="M202 530h14M202 537h18M202 523h10" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+<text x="242" y="523" font-family="Arial, sans-serif" font-weight="700" font-size="14" fill="#0f172a">CRM cleanup</text><text x="242" y="545" font-family="Arial, sans-serif" font-size="12" fill="#64748b">Workflow + quality checks</text>
+<rect x="436" y="492" width="248" height="74" rx="16" fill="#f8fafc" stroke="#e2e8f0"/>
+<rect x="454" y="511" width="38" height="38" rx="10" fill="#ede9fe"/><path d="M464 539v-12h7v12m5 0v-20h7v20" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+<text x="506" y="523" font-family="Arial, sans-serif" font-weight="700" font-size="14" fill="#0f172a">Weekly report</text><text x="506" y="545" font-family="Arial, sans-serif" font-size="12" fill="#64748b">Spreadsheet + summary</text>
+</g>
+<rect x="756" y="492" width="252" height="74" rx="16" fill="url(#accent)"/>
+<text x="882" y="521" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="15" fill="#fff">Clear role. Real evidence.</text>
+<text x="882" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#dbeafe">Easy for recruiters to evaluate.</text>
+</svg>

@@ -188,7 +188,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
 
-      {step===0?<div className="brief-helper"><div><span className="small">{publicMode ? "Start here" : "Need a starting point?"}</span><strong>{publicMode ? "Describe the work in one or two sentences. We’ll shape the rest of the posting for you." : "Describe the work in your own words, then we’ll help shape a clear hiring brief."}</strong></div>{publicMode ? null : <button type="button" className="btn btn-sm" onClick={prepareBrief}><Sparkles size={15}/> Prepare a starter brief</button>}</div>:null}
+      {step===0 && !publicMode?<div className="brief-helper"><div><span className="small">{publicMode ? "Start here" : "Need a starting point?"}</span><strong>{publicMode ? "Describe the work in one or two sentences. We’ll shape the rest of the posting for you." : "Describe the work in your own words, then we’ll help shape a clear hiring brief."}</strong></div>{publicMode ? null : <button type="button" className="btn btn-sm" onClick={prepareBrief}><Sparkles size={15}/> Prepare a starter brief</button>}</div>:null}
 
       {step === 0 && isBlankDraft && !publicMode ? <section className="role-template-picker">
         <div><strong>Start from a common role</strong><p className="small muted">Fills in the title, specialty, skills, tools and a draft description. You can edit every field afterwards — or just start typing below to write your own.</p></div>
@@ -232,14 +232,23 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       </div> : null}
 
                   {step === 2 ? <div className="stack">
-        <div className="review-hero"><div className="review-icon"><FileText size={22}/></div><div><span>Your job preview</span><h3>{data.title || "Untitled role"}</h3><p>{data.summary || "Add a summary before submitting."}</p></div></div>
+        <div className="job-post-preview">
+          <div className="job-post-preview-head">
+            <div className="review-icon"><FileText size={22}/></div>
+            <div><span>Job preview</span><h3>{data.title || "Virtual Assistant"}</h3><p>{data.company_name || "Your company"} · {data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible timezone"}</p></div>
+            <strong className="job-post-preview-rate">${data.min_hourly_rate || MIN_HOURLY_RATE}{data.max_hourly_rate ? `–${data.max_hourly_rate}` : "+"}/hr</strong>
+          </div>
+          <p className="job-post-preview-summary">{data.summary || "Add a summary before submitting."}</p>
+          {data.responsibilities ? <div className="job-post-preview-responsibilities"><span>What this VA will own</span><ul>{data.responsibilities.split(/\r?\n/).filter(Boolean).map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul></div> : null}
+          <div className="pill-list">{mergeUniqueStrings(data.required_skills.split(","), data.required_tools.split(",")).map((x, index) => <span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div>
+        </div>
         <div className="review-grid">
           <div><span>Specialty</span><strong>{selectedCategories.join(" · ") || "Not set"}</strong></div>
           <div><span>Schedule</span><strong>{data.hours_per_week || "—"} hrs/week · {data.timezone || "Flexible"}</strong></div><div><span>Experience</span><strong>{data.experience_level.charAt(0).toUpperCase()+data.experience_level.slice(1)}</strong></div>
           <div><span>VA budget</span><strong>${data.min_hourly_rate || MIN_HOURLY_RATE}{data.max_hourly_rate ? `–$${data.max_hourly_rate}` : "+"}/hr</strong></div>
           <div><span>Start timing</span><strong>{data.start_timing || "Flexible"}</strong></div>
         </div>
-        <div className="card review-section"><div className="row-between"><h3>Skills & tools</h3><button className="text-button" type="button" onClick={() => setStep(0)}>Edit</button></div><div className="pill-list">{mergeUniqueStrings(data.required_skills.split(","), data.required_tools.split(",")).map((x, index) => <span className="badge" key={`${String(x)}-${index}`}>{x}</span>)}</div></div>
+        <div className="review-edit-row"><button className="text-button" type="button" onClick={() => setStep(0)}>Edit role details</button><button className="text-button" type="button" onClick={() => setStep(1)}>Edit schedule & pay</button></div>
         <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div>{publicMode ? <ul className="check-list compact"><li>Your draft stays saved on this device.</li><li>Create or sign in to a client account to attach the draft to your workspace.</li><li>Review the final posting, then send it for publication or recruiting review.</li><li>Your contact details stay private from applicants.</li></ul> : canSelfPublishJobs && data.service_model === "curated_placement" ? <ul className="check-list compact"><li>Your complete role publishes to the public Virtual Assistant jobs directory immediately.</li><li>Only vetted VAs can enter the recruiter-managed candidate flow.</li><li>Your contact details stay private unless you choose to make your company profile public.</li><li>You can edit or close the role from your client workspace.</li></ul> : <ul className="check-list compact"><li>Your role is saved immediately.</li><li>Our recruiting team checks the brief and confirms any service terms separately.</li><li>You approve commercial terms before recruiting begins.</li><li>Once approved, we shortlist vetted VAs against this exact role.</li></ul>}</div>
       </div> : null}
 

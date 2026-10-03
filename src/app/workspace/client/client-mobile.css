@@ -2822,3 +2822,162 @@
     margin-bottom: 1px;
   }
 }
+
+
+/* Kiro preview: client dashboard only. Sidebar/app-shell styling is intentionally untouched. */
+.client-kiro-greeting {
+  padding: 4px 2px 0;
+}
+
+.client-kiro-greeting h1 {
+  margin: 0;
+  color: #101652;
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1.04;
+  letter-spacing: -.045em;
+}
+
+.client-kiro-greeting p {
+  margin: 7px 0 0;
+  color: #5e688d;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.client-kiro-rendered-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  min-height: 196px;
+  overflow: hidden;
+  padding: 18px 30px 18px 14px;
+  border: 1px solid #dce3fb;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 10% 26%, rgba(111, 211, 255, .20), transparent 29%),
+    radial-gradient(circle at 91% 16%, rgba(220, 203, 255, .24), transparent 30%),
+    linear-gradient(135deg, #fff 0%, #fbfcff 52%, #f7f6ff 100%);
+  box-shadow: 0 9px 28px rgba(15, 27, 107, .045);
+}
+
+.client-kiro-rendered-art {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 160px;
+  place-items: end center;
+}
+
+.client-kiro-rendered-image {
+  display: block;
+  width: 160px;
+  height: 160px;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 12px 16px rgba(15, 27, 107, .12));
+}
+
+.client-kiro-rendered-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  min-width: 0;
+}
+
+.client-kiro-rendered-eyebrow {
+  color: #4057d8;
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.client-kiro-rendered-copy h2 {
+  margin: 7px 0;
+  color: #111957;
+  font-size: clamp(23px, 2.25vw, 31px);
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+
+.client-kiro-rendered-copy p {
+  max-width: 650px;
+  margin: 0;
+  color: #5d688d;
+  font-size: 13.5px;
+  line-height: 1.58;
+}
+
+.client-kiro-rendered-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.client-kiro-rendered-actions .btn {
+  min-height: 42px;
+  padding-inline: 16px;
+}
+
+@media (max-width: 680px) {
+  .client-kiro-greeting h1 { font-size: 28px; }
+  .client-kiro-greeting p { font-size: 12.5px; }
+
+  .client-kiro-rendered-hero {
+    grid-template-columns: 108px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 148px;
+    padding: 12px 12px 12px 7px;
+    border-radius: 15px;
+  }
+
+  .client-kiro-rendered-art {
+    min-height: 116px;
+    align-self: stretch;
+  }
+
+  .client-kiro-rendered-image {
+    width: 116px;
+    height: 116px;
+    max-width: none;
+  }
+
+  .client-kiro-rendered-eyebrow {
+    font-size: 8.5px;
+    letter-spacing: .045em;
+  }
+
+  .client-kiro-rendered-copy h2 {
+    margin: 4px 0 5px;
+    font-size: 17px;
+    line-height: 1.18;
+  }
+
+  .client-kiro-rendered-copy p {
+    font-size: 10.75px;
+    line-height: 1.42;
+  }
+
+  .client-kiro-rendered-actions { margin-top: 9px; }
+
+  .client-kiro-rendered-actions .btn {
+    min-height: 36px;
+    padding-inline: 11px;
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-kiro-rendered-hero {
+    grid-template-columns: 94px minmax(0, 1fr);
+  }
+
+  .client-kiro-rendered-image {
+    width: 100px;
+    height: 100px;
+  }
+}

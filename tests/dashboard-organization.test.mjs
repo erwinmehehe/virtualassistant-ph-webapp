@@ -15,7 +15,7 @@ test("workspace shell leaves the page heading to the shared dashboard header", (
   assert.equal((shell.match(/<h1/g) || []).length, 0);
   assert.match(dashUi, /export function DashHeader/);
   assert.match(dashUi, /<h1>\{title\}<\/h1>/);
-  for (const page of [client, va, recruiter]) assert.match(page, /<DashHeader/);
+  assert.match(client, /<ClientKiroHero/);\n  for (const page of [va, recruiter]) assert.match(page, /<DashHeader/);
 });
 
 test("desktop and mobile navigation use simplified durable workspace groups", () => {
@@ -52,7 +52,7 @@ test("role dashboards share the organized dashboard surface", () => {
   assert.match(recruiter, /recruiter-next-action/);
   assert.match(recruiter, /recruiter_today_summary/);
   assert.match(recruiter, /Needs action/);
-  assert.match(client, /refreshed when this page opened/);
+  assert.match(client, /ClientKiroHero/);
   assert.match(va, /DashHeader title="VA dashboard"/);
   assert.match(recruiter, /Less scanning · clearer ownership/);
 });

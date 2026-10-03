@@ -1,6 +1,7 @@
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateFocusVerticalAction, updateMarketplaceSettingsAction } from "@/app/actions/settings";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 
 export default async function MarketplaceSettingsPage(){
   await requireRoleFast("admin");
@@ -15,7 +16,7 @@ export default async function MarketplaceSettingsPage(){
     <div className="grid-2" style={{alignItems:"start"}}>
       <form action={updateMarketplaceSettingsAction} className="card stack">
         <div><h3 style={{margin:0}}>Commercial defaults</h3><p className="small muted">These values are the source of truth for public pricing copy and internal hiring flows. Change them here instead of hard-coding numbers on individual pages.</p></div>
-        <div className="field"><label>Minimum managed placement hourly rate, USD</label><input type="number" min="0" step="0.50" name="min_hourly_rate" defaultValue={settings?.min_hourly_rate??5}/><span className="field-help">This is the minimum standard rate shown across the service. Specialist roles can be higher.</span></div>
+        <div className="field"><label>Minimum managed placement hourly rate, USD</label><input type="number" min={MIN_HOURLY_RATE} step="0.50" name="min_hourly_rate" defaultValue={Math.max(MIN_HOURLY_RATE, Number(settings?.min_hourly_rate ?? MIN_HOURLY_RATE))}/><span className="field-help">This is the minimum standard rate shown across the service. Specialist roles can be higher.</span></div>
         <div className="field"><label>Default curated placement fee, USD</label><input type="number" min="0" step="50" name="default_placement_fee" defaultValue={settings?.default_placement_fee??0}/></div>
         <div className="field"><label>Default managed service markup, %</label><input type="number" min="0" max="100" step="1" name="default_managed_markup_percent" defaultValue={settings?.default_managed_markup_percent??0}/></div>
         <div className="field"><label>Default Client Success owner</label><select name="client_success_owner_id" defaultValue={settings?.client_success_owner_id||""}><option value="">Choose an owner</option>{(agencyPeople||[]).map((person:any)=><option value={person.id} key={person.id}>{person.full_name||person.role} · {person.role}</option>)}</select><span className="field-help">New placements inherit this owner automatically. This is where Jervis should be assigned once the migration is live.</span></div>

@@ -176,14 +176,20 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
 
     <aside className="wizard-steps" aria-label="Job form steps">
       {steps.map((label, index) => <button key={label} type="button" className={`wizard-step ${index === step ? "active" : ""} ${index < step ? "complete" : ""}`} onClick={() => index <= step ? setStep(index) : undefined} disabled={index > step} aria-current={index === step ? "step" : undefined}>
-        <span className="wizard-number">{index < step ? <CheckCircle2 size={15}/> : index + 1}</span><span>{label}</span>
+        <span className="wizard-number">{index < step ? <CheckCircle2 size={15}/> : index + 1}</span>
+        <span className="wizard-step-copy"><strong>{label}</strong><small>{index < step ? "Complete" : index === step ? "Current step" : "Up next"}</small></span>
       </button>)}
     </aside>
 
     <div className="wizard-panel">
       <div className="wizard-head row-between wrap">
-        <div><div className="wizard-step-label">Step {step + 1} of 3</div><h2>{steps[step]}</h2>{requestedVaName ? <p className="small muted wizard-requested">Requested VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}</div>
-        <div className="wizard-save"><span>{savedAt ? `Draft saved on this device at ${savedAt}` : "Local autosave is on"}</span>{publicMode ? null : <button className="btn btn-sm" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
+        <div className="wizard-head-copy">
+          <div className="wizard-step-label">Step {step + 1} of 3</div>
+          <h2>{steps[step]}</h2>
+          <p>{stepDescriptions[step]}</p>
+          {requestedVaName ? <p className="small muted wizard-requested">Preferred VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}
+        </div>
+        <div className="wizard-save"><span>{savedAt ? `Saved at ${savedAt}` : "Autosave on"}</span>{publicMode ? null : <button className="text-button" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
 

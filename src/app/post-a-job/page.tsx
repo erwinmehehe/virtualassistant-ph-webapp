@@ -39,10 +39,8 @@ export default async function PostAJobPage() {
           <div className="container post-job-hero-grid">
             <div className="post-job-copy">
               <span className="post-job-kicker"><BriefcaseBusiness size={15}/> Post a VA job</span>
-              <h1>Describe the role. Review the posting before you sign up.</h1>
-              <p>
-                Add the work, hours, timezone, and budget first. Your account comes later, after you review the job exactly as applicants will see it.
-              </p>
+              <h1>{isClient ? "Post another Virtual Assistant job." : isVa ? "Looking to hire? Use a client account to post jobs." : user ? "Post a Virtual Assistant job from the right workspace." : "Describe the role. Review the posting before you sign up."}</h1>
+              <p>{isClient ? "You are already signed in as a client, so there is no signup step. Open the dashboard job composer and submit the role from your account." : isVa ? "You are signed in as a Virtual Assistant. Your VA account can browse and apply to jobs; employer posting is available from a separate client account." : user ? "You are already signed in. Open your workspace to continue with the tools available to this account." : "Add the work, hours, timezone, and budget first. Your account comes later, after you review the job exactly as applicants will see it."}</p>
               <div className="post-job-proof">
                 <span><CheckCircle2 size={16}/> No signup to start</span>
                 <span><CheckCircle2 size={16}/> Draft saved on this device</span>

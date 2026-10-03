@@ -62,3 +62,23 @@ test("client Hiring Room stacks shortlist cards and actions safely", async () =>
   assert.match(css, /\.client-shortlist-decision-form select,[\s\S]*font-size: 16px/);
   assert.match(css, /@media \(max-width: 420px\)[\s\S]*\.client-shortlist-action-grid[\s\S]*grid-template-columns: 1fr/);
 });
+
+
+test("client dashboard connects jobs to recruiter-managed application activity", async () => {
+  const [dashboard,jobs,jobDetail,css]=await Promise.all([
+    read("src/app/workspace/client/page.tsx"),
+    read("src/app/workspace/client/jobs/page.tsx"),
+    read("src/app/workspace/client/jobs/[id]/page.tsx"),
+    read("src/app/workspace/client/client-mobile.css"),
+  ]);
+  assert.match(dashboard,/applications received/);
+  assert.match(dashboard,/Vetted VAs are applying/);
+  assert.match(dashboard,/job\.applicants/);
+  assert.match(jobs,/applicationTotal/);
+  assert.match(jobs,/Applications/);
+  assert.match(jobs,/Recruiter reviewing/);
+  assert.match(jobDetail,/Applications received/);
+  assert.match(jobDetail,/Recruiter reviewing vetted applicants/);
+  assert.match(jobDetail,/from\("applications"\)\.select\("id",\{count:"exact",head:true\}\)/);
+  assert.match(css,/\.client-jobs-summary[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+});

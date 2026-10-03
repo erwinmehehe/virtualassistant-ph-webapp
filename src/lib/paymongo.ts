@@ -231,10 +231,11 @@ export async function verifyPaymongoWebhookSignature(
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-const FALLBACK_USD_PHP_RATE = 58;
 const RATE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 export async function usdToPhp(amountUsd: number): Promise<{ amountPhp: number; rate: number }> {
+  if (!Number.isFinite(amountUsd) || amountUsd <= 0) throw new Error("Enter a valid USD amount.");
+
   const admin = createAdminClient();
   const { data: settings } = await admin
     .from("admin_settings")
@@ -242,36 +243,39 @@ export async function usdToPhp(amountUsd: number): Promise<{ amountPhp: number; 
     .eq("id", 1)
     .maybeSingle();
 
-  const cachedRate = settings?.usd_to_php_rate
-    ? Number(settings.usd_to_php_rate)
-    : null;
+  const cachedRate = settings?.usd_to_php_rate ? Number(settings.usd_to_php_rate) : null;
   const cachedAt = settings?.usd_to_php_rate_updated_at
     ? new Date(settings.usd_to_php_rate_updated_at).getTime()
     : 0;
-  const isStale = Date.now() - cachedAt > RATE_STALE_AFTER_MS;
+  const cacheFresh = Boolean(
+    cachedRate &&
+    Number.isFinite(cachedRate) &&
+    cachedRate > 0 &&
+    cachedAt > 0 &&
+    Date.now() - cachedAt <= RATE_STALE_AFTER_MS
+  );
 
-  let rate = cachedRate ?? FALLBACK_USD_PHP_RATE;
-  if (isStale) {
+  let rate = cacheFresh ? cachedRate! : null;
+  if (!rate) {
     try {
       const res = await fetch("https://open.er-api.com/v6/latest/USD", {
         signal: AbortSignal.timeout(4_000),
         cache: "no-store",
       });
+      if (!res.ok) throw new Error(`Exchange-rate provider returned ${res.status}.`);
       const json = await res.json();
       const liveRate = Number(json?.rates?.PHP);
-      if (Number.isFinite(liveRate) && liveRate > 0) {
-        rate = liveRate;
-        await admin
-          .from("admin_settings")
-          .update({
-            usd_to_php_rate: liveRate,
-            usd_to_php_rate_updated_at: new Date().toISOString(),
-          })
-          .eq("id", 1);
-      }
-    } catch {
-      // Keep the latest cached rate. The hardcoded value is only a bootstrap
-      // fallback when no successful rate lookup has ever been stored.
+      if (!Number.isFinite(liveRate) || liveRate <= 0) throw new Error("Exchange-rate provider returned an invalid USD/PHP rate.");
+      rate = liveRate;
+      await admin
+        .from("admin_settings")
+        .update({
+          usd_to_php_rate: liveRate,
+          usd_to_php_rate_updated_at: new Date().toISOString(),
+        })
+        .eq("id", 1);
+    } catch (error) {
+      throw new Error("USD/PHP exchange rate is temporarily unavailable. Checkout is paused to avoid charging an estimated conversion rate.");
     }
   }
 

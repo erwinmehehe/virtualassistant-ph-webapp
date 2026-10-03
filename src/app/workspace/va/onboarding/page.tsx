@@ -40,7 +40,7 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
 
   const stepStatus = [
     { number: 1, label: "Specialty", done: basicsDone },
-    { number: 2, label: "Work setup", done: workDone },
+    { number: 2, label: "Experience & availability", done: workDone },
     { number: 3, label: "Private address (optional)", done: addressDone },
   ];
 
@@ -118,8 +118,8 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
 
         {step === 2 ? <>
           <div className="va-quick-setup-card-head">
-            <span className="small">Step 2 · Work setup</span>
-            <h2>Set your experience and availability</h2>
+            <span className="small">Step 2 · Experience & availability</span>
+            <h2>Set your experience, availability, and preferred rate</h2>
             <p>This step saves separately. Your rate is private operational information and is not published unless the product explicitly shows it.</p>
           </div>
 

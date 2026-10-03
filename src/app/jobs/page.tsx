@@ -47,7 +47,8 @@ export const metadata: Metadata = {
 };
 
 const PAGE_SIZE = 20;
-const EMPLOYER_POST_HREF = "/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
+const EMPLOYER_POST_HREF = "/auth/join/client?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
+const EMPLOYER_LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
 
 const jobFaqs = [
   [
@@ -223,7 +224,7 @@ export default async function PublicJobsPage({
               <Link className="btn btn-primary btn-lg jobs-employer-button" href={EMPLOYER_POST_HREF}>
                 Post a VA job <ArrowRight size={16} />
               </Link>
-              <span className="jobs-employer-note">Already have a client account? Sign in and publish from your workspace.</span>
+              <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link>
             </aside>
           </div>
         </section>

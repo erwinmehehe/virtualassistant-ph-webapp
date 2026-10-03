@@ -33,6 +33,13 @@ test("public JobPosting schema exposes validThrough and stale pages stay noindex
   const page = await read("src/app/jobs/[id]/page.tsx");
 
   assert.match(page, /validThrough: job\.expires_at \|\| undefined/);
+  assert.match(page, /url: `\$\{base\}\$\{canonicalHref\}`/);
+  assert.match(page, /employmentType: job\.hours_per_week \? \(job\.hours_per_week >= 35 \? "FULL_TIME" : "PART_TIME"\) : undefined/);
+  assert.match(page, /jobLocationType: "TELECOMMUTE"/);
+  assert.match(page, /applicantLocationRequirements: \{ "@type": "Country", name: "Philippines" \}/);
+  assert.match(page, /responsibilities: uniqueStrings\(job\.responsibilities\)/);
+  assert.match(page, /skills: mergeUniqueStrings\(job\.required_skills, job\.required_tools\)/);
+  assert.match(page, /unitText: "HOUR"/);
   assert.match(page, /Applications close \{dateShort\(job\.expires_at\)\}/);
   assert.match(page, /robots: \{ index: false, follow: false \}/);
   assert.match(page, /from\("public_jobs"\)/);

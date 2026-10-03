@@ -187,7 +187,7 @@ export async function updateApplicationStatusAction(formData: FormData) {
   await admin.from("application_status_history").insert({ application_id: id, from_status: application.status, to_status: status, changed_by: user.id });
   try { const { writeRecruiterActivity } = await import("@/lib/recruiter-activity"); await writeRecruiterActivity({ subjectType: "job", subjectId: application.job_id, action: `application_${status}`, description: `Candidate moved to ${status}`, actorId: user.id, metadata: { application_id: id, va_id: application.va_id } }); await writeRecruiterActivity({ subjectType: "va", subjectId: application.va_id, action: `application_${status}`, description: `Application moved to ${status}`, actorId: user.id, metadata: { application_id: id, job_id: application.job_id } }); } catch {}
   if (["shortlisted","interview","offered","rejected"].includes(status)) await recordProductEvent(`application_${status}`, { userId: user.id, path: `/workspace/client/jobs/${application.job_id}`, metadata: { application_id: id, job_id: application.job_id } });
-  const jobTitle = applicationJob?.title;
+  const jobTitle = Array.isArray(application.jobs) ? application.jobs[0]?.title : (application.jobs as any)?.title;
   await admin.from("notifications").insert({ user_id: application.va_id, title: `Application moved to ${status}`, body: `Your application for ${jobTitle || "this role"} is now ${status}.`, href: "/workspace/va/applications" });
   const { data: vaAuth } = await admin.auth.admin.getUserById(application.va_id);
   try {
@@ -208,14 +208,14 @@ export async function hireCandidateAction(formData: FormData) {
   const acknowledgement = formData.get("confirm_hire") === "on";
   if (!Number.isFinite(agreedRate) || agreedRate < MIN_HOURLY_RATE || agreedRate > 1000) throw new Error(`Final hourly rate must be at least USD ${MIN_HOURLY_RATE}.`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) throw new Error("Choose a start date.");
-  const applicationJob = Array.isArray(application.jobs) ? application.jobs[0] : application.jobs;
-  const startDateZone = isValidTimeZone((applicationJob as any)?.timezone) ? String((applicationJob as any).timezone) : "UTC";
-  const todayForRole = new Intl.DateTimeFormat("en-CA", { timeZone: startDateZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  if (startDate < todayForRole) throw new Error("Start date cannot be in the past for the client timezone.");
   if (agreedSchedule.length < 3 || agreedSchedule.length > 500) throw new Error("Confirm the expected working schedule.");
   if (!acknowledgement) throw new Error("Confirm that the final rate, start date, and schedule have been agreed with the candidate.");
 
   const { admin, application } = await getClientApplicationWithAccess(applicationId, user.id);
+  const applicationJob = Array.isArray(application.jobs) ? application.jobs[0] : application.jobs;
+  const startDateZone = isValidTimeZone((applicationJob as any)?.timezone) ? String((applicationJob as any).timezone) : "UTC";
+  const todayForRole = new Intl.DateTimeFormat("en-CA", { timeZone: startDateZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  if (startDate < todayForRole) throw new Error("Start date cannot be in the past for the client timezone.");
   if (["hired","rejected","withdrawn"].includes(application.status)) throw new Error("This application cannot be hired from its current status.");
   const { error: hireError } = await admin.rpc("confirm_hire_transaction", {
     p_application_id: application.id,
@@ -227,7 +227,7 @@ export async function hireCandidateAction(formData: FormData) {
     p_schedule: agreedSchedule
   });
   if (hireError) throw hireError;
-  const jobTitle = Array.isArray(application.jobs) ? application.jobs[0]?.title : (application.jobs as any)?.title;
+  const jobTitle = applicationJob?.title;
   await admin.from("notifications").insert({ user_id: application.va_id, title: `You were hired for ${jobTitle || "a role"}`, body: `Start date: ${startDate}. Open your workroom for onboarding details.`, href: "/workspace/va/workroom" });
   try { const { writeRecruiterActivity } = await import("@/lib/recruiter-activity"); await writeRecruiterActivity({ subjectType: "job", subjectId: application.job_id, action: "hired", description: `Candidate hired for ${jobTitle || "role"}`, actorId: user.id, metadata: { application_id: application.id, va_id: application.va_id } }); await writeRecruiterActivity({ subjectType: "va", subjectId: application.va_id, action: "hired", description: `Hired for ${jobTitle || "role"}`, actorId: user.id, metadata: { application_id: application.id, job_id: application.job_id } }); } catch {}
   revalidatePath(`/workspace/client/jobs/${application.job_id}`); revalidatePath(`/workspace/client/candidates/${application.id}`); revalidatePath("/workspace/client/candidates"); revalidatePath("/workspace/client/workroom");

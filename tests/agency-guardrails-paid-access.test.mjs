@@ -67,3 +67,22 @@ test("PayMongo checkout never falls back to a guessed USD PHP rate", async () =>
   assert.match(paymongo, /USD\/PHP exchange rate is temporarily unavailable/);
   assert.match(paymongo, /Checkout is paused to avoid charging an estimated conversion rate/);
 });
+
+test("candidate access has a real VAPH invoice and PayMongo settlement path", async () => {
+  const [matching, staff, webhook, clientPayments] = await Promise.all([
+    read("src/app/actions/matching.ts"),
+    read("src/components/staff-job-matching.tsx"),
+    read("src/app/api/webhooks/paymongo/route.ts"),
+    read("src/app/workspace/client/payments/page.tsx"),
+  ]);
+
+  assert.match(matching, /createCandidateAccessInvoiceAction/);
+  assert.match(matching, /description: `Candidate access · ${job\.title}`/);
+  assert.match(matching, /access_status: "invoiced"/);
+  assert.match(matching, /payment_reference: payment\.id/);
+  assert.match(staff, /Create candidate access invoice/);
+  assert.match(webhook, /unlockCandidateAccessAfterSettlement/);
+  assert.match(webhook, /access_status: "paid"/);
+  assert.match(webhook, /\.eq\("payment_reference", payment\.id\)/);
+  assert.match(clientPayments, /createCheckoutSessionAction/);
+});

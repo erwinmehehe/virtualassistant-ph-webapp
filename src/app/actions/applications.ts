@@ -50,14 +50,16 @@ export async function applyToJobAction(formData: FormData) {
   if (coverNote.length < 20) throw new Error("Add a short note explaining why you fit the role.");
   const supabase = await createClient();
   const admin = createAdminClient();
-  const [{ data: va }, { data: job }, { data: vetting }] = await Promise.all([
+  const [{ data: va }, { data: job }, { data: vetting }, { data: existing }] = await Promise.all([
     supabase.from("va_profiles").select("*").eq("user_id", user.id).single(),
     admin.from("jobs").select("*").eq("id", jobId).eq("status", "published").eq("moderation_status", "clear").not("client_id", "is", null).single(),
-    admin.from("va_vetting").select("stage").eq("va_id",user.id).single()
+    admin.from("va_vetting").select("stage").eq("va_id",user.id).single(),
+    admin.from("applications").select("id,status").eq("job_id",jobId).eq("va_id",user.id).maybeSingle()
   ]);
   if (!va || !job) throw new Error("Job or VA profile was not found.");
   if (!vetting || !["approved","bench"].includes(vetting.stage)) throw new Error("Complete VA vetting before applying to client jobs.");
   if (!job.client_id) throw new Error("This job is not ready to accept applications yet.");
+  if (existing) redirect("/workspace/va/applications?applied=already");
 
   const { data: application, error } = await admin.from("applications").insert({
     job_id: jobId, va_id: user.id, cover_note: coverNote,

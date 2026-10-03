@@ -1138,61 +1138,6 @@ export async function markVaReviewEvidenceAction(formData: FormData) {
   redirect(returnTo);
 }
 
-export async function requestVaPrivateAddressAction(formData: FormData) {
-  const { user } = await requireRole("recruiter");
-  const vaId = String(formData.get("va_id") || "").trim();
-  const returnTo = safePath(formData.get("return_to"), `/workspace/recruiter/candidates/${vaId}`);
-  if (!vaId) throw new Error("Choose a Virtual Assistant.");
-
-  const admin = createAdminClient();
-  const { data: va, error: vaError } = await admin
-    .from("recruiter_va_directory_health")
-    .select("user_id,account_status,has_private_address")
-    .eq("user_id", vaId)
-    .maybeSingle();
-  if (vaError) throw vaError;
-  if (!va) throw new Error("Virtual Assistant not found.");
-
-  if (va.has_private_address === true) {
-    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}address_already_present=1`);
-  }
-  if (String(va.account_status || "active") !== "active") {
-    throw new Error("This VA account is not active.");
-  }
-
-  const { data: existing, error: existingError } = await admin
-    .from("notifications")
-    .select("id")
-    .eq("user_id", vaId)
-    .eq("type", "private_address_request")
-    .is("done_at", null)
-    .limit(1)
-    .maybeSingle();
-  if (existingError) throw existingError;
-
-  if (!existing) {
-    const { error: notificationError } = await admin.from("notifications").insert({
-      user_id: vaId,
-      type: "private_address_request",
-      title: "Add your address",
-      body: "Please add your current home address for recruiter/admin hiring operations. It is never shown to clients or on your public profile.",
-      href: "/workspace/va/profile#basics",
-    });
-    if (notificationError) throw notificationError;
-
-    await writeRecruiterActivity({
-      subjectType: "va",
-      subjectId: vaId,
-      action: "private_address_requested",
-      description: "Recruiter requested the VA's current home address.",
-      actorId: user.id,
-    });
-  }
-
-  revalidatePath(returnTo);
-  revalidatePath("/workspace/recruiter/talent");
-  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}address_requested=1`);
-}
 
 export async function updateVaCategoriesAction(formData: FormData) {
   const { user } = await requireRole("recruiter");

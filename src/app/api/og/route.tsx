@@ -87,8 +87,20 @@ const CATEGORY_UI: Record<OgCategory, { label: string; cards: [string, string][]
   },
 };
 
+function fontSafeText(value: string, max: number) {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[^\x20-\x7E]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, max);
+}
+
 function textParam(url: URL, key: string, fallback: string, max: number) {
-  return (url.searchParams.get(key) || fallback).replace(/\s+/g, " ").trim().slice(0, max);
+  return fontSafeText(url.searchParams.get(key) || fallback, max);
 }
 
 export async function GET(request: NextRequest) {
@@ -100,7 +112,7 @@ export async function GET(request: NextRequest) {
   const rawCategory = textParam(url, "category", "general", 32) as OgCategory;
   const category: OgCategory = rawCategory in CATEGORY_UI ? rawCategory : "general";
   const model = CATEGORY_UI[category];
-  const points = url.searchParams.getAll("point").map((point) => point.replace(/\s+/g, " ").trim().slice(0, 54)).filter(Boolean).slice(0, 4);
+  const points = url.searchParams.getAll("point").map((point) => fontSafeText(point, 54)).filter(Boolean).slice(0, 4);
   const cards = points.length
     ? model.cards.map((card, index) => [card[0], points[index] || card[1]] as [string, string])
     : model.cards;

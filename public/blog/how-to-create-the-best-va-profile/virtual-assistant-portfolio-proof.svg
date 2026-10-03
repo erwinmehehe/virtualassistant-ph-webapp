@@ -8,12 +8,12 @@
 <g filter="url(#s)"><rect x="70" y="150" width="820" height="360" rx="28" fill="#fff"/></g>
 <rect x="70" y="150" width="260" height="360" rx="28" fill="url(#g)"/>
 <text x="106" y="205" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#bfdbfe">PORTFOLIO SAMPLE</text>
-<text x="106" y="251" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#fff">Customer Follow-Up</text>
-<text x="106" y="283" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#fff">Tracker</text>
-<rect x="106" y="326" width="176" height="38" rx="19" fill="#fff" opacity=".16"/>
-<text x="194" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#fff">Google Sheets</text>
-<text x="106" y="414" font-family="Arial, sans-serif" font-size="14" fill="#dbeafe">Practice project</text>
-<text x="106" y="440" font-family="Arial, sans-serif" font-size="13" fill="#dbeafe">Dummy data. No client claims.</text>
+<text x="106" y="246" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#fff">Customer</text>
+<text x="106" y="276" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#fff">Follow-Up Tracker</text>
+<rect x="106" y="316" width="176" height="38" rx="19" fill="#fff" opacity=".16"/>
+<text x="194" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#fff">Google Sheets</text>
+<text x="106" y="399" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#dbeafe">Practice project</text>
+<text x="106" y="425" font-family="Arial, sans-serif" font-size="13" fill="#dbeafe">Dummy data. No client claims.</text>
 <g font-family="Arial, sans-serif">
 <text x="380" y="202" font-size="14" font-weight="700" fill="#2563eb">01  GOAL</text>
 <text x="380" y="230" font-size="15" fill="#334155">Track enquiries, owners, follow-up dates</text>

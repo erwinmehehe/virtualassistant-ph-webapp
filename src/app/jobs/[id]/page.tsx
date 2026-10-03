@@ -187,7 +187,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
               <CheckCircle2 size={17}/>
               <div>
                 <strong>Application submitted.</strong>
-                <span>The job poster has been notified. Your application is now in recruiter review.</span>
+                <span>Your application is now in recruiter review. VAPH will handle the next employer step and notify the job poster when a client account is attached to the role.</span>
               </div>
             </div>
           ) : null}
@@ -327,7 +327,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                   applied ? (
                     <div className="success-state">
                       <strong>Application submitted</strong>
-                      <span className="small">The job poster has been notified. Your application is now in recruiter review.</span>
+                      <span className="small">Your application is in recruiter review. VAPH will handle the next employer step and notify the job poster when a client account is attached to the role.</span>
                       <Link className="btn" href="/workspace/va/applications">View my applications</Link>
                     </div>
                   ) : vetted ? (
@@ -345,7 +345,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                     <>
                       <div className="job-apply-lock">
                         <ShieldCheck size={19}/>
-                        <div><strong>Complete vetting to apply</strong><span>Once your vetting stage is approved or bench, you can apply directly to published jobs.</span></div>
+                        <div><strong>Complete vetting to apply</strong><span>Approved and bench-vetted VAs can apply directly to published jobs.</span></div>
                       </div>
                       <Link className="btn btn-primary" href="/workspace/va/vetting">Continue vetting</Link>
                     </>

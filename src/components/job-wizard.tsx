@@ -119,32 +119,35 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
     setData((current) => ({ ...current, ...starterBriefValues(current) }));
   }
 
-  function validate(targetStep = step) {
+  function validate(targetStep = step, candidate = data) {
     const next: Errors = {};
-    const overlap = Number(data.overlap_hours || 0);
+    const candidateCategories = candidate.categories.split(",").map((x) => x.trim()).filter((x) => categoryOptions.has(x));
+    const candidateHours = Number(candidate.hours_per_week || 0);
+    const candidateMinRate = Number(candidate.min_hourly_rate || 0);
+    const candidateMaxRate = Number(candidate.max_hourly_rate || 0);
+    const overlap = Number(candidate.overlap_hours || 0);
     if (targetStep >= 0) {
-      if (data.title.trim().length < 3) next.title = "Add a clear role title.";
-      if (!selectedCategories.length) next.categories = "Choose at least one specialty.";
-      if (data.summary.trim().length < 20) next.summary = "Describe what you need this person to own.";
-      if (data.required_skills.split(",").filter((x) => x.trim()).length < 1) next.required_skills = "Add at least one required skill.";
+      if (candidate.title.trim().length < 3) next.title = "Add a clear role title.";
+      if (!candidateCategories.length) next.categories = "Choose at least one specialty.";
+      if (candidate.summary.trim().length < 20) next.summary = "Describe what you need this person to own.";
+      if (candidate.required_skills.split(",").filter((x) => x.trim()).length < 1) next.required_skills = "Add at least one required skill.";
     }
     if (targetStep >= 1) {
-      if (!Number.isFinite(hours) || hours < 1 || hours > 80) next.hours_per_week = "Enter weekly hours between 1 and 80.";
-      if (data.timezone.trim().length < 2) next.timezone = "Add your timezone or working region.";
-      if (!Number.isFinite(minRate) || minRate < MIN_HOURLY_RATE) next.min_hourly_rate = `Minimum rate must be at least USD ${MIN_HOURLY_RATE}/hour.`;
-      if (data.max_hourly_rate && (!Number.isFinite(maxRate) || maxRate < minRate)) next.max_hourly_rate = "Maximum rate must be at least the minimum rate.";
+      if (!Number.isFinite(candidateHours) || candidateHours < 1 || candidateHours > 80) next.hours_per_week = "Enter weekly hours between 1 and 80.";
+      if (candidate.timezone.trim().length < 2) next.timezone = "Add your timezone or working region.";
+      if (!Number.isFinite(candidateMinRate) || candidateMinRate < MIN_HOURLY_RATE) next.min_hourly_rate = `Minimum rate must be at least USD ${MIN_HOURLY_RATE}/hour.`;
+      if (candidate.max_hourly_rate && (!Number.isFinite(candidateMaxRate) || candidateMaxRate < candidateMinRate)) next.max_hourly_rate = "Maximum rate must be at least the minimum rate.";
       if (!Number.isFinite(overlap) || overlap < 0 || overlap > 12) next.overlap_hours = "Live overlap must be between 0 and 12 hours.";
-      if (overlap > 4 && !data.live_coverage_exception) next.overlap_hours = "Overlap above 4 hours needs a genuine live-coverage exception.";
+      if (overlap > 4 && !candidate.live_coverage_exception) next.overlap_hours = "Overlap above 4 hours needs a genuine live-coverage exception.";
     }
     setErrors(next);
     return Object.keys(next).length === 0;
   }
 
   function nextStep() {
-    if (!validate(step)) return;
-    if (step === 0) {
-      setData((current) => ({ ...current, ...starterBriefValues(current) }));
-    }
+    const candidate = step === 0 ? { ...data, ...starterBriefValues(data) } : data;
+    if (!validate(step, candidate)) return;
+    if (step === 0) setData(candidate);
     setStep((current) => Math.min(steps.length - 1, current + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -193,10 +196,10 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       </section> : null}
 
       {step === 0 ? <div className="form-grid">
-        <div className="field span-2"><label>Job title</label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder" autoFocus aria-invalid={Boolean(errors.title)}/>{error("title")}</div>
-        <div className="field span-2"><label>What do you need this person to own?</label><textarea className="textarea-compact" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." aria-invalid={Boolean(errors.summary)}/><span className="small muted">Plain English is fine. We will turn this into a clearer job brief.</span>{error("summary")}</div>
-        <div className="field span-2"><label>Specialty <span className="muted">(choose up to 3)</span></label><div className="category-picker category-picker-tight">{VA_CATEGORIES.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip ${selectedCategories.includes(item) ? "selected" : ""}`} onClick={() => toggleCategory(item)} disabled={!selectedCategories.includes(item) && selectedCategories.length >= 3}>{selectedCategories.includes(item) ? <Check size={13}/> : null}{item}</button>)}</div>{error("categories")}</div>
-        <div className="field span-2"><label>Required skills</label><input value={data.required_skills} onChange={(e) => set("required_skills", e.target.value)} placeholder="Calendar management, inbox management"/><div className="suggestion-chips">{COMMON_SKILLS.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip compact ${hasCsvItem("required_skills", item) ? "selected" : ""}`} onClick={() => toggleCsvItem("required_skills", item)}>{item}</button>)}</div>{error("required_skills")}</div>
+        <div className="field span-2"><label>Job title <span className="muted">(optional, we can suggest one)</span></label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder" autoFocus aria-invalid={Boolean(errors.title)}/>{error("title")}</div>
+        <div className="field span-2"><label>What do you need this person to own?</label><textarea className="textarea-compact" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." aria-invalid={Boolean(errors.summary)}/><span className="small muted">Plain English is enough. Continue and we will suggest the title, specialty, skills, and responsibilities if you leave them blank.</span>{error("summary")}</div>
+        <div className="field span-2"><label>Specialty <span className="muted">(optional, choose up to 3)</span></label><div className="category-picker category-picker-tight">{VA_CATEGORIES.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip ${selectedCategories.includes(item) ? "selected" : ""}`} onClick={() => toggleCategory(item)} disabled={!selectedCategories.includes(item) && selectedCategories.length >= 3}>{selectedCategories.includes(item) ? <Check size={13}/> : null}{item}</button>)}</div>{error("categories")}</div>
+        <div className="field span-2"><label>Required skills <span className="muted">(optional, we can suggest these)</span></label><input value={data.required_skills} onChange={(e) => set("required_skills", e.target.value)} placeholder="Calendar management, inbox management"/><div className="suggestion-chips">{COMMON_SKILLS.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip compact ${hasCsvItem("required_skills", item) ? "selected" : ""}`} onClick={() => toggleCsvItem("required_skills", item)}>{item}</button>)}</div>{error("required_skills")}</div>
         <details className="wizard-optional span-2">
           <summary>Add company, tools or detailed responsibilities</summary>
           <div className="form-grid wizard-optional-grid">

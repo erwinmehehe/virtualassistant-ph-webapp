@@ -72,3 +72,21 @@ test("live interviews explicitly preserve the anti-circumvention boundary", asyn
   assert.match(vaInterviews, /Keep the hiring process inside VAPH/);
   assert.match(vaInterviews, /Do not exchange personal contact details, accept direct payment/);
 });
+
+test("publishable job briefs reject contact and off-platform hiring signals", async () => {
+  const [guard, jobs] = await Promise.all([
+    read("src/lib/hiring-circumvention.ts"),
+    read("src/app/actions/jobs.ts"),
+  ]);
+
+  assert.match(guard, /EMAIL_PATTERN/);
+  assert.match(guard, /PHONE_PATTERN/);
+  assert.match(guard, /EXTERNAL_CONTACT_PATTERN/);
+  assert.match(guard, /DIRECT_PAYMENT_PATTERN/);
+  assert.match(guard, /CIRCUMVENTION_PATTERN/);
+  assert.match(guard, /Keep candidate contact and hiring inside VAPH/);
+  assert.match(jobs, /assertPublicHiringContentSafe\(\[/);
+  assert.match(jobs, /job\.description/);
+  assert.match(jobs, /job\.schedule_notes/);
+  assert.match(jobs, /job\.onboarding_plan/);
+});

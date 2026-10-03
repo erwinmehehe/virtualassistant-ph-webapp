@@ -507,7 +507,7 @@ declare
   v_room_id uuid;
   v_from_status public.application_status;
 begin
-  if p_agreed_rate is null or p_agreed_rate < 5 or p_agreed_rate > 1000 then
+  if p_agreed_rate is null or p_agreed_rate < 6 or p_agreed_rate > 1000 then
     raise exception 'Invalid agreed hourly rate';
   end if;
   if p_start_date is null then
@@ -553,12 +553,14 @@ begin
     agreed_schedule = excluded.agreed_schedule
   returning id into v_room_id;
 
-  insert into public.workroom_checklist(workroom_id, title, sort_order) values
-    (v_room_id, 'Confirm access to required tools', 1),
-    (v_room_id, 'Review SOPs and training materials', 2),
-    (v_room_id, 'Confirm communication and feedback cadence', 3),
-    (v_room_id, 'Agree on first-week priorities', 4)
-  on conflict (workroom_id, title) do update set sort_order = excluded.sort_order;
+  insert into public.workroom_checklist(workroom_id, title, sort_order, owner_role) values
+    (v_room_id, 'Provide access to required tools and accounts', 1, 'client'),
+    (v_room_id, 'Review SOPs and training materials', 2, 'va'),
+    (v_room_id, 'Confirm communication and feedback cadence', 3, 'client'),
+    (v_room_id, 'Set first-week priorities and success expectations', 4, 'client')
+  on conflict (workroom_id, title) do update set
+    sort_order = excluded.sort_order,
+    owner_role = excluded.owner_role;
 
   return v_room_id;
 end;

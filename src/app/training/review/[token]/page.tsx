@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CheckCircle2, ClipboardCheck, Clock3, ShieldCheck } from "lucide-react";
 import { submitExternalTrainingSpecialistReviewAction } from "@/app/actions/training-specialist-invites";
 import { getExternalSpecialistReview } from "@/lib/training-specialist-invites";
+import { getSpecialistEvidenceRequirements } from "@/lib/training-specialist-review";
 import type { LessonContentBlock } from "@/lib/training";
 import "./review.css";
 
@@ -75,7 +76,8 @@ export default async function ExternalSpecialistReviewPage({
   }
 
   if (!context.invite || !context.course || !context.definition) notFound();
-  const { invite, course, definition } = context;
+  const { invite, course, definition, history } = context;
+  const evidenceRequirements = getSpecialistEvidenceRequirements(course.slug);
 
   return (
     <main className="specialist-review-page">
@@ -104,6 +106,30 @@ export default async function ExternalSpecialistReviewPage({
             <p>{definition.reviewerHint} Check professional boundaries, privacy, escalation, real workflow accuracy, and the final assessment. If something is unsafe or materially wrong, request changes rather than approving around it.</p>
           </div>
         </section>
+
+        <section className="specialist-review-notice">
+          <strong>Evidence and source standard</strong>
+          <ul>
+            {evidenceRequirements.map((requirement) => <li key={requirement}>{requirement}</li>)}
+          </ul>
+        </section>
+
+        {history.length ? (
+          <section className="specialist-review-notice">
+            <strong>Previous corrections and decisions</strong>
+            <p>Use this history to confirm that earlier issues were actually resolved in the current revision. Do not inherit a previous approval automatically.</p>
+            <div className="specialist-review-modules">
+              {history.map((event, index) => (
+                <div key={event.created_at + index} className="specialist-review-assessment">
+                  <span>{event.event_type.replaceAll("_", " ")}</span>
+                  <h3>{event.reviewer_name || "Training review history"}{event.reviewer_role ? " · " + event.reviewer_role : ""}</h3>
+                  <p>{event.notes || "No additional notes recorded."}</p>
+                  <small>{dateLabel(event.created_at)} · revision {event.review_revision || "—"}</small>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {course.trademark_disclaimer ? (
           <section className="specialist-review-notice">

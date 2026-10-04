@@ -26,10 +26,11 @@ test("Discovery Workspace generates an editable recommendation instead of re-ent
 });
 
 test("proposal editor supports Draft to Sent to Viewed to Changes requested to Accepted or Lost",async()=>{
-  const [page,actions,crm]=await Promise.all([
+  const [page,actions,crm,hardening]=await Promise.all([
     read("src/app/workspace/recruiter/crm/[leadId]/proposal/page.tsx"),
     read("src/app/actions/proposals.ts"),
     read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
+    read("supabase/migrations/20261004143000_conversion_hardening.sql"),
   ]);
   for(const label of ["Draft","Sent","Viewed","Changes requested","Accepted","Lost"]) assert.match(page,new RegExp(label));
   assert.match(page,/What we heard \/ recommendation summary/);
@@ -38,12 +39,14 @@ test("proposal editor supports Draft to Sent to Viewed to Changes requested to A
   assert.match(page,/Required tools/);
   assert.match(page,/VAPH fee/);
   assert.match(page,/Send to client/);
-  assert.match(actions,/crm_stage: "terms_sent"/);
   assert.match(actions,/client_hiring_proposal/);
   assert.match(actions,/proposalFollowUpTimeZone/);
   assert.match(actions,/followUpAtClientNine/);
-  assert.match(actions,/next_follow_up_at: proposalFollowUpAt/);
-  assert.match(actions,/follow_up_timezone: proposalFollowUpTimeZone/);
+  assert.match(actions,/finalize_lead_proposal_send_atomic/);
+  assert.match(actions,/p_next_follow_up_at: proposalFollowUpAt/);
+  assert.match(actions,/p_follow_up_timezone: proposalFollowUpTimeZone/);
+  assert.match(hardening,/crm_stage = 'terms_sent'/);
+  assert.match(hardening,/status = 'sent'/);
   assert.doesNotMatch(actions,/\/workspace\/recruiter\/leads/);
   assert.match(crm,/proposalPipelineStatus/);
   assert.match(crm,/Generate recommendation/);
@@ -60,6 +63,8 @@ test("client proposal is a decision-ready recommendation",async()=>{
   assert.match(publicProposal,/What happens next/);
   assert.match(publicProposal,/Approve and start recruiting/);
   assert.match(publicProposal,/Request changes/);
+  assert.match(publicProposal,/Examples from our approved talent pool/);
+  assert.match(publicProposal,/not a reserved shortlist/);
 });
 
 test("accepted proposals hand recommendation data straight into matching atomically",async()=>{

@@ -1,4 +1,5 @@
 import { JobWizard } from "@/components/job-wizard";
+import { CheckCircle2, FileText, ShieldCheck, Sparkles } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { suggestJobDraft } from "@/lib/job-draft-suggestions";
@@ -41,9 +42,36 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
   const fromOnboarding=params.onboarded==="1"&&Boolean(needs);
   const fromPublicDraft=params.from_post==="1";
 
+  const heroTitle = fromPublicDraft ? "Review and post your job" : "Post a Virtual Assistant job";
+  const heroCopy = fromPublicDraft
+    ? "Your draft is already saved. Review the posting, make any final edits, then submit it from your client workspace."
+    : fromOnboarding
+      ? "We turned your hiring answers into a starter posting. Review the role, confirm schedule and pay, then submit it."
+      : "Describe the work first. We’ll help shape the title, specialty, skills, schedule, and final job posting.";
+
   return <div className="client-role-editor client-role-new">
-    <div className="page-head client-role-editor-head"><div><h1>{fromPublicDraft ? "Review and post your job" : "Post a Virtual Assistant job"}</h1><p>{fromPublicDraft ? "Your public draft is saved on this device. Check the preview, make any final edits, then submit the role." : company?.can_self_publish_jobs ? "Your account can publish complete curated-placement roles directly to the public jobs directory. Managed-service roles still go through team review." : fromOnboarding?"We turned your onboarding answers into a starter job posting. Review it, change anything you want, then submit it to our recruiting team for publication review.":"Create your job posting with the role, hours, pay, timezone, and skills you need. We will review the posting and move it through the appropriate recruiting and publication flow."}</p></div></div>
-    {requested?<div className="success-banner client-role-requested-banner" style={{marginBottom:18}}>Requested Virtual Assistant preserved: <strong>{requested.full_name}</strong>. This preference will stay attached to the hiring request.</div>:null}
-    <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={Boolean(company?.can_self_publish_jobs)}/></div>
+    <section className="client-job-create-hero">
+      <div className="client-job-create-copy">
+        <span className="client-job-create-eyebrow"><Sparkles size={14}/> Create a role</span>
+        <h1>{heroTitle}</h1>
+        <p>{heroCopy}</p>
+        <div className="client-job-create-proof">
+          <span><FileText size={14}/><strong>3 simple steps</strong></span>
+          <span><CheckCircle2 size={14}/><strong>Draft autosaves</strong></span>
+          <span><ShieldCheck size={14}/><strong>Vetted VAs only</strong></span>
+        </div>
+      </div>
+      <div className="client-job-create-note">
+        <span>What happens after you submit?</span>
+        <strong>{company?.can_self_publish_jobs ? "Eligible roles can publish directly." : "Your recruiting team reviews the role first."}</strong>
+        <p>Applicant contact details stay private and hiring activity stays inside your workspace.</p>
+      </div>
+    </section>
+
+    {requested?<div className="success-banner client-role-requested-banner">Requested Virtual Assistant preserved: <strong>{requested.full_name}</strong>. This preference will stay attached to the hiring request.</div>:null}
+
+    <div className="client-role-wizard-shell">
+      <JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={Boolean(company?.can_self_publish_jobs)}/>
+    </div>
   </div>;
 }

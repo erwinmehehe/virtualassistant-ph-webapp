@@ -50,7 +50,7 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
       : "Describe the work first. We’ll help shape the title, specialty, skills, schedule, and final job posting.";
 
   return <div className="client-role-editor client-role-new">
-    <section className="client-job-create-hero">
+    <section className="client-job-create-hero client-role-editor-head">
       <div className="client-job-create-copy">
         <span className="client-job-create-eyebrow"><Sparkles size={14}/> Create a role</span>
         <h1>{heroTitle}</h1>

@@ -28,6 +28,13 @@ type Row = {
   categoryMatched?: boolean;
   matchedSkills?: string[];
   matchedTools?: string[];
+  trainingBonus?: number;
+  trainingMatch?: {
+    bonus?: number;
+    matchedCourseTitles?: string[];
+    matchedTools?: string[];
+    matchedSkills?: string[];
+  };
   otherClientReviews?: number;
   activeProcessCount?: number;
   potentialCommittedHours?: number;
@@ -59,9 +66,10 @@ function matchReasons(row: Row) {
   if ((row.matchedSkills || []).length) reasons.push(`${(row.matchedSkills || []).slice(0, 2).join(", ")} skill${(row.matchedSkills || []).length > 1 ? "s" : ""}`);
   if ((row.matchedTools || []).length) reasons.push(`${(row.matchedTools || []).slice(0, 2).join(", ")} tool experience`);
 
-  const trainingTitles=(row.trainingCredentials || []).map((credential)=>credential.courseTitle.toLowerCase());
-  const trainedTools=(job.required_tools || []).filter((tool:string)=>trainingTitles.some((title)=>title.includes(tool.toLowerCase())));
-  if(trainedTools.length) reasons.push(`${trainedTools.slice(0,2).join(", ")} training completed`);
+  const matchedTraining = row.trainingMatch?.matchedCourseTitles || [];
+  if (matchedTraining.length && Number(row.trainingBonus || row.trainingMatch?.bonus || 0) > 0) {
+    reasons.push(`Verified training: ${matchedTraining.slice(0, 2).map(trainingBadgeLabel).join(", ")}`);
+  }
   if(row.va.availability_status==="available") reasons.push("Available now");
   if(job.hours_per_week&&row.va.weekly_hours>=job.hours_per_week) reasons.push(`${row.va.weekly_hours} hrs/week available`);
   if(job.overlap_hours&&row.va.overlap_hours>=job.overlap_hours) reasons.push("Schedule overlap available");
@@ -234,7 +242,7 @@ export function MatchingCandidateTable({
         <input type="search" placeholder={`Search ${pool.length} candidates by name, role, skill, course, or path...`} value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search candidates" />
         {query || trainingFilter !== "all"
           ? <div className="small muted">{filtered.length} of {pool.length} candidates match the current search and evidence filter.</div>
-          : <div className="small muted">Showing the strongest client-ready candidates first. Training is supporting evidence only and does not change the match score or client-readiness gate.</div>}
+          : <div className="small muted">Showing the strongest client-ready candidates first. Directly relevant verified training can add up to 5 supporting match points, but never satisfies must-have experience, tool, industry, or readiness requirements.</div>}
       </div>
       <label className="matching-evidence-filter">
         <span>Training evidence</span>
@@ -269,7 +277,7 @@ export function MatchingCandidateTable({
             {hasConflict?<div className="small" style={{marginTop:8}}><strong><AlertTriangle size={13}/> Placement risk:</strong>{row.otherClientReviews ? ` also with ${row.otherClientReviews} client role${row.otherClientReviews===1?"":"s"}.` : ""}{row.activeProcessCount ? ` ${row.activeProcessCount} active interview/offer process${row.activeProcessCount===1?"":"es"}.` : ""}{row.potentialCommittedHours ? ` ${row.potentialCommittedHours} hrs/week potentially committed.` : ""}</div>:null}
             <div style={{marginTop:8}}><Link className="text-link small" href={`/workspace/recruiter/candidates/${vaId}/screening`}>Open recruiter scorecard</Link></div>
           </td>
-          <td data-label="Fit">{hardBlocked?<><span className="badge badge-warning">Not eligible</span><div className="small muted" style={{marginTop:5}}>Fails a true must-have</div></>:<><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div><div className="small muted">{row.confidence}% confidence</div></>}</td>
+          <td data-label="Fit">{hardBlocked?<><span className="badge badge-warning">Not eligible</span><div className="small muted" style={{marginTop:5}}>Fails a true must-have</div></>:<><div className="match-percent"><strong>{row.score}%</strong><span>{matchLabel(row.score)}</span></div><div className="match-meter" aria-label={`${row.score}% match`}><span style={{ width: `${row.score}%` }}/></div><div className="small muted">{row.confidence}% confidence</div>{Number(row.trainingBonus || 0) > 0 ? <div className="small" style={{marginTop:5}}><strong>+{row.trainingBonus}</strong> verified training</div> : null}</>}</td>
           <td data-label="Availability & rate" className="matching-availability-cell">
             <span className={`badge ${row.clientReady ? "badge-success" : ""}`}>{row.clientReady ? "Client-ready" : availabilityLabel(row.va.availability_status)}</span>
             <span className="matching-availability-meta">{row.va.weekly_hours != null ? `${row.va.weekly_hours} hrs/week` : "Hours not set"}</span>

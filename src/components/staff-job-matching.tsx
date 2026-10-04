@@ -39,7 +39,8 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const activeJobMap=new Map((activeJobs||[]).map((row:any)=>[row.id,row]));
   const validVas=(vas||[]).filter((va:any)=>Boolean(va?.user_id));
   const pool=validVas.map((va:any)=>{
-    const assessment=matchAssessment(job,va);
+    const trainingCredentials=trainingByUser.get(va.user_id)||[];
+    const assessment=matchAssessment(job,va,trainingCredentials);
     const account=profileMap.get(va.user_id) as any;
     const shortlist=shortlistMap.get(va.user_id) as any;
     const interest=interestMap.get(va.user_id) as any;
@@ -54,9 +55,8 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     };
     const clientReady=isTalentAgencyCertified(readinessInput);
     const readinessGaps=clientReady?[]:talentReadinessActions(readinessInput);
-    const trainingCredentials=trainingByUser.get(va.user_id)||[];
     const trainingPaths=completedTrainingSpecializations(trainingCredentials);
-    return{va,account,shortlist,job,interest,trainingCredentials:trainingByUser.get(va.user_id)||[],trainingPaths,...assessment,clientReady,readinessGaps,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
+    return{va,account,shortlist,job,interest,trainingCredentials,trainingPaths,...assessment,clientReady,readinessGaps,otherClientReviews,activeProcessCount:activeProcesses.length,potentialCommittedHours};
   }).sort((a:any,b:any)=>Number(b.clientReady)-Number(a.clientReady)||b.score-a.score||b.confidence-a.confidence||Number(b.va.availability_status==="available")-Number(a.va.availability_status==="available"));
 
   const suggestedCount=(shortlistRows||[]).filter((row:any)=>row.shortlist_status==="proposed"&&!row.created_by).length;

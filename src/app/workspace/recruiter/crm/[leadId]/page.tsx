@@ -38,6 +38,7 @@ import { createRoleFromLeadAndMatchAction } from "@/app/actions/recruiter-hiring
 import styles from "../crm.module.css";
 import { ClientEngagementPanel } from "@/components/client-engagement-panel";
 import { clientReplyStatusLabel, type ClientReplyStateRow } from "@/lib/client-reply-state";
+import { LEAD_LOSS_REASONS, leadLossReasonLabel } from "@/lib/loss-reasons";
 
 type Lead = {
   id: string;
@@ -62,6 +63,9 @@ type Lead = {
   next_follow_up_at: string | null;
   estimated_value_usd: number | null;
   lost_reason: string | null;
+  lost_reason_code: string | null;
+  lost_competitor: string | null;
+  win_back_at: string | null;
   first_contact_at: string | null;
   last_contact_at: string | null;
   stage_updated_at: string | null;
@@ -188,7 +192,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
 
   const { data: leadData, error: leadError } = await admin
     .from("lead_intake")
-    .select("id,name,email,phone,company,service,hours,budget,timezone,start_time,message,source_page,page_url,client_id,job_id,crm_company_id,crm_contact_id,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,first_contact_at,last_contact_at,stage_updated_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id,discovery_completed_at,discovery_cancelled_at,discovery_outcome,discovery_notes,created_at,lead_type")
+    .select("id,name,email,phone,company,service,hours,budget,timezone,start_time,message,source_page,page_url,client_id,job_id,crm_company_id,crm_contact_id,crm_stage,owner_id,next_follow_up_at,estimated_value_usd,lost_reason,lost_reason_code,lost_competitor,win_back_at,first_contact_at,last_contact_at,stage_updated_at,discovery_scheduled_at,discovery_duration_minutes,discovery_meeting_url,discovery_calendar_event_id,discovery_completed_at,discovery_cancelled_at,discovery_outcome,discovery_notes,created_at,lead_type")
     .eq("id", leadId)
     .eq("lead_type", "client_hiring")
     .maybeSingle();
@@ -833,7 +837,9 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                   <input type="hidden" name="return_to" value={returnTo}/>
                   <label>Outcome<select name="outcome" defaultValue="qualified"><option value="qualified">Attended and qualified</option><option value="attended">Attended, follow-up needed</option><option value="no_show">No-show</option><option value="rescheduled">Rescheduled</option><option value="nurture">Nurture</option><option value="lost">Lost</option></select></label>
                   <label>Discovery notes<textarea name="discovery_notes" required minLength={3} maxLength={5000} defaultValue={lead.discovery_notes || ""} placeholder="Priorities, tools, schedule, budget, decision process, next step…"/></label>
-                  <label>Lost reason <span className={styles.muted}>(only if lost)</span><input name="lost_reason" maxLength={1000} placeholder="Budget, timing, hired elsewhere…"/></label>
+                  <label>Lost reason category <span className={styles.muted}>(only if lost)</span><select name="lost_reason_code" defaultValue=""><option value="">Choose a reason</option>{LEAD_LOSS_REASONS.map((reason)=><option key={reason.code} value={reason.code}>{reason.label}{reason.recoverable ? " · win-back" : ""}</option>)}</select></label>
+                  <label>Competitor <span className={styles.muted}>(if applicable)</span><input name="lost_competitor" maxLength={200} placeholder="Company or alternative chosen"/></label>
+                  <label>Lost reason detail <span className={styles.muted}>(optional)</span><input name="lost_reason" maxLength={1000} placeholder="What specifically blocked the hire?"/></label>
                   <button type="submit">Complete discovery</button>
                 </form>
                 <div className={styles.quickStages}>
@@ -865,6 +871,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <input type="hidden" name="next_follow_up_at" value={dateInput(lead.next_follow_up_at)}/>
                 <input type="hidden" name="estimated_value_usd" value={lead.estimated_value_usd ?? ""}/>
                 <input type="hidden" name="lost_reason" value={lead.lost_reason || ""}/>
+                <input type="hidden" name="lost_reason_code" value={lead.lost_reason_code || ""}/>
+                <input type="hidden" name="lost_competitor" value={lead.lost_competitor || ""}/>
                 <button type="submit" name="crm_stage" value={item.value}>{item.label}</button>
               </form>)}
               {!(quickStages[stage] || []).length ? <span className={styles.muted}>No suggested transition from this stage.</span> : null}
@@ -872,6 +880,28 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
           </div>
         </div>
       </section>
+
+      {stage === "lost" ? <section className={styles.panel}>
+        <div className={styles.panelHead}><h2>Win / loss record</h2><span className={styles.stage}>Lost</span></div>
+        <div className={styles.panelBody}>
+          <div className={styles.factGrid}>
+            <div className={styles.fact}><span>Reason</span><strong>{leadLossReasonLabel(lead.lost_reason_code)}</strong></div>
+            <div className={styles.fact}><span>Detail</span><strong>{lead.lost_reason || "—"}</strong></div>
+            <div className={styles.fact}><span>Competitor</span><strong>{lead.lost_competitor || "—"}</strong></div>
+            <div className={styles.fact}><span>Win-back</span><strong>{lead.win_back_at ? fmt(lead.win_back_at, true) : "Not scheduled"}</strong></div>
+          </div>
+          <form action={updateLeadCrmAction} className={styles.actionSubsection}>
+            <input type="hidden" name="lead_id" value={lead.id}/>
+            <input type="hidden" name="return_to" value={returnTo}/>
+            <input type="hidden" name="crm_stage" value="contacted"/>
+            <input type="hidden" name="owner_id" value={lead.owner_id || ""}/>
+            <input type="hidden" name="estimated_value_usd" value={lead.estimated_value_usd ?? ""}/>
+            <input type="hidden" name="next_follow_up_at" value=""/>
+            <button type="submit">Reopen opportunity</button>
+            <span className={styles.formHint}>Reopening clears the loss classification and completes any open win-back task.</span>
+          </form>
+        </div>
+      </section> : null}
 
       <div className={styles.detailGrid}>
         <div className="stack">
@@ -934,7 +964,9 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <label>Stage<select name="crm_stage" defaultValue={lead.crm_stage || "new"}>{LEAD_CRM_STAGES.map((stage) => <option key={stage.value} value={stage.value}>{stage.label}</option>)}</select></label>
                 <label>Owner<select name="owner_id" defaultValue={lead.owner_id || ""}><option value="">Unassigned</option>{owners.map((owner) => <option key={owner.id} value={owner.id}>{owner.full_name || owner.role}</option>)}</select></label>
                 <label>Next follow-up<input type="date" name="next_follow_up_at" defaultValue={dateInput(lead.next_follow_up_at)}/></label>
-                <label>Lost reason <span className={styles.muted}>(only if closing as lost)</span><input name="lost_reason" defaultValue={lead.lost_reason || ""} placeholder="Budget, timing, hired elsewhere…"/></label>
+                <label>Lost reason category <span className={styles.muted}>(required for Lost)</span><select name="lost_reason_code" defaultValue={lead.lost_reason_code || ""}><option value="">Choose a reason</option>{LEAD_LOSS_REASONS.map((reason)=><option key={reason.code} value={reason.code}>{reason.label}{reason.recoverable ? " · win-back" : ""}</option>)}</select></label>
+                <label>Competitor <span className={styles.muted}>(if applicable)</span><input name="lost_competitor" maxLength={200} defaultValue={lead.lost_competitor || ""} placeholder="Company or alternative chosen"/></label>
+                <label>Lost reason detail <span className={styles.muted}>(optional)</span><input name="lost_reason" maxLength={1000} defaultValue={lead.lost_reason || ""} placeholder="What specifically blocked the hire?"/></label>
                 <button type="submit">Save next step</button>
               </form>
             </div>
@@ -1003,6 +1035,8 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <input type="hidden" name="owner_id" value={lead.owner_id || ""}/>
                 <input type="hidden" name="next_follow_up_at" value={dateInput(lead.next_follow_up_at)}/>
                 <input type="hidden" name="lost_reason" value={lead.lost_reason || ""}/>
+                <input type="hidden" name="lost_reason_code" value={lead.lost_reason_code || ""}/>
+                <input type="hidden" name="lost_competitor" value={lead.lost_competitor || ""}/>
                 <label>Estimated value (USD)<input type="number" name="estimated_value_usd" min="0" step="1" defaultValue={lead.estimated_value_usd ?? ""}/></label>
                 <button type="submit">Save value</button>
               </form>

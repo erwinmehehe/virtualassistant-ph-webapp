@@ -48,6 +48,14 @@ export default function SoftwareIndexPage() {
     <div className="hs-root sp-root">
       <Band>
         <SectionHead kicker={`${softwarePages.length} platform guides`} title="Choose the platform your team runs on." lede="Each guide covers realistic workflows, related roles, and where the licensed or regulated local professional keeps final decision authority."/>
+        <div className="ip-link-grid" aria-label="Browse software by workflow">
+          {[...groups.entries()].map(([category, pages]) => <a className="ip-link-card" href={`#${slugify(category)}`} key={category}>
+            <strong>{category}</strong>
+            <p>{pages.slice(0, 4).map((page) => page.software).join(", ")}{pages.length > 4 ? ", and more" : ""}</p>
+            <span className="hs-link">{pages.length} platform guide{pages.length === 1 ? "" : "s"} <ArrowRight size={14}/></span>
+          </a>)}
+        </div>
+
         <nav className="ip-chips" aria-label="Jump to a field">
           {[...groups.entries()].map(([category, pages]) => <a key={category} href={`#${slugify(category)}`}>{category} <span>{pages.length}</span></a>)}
         </nav>

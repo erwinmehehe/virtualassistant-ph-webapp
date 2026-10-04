@@ -9,7 +9,7 @@ import {
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
-import { scoreLead } from "@/lib/lead-scoring";
+import { leadTemperatureLabel, normalizeLeadScoringRules, scoreLead } from "@/lib/lead-scoring";
 import { clientReplyNeedsAction, clientReplyStatusLabel } from "@/lib/client-reply-state";
 import { isValidTimeZone } from "@/lib/timezone";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
@@ -130,12 +130,14 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
     if (safe) leadQuery = leadQuery.or(`name.ilike.%${safe}%,email.ilike.%${safe}%,company.ilike.%${safe}%,service.ilike.%${safe}%`);
   }
 
-  const [{ data: ownerData, error: ownerError }, leadResult] = await Promise.all([
+  const [{ data: ownerData, error: ownerError }, { data: settingsData, error: settingsError }, leadResult] = await Promise.all([
     admin.from("profiles").select("id,full_name,role,account_status").in("role", ["recruiter", "admin"]).eq("account_status", "active").order("full_name"),
+    admin.from("admin_settings").select("lead_scoring_rules").eq("id", 1).maybeSingle(),
     leadQuery,
   ]);
 
   if (ownerError) throw ownerError;
+  if (settingsError) throw settingsError;
   if (leadResult.error) throw leadResult.error;
 
   const allLeads = (leadResult.data || []) as LeadRow[];
@@ -183,6 +185,8 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   }
 
   const now = Date.now();
+  const scoringRules = normalizeLeadScoringRules(settingsData?.lead_scoring_rules);
+  const scoreByLeadId = new Map(allLeads.map((lead) => [lead.id, scoreLead(lead, now, scoringRules)]));
   const visible = allLeads
     .filter((lead) => viewMatch(view, lead, userId, now, activityMap.get(lead.id)))
     .sort((a, b) => {
@@ -192,9 +196,15 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
         const aPriority = Number(aActivity?.unread_chat || 0) > 0 ? 0 : aActivity?.latest_decision === "need_more_options" ? 1 : clientReplyNeedsAction(aActivity?.reply_status) ? 2 : 3;
         const bPriority = Number(bActivity?.unread_chat || 0) > 0 ? 0 : bActivity?.latest_decision === "need_more_options" ? 1 : clientReplyNeedsAction(bActivity?.reply_status) ? 2 : 3;
         if (aPriority !== bPriority) return aPriority - bPriority;
+        const scoreDiff = (scoreByLeadId.get(b.id)?.score || 0) - (scoreByLeadId.get(a.id)?.score || 0);
+        if (scoreDiff !== 0) return scoreDiff;
         const aDue = a.next_follow_up_at ? new Date(a.next_follow_up_at).getTime() : Number.MAX_SAFE_INTEGER;
         const bDue = b.next_follow_up_at ? new Date(b.next_follow_up_at).getTime() : Number.MAX_SAFE_INTEGER;
         if (aDue !== bDue) return aDue - bDue;
+      }
+      if (view === "active" || view === "mine" || view === "qualified") {
+        const scoreDiff = (scoreByLeadId.get(b.id)?.score || 0) - (scoreByLeadId.get(a.id)?.score || 0);
+        if (scoreDiff !== 0) return scoreDiff;
       }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
@@ -208,7 +218,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
   const pipelineLeads: PipelineLead[] = visible
     .filter((lead) => BOARD_STAGES.includes(String(lead.crm_stage || "new") as PipelineStage))
     .map((lead) => {
-      const scored = scoreLead(lead);
+      const scored = scoreByLeadId.get(lead.id) || scoreLead(lead, now, scoringRules);
       return {
         id: lead.id,
         name: lead.name || lead.email || "Client lead",
@@ -331,6 +341,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                 <tbody>
                   {visible.map((lead) => {
                     const job = lead.job_id ? jobMap.get(lead.job_id) : null;
+                    const scored = scoreByLeadId.get(lead.id) || scoreLead(lead, now, scoringRules);
                     const overdue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(lead.crm_stage || "new"));
                     const activity = activityMap.get(lead.id);
                     const replyStatus = String(activity?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
@@ -343,6 +354,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                       <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
                       <td>
                         <span className={stageClass(lead.crm_stage)}>{leadStageLabel(lead.crm_stage)}</span>
+                        <span className={styles.score} title={scored.reasons.join(" · ")}>{leadTemperatureLabel(scored.temperature)} · {scored.score}/100</span>
                         {(lead.crm_stage || "new") === "new" && lead.acknowledgement_sent_at && !lead.first_contact_at ? <span className={styles.acknowledgedBadge}>Acknowledged · recruiter contact due</span> : null}
                         {!isValidTimeZone(lead.timezone) && isOpenLeadStage(lead.crm_stage || "new") ? <span className={styles.timezoneWarning}>Timezone needed</span> : null}
                         {lead.discovery_scheduled_at && !lead.discovery_completed_at ? (

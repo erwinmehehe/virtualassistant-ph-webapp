@@ -18,6 +18,8 @@ import { VA_CATEGORIES } from "@/lib/constants";
 import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 import { queueDiscoveryOutcomeAutomation } from "@/lib/trigger-automation";
 import { ensureDiscoveryOutcomeNextAction, resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
+import { inferLegacyLossReasonCode, isLeadLossReasonCode, leadLossReasonLabel, winBackAtForLoss } from "@/lib/loss-reasons";
+import { syncLeadWinBackTask } from "@/lib/loss-recovery";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
@@ -526,6 +528,9 @@ export async function updateLeadCrmAction(formData: FormData) {
   const followUpRaw = String(formData.get("next_follow_up_at") || "").trim();
   const estimatedRaw = String(formData.get("estimated_value_usd") || "").trim();
   const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
+  const rawLostReasonCode = String(formData.get("lost_reason_code") || "").trim();
+  const lostReasonCode = isLeadLossReasonCode(rawLostReasonCode) ? rawLostReasonCode : inferLegacyLossReasonCode(lostReason);
+  const lostCompetitor = String(formData.get("lost_competitor") || "").trim().slice(0, 200);
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
 
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_error=${encodeURIComponent(message)}`);
@@ -546,7 +551,7 @@ export async function updateLeadCrmAction(formData: FormData) {
     estimatedValue = Number(estimatedRaw);
     if (!Number.isFinite(estimatedValue) || estimatedValue < 0 || estimatedValue > 10000000) return fail("Enter a valid estimated deal value.");
   }
-  if (stage === "lost" && lostReason.length < 3) return fail("Add a short lost reason so the team can learn from it.");
+  if (stage === "lost" && !lostReasonCode) return fail("Choose why this opportunity was lost so the team can learn from it.");
 
   const admin = createAdminClient();
   if (ownerId) {
@@ -555,19 +560,25 @@ export async function updateLeadCrmAction(formData: FormData) {
   }
 
   const { data: lead } = await admin.from("lead_intake")
-    .select("id,status,crm_stage,job_id,session_id,page_url,service,won_at,lost_at")
+    .select("id,status,crm_stage,job_id,session_id,page_url,service,won_at,lost_at,owner_id,name,email,company")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
 
-  const now = new Date().toISOString();
+  const nowDate = new Date();
+  const now = nowDate.toISOString();
+  const winBackAt = stage === "lost" ? winBackAtForLoss(lostReasonCode, nowDate) : null;
+  const storedLostReason = stage === "lost" ? (lostReason || leadLossReasonLabel(lostReasonCode)) : null;
   const patch: Record<string, unknown> = {
     crm_stage: stage,
     status: legacyLeadStatus(stage),
     owner_id: ownerId || null,
     next_follow_up_at: ["won", "lost"].includes(stage) ? null : nextFollowUpAt,
     estimated_value_usd: estimatedValue,
-    lost_reason: stage === "lost" ? lostReason : null,
+    lost_reason: storedLostReason,
+    lost_reason_code: stage === "lost" ? lostReasonCode : null,
+    lost_competitor: stage === "lost" && lostReasonCode === "competitor" ? lostCompetitor || null : null,
+    win_back_at: winBackAt,
     stage_updated_at: now,
     won_at: stage === "won" ? (lead.won_at || now) : null,
     lost_at: stage === "lost" ? (lead.lost_at || now) : null
@@ -587,12 +598,31 @@ export async function updateLeadCrmAction(formData: FormData) {
       next_follow_up_at: patch.next_follow_up_at,
       estimated_value_usd: estimatedValue,
       job_id: lead.job_id || null,
-      lost_reason: stage === "lost" ? lostReason : null
+      lost_reason: storedLostReason,
+      lost_reason_code: stage === "lost" ? lostReasonCode : null,
+      lost_competitor: stage === "lost" && lostReasonCode === "competitor" ? lostCompetitor || null : null,
+      win_back_at: winBackAt
     }
   });
 
   if (stage !== String(lead.crm_stage || "new")) {
     await runCrmStageWorkflows({ leadId, stage, actorId: user.id });
+  }
+
+  try {
+    await syncLeadWinBackTask({
+      leadId,
+      assigneeId: ownerId || lead.owner_id,
+      actorId: user.id,
+      subject: lead.company || lead.name || lead.email || "Client",
+      reasonCode: stage === "lost" ? lostReasonCode : null,
+      winBackAt,
+    });
+  } catch (automationError) {
+    console.error("[win-back] Could not synchronize lead recovery task", {
+      leadId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
   }
 
   const qualifiedStages = new Set(["qualified", "shortlist_sent", "won"]);
@@ -906,10 +936,13 @@ export async function completeDiscoveryAction(formData: FormData) {
   const outcome = String(formData.get("outcome") || "qualified");
   const notes = String(formData.get("discovery_notes") || "").trim().slice(0, 5000);
   const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
+  const rawLostReasonCode = String(formData.get("lost_reason_code") || "").trim();
+  const lostReasonCode = isLeadLossReasonCode(rawLostReasonCode) ? rawLostReasonCode : inferLegacyLossReasonCode(lostReason);
+  const lostCompetitor = String(formData.get("lost_competitor") || "").trim().slice(0, 200);
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
 
   if (!leadId || !["qualified", "attended", "no_show", "cancelled", "rescheduled", "nurture", "lost"].includes(outcome)) return fail("Choose a valid discovery outcome.");
-  if (outcome === "lost" && lostReason.length < 3) return fail("Add a short lost reason.");
+  if (outcome === "lost" && !lostReasonCode) return fail("Choose why this opportunity was lost.");
   if (notes.length < 3) return fail("Add a short discovery note so the next recruiter knows what was agreed.");
 
   const admin = createAdminClient();
@@ -918,6 +951,8 @@ export async function completeDiscoveryAction(formData: FormData) {
 
   const now = new Date();
   const stage: LeadCrmStage = outcome === "qualified" ? "qualified" : outcome === "lost" ? "lost" : outcome === "rescheduled" ? "discovery_booked" : "nurture";
+  const winBackAt = stage === "lost" ? winBackAtForLoss(lostReasonCode, now) : null;
+  const storedLostReason = stage === "lost" ? (lostReason || leadLossReasonLabel(lostReasonCode)) : null;
   const nextFollowUp = stage === "qualified"
     ? new Date(now.getTime() + 86400000).toISOString()
     : stage === "nurture"
@@ -935,7 +970,10 @@ export async function completeDiscoveryAction(formData: FormData) {
     status: legacyLeadStatus(stage),
     next_follow_up_at: nextFollowUp,
     stage_updated_at: now.toISOString(),
-    lost_reason: stage === "lost" ? lostReason : null,
+    lost_reason: storedLostReason,
+    lost_reason_code: stage === "lost" ? lostReasonCode : null,
+    lost_competitor: stage === "lost" && lostReasonCode === "competitor" ? lostCompetitor || null : null,
+    win_back_at: winBackAt,
     lost_at: stage === "lost" ? now.toISOString() : null
   }).eq("id", leadId);
   if (error) return fail(error.message || "Could not save the discovery outcome.");
@@ -949,8 +987,24 @@ export async function completeDiscoveryAction(formData: FormData) {
     action: `discovery_${stage}`,
     description: `Discovery completed: ${stage.replaceAll("_", " ")}`,
     actorId: user.id,
-    metadata: { previous_stage: lead.crm_stage || null, notes, lost_reason: stage === "lost" ? lostReason : null }
+    metadata: { previous_stage: lead.crm_stage || null, notes, lost_reason: storedLostReason, lost_reason_code: stage === "lost" ? lostReasonCode : null, lost_competitor: stage === "lost" && lostReasonCode === "competitor" ? lostCompetitor || null : null, win_back_at: winBackAt }
   });
+
+  try {
+    await syncLeadWinBackTask({
+      leadId,
+      assigneeId: lead.owner_id,
+      actorId: user.id,
+      subject: lead.company || lead.name || lead.email || "Client",
+      reasonCode: stage === "lost" ? lostReasonCode : null,
+      winBackAt,
+    });
+  } catch (automationError) {
+    console.error("[win-back] Could not synchronize discovery recovery task", {
+      leadId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
 
   try {
     await ensureDiscoveryOutcomeNextAction({

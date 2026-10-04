@@ -951,5 +951,9 @@ export async function GET(request: Request) {
     deploymentSha,
   });
 
-  return NextResponse.json(result);
+  const ok = errorTasks.length === 0;
+  return NextResponse.json(
+    { ...result, ok, errorTasks },
+    { status: ok ? 200 : 500 },
+  );
 }

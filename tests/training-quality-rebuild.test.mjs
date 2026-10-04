@@ -113,20 +113,14 @@ test("thin core courses receive lesson-specific work-product drills", async () =
   assert.match(sql, /end-of-shift portfolio handoff/);
 });
 
-test("Australia finance and healthcare software courses now require specialist review", async () => {
-  const migration = await readFile("supabase/migrations/20260923233000_training_assessment_quality_system.sql", "utf8");
-  const definitions = await readFile("src/lib/training-specialist-review.ts", "utf8");
-  for (const slug of [
-    "australian-allied-health-administration",
-    "cliniko-for-virtual-assistants",
-    "australian-bookkeeping-administration",
-    "xero-workflows-for-virtual-assistants",
-    "myob-workflows-for-virtual-assistants",
-  ]) {
-    assert.ok(migration.includes(slug), "Missing specialist gate migration for " + slug);
-    assert.ok(definitions.includes('"' + slug + '"'), "Missing specialist checklist for " + slug);
-  }
-  assert.match(migration, /status = 'draft'/);
+test("Australia finance and healthcare software courses use the same editorial publication standard", async () => {
+  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
+  const policy = await readFile("supabase/migrations/20261004094500_remove_training_specialist_review_requirement.sql", "utf8");
+
+  assert.match(action, /review_requirement: "editorial"/);
+  assert.match(policy, /review_requirement = 'editorial'/);
+  assert.doesNotMatch(action, /training_specialist_reviews/);
+  assert.doesNotMatch(action, /specialist review/i);
 });
 
 test("Australia courses are not duplicated in the general learner library", async () => {

@@ -4,18 +4,13 @@ import test from "node:test";
 
 const seedPath = "supabase/migrations/20260923062600_build_ndis_admin_training.sql";
 const refreshPath = "supabase/migrations/20260923230500_prepare_ndis_training_for_specialist_review.sql";
+const currentPolicyPath = "supabase/migrations/20261004094500_remove_training_specialist_review_requirement.sql";
 
-test("NDIS course remains specialist-gated and draft", async () => {
-  const sql = await readFile(refreshPath, "utf8");
+test("NDIS follows the current editorial-only training policy", async () => {
+  const sql = await readFile(currentPolicyPath, "utf8");
 
-  assert.match(sql, /review_requirement = 'specialist'/);
-  assert.match(sql, /specialist_reviewed_by = null/);
-  assert.match(sql, /specialist_reviewer_role = null/);
-  assert.match(sql, /specialist_review_notes = null/);
-  assert.match(sql, /specialist_reviewed_at = null/);
-  assert.match(sql, /status = 'draft'/);
-  assert.match(sql, /published_at = null/);
-  assert.doesNotMatch(sql, /status = 'published'/);
+  assert.match(sql, /review_requirement = 'editorial'/);
+  assert.doesNotMatch(sql, /review_requirement = 'specialist'/);
 });
 
 test("NDIS source course keeps ten scenario-based lessons and one practical assessment", async () => {
@@ -67,14 +62,12 @@ test("incident lesson teaches escalation timing without making the VA the report
   assert.match(sql, /participant's wording/i);
 });
 
-test("NDIS course is editorially ready for specialist review without learner release", async () => {
+test("NDIS historical refresh includes editorial QA and a complete assessment", async () => {
   const sql = await readFile(refreshPath, "utf8");
 
   assert.match(sql, /is_published = true/);
   assert.match(sql, /reviewed_by = 'VirtualAssistant\.com\.ph Editorial Team'/);
   assert.match(sql, /pass_score = 80/);
-  assert.match(sql, /status = 'draft'/);
-  assert.match(sql, /review_requirement = 'specialist'/);
 });
 
 test("NDIS assessment tests real administrative judgment and explicit escalation", async () => {
@@ -94,15 +87,12 @@ test("NDIS assessment tests real administrative judgment and explicit escalation
   assert.match(sql, /Do not provide funding, legal, clinical, support-planning, pricing, registration, incident-reportability/i);
 });
 
-test("substantive NDIS edits invalidate stale specialist evidence and revision assignment", async () => {
-  const sql = await readFile(refreshPath, "utf8");
+test("current NDIS publishing no longer depends on specialist evidence", async () => {
+  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
 
-  assert.match(sql, /review_revision = review\.review_revision \+ 1/);
-  assert.match(sql, /assigned_revision = null/);
-  assert.match(sql, /decision = 'in_progress'/);
-  assert.match(sql, /event_type/);
-  assert.match(sql, /'invalidated'/);
-  assert.match(sql, /A fresh specialist review is required/);
+  assert.doesNotMatch(action, /training_specialist_reviews/);
+  assert.doesNotMatch(action, /specialist review/i);
+  assert.match(action, /review_requirement: "editorial"/);
 });
 
 test("NDIS training remains private-LMS only", async () => {

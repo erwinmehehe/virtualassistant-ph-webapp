@@ -54,7 +54,11 @@ grant select on public.public_company_profiles to anon, authenticated;
 
 -- Only high-quality, approved profiles may be surfaced publicly. The view remains
 -- deliberately contact-safe: no email, resume path, legal name, or private links.
-create or replace view public.public_va_directory as
+-- public_va_reviews depends on the directory in older snapshots, so rebuild the
+-- dependent view around the directory replacement to keep replay idempotent.
+drop view if exists public.public_va_reviews;
+drop view if exists public.public_va_directory;
+create view public.public_va_directory as
 select
   v.user_id,
   v.slug,
@@ -103,6 +107,24 @@ where v.directory_visible = true
 
 revoke all on public.public_va_directory from anon;
 grant select on public.public_va_directory to anon, authenticated;
+
+create view public.public_va_reviews as
+select
+  r.id,
+  r.reviewee_id,
+  r.rating,
+  r.body,
+  r.created_at,
+  'Verified client'::text as reviewer_label
+from public.reviews r
+join public.workrooms w on w.id = r.workroom_id
+join public.public_va_directory d on d.user_id = r.reviewee_id
+where r.visibility = 'public'
+  and r.reviewer_id = w.client_id
+  and r.reviewee_id = w.va_id;
+
+revoke all on public.public_va_reviews from anon, authenticated;
+grant select on public.public_va_reviews to anon, authenticated;
 
 -- Immutable-style admin audit trail for sensitive staff actions.
 create table if not exists public.admin_audit_log (

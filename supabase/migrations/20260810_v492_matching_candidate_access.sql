@@ -68,6 +68,7 @@ create policy "client candidate access read" on public.job_candidate_access for 
 
 -- Replace direct client application access with an entitlement check.
 drop policy if exists "clients see job applications" on public.applications;
+drop policy if exists "clients see unlocked job applications" on public.applications;
 create policy "clients see unlocked job applications" on public.applications for select using (
   exists (
     select 1

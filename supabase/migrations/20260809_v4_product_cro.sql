@@ -133,6 +133,7 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 drop policy if exists "va deletes own time" on public.time_entries;
+drop policy if exists "va deletes unapproved own time" on public.time_entries;
 create policy "va deletes unapproved own time" on public.time_entries for delete using (
   auth.uid() = va_id and status <> 'approved'
 );

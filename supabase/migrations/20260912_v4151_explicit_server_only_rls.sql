@@ -26,13 +26,15 @@ begin
     'web_design_pampanga_leads',
     'workflow_reminders'
   ] loop
-    policy_name := 'server_only_no_client_access';
-    execute format('drop policy if exists %I on public.%I', policy_name, table_name);
-    execute format(
-      'create policy %I on public.%I as restrictive for all to anon, authenticated using (false) with check (false)',
-      policy_name,
-      table_name
-    );
+    if to_regclass(format('public.%I', table_name)) is not null then
+      policy_name := 'server_only_no_client_access';
+      execute format('drop policy if exists %I on public.%I', policy_name, table_name);
+      execute format(
+        'create policy %I on public.%I as restrictive for all to anon, authenticated using (false) with check (false)',
+        policy_name,
+        table_name
+      );
+    end if;
   end loop;
 end
 $$;

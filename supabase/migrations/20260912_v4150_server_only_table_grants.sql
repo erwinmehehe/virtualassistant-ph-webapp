@@ -25,7 +25,9 @@ begin
     'web_design_pampanga_leads',
     'workflow_reminders'
   ] loop
-    execute format('revoke all privileges on table public.%I from anon, authenticated', table_name);
+    if to_regclass(format('public.%I', table_name)) is not null then
+      execute format('revoke all privileges on table public.%I from anon, authenticated', table_name);
+    end if;
   end loop;
 end
 $$;

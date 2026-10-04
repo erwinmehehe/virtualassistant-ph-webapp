@@ -48,7 +48,8 @@
     "eslint-config-next": "15.5.27",
     "playwright": "^1.63.0",
     "prettier": "3.9.7",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@playwright/test": "1.63.0"
   },
   "engines": {
     "node": "22.x"

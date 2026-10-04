@@ -1,4 +1,5 @@
 -- Retire specialist review as a course publication requirement.
+begin;
 -- Course release now uses one rule set: editorial review + complete publishable
 -- lessons + ready assessments. Historical specialist audit events are retained.
 
@@ -78,3 +79,5 @@ where course.id in (select id from retired_specialist_courses)
         )
       )
   );
+
+commit;

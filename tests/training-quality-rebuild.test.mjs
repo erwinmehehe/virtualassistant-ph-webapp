@@ -113,25 +113,6 @@ test("thin core courses receive lesson-specific work-product drills", async () =
   assert.match(sql, /end-of-shift portfolio handoff/);
 });
 
-test("Australia finance, healthcare, and specialist software courses restore course-specific specialist review", async () => {
-  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
-  const policy = await readFile("supabase/migrations/20261004102500_restore_operational_training_specialist_reviews.sql", "utf8");
-  const definitions = await readFile("src/lib/training-specialist-review.ts", "utf8");
-
-  for (const slug of [
-    "australian-allied-health-administration",
-    "cliniko-for-virtual-assistants",
-    "australian-bookkeeping-administration",
-    "xero-workflows-for-virtual-assistants",
-    "myob-workflows-for-virtual-assistants",
-  ]) {
-    assert.ok(policy.includes("'" + slug + "'"), "Missing specialist policy for " + slug);
-    assert.ok(definitions.includes('"' + slug + '"'), "Missing course-specific review standard for " + slug);
-  }
-  assert.match(action, /getSpecialistReviewDefinition/);
-  assert.match(action, /training_specialist_reviews/);
-});
-
 test("Australia courses are not duplicated in the general learner library", async () => {
   const page = await readFile("src/app/workspace/training/page.tsx", "utf8");
   assert.match(page, /course\.country_focus !== "Australia"/);

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, ExternalLink } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
@@ -112,6 +112,8 @@ export default async function ResourcePage({ params }: { params: Promise<{ slug:
               <p>{bullet}</p>
             </article>)}
           </div> : null}
+          {section.numbered?.length ? <ol className="hs-lede">{section.numbered.map((item) => <li key={item}>{item}</li>)}</ol> : null}
+          {section.table ? <div className="blog-table-wrap"><table><thead><tr>{section.table.headers.map((heading) => <th key={heading}>{heading}</th>)}</tr></thead><tbody>{section.table.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cell + cellIndex}>{cell}</td>)}</tr>)}</tbody></table></div> : null}
         </Band>)}
 
         <Band tone={page.sections.length % 2 ? "white" : "soft"}>

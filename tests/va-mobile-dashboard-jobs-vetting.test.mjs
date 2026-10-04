@@ -27,9 +27,13 @@ test("VA jobs use a denser mobile browse layout", async () => {
   assert.match(page, /va-jobs-mobile-head/);
   assert.match(page, /va-job-mobile-card/);
   assert.match(page, /va-job-mobile-actions/);
-  assert.match(css, /\.va-job-meta[\s\S]*display: grid/);
-  assert.match(css, /\.va-job-mobile-actions[\s\S]*grid-template-columns: minmax\(0, 1fr\) minmax\(92px, \.55fr\)/);
-  assert.match(css, /\.va-job-mobile-actions \.btn[\s\S]*min-height: 44px/);
+  assert.match(page, /va-jobs-hero/);
+  assert.match(page, /va-jobs-summary/);
+  assert.match(page, /va-job-facts/);
+  assert.match(css, /VA jobs: opportunity marketplace/);
+  assert.match(css, /\.va-job-facts[\s\S]*grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*\.va-job-facts[\s\S]*grid-template-columns: 1fr/);
+  assert.match(css, /\.va-job-actions \.btn[\s\S]*min-height: 42px/);
 });
 
 test("VA vetting has a responsive dedicated screening layout", async () => {

@@ -7,7 +7,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 test("proposal response and delivered-send finalization are database-atomic",async()=>{
   const [actions,migration]=await Promise.all([
     read("src/app/actions/proposals.ts"),
-    read("supabase/migrations/20261004202000_revenue_attribution_and_nurture.sql"),
+    read("supabase/migrations/20261004143000_conversion_hardening.sql"),
   ]);
 
   assert.match(actions,/respond_to_lead_proposal_atomic/);
@@ -45,7 +45,7 @@ test("hiring forms persist immutable first-touch and mutable last-touch attribut
     read("src/app/actions/leads.ts"),
     read("src/lib/agency-funnel-metrics.ts"),
     read("src/components/agency-funnel-dashboard.tsx"),
-    read("supabase/migrations/20261004143000_conversion_hardening.sql"),
+    read("supabase/migrations/20261004202000_revenue_attribution_and_nurture.sql"),
   ]);
 
   for(const key of ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","referrer","landing_page","first_touch_source","first_touch_at","last_touch_source","last_touch_at"]){

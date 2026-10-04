@@ -27,12 +27,30 @@ function actionLabel(workflow:Workflow) {
 export default async function CrmAutomationsPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   await requireRoleFast("recruiter");
   const params=await searchParams;
-  const {data,error}=await createAdminClient()
-    .from("crm_workflows")
-    .select("id,name,trigger_stage,action_type,action_config,is_enabled,created_at")
-    .order("created_at",{ascending:false});
+  const admin=createAdminClient();
+  const [{data,error},{data:nurtureRows,error:nurtureError}]=await Promise.all([
+    admin.from("crm_workflows")
+      .select("id,name,trigger_stage,action_type,action_config,is_enabled,created_at")
+      .order("created_at",{ascending:false}),
+    admin.from("lead_nurture_state")
+      .select("lead_id,sequence,status,step,next_send_at,last_sent_at,paused_reason")
+      .order("next_send_at",{ascending:true,nullsFirst:false})
+      .limit(500),
+  ]);
   if(error) throw error;
+  if(nurtureError) throw nurtureError;
   const workflows=(data||[]) as Workflow[];
+  const nurture=(nurtureRows||[]) as Array<{lead_id:string;sequence:string;status:string;step:number;next_send_at:string|null;last_sent_at:string|null;paused_reason:string|null}>;
+  const nurtureLeadIds=[...new Set(nurture.filter(row=>row.status==="active").map(row=>row.lead_id))].slice(0,100);
+  const {data:nurtureLeads,error:nurtureLeadsError}=nurtureLeadIds.length
+    ? await admin.from("lead_intake").select("id,name,email,company,crm_stage").in("id",nurtureLeadIds)
+    : {data:[],error:null};
+  if(nurtureLeadsError) throw nurtureLeadsError;
+  const nurtureLeadMap=new Map((nurtureLeads||[]).map((lead:any)=>[lead.id,lead]));
+  const now=Date.now();
+  const activeNurture=nurture.filter(row=>row.status==="active");
+  const dueNurture=activeNurture.filter(row=>row.next_send_at && new Date(row.next_send_at).getTime()<=now);
+  const upcomingNurture=activeNurture.filter(row=>row.next_send_at).slice(0,12);
 
   return <div className={styles.page}>
     {params.workflow_saved ? <div className="success-banner">Automation created.</div> : null}
@@ -56,6 +74,29 @@ export default async function CrmAutomationsPage({searchParams}:{searchParams:Pr
       <Link className={styles.objectActive} href="/workspace/recruiter/crm/automations"><Bot size={15}/> Automations</Link>
       <Link href="/workspace/recruiter/crm/import">Import / export</Link>
     </nav>
+
+    <section className={styles.panel} style={{marginTop:12}}>
+      <div className={styles.panelHead}><h2>Email nurture</h2><span className={styles.muted}>No SMS · hiring follow-ups only</span></div>
+      <div className={styles.panelBody}>
+        <div className="agency-health-grid agency-operations-grid">
+          <div className="agency-health-metric"><span>Active</span><strong>{activeNurture.length}</strong><small>Nurture + win-back sequences</small></div>
+          <div className="agency-health-metric"><span>Due now</span><strong>{dueNurture.length}</strong><small>Processed by daily maintenance</small></div>
+          <div className="agency-health-metric"><span>Unsubscribed</span><strong>{nurture.filter(row=>row.status==="unsubscribed").length}</strong><small>Automation permanently stopped</small></div>
+          <div className="agency-health-metric"><span>Completed</span><strong>{nurture.filter(row=>row.status==="completed").length}</strong><small>Sequence finished or stage changed</small></div>
+        </div>
+        {upcomingNurture.length ? <div className={styles.timeline} style={{marginTop:16}}>{upcomingNurture.map(row=>{
+          const lead=nurtureLeadMap.get(row.lead_id) as any;
+          return <div className={styles.timelineItem} key={row.lead_id}>
+            <span className={styles.timelineDot}/>
+            <div>
+              <strong>{lead?.company||lead?.name||lead?.email||row.lead_id}</strong>
+              <p>{row.sequence==="winback"?"Win-back":"Long-term nurture"} · step {Math.min(3,Number(row.step||0)+1)} · {row.next_send_at?new Date(row.next_send_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"not scheduled"}</p>
+              <Link className={styles.secondaryButton} href={`/workspace/recruiter/crm/${row.lead_id}`}>Open lead</Link>
+            </div>
+          </div>;
+        })}</div> : <div className={styles.empty} style={{marginTop:16}}>No active email nurture sequences yet.</div>}
+      </div>
+    </section>
 
     <div className={styles.detailGrid} style={{marginTop:12}}>
       <section className={styles.panel}>

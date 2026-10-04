@@ -9,7 +9,6 @@ begin
     'recruiter_tasks',
     'workflow_reminders',
     'payment_events',
-    'action_rate_limits',
     'action_rate_limits'
   ]
   loop
@@ -39,7 +38,8 @@ begin
     'lead_proposals',
     'recruiter_tasks',
     'workflow_reminders',
-    'payment_events'
+    'payment_events',
+    'action_rate_limits'
   ]
   loop
     if has_table_privilege('anon', format('public.%I', table_name), 'SELECT')
@@ -110,7 +110,7 @@ begin
 end
 $rate_limit_rpc_contract$;
 
-do $
+do $view_contract$
 declare
   view_name text;
   options text[];
@@ -140,6 +140,6 @@ begin
     end if;
   end loop;
 end
-$$;
+$view_contract$;
 
 select 'database_contracts_ok' as result;

@@ -33,9 +33,10 @@ test("uploaded bytes are content-sniffed and DOCX packages are structurally veri
 });
 
 test("stored uploads use randomized paths and quarantine before malware-gated release", async()=>{
-  const [security,profile,leads,autofill,env]=await Promise.all([
+  const [security,profile,accountSecurity,leads,autofill,env]=await Promise.all([
     read("src/lib/file-security.ts"),
     read("src/app/actions/profile.ts"),
+    read("src/app/actions/account-security.ts"),
     read("src/app/actions/leads.ts"),
     read("src/app/actions/resume-autofill.ts"),
     read(".env.example"),
@@ -48,17 +49,19 @@ test("stored uploads use randomized paths and quarantine before malware-gated re
   assert.match(security,/result\?\.clean !== true/);
   assert.ok(security.indexOf("await scanForMalware(args.upload)") < security.indexOf("from(args.targetBucket).upload"));
 
-  for (const source of [profile,leads]) {
+  for (const source of [profile,accountSecurity,leads]) {
     assert.match(source,/quarantineScanAndStoreUpload/);
     assert.match(source,/validateUpload/);
   }
   assert.match(profile,/targetBucket: "resumes"/);
   assert.match(profile,/targetBucket: "avatars"/);
   assert.match(profile,/targetBucket: "company-logos"/);
+  assert.match(accountSecurity,/targetBucket: "avatars"/);
   assert.match(leads,/targetBucket: "lead-attachments"/);
   assert.match(autofill,/validateUpload\(file, "resume"\)/);
 
   assert.doesNotMatch(profile,/Date\.now\(\).*safeName/);
+  assert.doesNotMatch(accountSecurity,/\.from\("avatars"\)[\s\S]{0,120}\.upload\(/);
   assert.doesNotMatch(leads,/Date\.now\(\).*safeName/);
   assert.match(env,/MALWARE_SCAN_ENDPOINT=/);
   assert.match(env,/must return JSON \{"clean": true\}/);

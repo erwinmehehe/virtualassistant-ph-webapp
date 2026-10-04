@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ClipboardCheck, ExternalLink, Mail, Send, ShieldAlert, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardCheck, ExternalLink, Mail, Send, ShieldAlert, UserRoundPlus, UsersRound, XCircle } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
-import { getTrainingSpecialistReviewQueue } from "@/lib/training-admin";
+import { getTrainingSpecialistReviewerRoster, getTrainingSpecialistReviewQueue } from "@/lib/training-admin";
 import { getSpecialistReviewDefinition, getSpecialistReviewDomain } from "@/lib/training-specialist-review";
 import {
   assignTrainingSpecialistReviewerAction,
@@ -12,6 +12,11 @@ import {
   revokeTrainingSpecialistReviewInviteAction,
   sendTrainingSpecialistReviewInviteAction,
 } from "@/app/actions/training-specialist-invites";
+import {
+  assignTrainingSpecialistReviewerFromRosterAction,
+  saveTrainingSpecialistReviewerAction,
+  setTrainingSpecialistReviewerActiveAction,
+} from "@/app/actions/training-specialist-reviewers";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +73,11 @@ export default async function SpecialistTrainingReviewPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const query = await searchParams;
-  const { items, error } = await getTrainingSpecialistReviewQueue();
+  const [{ items, error }, { reviewers, error: reviewerError }] = await Promise.all([
+    getTrainingSpecialistReviewQueue(),
+    getTrainingSpecialistReviewerRoster(),
+  ]);
+  const activeReviewers = reviewers.filter((reviewer) => reviewer.is_active);
   const stateFilter = query.state || "all";
   const domainFilter = query.domain || "all";
   const approved = items.filter((item) => item.specialistReady).length;
@@ -162,6 +171,66 @@ export default async function SpecialistTrainingReviewPage({
       <section className="card dashboard-section-card">
         <div className="dashboard-section-head">
           <div>
+            <div className="small muted">Operations</div>
+            <h2>Specialist reviewer roster</h2>
+            <p>Keep verified external reviewers once, then reuse them across matching course domains. Adding someone here does not send email or assign a course.</p>
+          </div>
+          <span className="badge"><UsersRound size={14}/> {activeReviewers.length} active</span>
+        </div>
+
+        {reviewerError ? <div className="alert">{reviewerError}</div> : null}
+
+        {reviewers.length ? (
+          <div className="compact-list">
+            {reviewers.map((reviewer) => (
+              <div key={reviewer.id}>
+                <span>
+                  <strong>{reviewer.name}</strong>
+                  <small>{reviewer.email} · {reviewer.role}</small>
+                  <small className="muted">{reviewer.domains.join(" · ")}{reviewer.qualification_notes ? " · " + reviewer.qualification_notes : ""}</small>
+                </span>
+                <form action={setTrainingSpecialistReviewerActiveAction}>
+                  <input type="hidden" name="reviewer_id" value={reviewer.id}/>
+                  <input type="hidden" name="is_active" value={reviewer.is_active ? "0" : "1"}/>
+                  <button className="btn btn-sm" type="submit">{reviewer.is_active ? "Deactivate" : "Reactivate"}</button>
+                </form>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="notice"><strong>No reviewers saved yet</strong><p>Add the first qualified specialist below. No invite is sent until you explicitly send one from a course.</p></div>
+        )}
+
+        <details className="card" style={{ marginTop: 16 }}>
+          <summary className="row-between">
+            <span><strong>Add reviewer</strong><small className="muted"> Save a reusable specialist contact</small></span>
+            <UserRoundPlus size={17}/>
+          </summary>
+          <form action={saveTrainingSpecialistReviewerAction} className="stack" style={{ marginTop: 16 }}>
+            <div className="grid-3">
+              <label className="field"><span>Name</span><input name="name" required maxLength={120} placeholder="Full name"/></label>
+              <label className="field"><span>Email</span><input name="email" type="email" required maxLength={254} placeholder="reviewer@company.com"/></label>
+              <label className="field"><span>Professional role</span><input name="role" required maxLength={180} placeholder="e.g. Australian payroll manager"/></label>
+            </div>
+            <div className="row wrap">
+              {["Healthcare", "Finance", "Property", "Software"].map((domain) => (
+                <label className="badge" key={domain} style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
+                  <input type="checkbox" name="domains" value={domain}/> {domain}
+                </label>
+              ))}
+            </div>
+            <label className="field">
+              <span>Qualification / experience notes</span>
+              <textarea name="qualification_notes" rows={3} maxLength={1500} placeholder="Current role, licence/certification, software experience, jurisdiction, or other evidence that makes this reviewer appropriate."/>
+            </label>
+            <div><button className="btn btn-primary" type="submit"><UserRoundPlus size={14}/> Save reviewer</button></div>
+          </form>
+        </details>
+      </section>
+
+      <section className="card dashboard-section-card">
+        <div className="dashboard-section-head">
+          <div>
             <h2>Review standard</h2>
             <p>Review the actual operational guidance, legal or professional boundaries, privacy controls, escalation rules, and final simulation. Do not approve from the course title alone.</p>
           </div>
@@ -191,6 +260,11 @@ export default async function SpecialistTrainingReviewPage({
           const canPublish = item.editorialReady && item.contentReady && item.assessmentReady && item.specialistReady;
           const state = queueState(item);
           const domain = getSpecialistReviewDomain(item.course.slug);
+          const eligibleReviewers = activeReviewers.filter((reviewer) => domain ? reviewer.domains.includes(domain) : false);
+          const matchedRosterReviewer = reviewers.find((reviewer) =>
+            reviewer.name === review?.assigned_reviewer_name &&
+            reviewer.role === review?.assigned_reviewer_role
+          );
 
           return (
             <section className="card dashboard-section-card" key={item.course.id}>
@@ -226,6 +300,44 @@ export default async function SpecialistTrainingReviewPage({
                   <span className={"badge " + (item.specialistReady ? "badge-success" : "badge-warning")}>{item.specialistReady ? "Done" : "Needed"}</span>
                 </div>
               </div>
+
+              {eligibleReviewers.length ? (
+                <form action={assignTrainingSpecialistReviewerFromRosterAction} className="stack" style={{ marginTop: 18 }}>
+                  <input type="hidden" name="course_id" value={item.course.id}/>
+                  <div className="dashboard-section-head">
+                    <div>
+                      <div className="small muted">Recommended roster</div>
+                      <h3>Assign a saved {domain} specialist</h3>
+                      <p>Only active reviewers approved for this domain appear here. Assignment does not send the secure review email.</p>
+                    </div>
+                    <span className="badge">{eligibleReviewers.length} eligible</span>
+                  </div>
+                  <div className="grid-3">
+                    <label className="field">
+                      <span>Reviewer</span>
+                      <select name="reviewer_id" required defaultValue="">
+                        <option value="" disabled>Choose specialist</option>
+                        {eligibleReviewers.map((reviewer) => (
+                          <option value={reviewer.id} key={reviewer.id}>{reviewer.name} · {reviewer.role}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field">
+                      <span>Due date</span>
+                      <input name="review_due_date" type="date" required defaultValue={review?.review_due_date || ""}/>
+                    </label>
+                    <div className="field" style={{ justifyContent: "flex-end" }}>
+                      <span>Assignment</span>
+                      <button className="btn btn-primary" type="submit">Assign from roster</button>
+                    </div>
+                  </div>
+                </form>
+              ) : (
+                <div className="notice" style={{ marginTop: 18 }}>
+                  <strong>No active {domain || "matching"} reviewer in roster</strong>
+                  <p>Add a qualified specialist above, or use manual assignment below if this is a one-off reviewer.</p>
+                </div>
+              )}
 
               <form action={assignTrainingSpecialistReviewerAction} className="stack" style={{ marginTop: 18 }}>
                 <input type="hidden" name="course_id" value={item.course.id}/>
@@ -293,7 +405,7 @@ export default async function SpecialistTrainingReviewPage({
                       <input type="hidden" name="course_id" value={item.course.id}/>
                       <label className="field">
                         <span>Reviewer email</span>
-                        <input type="email" name="reviewer_email" required maxLength={254} defaultValue={invite?.reviewer_email || ""} placeholder="reviewer@company.com"/>
+                        <input type="email" name="reviewer_email" required maxLength={254} defaultValue={invite?.reviewer_email || matchedRosterReviewer?.email || ""} placeholder="reviewer@company.com"/>
                       </label>
                       <div>
                         <button className="btn btn-primary" type="submit"><Send size={14}/> Send secure review</button>

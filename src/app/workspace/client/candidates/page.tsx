@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
+import { matchAssessment } from "@/lib/matching";
+import { recordProductEvent } from "@/lib/product-events";
 import { clientRequestMoreOptionsAction, clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
@@ -73,13 +75,21 @@ export default async function ClientCandidatesPage({
   }
 
   const selectedJob = summary.selected_job;
+  const selectedJobDetail = selectedJob;
   const selectedReleased = summary.released || [];
   const selectedPublished = selectedJob?.status === "published";
   const selectedAccessUnlocked = selectedJob ? candidateAccessUnlocked(summary.access_status) : false;
 
   if (selectedJob && selectedPublished && selectedAccessUnlocked && selectedReleased.length) {
     try {
-      await recordClientShortlistView(userId, selectedJob.id, selectedReleased.length);
+      const viewResult = await recordClientShortlistView(userId, selectedJob.id, selectedReleased.length);
+      if (viewResult.data) {
+        await recordProductEvent("shortlist_viewed", {
+          userId,
+          path: `/workspace/client/candidates?role=${selectedJob.id}`,
+          metadata: { job_id: selectedJob.id, released_count: selectedReleased.length },
+        });
+      }
     } catch {
       // Shortlist analytics should never block the client from reviewing candidates.
     }
@@ -94,7 +104,7 @@ export default async function ClientCandidatesPage({
   const held = selectedReleased.filter((row) => row.client_decision === "hold").length;
   const undecided = selectedReleased.filter((row) => !row.client_decision || row.client_decision === "hold").length;
   const remaining = undecided;
-  const interested = selectedReleased.filter((row) => row.client_decision === "interested").length;
+  const shortlisted = selectedReleased.filter((row) => row.client_decision === "interested").length;
   const interviewRequested = selectedReleased.filter((row) => row.client_decision === "interview").length;
   const passed = selectedReleased.filter((row) => row.client_decision === "pass").length;
   const allPassed = selectedReleased.length > 0 && selectedReleased.every((row) => row.client_decision === "pass");
@@ -119,18 +129,18 @@ export default async function ClientCandidatesPage({
         ? {
             title: `${remaining} shortlist decision${remaining === 1 ? "" : "s"} still open`,
             copy: held
-              ? `You have ${held} legacy hold decision${held === 1 ? "" : "s"}. Update those candidates to Interested, Interview, or Pass, or ask for more options.`
-              : "Mark each recruiter-selected VA as Interested, Interview, or Pass. If the shortlist is not right, ask your recruiter for more options.",
+              ? `You have ${held} legacy hold decision${held === 1 ? "" : "s"}. Update those candidates to Request interview, Keep shortlisted, or Pass, or ask for more options.`
+              : "Request an interview, keep a candidate shortlisted for comparison, or pass. If the shortlist is not right, ask your recruiter for more options.",
             href: selectedJob
               ? `/workspace/client/candidates?role=${encodeURIComponent(selectedJob.id)}#recruiter-shortlist`
               : "/workspace/client/candidates",
             label: "Review Hiring Room",
             waiting: "Waiting on you",
           }
-        : interested
+        : shortlisted
           ? {
-              title: "Your recruiter has your feedback",
-              copy: "You marked a candidate as interested. Our recruiting team will coordinate the appropriate next step.",
+              title: "Your shortlist is saved",
+              copy: "You kept a candidate shortlisted. Request an interview when ready, or compare the remaining recruiter-selected VAs.",
               href: "/workspace/client/interviews",
               label: "View interviews",
               waiting: "Waiting on our recruiting team",
@@ -157,7 +167,7 @@ export default async function ClientCandidatesPage({
     <div className="page-head client-hiring-room-head">
       <div>
         <h1>Hiring Room</h1>
-        <p>Only recruiter-selected candidates appear here. Choose Interested, Interview, or Pass for each VA, or ask your recruiter for more options.</p>
+        <p>Only recruiter-selected candidates appear here. Review the evidence, request an interview, keep a VA shortlisted, or pass and tell your recruiter why.</p>
       </div>
     </div>
 
@@ -191,13 +201,13 @@ export default async function ClientCandidatesPage({
       <div className="dashboard-section-head">
         <div>
           <h2>Recruiter shortlist{selectedJob ? ` for ${selectedJob.title}` : ""}</h2>
-          <p>We have already screened these VAs. Your decisions and notes appear immediately in the recruiter workspace. Questions belong in Client messages so the conversation stays with the role.</p>
+          <p>We have already screened these VAs. Start with the evidence on each card, open the full profile when useful, then request an interview, keep shortlisted, or pass. Your decision appears immediately in the recruiter workspace.</p>
         </div>
       </div>
 
       {selectedReleased.length ? <div className="role-handoff-stats" style={{marginBottom:16}}>
         <div><span>Waiting</span><strong>{undecided}</strong></div>
-        <div><span>Interested</span><strong>{interested}</strong></div>
+        <div><span>Shortlisted</span><strong>{shortlisted}</strong></div>
         <div><span>Interview</span><strong>{interviewRequested}</strong></div>
         <div><span>Passed</span><strong>{passed}</strong></div>
       </div> : null}
@@ -230,7 +240,7 @@ export default async function ClientCandidatesPage({
               const va = vaMap.get(row.va_id);
               const decision = String(row.client_decision || "");
               const decisionLabel = decision === "interested"
-                ? "Interested"
+                ? "Kept shortlisted"
                 : decision === "interview"
                   ? "Interview requested"
                   : decision === "hold"
@@ -238,6 +248,41 @@ export default async function ClientCandidatesPage({
                     : decision === "pass"
                       ? "Passed"
                       : "";
+              const trainingCredentials = trainingByUser.get(row.va_id) || [];
+              const matchProfile = va ? {
+                headline: va.headline || undefined,
+                primary_category: va.primary_category || undefined,
+                skills: va.skills || undefined,
+                tools: va.tools || undefined,
+                years_experience: va.years_experience ?? undefined,
+                weekly_hours: va.weekly_hours ?? undefined,
+                hourly_rate: va.hourly_rate ?? undefined,
+                schedule: va.schedule || undefined,
+                overlap_hours: va.overlap_hours ?? undefined,
+              } : null;
+              const assessment = selectedJobDetail && matchProfile
+                ? matchAssessment(selectedJobDetail, matchProfile, trainingCredentials)
+                : null;
+              const whyMatches = [
+                assessment?.roleMatch?.matchedKeywords?.length
+                  ? `Role fit: ${assessment.roleMatch.matchedKeywords.slice(0, 3).join(", ")}`
+                  : null,
+                assessment?.matchedSkills?.length
+                  ? `Matched skills: ${assessment.matchedSkills.slice(0, 3).join(", ")}`
+                  : null,
+                assessment?.matchedTools?.length
+                  ? `Matched tools: ${assessment.matchedTools.slice(0, 3).join(", ")}`
+                  : null,
+                selectedJobDetail?.minimum_years_experience != null && va?.years_experience != null && Number(va.years_experience) >= Number(selectedJobDetail.minimum_years_experience)
+                  ? `${va.years_experience}+ years experience meets the role preference`
+                  : null,
+                selectedJobDetail?.hours_per_week && va?.weekly_hours && Number(va.weekly_hours) >= Number(selectedJobDetail.hours_per_week)
+                  ? `${va.weekly_hours} hrs/week availability covers the requested ${selectedJobDetail.hours_per_week} hrs/week`
+                  : null,
+                assessment?.trainingMatch?.matchedCourseTitles?.length
+                  ? `Verified training: ${assessment.trainingMatch.matchedCourseTitles.slice(0, 2).join(", ")}`
+                  : null,
+              ].filter((value): value is string => Boolean(value));
 
               return <div className="client-candidate-review-card" key={row.va_id}>
                 <ClientCandidateViewTracker jobId={selectedJob.id} vaId={row.va_id}/>
@@ -252,7 +297,9 @@ export default async function ClientCandidatesPage({
                 skills={va?.skills}
                 tools={va?.tools}
                 recommendation={row.client_recommendation}
-                trainingCredentials={trainingByUser.get(row.va_id) || []}
+                trainingCredentials={trainingCredentials}
+                whyMatches={whyMatches}
+                profileHref={`/workspace/client/candidates/${row.id}`}
                 status={decisionLabel ? (
                   <span className={`badge ${decision === "pass" || decision === "hold" ? "badge-warning" : "badge-success"}`}>
                     {decisionLabel}
@@ -267,15 +314,15 @@ export default async function ClientCandidatesPage({
                     <div className="row wrap client-shortlist-action-grid">
                       <PendingSubmitButton
                         className={`btn btn-sm ${decision === "interested" ? "btn-primary" : ""}`}
-                        label="Interested"
+                        label="Keep shortlisted"
                         pendingLabel="Saving…"
                         name="decision"
                         value="interested"
                       />
                       <PendingSubmitButton
                         className={`btn btn-sm ${decision === "interview" ? "btn-primary" : ""}`}
-                        label="Interview"
-                        pendingLabel="Saving…"
+                        label="Request interview"
+                        pendingLabel="Requesting…"
                         name="decision"
                         value="interview"
                       />

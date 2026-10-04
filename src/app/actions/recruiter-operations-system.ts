@@ -489,6 +489,11 @@ export async function submitCandidateInterviewFeedbackAction(formData: FormData)
     if (recruiters?.length) await admin.from("notifications").insert(recruiters.map((r: any) => ({ user_id: r.id, title: "Client wants to proceed after interview", body: `${Array.isArray(row.jobs) ? row.jobs[0]?.title : row.jobs?.title || "Role"}: prepare the offer and confirm final terms.`, href: `/workspace/recruiter/roles/${row.job_id}#interviews`, type: "interview", priority: "high" })));
   }
   await writeRecruiterActivity({ subjectType: "job", subjectId: row.job_id, action: `interview_${decision}`, description: `Client interview decision: ${decision}`, actorId: user.id, metadata: { va_id: row.va_id, feedback, reason } });
+  await recordProductEvent("interview_completed", {
+    userId: user.id,
+    path: "/workspace/client/interviews",
+    metadata: { interview_id: interviewId, job_id: row.job_id, va_id: row.va_id, decision },
+  });
   try {
     await resolveInterviewFeedbackIfClear(admin, row.job_id);
     const automationJob = Array.isArray(row.jobs) ? row.jobs[0] : row.jobs;
@@ -568,6 +573,7 @@ export async function createPlacementOfferAction(formData: FormData) {
   if (activeOffer && activeOffer.va_id === vaId && activeOffer.status !== "pending_va") throw new Error("This offer has already advanced beyond recruiter editing.");
 
   let offerId = activeOffer?.va_id === vaId ? activeOffer.id : null;
+  const creatingNewOffer = !offerId;
   const payload = {
     job_id: jobId,
     va_id: vaId,
@@ -642,6 +648,13 @@ export async function createPlacementOfferAction(formData: FormData) {
     actorId: user.id,
     metadata: { va_id: vaId, offer_id: offerId, interview_id: proceedInterview.id, hourly_rate: hourlyRate, weekly_hours: weeklyHours, start_date: startDate }
   });
+  if (creatingNewOffer) {
+    await recordProductEvent("placement_offer_created", {
+      userId: user.id,
+      path: `/workspace/recruiter/roles/${jobId}`,
+      metadata: { offer_id: offerId, job_id: jobId, va_id: vaId, interview_id: proceedInterview.id },
+    });
+  }
   try {
     await resolveOfferPrepTask(admin, jobId);
   } catch (automationError) {
@@ -796,6 +809,11 @@ export async function confirmPlacementOfferAction(formData: FormData) {
   });
   await admin.from("notifications").insert({ user_id: offer.va_id, title: `Placement confirmed: ${confirmedTitle}`, body: "The client confirmed your placement. Your onboarding workroom is now active.", href: "/workspace/va/workroom", type: "offer", priority: "high" });
   await writeRecruiterActivity({ subjectType: "job", subjectId: offer.job_id, action: "placement_confirmed", description: "VA accepted and client confirmed final placement terms", actorId: user.id, metadata: { va_id: offer.va_id, offer_id: offerId, application_id: applicationId } });
+  await recordProductEvent("hire_confirmed", {
+    userId: user.id,
+    path: "/workspace/client/offers",
+    metadata: { offer_id: offerId, job_id: offer.job_id, va_id: offer.va_id, application_id: applicationId, workroom_id: String(workroomId) },
+  });
   revalidatePath("/workspace/client/offers"); revalidatePath("/workspace/client/workroom"); revalidatePath("/workspace/va/workroom"); revalidatePath("/workspace/recruiter/today"); revalidatePath("/workspace/recruiter/roles"); revalidatePath(`/workspace/recruiter/roles/${offer.job_id}`);
   redirect("/workspace/client/offers?confirmed=1");
 }

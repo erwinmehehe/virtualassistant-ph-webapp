@@ -21,6 +21,7 @@ test("client Hiring Room uses the consolidated summary fast path", async () => {
 
   assert.match(helper, /admin\.rpc\("client_hiring_room_summary"/);
   assert.match(helper, /withServerTiming\("client\.hiring_room_summary"/);
+  assert.match(helper, /required_skills,required_tools/);
   assert.match(helper, /admin\.rpc\("record_client_shortlist_view"/);
 });
 
@@ -52,8 +53,8 @@ test("shortlist view logging is ownership checked and rate limited in one databa
 test("client shortlist decisions disable while saving", async () => {
   const page = await read("src/app/workspace/client/candidates/page.tsx");
 
-  assert.match(page, /PendingSubmitButton[\s\S]*label="Interested"[\s\S]*pendingLabel="Saving…"/);
-  assert.match(page, /PendingSubmitButton[\s\S]*label="Interview"[\s\S]*pendingLabel="Saving…"/);
+  assert.match(page, /PendingSubmitButton[\s\S]*label="Keep shortlisted"[\s\S]*pendingLabel="Saving…"/);
+  assert.match(page, /PendingSubmitButton[\s\S]*label="Request interview"[\s\S]*pendingLabel="Requesting…"/);
   assert.match(page, /PendingSubmitButton[\s\S]*label="Confirm pass"[\s\S]*pendingLabel="Saving…"/);
 });
 

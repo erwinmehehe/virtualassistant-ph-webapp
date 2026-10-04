@@ -146,6 +146,14 @@ function ageLabel(hours: number | null | undefined) {
   return `${Math.max(1, Math.floor(value / 24))}d`;
 }
 
+function clientWaitStage(hours: number | null | undefined) {
+  const value = Math.max(0, Number(hours || 0));
+  if (value >= 72) return { label: "72h+", priority: "urgent", copy: "Escalate now" };
+  if (value >= 48) return { label: "48h+", priority: "high", copy: "Follow up today" };
+  if (value >= 24) return { label: "24h+", priority: "normal", copy: "First follow-up due" };
+  return { label: "<24h", priority: "low", copy: "Client review window" };
+}
+
 function stageAge(value?: string | null) {
   if (!value) return null;
   const diff = Date.now() - new Date(value).getTime();
@@ -459,6 +467,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     if (!current || item.action_type === "client_response_overdue") clientWaitByJob.set(item.subject_id,item);
   }
   const clientWaits = [...clientWaitByJob.values()].sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
+  const clientWait72 = clientWaits.filter((item)=>Number(item.age_hours || 0)>=72);
+  const clientWait48 = clientWaits.filter((item)=>Number(item.age_hours || 0)>=48&&Number(item.age_hours || 0)<72);
+  const clientWait24 = clientWaits.filter((item)=>Number(item.age_hours || 0)>=24&&Number(item.age_hours || 0)<48);
+  const clientWaitFresh = clientWaits.filter((item)=>Number(item.age_hours || 0)<24);
   const interviewRequests = dailyActions
     .filter((item)=>item.action_type==="interview_requested" && item.subject_id)
     .sort((a,b)=>Number(b.age_hours || 0)-Number(a.age_hours || 0));
@@ -468,12 +480,12 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const openTasks = Number(summary.open_tasks || 0);
   const approvalReadyCount = Number(summary.approval_ready_count || 0);
   const noShows = (Array.isArray(summary.no_show_preview) ? summary.no_show_preview : []) as Array<{id:string;name?:string|null;email?:string|null;sent?:boolean}>;
-  const clientResponseOverdue = Number(summary.client_response_overdue || 0);
   const roleNoCandidates = Number(summary.role_no_candidates || 0);
   const interviewsDue = Number(summary.interviews_due || 0);
 
   const nextActionCandidates = [
     {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
+    {count:clientWaits.length,title:`${clientWaits.length} client shortlist decision${clientWaits.length===1?" is":"s are"} waiting`,copy:clientWait72.length?`${clientWait72.length} reached 72h+ without a decision. Escalate these first.`:clientWait48.length?`${clientWait48.length} reached 48h+. Follow up today before the role stalls.`:clientWait24.length?`${clientWait24.length} reached the first 24h follow-up point.`:"Clients are inside the initial review window.",href:"#role-follow-through",cta:"Open client decisions",icon:<Clock3 size={20}/>},
     {count:firstContactActions.length,title:"Contact new client leads",copy:`${firstContactActions.length} assigned enquir${firstContactActions.length===1?"y has":"ies have"} not had a first human contact yet. Work these before matching or routine sourcing.`,href:"#client-next-actions",cta:"Open first contacts",icon:<MessageSquare size={20}/>},
     {count:dueClientActions.length,title:"Move due client leads",copy:`${dueClientActions.length} assigned client${dueClientActions.length===1?" has":"s have"} a due discovery, proposal, follow-up, or nurture action.`,href:"#client-next-actions",cta:"Open client actions",icon:<Clock3 size={20}/>},
     {count:placementHandoffs.length,title:"Complete recruiter handoffs",copy:`${placementHandoffs.length} placement${placementHandoffs.length===1?" is":"s are"} waiting for the formal recruiter → Client Success transfer. This is the recruiter's final post-hire action.`,href:"#needs-action",cta:"Complete handoff",icon:<UserRoundCheck size={20}/>},
@@ -494,7 +506,6 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
     {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#role-follow-through",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
     {count:interviewRequests.length,title:"Schedule requested interviews",copy:"Clients have explicitly requested interviews. Lock in the time from the role so the request cannot get lost.",href:interviewRequests[0]?.subject_id?`/workspace/recruiter/roles/${interviewRequests[0].subject_id}#interviews`:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Schedule interview",icon:<CalendarDays size={20}/>},
-    {count:clientResponseOverdue,title:"Chase overdue client decisions",copy:"Shortlists are waiting on client feedback. Follow up before active roles lose momentum.",href:"/workspace/recruiter/roles?view=waiting_client&sort=oldest",cta:"Open client waits",icon:<Clock3 size={20}/>},
     {count:readyToSendRoles.length,title:"Send client-ready shortlists",copy:"Recruiter-selected candidates are ready and all release gates are clear. Preview the client view and send them now.",href:"/workspace/recruiter/roles?view=ready_to_send&sort=urgent",cta:"Send shortlists",icon:<UserRoundCheck size={20}/>},
     {count:blockedShortlistRoles.length,title:"Clear shortlist readiness blockers",copy:"Recruiter-selected candidates are waiting on talent-pool, availability, or verified work-setup readiness.",href:"/workspace/recruiter/roles?view=shortlist_blocked&sort=urgent",cta:"Clear blockers",icon:<RefreshCw size={20}/>},
     {count:handoffBlockedRoles.length,title:"Clear client handoff gates",copy:"The shortlist itself is ready, but the client link, role publication, service terms, or candidate access still blocks release.",href:"/workspace/recruiter/roles?view=client_review&sort=urgent",cta:"Open blocked handoffs",icon:<BriefcaseBusiness size={20}/>},
@@ -755,6 +766,13 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         <div><h2>Follow-through</h2><p>No-shows, client decisions, and roles that have stopped moving.</p></div>
         <Link prefetch={false} className="btn btn-sm" href="/workspace/recruiter/roles">Open roles <ArrowRight size={13}/></Link>
       </div>
+      {clientWaits.length ? <div className={styles.clientWaitStats} aria-label="Client shortlist decision age">
+        <div><span>Waiting</span><strong>{clientWaits.length}</strong></div>
+        <div><span>&lt;24h</span><strong>{clientWaitFresh.length}</strong></div>
+        <div><span>24h+</span><strong>{clientWait24.length}</strong></div>
+        <div><span>48h+</span><strong>{clientWait48.length}</strong></div>
+        <div className={clientWait72.length?styles.clientWaitUrgent:""}><span>72h+</span><strong>{clientWait72.length}</strong></div>
+      </div> : null}
 
       {noShows.length ? <div className={styles.followList}>
         <div className={styles.groupLabel}>Discovery no-shows</div>
@@ -774,20 +792,21 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
 
       {clientWaits.length ? <div className={styles.followList}>
         <div className={styles.groupLabel}>Waiting on client</div>
-        {clientWaits.slice(0,5).map((item)=>(
-          <div className={styles.followRow} key={`wait-${item.action_type}-${item.subject_id}`}>
+        {clientWaits.slice(0,5).map((item)=>{
+          const stage=clientWaitStage(item.age_hours);
+          return <div className={styles.followRow} key={`wait-${item.action_type}-${item.subject_id}`}>
             <span className={styles.followIcon}><MessageSquare size={15}/></span>
             <span className={styles.followCopy}>
-              <strong>{item.title || "Client decision pending"}</strong>
+              <span className="row wrap"><strong>{item.title || "Client decision pending"}</strong><span className={`badge ${stage.priority==="urgent"||stage.priority==="high"?"badge-warning":""}`}>{stage.label}</span></span>
               <small>{item.description || "Shortlist feedback is still pending."}</small>
-              <small>{ageLabel(item.age_hours)} waiting</small>
+              <small>{ageLabel(item.age_hours)} waiting · {stage.copy}</small>
             </span>
             <div className={styles.followActions}>
               {item.subject_id ? <form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.subject_id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit">Follow up</button></form> : null}
               {item.subject_id ? <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}`}>Open</Link> : null}
             </div>
-          </div>
-        ))}
+          </div>;
+        })}
       </div> : null}
 
       {staleRolePreview.length ? <div className={styles.followList}>

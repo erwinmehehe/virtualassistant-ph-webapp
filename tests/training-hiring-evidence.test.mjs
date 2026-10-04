@@ -53,10 +53,11 @@ test("client shortlist training data is fetched only for recruiter-released acce
   assert.match(migration, /from training_certificates tc/);
   assert.match(migration, /where tc\.revoked_at is null/);
   assert.match(helper, /trainingCredentialsByUser/);
-  assert.match(page, /trainingCredentials=\{trainingByUser\.get\(row\.va_id\) \|\| \[\]\}/);
+  assert.match(page, /const trainingCredentials = trainingByUser\.get\(row\.va_id\) \|\| \[\];/);
+  assert.match(page, /trainingCredentials=\{trainingCredentials\}/);
   assert.match(detail, /if\(!shortlist\)notFound\(\)/);
   assert.match(detail, /candidateAccessUnlocked/);
-  assert.match(detail, /getTrainingCredentialsForUser\(summary\.va_id\)/);
+  assert.match(detail, /getTrainingCredentialsForUser\(vaId\)/);
   assert.match(card, /Training completed/);
 });
 

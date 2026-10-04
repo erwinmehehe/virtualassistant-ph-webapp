@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle, BriefcaseBusiness, ShieldCheck, TrendingUp } from "lucide-react";
-import { getAgencyAttributionMetrics, getAgencyFunnelMetrics } from "@/lib/agency-funnel-metrics";
+import { getAgencyFunnelMetrics, getAgencyRevenueAttributionMetrics, type AgencyAttributionRow } from "@/lib/agency-funnel-metrics";
 
 function count(value: unknown) {
   const n = Number(value || 0);
@@ -47,6 +47,35 @@ function OpsMetric({label,value,note}:{label:string;value:string|number;note:str
   </div>;
 }
 
+
+function AttributionTable({ rows, model }: { rows:AgencyAttributionRow[]; model:"First touch"|"Last touch" }) {
+  if (!rows.length) return <div className="agency-funnel-empty">Attribution will appear as new hiring briefs arrive with campaign or referrer data.</div>;
+  return <div className="table-wrap responsive-table">
+    <table>
+      <thead><tr><th>{model}</th><th>Leads</th><th>Qualified</th><th>Discovery</th><th>Proposals</th><th>Wins</th><th>Won value</th><th>Collected</th><th>Rev / lead</th></tr></thead>
+      <tbody>{rows.slice(0,12).map((row)=>{
+        const leadCount=count(row.leads);
+        const qualified=count(row.qualified);
+        const discovery=count(row.discovery_booked);
+        const proposalLeads=count(row.proposal_leads);
+        const customers=count(row.customers);
+        const source=[row.source,row.medium,row.campaign].filter(Boolean).join(" · ");
+        return <tr key={`${row.source}:${row.medium || ""}:${row.campaign || ""}`}>
+          <td data-label={model}><strong>{source}</strong></td>
+          <td data-label="Leads">{leadCount}</td>
+          <td data-label="Qualified">{qualified} <small className="muted">{percent(qualified,leadCount) ?? 0}%</small></td>
+          <td data-label="Discovery">{discovery}</td>
+          <td data-label="Proposals">{proposalLeads}</td>
+          <td data-label="Wins">{customers} <small className="muted">{percent(customers,leadCount) ?? 0}%</small></td>
+          <td data-label="Won value">{usd(count(row.won_value_usd))}</td>
+          <td data-label="Collected">{usd(count(row.collected_revenue_usd))}</td>
+          <td data-label="Rev / lead">{usd(count(row.revenue_per_lead_usd))}</td>
+        </tr>;
+      })}</tbody>
+    </table>
+  </div>;
+}
+
 export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scopeLabel, leadsPath, rolesPath }: {
   recruiterId:string|null;
   days:number;
@@ -57,13 +86,16 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
 }) {
   const [
     {data,error},
-    {data:attribution,error:attributionError},
+    {data:firstTouch,error:firstTouchError},
+    {data:lastTouch,error:lastTouchError},
   ]=await Promise.all([
     getAgencyFunnelMetrics(recruiterId,days),
-    getAgencyAttributionMetrics(recruiterId,days),
+    getAgencyRevenueAttributionMetrics(recruiterId,days,"first_touch"),
+    getAgencyRevenueAttributionMetrics(recruiterId,days,"last_touch"),
   ]);
   if(error)throw error;
-  if(attributionError)throw attributionError;
+  if(firstTouchError)throw firstTouchError;
+  if(lastTouchError)throw lastTouchError;
 
   const journey={
     enquiries:count(data.journey?.enquiries),
@@ -140,6 +172,10 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   const proposalAcceptanceRate=percent(proposal.accepted,proposal.sent);
   const proposalDecisions=proposal.accepted+proposal.declined;
   const hourMetric=(value:number,hasData:boolean)=>hasData?`${value}h`:"—";
+  const collectedRevenue=firstTouch.reduce((sum,row)=>sum+count(row.collected_revenue_usd),0);
+  const attributedWonValue=firstTouch.reduce((sum,row)=>sum+count(row.won_value_usd),0);
+  const attributedLeads=firstTouch.reduce((sum,row)=>sum+count(row.leads),0);
+  const paidPayments=firstTouch.reduce((sum,row)=>sum+count(row.paid_payments),0);
 
   return <div className="agency-funnel-page">
     <div className="page-head agency-funnel-head">
@@ -212,22 +248,18 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
 
     <section className="agency-funnel-section">
       <div className="agency-funnel-section-head">
-        <div><span className="agency-section-icon"><TrendingUp size={18}/></span><div><h2>Lead source → customer</h2><p>First-party attribution carried from the hiring form through won revenue. Use this to optimize channels for customers instead of form submissions.</p></div></div>
+        <div><span className="agency-section-icon"><TrendingUp size={18}/></span><div><h2>Marketing → revenue</h2><p>Follow acquisition from lead source through qualification, discovery, proposals, customers, and actual collected invoice revenue. First touch answers what acquired the lead; last touch answers what brought them back before conversion.</p></div></div>
       </div>
-      {attribution.length ? <div className="agency-health-grid agency-operations-grid">
-        {attribution.slice(0,8).map((row)=>{
-          const leadCount=count(row.leads);
-          const customerCount=count(row.customers);
-          const conversion=percent(customerCount,leadCount);
-          const label=row.campaign ? `${row.source} · ${row.campaign}` : row.source;
-          return <OpsMetric
-            key={`${row.source}:${row.campaign || ""}`}
-            label={label}
-            value={conversion==null?"—":`${conversion}%`}
-            note={`${leadCount} leads · ${customerCount} customers · ${usd(count(row.won_value_usd))} won value`}
-          />;
-        })}
-      </div> : <div className="agency-funnel-empty">Attribution will appear as new hiring briefs arrive with campaign or referrer data.</div>}
+      <div className="agency-health-grid agency-operations-grid">
+        <OpsMetric label="Attributed leads" value={attributedLeads} note="Client hiring enquiries in the selected cohort"/>
+        <OpsMetric label="Won value" value={usd(attributedWonValue)} note="Estimated value on leads marked won"/>
+        <OpsMetric label="Collected revenue" value={usd(collectedRevenue)} note={`${paidPayments} paid invoice${paidPayments===1?"":"s"} linked back to originating leads`}/>
+        <OpsMetric label="Revenue / lead" value={attributedLeads?usd(collectedRevenue/attributedLeads):"—"} note="Collected revenue divided by attributed leads"/>
+      </div>
+      <div className="dashboard-section-head"><div><h3>First-touch acquisition</h3><p>Use this view to decide which channels deserve more acquisition budget.</p></div></div>
+      <AttributionTable rows={firstTouch} model="First touch"/>
+      <div className="dashboard-section-head" style={{marginTop:24}}><div><h3>Last-touch conversion influence</h3><p>Use this view to see which campaign or source brought prospects back before they submitted the hiring request.</p></div></div>
+      <AttributionTable rows={lastTouch} model="Last touch"/>
     </section>
 
     <section className="agency-funnel-explainer">

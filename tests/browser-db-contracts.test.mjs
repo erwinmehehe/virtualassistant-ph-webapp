@@ -31,6 +31,9 @@ test("browser/database contract lane is isolated from production",async()=>{
   assert.match(sql,/has_function_privilege\('authenticated'/);
   assert.match(sql,/security_invoker=true/);
   assert.match(sql,/security_barrier=true/);
+
+  const productCroMigration=await read("supabase/migrations/20260809_v4_product_cro.sql");
+  assert.match(productCroMigration,/drop policy if exists "va deletes unapproved own time" on public\.time_entries;/);
 });
 
 test("Playwright covers public routes and all three workspace roles",async()=>{

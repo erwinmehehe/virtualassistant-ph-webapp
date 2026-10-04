@@ -103,6 +103,7 @@ test("signed-in learners are not sent back through training login or signup CTAs
   assert.match(page, /signedIn \? `\/workspace\/training\/courses\/\$\{course\.slug\}` : trainingJoinHref\(course\.slug\)/);
   assert.match(page, /signedIn \? "\/workspace\/training" : JOIN_HREF/);
   assert.match(page, /Go to learner dashboard/);
+  assert.match(page, /<TrainingMobileCta href=\{trainingHomeHref\} label=\{signedIn \? "Continue training" : "Start free training"\}\/>/);
   assert.match(nav, /href=\{user \? "\/workspace\/training" : trainingContextLoginHref\}/);
   assert.match(nav, /user \? "Continue training" : "Start free training"/);
   assert.match(nav, /user \? "My learning" : "Training login"/);

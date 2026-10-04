@@ -68,7 +68,7 @@ export function isValidSpecialistReviewToken(rawToken: string) {
 
 export async function getExternalSpecialistReview(rawToken: string, markOpened = false) {
   if (!isValidSpecialistReviewToken(rawToken)) {
-    return { invite: null, course: null, definition: null, review: null, state: "invalid" as const };
+    return { invite: null, course: null, definition: null, review: null, history: [], state: "invalid" as const };
   }
 
   const admin = createAdminClient();
@@ -80,16 +80,16 @@ export async function getExternalSpecialistReview(rawToken: string, markOpened =
     .maybeSingle();
 
   if (inviteError || !inviteData || inviteData.status === "revoked") {
-    return { invite: null, course: null, definition: null, review: null, state: "invalid" as const };
+    return { invite: null, course: null, definition: null, review: null, history: [], state: "invalid" as const };
   }
 
   const invite = inviteData as SpecialistReviewInvite;
   if (new Date(invite.expires_at).getTime() <= Date.now()) {
-    return { invite, course: null, definition: null, review: null, state: "expired" as const };
+    return { invite, course: null, definition: null, review: null, history: [], state: "expired" as const };
   }
 
   if (invite.status === "submitted") {
-    return { invite, course: null, definition: null, review: null, state: "submitted" as const };
+    return { invite, course: null, definition: null, review: null, history: [], state: "submitted" as const };
   }
 
   const [{ data: courseData, error: courseError }, { data: reviewData, error: reviewError }] = await Promise.all([
@@ -107,7 +107,7 @@ export async function getExternalSpecialistReview(rawToken: string, markOpened =
   ]);
 
   if (courseError || reviewError || !courseData || !reviewData) {
-    return { invite, course: null, definition: null, review: null, state: "invalid" as const };
+    return { invite, course: null, definition: null, review: null, history: [], state: "invalid" as const };
   }
 
   const current =
@@ -118,12 +118,12 @@ export async function getExternalSpecialistReview(rawToken: string, markOpened =
     reviewData.assigned_reviewer_role === invite.reviewer_role;
 
   if (!current) {
-    return { invite, course: null, definition: null, review: reviewData, state: "stale" as const };
+    return { invite, course: null, definition: null, review: reviewData, history: [], state: "stale" as const };
   }
 
   const definition = getSpecialistReviewDefinition(courseData.slug);
   if (!definition) {
-    return { invite, course: null, definition: null, review: reviewData, state: "invalid" as const };
+    return { invite, course: null, definition: null, review: reviewData, history: [], state: "invalid" as const };
   }
 
   if (markOpened && invite.status === "pending") {
@@ -157,13 +157,30 @@ export async function getExternalSpecialistReview(rawToken: string, markOpened =
     }
   }
 
-  const { data: moduleData } = await admin
-    .from("training_modules")
-    .select("id,title,summary,position")
-    .eq("course_id", courseData.id)
-    .order("position");
+  const [{ data: moduleData }, { data: historyData }] = await Promise.all([
+    admin
+      .from("training_modules")
+      .select("id,title,summary,position")
+      .eq("course_id", courseData.id)
+      .order("position"),
+    admin
+      .from("training_specialist_review_events")
+      .select("event_type,reviewer_name,reviewer_role,review_revision,notes,created_at")
+      .eq("course_id", courseData.id)
+      .in("event_type", ["changes_requested", "external_changes_requested", "invalidated", "approved", "external_approved"])
+      .order("created_at", { ascending: false })
+      .limit(8),
+  ]);
 
   const modules = moduleData || [];
+  const history = (historyData || []).map((event) => ({
+    event_type: String(event.event_type || ""),
+    reviewer_name: event.reviewer_name || null,
+    reviewer_role: event.reviewer_role || null,
+    review_revision: Number(event.review_revision || 0),
+    notes: event.notes || null,
+    created_at: event.created_at,
+  }));
   const moduleIds = modules.map((module) => module.id);
   const [{ data: lessonData }, { data: assessmentData }] = await Promise.all([
     moduleIds.length
@@ -204,5 +221,5 @@ export async function getExternalSpecialistReview(rawToken: string, markOpened =
     assessments: (assessmentData || []) as ExternalSpecialistReviewCourse["assessments"],
   };
 
-  return { invite, course, definition, review: reviewData, state: "active" as const };
+  return { invite, course, definition, review: reviewData, history, state: "active" as const };
 }

@@ -20,6 +20,7 @@ import { queueDiscoveryOutcomeAutomation } from "@/lib/trigger-automation";
 import { ensureDiscoveryOutcomeNextAction, resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
 import { inferLegacyLossReasonCode, isLeadLossReasonCode, leadLossReasonLabel, winBackAtForLoss } from "@/lib/loss-reasons";
 import { syncLeadWinBackTask } from "@/lib/loss-recovery";
+import { syncLeadNurtureState } from "@/lib/lead-nurture-automation";
 
 const allowedBulkActions = new Set(["approve", "approve_publish", "mark_reviewed", "bench", "reject", "request_changes", "hide", "assign", "remind"]);
 
@@ -625,6 +626,19 @@ export async function updateLeadCrmAction(formData: FormData) {
     });
   }
 
+  try {
+    await syncLeadNurtureState({
+      leadId,
+      crmStage: stage,
+      winBackAt,
+    });
+  } catch (automationError) {
+    console.error("[nurture] Could not synchronize lead nurture state", {
+      leadId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
+
   const qualifiedStages = new Set(["qualified", "shortlist_sent", "won"]);
   if (qualifiedStages.has(stage) && !qualifiedStages.has(String(lead.crm_stage || ""))) {
     let path = "/hire";
@@ -1001,6 +1015,19 @@ export async function completeDiscoveryAction(formData: FormData) {
     });
   } catch (automationError) {
     console.error("[win-back] Could not synchronize discovery recovery task", {
+      leadId,
+      error: automationError instanceof Error ? automationError.message : String(automationError),
+    });
+  }
+
+  try {
+    await syncLeadNurtureState({
+      leadId,
+      crmStage: stage,
+      winBackAt,
+    });
+  } catch (automationError) {
+    console.error("[nurture] Could not synchronize discovery nurture state", {
       leadId,
       error: automationError instanceof Error ? automationError.message : String(automationError),
     });

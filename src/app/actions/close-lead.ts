@@ -9,6 +9,7 @@ import { cancelGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { inferLegacyLossReasonCode, isLeadLossReasonCode, leadLossReasonLabel, winBackAtForLoss } from "@/lib/loss-reasons";
 import { syncLeadWinBackTask } from "@/lib/loss-recovery";
+import { syncLeadNurtureState } from "@/lib/lead-nurture-automation";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -138,6 +139,16 @@ export async function closeLeadAction(formData: FormData) {
       });
     } catch {
       // The CRM win-back queue still uses win_back_at even if task creation is temporarily unavailable.
+    }
+
+    try {
+      await syncLeadNurtureState({
+        leadId,
+        crmStage: "lost",
+        winBackAt,
+      });
+    } catch {
+      // The lead remains safely closed even if nurture enrollment is temporarily unavailable.
     }
   });
 

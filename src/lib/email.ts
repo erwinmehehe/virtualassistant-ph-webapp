@@ -159,7 +159,7 @@ type NotificationPreferenceField = "hiring_updates" | "booking_reminders" | "can
 
 function notificationPreferenceField(eventType: string): NotificationPreferenceField | null {
   if (eventType.startsWith("discovery_reminder_")) return "booking_reminders";
-  if (["client_followup", "lead_claim_nudge", "role_details_request"].includes(eventType)) return "hiring_updates";
+  if (["client_followup", "lead_claim_nudge", "role_details_request"].includes(eventType) || eventType.startsWith("lead_nurture_")) return "hiring_updates";
   if (["new_application", "application_status", "profile_completion_reminder", "profile_stage_nudge"].includes(eventType)) {
     return "candidate_activity";
   }
@@ -1277,6 +1277,54 @@ export async function sendTransactionalEventEmail(args: { to?: string | null; fi
     })
   }, args.eventType || "transactional_event", { archive: args.archive === true, idempotencyKey: args.idempotencyKey, priority: args.priority || (isPasswordChangeNotice ? "critical" : "standard") });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
+}
+
+export async function sendLeadNurtureEmail(args: {
+  to?: string | null;
+  firstName?: string | null;
+  leadId: string;
+  subject: string;
+  heading: string;
+  body: string;
+  ctaHref: string;
+  ctaLabel: string;
+  unsubscribeUrl: string;
+  sequence: "nurture" | "winback";
+  step: number;
+}) {
+  const config = resendConfig();
+  const recipient = normalizeEmailAddress(args.to);
+  if (!config || !recipient) {
+    return { sent: false as const, reason: !recipient ? "invalid_recipient" : "email_not_configured" };
+  }
+
+  const firstName = args.firstName?.trim().split(/\s+/)[0] || "there";
+  const bodyHtml = `<p style="margin:0 0 18px;color:#344054;font-size:16px;line-height:1.7;">${escapeHtml(args.body)}</p><p style="margin:24px 0 0;color:#98a2b3;font-size:12px;line-height:1.6;">Don’t want these hiring follow-ups? <a href="${escapeHtml(args.unsubscribeUrl)}" style="color:#667085;">Unsubscribe from this VA hiring sequence</a>.</p>`;
+  const delivery = await trackedSend(config, {
+    from: config.from,
+    to: [recipient],
+    replyTo: configuredReplyToFor({ leadId: args.leadId }),
+    subject: args.subject,
+    text: `Hi ${firstName},\n\n${args.body}\n\n${args.ctaLabel}: ${args.ctaHref}\n\nStop these hiring follow-ups: ${args.unsubscribeUrl}`,
+    html: renderBrandedEmail({
+      firstName,
+      bodyHtml,
+      senderName: "VirtualAssistant.com.ph Hiring Team",
+      teamLabel: "Hiring follow-up",
+      footerText: "You are receiving this because you previously asked VirtualAssistant.com.ph about hiring a Virtual Assistant.",
+      ctaHref: args.ctaHref,
+      ctaLabel: args.ctaLabel,
+      headline: args.heading,
+    }),
+  }, `lead_nurture_${args.sequence}`, {
+    archive: false,
+    priority: "low",
+    idempotencyKey: `lead-nurture-${args.leadId}-${args.sequence}-${args.step}`,
+  });
+
+  return delivery.sent
+    ? { sent: true as const, duplicatePrevented: delivery.duplicatePrevented === true }
+    : { sent: false as const, reason: delivery.reason };
 }
 
 export async function sendStaffDailyDigestEmail(args: {

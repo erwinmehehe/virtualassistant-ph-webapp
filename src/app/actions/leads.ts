@@ -76,6 +76,12 @@ function leadAttribution(formData: FormData, sourcePath: string) {
     first_touch_medium: attributionValue(formData, "first_touch_medium", 160) || null,
     first_touch_campaign: attributionValue(formData, "first_touch_campaign", 240) || null,
     first_touch_landing_page: attributionValue(formData, "first_touch_landing_page", 1000) || null,
+    first_touch_at: attributionValue(formData, "first_touch_at", 64) || null,
+    last_touch_source: attributionValue(formData, "last_touch_source", 160) || null,
+    last_touch_medium: attributionValue(formData, "last_touch_medium", 160) || null,
+    last_touch_campaign: attributionValue(formData, "last_touch_campaign", 240) || null,
+    last_touch_landing_page: attributionValue(formData, "last_touch_landing_page", 1000) || null,
+    last_touch_at: attributionValue(formData, "last_touch_at", 64) || null,
   };
 }
 

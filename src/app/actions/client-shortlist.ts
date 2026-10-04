@@ -308,7 +308,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
   }
 
   const label = decision === "interested"
-    ? "marked a VA interested"
+    ? "kept a VA shortlisted"
     : decision === "interview"
       ? "requested an interview"
       : decision === "hold"
@@ -331,7 +331,7 @@ export async function clientShortlistDecisionAction(formData: FormData) {
   const notificationTitle = decision === "interview"
     ? "Client requested an interview"
     : decision === "interested"
-      ? "Client marked a VA interested"
+      ? "Client kept a VA shortlisted"
       : decision === "hold"
         ? "Client placed a VA on hold"
         : "Client passed on a VA";

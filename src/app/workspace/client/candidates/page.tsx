@@ -249,8 +249,19 @@ export default async function ClientCandidatesPage({
                       ? "Passed"
                       : "";
               const trainingCredentials = trainingByUser.get(row.va_id) || [];
-              const assessment = selectedJobDetail && va
-                ? matchAssessment(selectedJobDetail, va, trainingCredentials)
+              const matchProfile = va ? {
+                headline: va.headline || undefined,
+                primary_category: va.primary_category || undefined,
+                skills: va.skills || undefined,
+                tools: va.tools || undefined,
+                years_experience: va.years_experience ?? undefined,
+                weekly_hours: va.weekly_hours ?? undefined,
+                hourly_rate: va.hourly_rate ?? undefined,
+                schedule: va.schedule || undefined,
+                overlap_hours: va.overlap_hours ?? undefined,
+              } : null;
+              const assessment = selectedJobDetail && matchProfile
+                ? matchAssessment(selectedJobDetail, matchProfile, trainingCredentials)
                 : null;
               const whyMatches = [
                 assessment?.roleMatch?.matchedKeywords?.length

@@ -39,11 +39,21 @@ drop view if exists public.public_va_directory;
 
 -- The production project predates Supabase's 2026 explicit Data API grant
 -- default and already has service_role CRUD privileges on application tables.
--- Fresh local projects no longer inherit those grants, so reproduce only the
--- trusted server role's production access here. Browser roles stay unchanged.
+-- Fresh local projects no longer inherit those grants, so reproduce the trusted
+-- server role's production access here.
 grant select, insert, update, delete on all tables in schema public to service_role;
 grant usage, select on all sequences in schema public to service_role;
 grant execute on all functions in schema public to service_role;
+
+-- Production also retains legacy authenticated SELECT grants on these
+-- role/profile tables. RLS still limits each user to their own rows, and no
+-- browser write privilege is restored here.
+grant select on table
+  public.profiles,
+  public.client_profiles,
+  public.va_profiles,
+  public.va_vetting
+to authenticated;
 
 alter default privileges for role postgres in schema public
   grant select, insert, update, delete on tables to service_role;

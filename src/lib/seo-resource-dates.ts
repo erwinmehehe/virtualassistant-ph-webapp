@@ -2,6 +2,7 @@ export const DEFAULT_SEO_RESOURCE_PUBLISHED_AT = "2026-09-22";
 
 const SEO_RESOURCE_UPDATED_AT: Readonly<Record<string, string>> = {
   "virtual-assistant-job-description": "2026-09-23",
+  "best-laptop-for-virtual-assistant": "2026-10-04",
 };
 
 export function seoResourcePublishedAt(_slug: string) {

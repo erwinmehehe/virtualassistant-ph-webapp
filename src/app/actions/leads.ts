@@ -48,6 +48,37 @@ function matchFeedbackToken(leadId: string) {
   }).token;
 }
 
+function attributionValue(formData: FormData, key: string, max: number) {
+  return String(formData.get(key) || "").trim().slice(0, max);
+}
+
+function leadAttribution(formData: FormData, sourcePath: string) {
+  const referrer = attributionValue(formData, "referrer", 1000);
+  let referrerHost = "";
+  if (referrer) {
+    try {
+      referrerHost = new URL(referrer).hostname.toLowerCase().slice(0, 255);
+    } catch {
+      referrerHost = "";
+    }
+  }
+
+  return {
+    utm_source: attributionValue(formData, "utm_source", 160) || null,
+    utm_medium: attributionValue(formData, "utm_medium", 160) || null,
+    utm_campaign: attributionValue(formData, "utm_campaign", 240) || null,
+    utm_content: attributionValue(formData, "utm_content", 240) || null,
+    utm_term: attributionValue(formData, "utm_term", 240) || null,
+    referrer: referrer || null,
+    referrer_host: referrerHost || null,
+    landing_page: attributionValue(formData, "landing_page", 1000) || sourcePath,
+    first_touch_source: attributionValue(formData, "first_touch_source", 160) || null,
+    first_touch_medium: attributionValue(formData, "first_touch_medium", 160) || null,
+    first_touch_campaign: attributionValue(formData, "first_touch_campaign", 240) || null,
+    first_touch_landing_page: attributionValue(formData, "first_touch_landing_page", 1000) || null,
+  };
+}
+
 /**
  * Stores a hiring-form submission that reads like a VA applying for work as a
  * va_support lead (kept out of the client pipeline and recruiter SLAs, still
@@ -357,7 +388,8 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       message: briefMessage,
       source_page: sourcePage,
       page_url: pageUrl,
-      session_id: parsed.data.session_id || null
+      session_id: parsed.data.session_id || null,
+      attribution: leadAttribution(formData, sourcePath)
     }).select("id").single();
     if (error || !lead?.id) return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
 
@@ -520,7 +552,8 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       message: combinedMessage,
       source_page: "industry_match_request",
       page_url: pageUrl,
-      session_id: parsed.data.session_id || null
+      session_id: parsed.data.session_id || null,
+      attribution: leadAttribution(formData, sourcePath)
     }).select("id").single();
     if (error || !lead?.id) return { status: "error", message: "We could not save your request. Please try again or use the full hiring brief." };
 
@@ -708,7 +741,8 @@ export async function submitRoleBriefAction(formData: FormData) {
     message,
     source_page: sourcePage,
     page_url: pageUrl,
-    session_id: parsed.data.session_id || null
+    session_id: parsed.data.session_id || null,
+    attribution: leadAttribution(formData, sourcePath)
   }).select("id").single();
   if (error || !lead?.id) redirect(`${returnTo}?error=${encodeURIComponent("We could not save your request. Please try again.")}`);
 

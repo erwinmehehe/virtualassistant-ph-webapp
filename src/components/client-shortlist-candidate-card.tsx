@@ -1,7 +1,8 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { clientMatchLabel } from "@/lib/matching";
 import { maskVaName } from "@/lib/va-identity";
-import { GraduationCap } from "lucide-react";
+import { CheckCircle2, GraduationCap, UserRoundSearch } from "lucide-react";
 import type { TrainingCredential } from "@/lib/training-credentials";
 
 export function ClientShortlistCandidateCard({
@@ -19,6 +20,8 @@ export function ClientShortlistCandidateCard({
   status,
   actions,
   feedback,
+  whyMatches = [],
+  profileHref,
 }: {
   fullName?: string | null;
   headline?: string | null;
@@ -34,6 +37,8 @@ export function ClientShortlistCandidateCard({
   status?: ReactNode;
   actions?: ReactNode;
   feedback?: ReactNode;
+  whyMatches?: string[];
+  profileHref?: string | null;
 }) {
   const evidence = [...(skills || []), ...(tools || [])].slice(0, 4);
 
@@ -53,6 +58,19 @@ export function ClientShortlistCandidateCard({
     <div className="pill-list">
       {evidence.map((item, index) => <span className="badge" key={`${item}-${index}`}>{item}</span>)}
     </div>
+    {whyMatches.length ? (
+      <div className="client-shortlist-match-evidence">
+        <strong>Why this VA matches</strong>
+        <div className="stack" style={{gap:6,marginTop:8}}>
+          {whyMatches.slice(0, 4).map((reason) => (
+            <span className="small" key={reason} style={{display:"flex",gap:7,alignItems:"flex-start"}}>
+              <CheckCircle2 size={14} style={{marginTop:1,flex:"none"}}/>
+              <span>{reason}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    ) : null}
     {trainingCredentials?.length ? (
       <div className="shortlist-training-evidence">
         <span><GraduationCap size={14}/> Training completed</span>
@@ -66,6 +84,7 @@ export function ClientShortlistCandidateCard({
       ? <div className="info-banner"><strong>Why we recommend this VA</strong><p style={{margin:"6px 0 0"}}>{recommendation}</p></div>
       : <div className="info-banner"><strong>Recruiter reviewed</strong><p style={{margin:"6px 0 0"}}>This VA passed our internal screening for this role. Ask your recruiter if you want more context before deciding.</p></div>}
     {status ? <div className="row wrap browse-va-actions">{status}</div> : null}
+    {profileHref ? <Link className="btn btn-sm" href={profileHref}><UserRoundSearch size={14}/> View full profile</Link> : null}
     {actions}
     {feedback}
   </article>;

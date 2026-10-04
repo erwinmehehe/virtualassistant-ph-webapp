@@ -33,3 +33,18 @@ test("recruiter UI explains the training bonus without turning it into a gate", 
   assert.match(table, /never satisfies must-have experience, tool, industry, or readiness requirements/);
   assert.match(table, /verified training/);
 });
+
+
+test("database-side suggestion refresh uses the same five-point verified-training cap", async () => {
+  const sql = await read("supabase/migrations/20261004124500_add_verified_training_match_bonus.sql");
+  assert.match(sql, /verified_training_match_bonus/);
+  assert.match(sql, /least\(\s*5/);
+  assert.match(sql, /training_certificates/);
+  assert.match(sql, /cert\.revoked_at is null/);
+  assert.match(sql, /tc\.status = 'published'/);
+  assert.match(sql, /training_bonus := public\.verified_training_match_bonus/);
+  assert.match(sql, /normalized := least\(100, normalized \+ coalesce\(training_bonus, 0\)\)/);
+  assert.match(sql, /must_have_skills/);
+  assert.match(sql, /must_have_tools/);
+  assert.match(sql, /required_industries/);
+});

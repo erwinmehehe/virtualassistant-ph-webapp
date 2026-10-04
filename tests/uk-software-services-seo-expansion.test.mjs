@@ -26,7 +26,7 @@ const UK_SERVICES = [
   "vat-bookkeeping-virtual-assistant",
   "rti-payroll-administration-virtual-assistant",
   "domiciliary-care-administration-virtual-assistant",
-  "insurance-broker-administration-virtual-assistant",
+  "commercial-insurance-administration-virtual-assistant",
   "recruitment-compliance-administration-virtual-assistant",
 ];
 

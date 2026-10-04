@@ -5,6 +5,8 @@ export type SeoResourceSection = {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
+  numbered?: string[];
+  table?: { headers: string[]; rows: string[][] };
 };
 
 export type SeoResourcePage = {
@@ -22,6 +24,8 @@ export type SeoResourcePage = {
   sections: SeoResourceSection[];
   faqs: { q: string; a: string }[];
   internalLinks: { href: string; label: string; description: string }[];
+  sources?: { label: string; href: string }[];
+  reviewNote?: string;
 };
 
 type RoleCluster = {

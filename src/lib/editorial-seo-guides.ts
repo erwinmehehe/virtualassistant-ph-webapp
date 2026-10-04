@@ -40,10 +40,9 @@ function authorityToBlog(config: typeof authorityGuides[number]): BlogPost {
     clusterLabel: page.eyebrow,
     intent: config.intent,
     publishedAt: "2026-09-22",
-    updatedAt: slug === "best-laptop-for-virtual-assistant" ? "2026-10-04" : "2026-09-22",
+    updatedAt: "2026-09-22",
     author: "VirtualAssistant.com.ph Editorial Team",
     reviewedBy: "VirtualAssistant.com.ph Editorial Team",
-    reviewNote: page.reviewNote,
     keyTakeaways: page.sections.slice(0, 4).map((section) => section.heading),
     sections: page.sections.map((section) => ({
       heading: section.heading,
@@ -73,9 +72,10 @@ function resourceToBlog(slug: string): BlogPost {
     clusterLabel: page.clusterLabel,
     intent: "informational",
     publishedAt: "2026-09-22",
-    updatedAt: "2026-09-22",
+    updatedAt: slug === "best-laptop-for-virtual-assistant" ? "2026-10-04" : "2026-09-22",
     author: "VirtualAssistant.com.ph Editorial Team",
     reviewedBy: "VirtualAssistant.com.ph Editorial Team",
+    reviewNote: page.reviewNote,
     keyTakeaways: page.sections.slice(0, 4).map((section) => section.heading),
     sections: page.sections.map((section) => ({
       heading: section.heading,

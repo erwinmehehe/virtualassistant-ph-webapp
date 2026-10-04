@@ -15,7 +15,10 @@ test("browser/database contract lane is isolated from production",async()=>{
   assert.match(workflow,/SUPABASE_CLI_VERSION: "2\.113\.0"/);
   assert.match(workflow,/127\.0\.0\.1:3000/);
   assert.match(bootstrap,/20260806000000_e2e_baseline\.sql/);
+  assert.match(bootstrap,/20260806000001_e2e_baseline_compat\.sql/);
   assert.match(bootstrap,/cp supabase\/schema\.sql/);
+  assert.match(bootstrap,/drop view if exists public\.public_va_reviews/);
+  assert.match(bootstrap,/drop view if exists public\.public_va_directory/);
   assert.match(bootstrap,/supabase_cli start -x/);
   assert.match(bootstrap,/trap cleanup EXIT/);
   assert.doesNotMatch(workflow,/ywkgcyilxhezrfxuwius/);

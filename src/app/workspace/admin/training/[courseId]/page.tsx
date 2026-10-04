@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpenCheck, FilePlus2, Pencil, Plus, ShieldCheck } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingCourseForAdmin } from "@/lib/training-admin";
+import { hasCompleteTrainingPracticalLesson, isTrainingAssessmentPublishReady, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
 import {
   createTrainingAssessmentAction,
   createTrainingLessonAction,
@@ -42,18 +43,10 @@ export default async function AdminTrainingCoursePage({
 
   const lessons = course.modules.flatMap((courseModule) => courseModule.lessons);
   const publishedLessons = lessons.filter((lesson) => lesson.is_published);
-  const assessmentReady = course.assessments.every((assessment) =>
-    assessment.is_published &&
-    Boolean(assessment.instructions && assessment.instructions.trim().length >= 100) &&
-    assessment.pass_score !== null &&
-    (assessment.assessment_type !== "practical" || (
-      Array.isArray(assessment.rubric) &&
-      assessment.rubric.length >= 4 &&
-      assessment.rubric.reduce((sum, item) => sum + Number(item.weight || 0), 0) === 100 &&
-      Array.isArray(assessment.resource_pack) &&
-      assessment.resource_pack.length >= 2
-    ))
-  );
+  const assessmentReady =
+    course.assessments.length > 0 &&
+    course.assessments.every((assessment) => isTrainingAssessmentPublishReady(assessment)) &&
+    course.assessments.some((assessment) => isTrainingPracticalAssessmentReady(assessment));
   const calibration = course.assessmentCalibration;
   const firstAttemptPassRate = calibration.firstAttemptCount
     ? Math.round((calibration.firstAttemptPasses / calibration.firstAttemptCount) * 100)
@@ -62,7 +55,11 @@ export default async function AdminTrainingCoursePage({
     Boolean(course.reviewed_by && course.last_reviewed_at) &&
     lessons.length > 0 &&
     publishedLessons.length === lessons.length &&
-    lessons.every((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3) &&
+    lessons.every((lesson) =>
+      Array.isArray(lesson.content) &&
+      lesson.content.length >= 3 &&
+      hasCompleteTrainingPracticalLesson(lesson.content)
+    ) &&
     assessmentReady;
 
   return (

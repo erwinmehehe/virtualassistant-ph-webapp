@@ -26,7 +26,7 @@ import {
   getPublicTrainingOverview,
   type PublicTrainingCourse,
 } from "@/lib/public-training";
-import { trainingJoinHref } from "@/lib/training-intent";
+import { trainingCourseDestination, trainingJoinHref } from "@/lib/training-intent";
 import { getSessionProfile } from "@/lib/auth";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import "../training-landing.css";
@@ -109,7 +109,7 @@ function courseDescriptor(course: PublicTrainingCourse) {
 function CourseCard({ course, position, signedIn }: { course: PublicTrainingCourse; position: string; signedIn: boolean }) {
   const { tone } = courseVisual(course);
   const recommended = course.slug === "virtual-assistant-foundations";
-  const courseHref = signedIn ? `/workspace/training/courses/${course.slug}` : trainingJoinHref(course.slug);
+  const courseHref = signedIn ? trainingCourseDestination(course.slug) : trainingJoinHref(course.slug);
 
   return (
     <article className={`tr-course-card tr-course-card-v2 tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
@@ -448,7 +448,7 @@ export default async function TrainingPage() {
                 <span><BadgeCheck size={13}/>Certificate included</span>
                 <Link
                   className="tr-foundation-cta"
-                  href={signedIn ? "/workspace/training/courses/virtual-assistant-foundations" : trainingJoinHref("virtual-assistant-foundations")}
+                  href={signedIn ? trainingCourseDestination("virtual-assistant-foundations") : trainingJoinHref("virtual-assistant-foundations")}
                   data-track="training_course_interest_click"
                   data-course-slug="virtual-assistant-foundations"
                   data-cta-position="foundations_callout"

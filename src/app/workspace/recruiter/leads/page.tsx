@@ -15,6 +15,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { CloseLeadForm } from "@/components/close-lead-form";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { scoreLead } from "@/lib/lead-scoring";
+import { LEAD_LOSS_REASONS } from "@/lib/loss-reasons";
 import { createRoleFromLeadAndMatchAction } from "@/app/actions/recruiter-hiring";
 import styles from "./leads.module.css";
 
@@ -527,7 +528,7 @@ async function LegacyRecruiterLeadsPage({searchParams}:{searchParams:Promise<Rec
                   <div className="field"><label>Next follow-up</label><input type="date" name="next_follow_up_at" defaultValue={dateInput(lead.next_follow_up_at)}/></div>
                   <div className="field"><label>Est. agency value, USD</label><input type="number" min="0" step="50" name="estimated_value_usd" defaultValue={lead.estimated_value_usd ?? ""} placeholder="1500"/></div>
                 </div>
-                <div className="field"><label>Lost reason <span className="muted">(required only for Lost)</span></label><input name="lost_reason" maxLength={1000} defaultValue={lead.lost_reason || ""} placeholder="Budget, timing, hired elsewhere, no response..."/></div>
+                <div className="field"><label>Lost reason category <span className="muted">(required only for Lost)</span></label><select name="lost_reason_code" defaultValue=""><option value="">Choose a reason</option>{LEAD_LOSS_REASONS.map((reason)=><option key={reason.code} value={reason.code}>{reason.label}{reason.recoverable ? " · win-back" : ""}</option>)}</select></div><div className="field"><label>Lost reason detail <span className="muted">(optional)</span></label><input name="lost_reason" maxLength={1000} defaultValue={lead.lost_reason || ""} placeholder="What specifically blocked the hire?"/></div><div className="field"><label>Competitor <span className="muted">(if applicable)</span></label><input name="lost_competitor" maxLength={200} placeholder="Company or alternative chosen"/></div>
                 <button className="btn btn-primary" type="submit">Save CRM update</button>
                 </form>
               </details>
@@ -556,7 +557,7 @@ async function LegacyRecruiterLeadsPage({searchParams}:{searchParams:Promise<Rec
                   <input type="hidden" name="return_to" value={returnTo}/>
                   <div className="grid-2">
                     <div className="field"><label>Outcome</label><select name="outcome" defaultValue="qualified"><option value="qualified">Attended and qualified</option><option value="attended">Attended, follow-up needed</option><option value="no_show">No-show</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="nurture">Nurture</option><option value="lost">Lost</option></select></div>
-                    <div className="field"><label>Lost reason <span className="muted">(only if lost)</span></label><input name="lost_reason" maxLength={1000} placeholder="Budget, timing, hired elsewhere..."/></div>
+                    <div className="field"><label>Lost reason category <span className="muted">(only if lost)</span></label><select name="lost_reason_code" defaultValue=""><option value="">Choose a reason</option>{LEAD_LOSS_REASONS.map((reason)=><option key={reason.code} value={reason.code}>{reason.label}{reason.recoverable ? " · win-back" : ""}</option>)}</select></div><div className="field"><label>Competitor <span className="muted">(if applicable)</span></label><input name="lost_competitor" maxLength={200} placeholder="Company or alternative chosen"/></div><div className="field"><label>Lost reason detail <span className="muted">(optional)</span></label><input name="lost_reason" maxLength={1000} placeholder="What specifically blocked the hire?"/></div>
                   </div>
                   <div className="field"><label>Discovery notes</label><textarea name="discovery_notes" required minLength={3} maxLength={5000} defaultValue={lead.discovery_notes || ""} placeholder="Priorities, pain points, tools, hours, budget, decision process, timeline..."/></div>
                   <button className="btn btn-primary" type="submit">Save discovery outcome</button>

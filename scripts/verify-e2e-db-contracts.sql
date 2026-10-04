@@ -8,7 +8,9 @@ begin
     'lead_proposals',
     'recruiter_tasks',
     'workflow_reminders',
-    'payment_events'
+    'payment_events',
+    'action_rate_limits',
+    'action_rate_limits'
   ]
   loop
     if to_regclass('public.' || table_name) is null then
@@ -55,7 +57,8 @@ begin
   foreach table_name in array array[
     'profiles',
     'client_profiles',
-    'va_profiles'
+    'va_profiles',
+    'action_rate_limits'
   ]
   loop
     if not has_table_privilege('service_role', format('public.%I', table_name), 'SELECT')
@@ -80,19 +83,34 @@ begin
         'find_auth_user_id_by_email',
         'respond_to_lead_proposal_atomic',
         'finalize_lead_proposal_send_atomic',
-        'can_purge_abandoned_va'
+        'can_purge_abandoned_va',
+        'consume_action_rate_limit'
       ])
       and (
         has_function_privilege('anon', p.oid, 'EXECUTE')
         or has_function_privilege('authenticated', p.oid, 'EXECUTE')
       )
   ) then
-    raise exception 'A server-only hiring RPC is executable by a browser role';
+    raise exception 'A server-only RPC is executable by a browser role';
   end if;
 end
 $rpc_contract$;
 
-do $$
+do $rate_limit_rpc_contract$
+declare
+  fn regprocedure := to_regprocedure('public.consume_action_rate_limit(text,text,integer,integer)');
+begin
+  if fn is null then
+    raise exception 'Required atomic rate-limit RPC is missing';
+  end if;
+
+  if not has_function_privilege('service_role', fn, 'EXECUTE') then
+    raise exception 'service_role cannot execute the atomic rate-limit RPC';
+  end if;
+end
+$rate_limit_rpc_contract$;
+
+do $
 declare
   view_name text;
   options text[];

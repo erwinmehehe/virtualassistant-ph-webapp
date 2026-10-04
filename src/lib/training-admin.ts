@@ -463,3 +463,33 @@ export async function getTrainingSpecialistReviewQueue() {
 
   return { items, error: null };
 }
+
+export type TrainingSpecialistReviewer = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  domains: Array<"Healthcare" | "Finance" | "Property" | "Software">;
+  qualification_notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function getTrainingSpecialistReviewerRoster() {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("training_specialist_reviewers")
+    .select("id,name,email,role,domains,qualification_notes,is_active,created_at,updated_at")
+    .order("is_active", { ascending: false })
+    .order("name", { ascending: true });
+
+  if (error) {
+    return { reviewers: [] as TrainingSpecialistReviewer[], error: error.message };
+  }
+
+  return {
+    reviewers: (data || []) as TrainingSpecialistReviewer[],
+    error: null,
+  };
+}

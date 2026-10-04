@@ -7,7 +7,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 test("payment attribution snapshots the originating lead and collected revenue stays service-role only",async()=>{
   const [migration,quality,loader,dashboard]=await Promise.all([
     read("supabase/migrations/20261004202000_revenue_attribution_and_nurture.sql"),
-    read("supabase/migrations/20261004203500_source_quality_intelligence.sql"),
+    read("supabase/migrations/20261004205500_junk_source_quality.sql"),
     read("src/lib/agency-funnel-metrics.ts"),
     read("src/components/agency-funnel-dashboard.tsx"),
   ]);
@@ -19,7 +19,8 @@ test("payment attribution snapshots the originating lead and collected revenue s
   assert.match(migration,/old\.attribution_snapshot is not null/);
   assert.match(quality,/agency_revenue_attribution_metrics/);
   assert.match(quality,/collected_revenue_usd/);
-  assert.match(quality,/spam_rate/);
+  assert.match(quality,/junk_rate/);
+  assert.match(quality,/lost_reason_code in \('spam','duplicate'\)/);
   assert.match(quality,/proposal_acceptance_rate/);
   assert.match(quality,/avg_customer_value_usd/);
   assert.match(quality,/top_loss_reason_code/);
@@ -28,7 +29,7 @@ test("payment attribution snapshots the originating lead and collected revenue s
   assert.match(loader,/AttributionModel = "first_touch" \| "last_touch"/);
   assert.match(dashboard,/Source-quality signals/);
   assert.match(dashboard,/Highest lead → win rate/);
-  assert.match(dashboard,/Highest spam rate/);
+  assert.match(dashboard,/Highest junk rate/);
   assert.match(dashboard,/Most losses/);
 });
 

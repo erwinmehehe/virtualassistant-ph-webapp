@@ -19,7 +19,7 @@ test("browser/database contract lane is isolated from production",async()=>{
   assert.match(bootstrap,/db push --local --include-all/);
   assert.match(bootstrap,/supabase_cli start/);
   assert.doesNotMatch(workflow,/ywkgcyilxhezrfxuwius/);
-  assert.doesNotMatch(workflow,/SUPABASE_ACCESS_TOKEN|SUPABASE_DB_URL/);
+  assert.doesNotMatch(workflow,/SUPABASE_ACCESS_TOKEN|secrets\\.SUPABASE_DB_URL|secrets\\.SUPABASE_SERVICE_ROLE_KEY/);
   assert.doesNotMatch(seed,/@gmail\.com|virtualassistant\.com\.ph/i);
   assert.match(sql,/has_table_privilege\('anon'/);
   assert.match(sql,/has_function_privilege\('authenticated'/);

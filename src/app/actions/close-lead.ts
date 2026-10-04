@@ -7,17 +7,8 @@ import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cancelGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
-
-const CLOSE_REASONS = new Set([
-  "Spam",
-  "Duplicate inquiry",
-  "No response",
-  "Not a fit",
-  "Budget",
-  "Timing",
-  "Hired elsewhere",
-  "Other"
-]);
+import { inferLegacyLossReasonCode, isLeadLossReasonCode, leadLossReasonLabel, winBackAtForLoss } from "@/lib/loss-reasons";
+import { syncLeadWinBackTask } from "@/lib/loss-recovery";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -39,7 +30,11 @@ function activeReturnPath(returnTo: string, role: string) {
 export async function closeLeadAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
-  const rawReason = String(formData.get("reason") || "").trim();
+  const legacyReason = String(formData.get("reason") || "").trim();
+  const rawReasonCode = String(formData.get("lost_reason_code") || "").trim();
+  const reasonCode = isLeadLossReasonCode(rawReasonCode) ? rawReasonCode : inferLegacyLossReasonCode(legacyReason);
+  const reasonDetail = String(formData.get("lost_reason_detail") || "").trim().slice(0, 1000);
+  const lostCompetitor = String(formData.get("lost_competitor") || "").trim().slice(0, 200);
   const closeLinkedRole = String(formData.get("close_linked_role") || "") === "1";
   const returnTo = safePath(
     formData.get("return_to"),
@@ -49,12 +44,12 @@ export async function closeLeadAction(formData: FormData) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}crm_error=${encodeURIComponent(message)}`);
 
   if (!leadId) return fail("Lead not found.");
-  if (!CLOSE_REASONS.has(rawReason)) return fail("Choose a valid close reason.");
+  if (!reasonCode) return fail("Choose a valid close reason.");
 
   const admin = createAdminClient();
   const { data: lead } = await admin
     .from("lead_intake")
-    .select("id,crm_stage,owner_id,job_id,lost_at,discovery_scheduled_at,discovery_calendar_event_id")
+    .select("id,crm_stage,owner_id,job_id,lost_at,discovery_scheduled_at,discovery_calendar_event_id,name,email,company")
     .eq("id", leadId)
     .maybeSingle();
   if (!lead) return fail("Lead not found.");
@@ -62,13 +57,19 @@ export async function closeLeadAction(formData: FormData) {
   // The recruiter CRM is a shared team queue. Any recruiter or admin who can
   // access the CRM may close a visible lead, even when another recruiter owns it.
   // Ownership remains on the record for reporting and activity history.
-  const now = new Date().toISOString();
+  const nowDate = new Date();
+  const now = nowDate.toISOString();
+  const winBackAt = winBackAtForLoss(reasonCode, nowDate);
+  const storedReason = reasonDetail || leadLossReasonLabel(reasonCode);
   const leadUpdate = admin
     .from("lead_intake")
     .update({
       crm_stage: "lost",
       status: "archived",
-      lost_reason: rawReason,
+      lost_reason: storedReason,
+      lost_reason_code: reasonCode,
+      lost_competitor: reasonCode === "competitor" ? lostCompetitor || null : null,
+      win_back_at: winBackAt,
       next_follow_up_at: null,
       stage_updated_at: now,
       lost_at: lead.lost_at || now,
@@ -109,11 +110,14 @@ export async function closeLeadAction(formData: FormData) {
         subjectType: "lead",
         subjectId: leadId,
         action: "lead_closed",
-        description: `Lead closed: ${rawReason}`,
+        description: `Lead closed: ${leadLossReasonLabel(reasonCode)}`,
         actorId: user.id,
         metadata: {
           previous_stage: lead.crm_stage || null,
-          close_reason: rawReason,
+          close_reason: storedReason,
+          lost_reason_code: reasonCode,
+          lost_competitor: reasonCode === "competitor" ? lostCompetitor || null : null,
+          win_back_at: winBackAt,
           job_id: lead.job_id || null,
           linked_role_closed: linkedRoleClosed,
           linked_role_close_failed: linkedRoleCloseFailed
@@ -121,6 +125,19 @@ export async function closeLeadAction(formData: FormData) {
       });
     } catch {
       // Closing the lead should not feel blocked by non-critical activity logging.
+    }
+
+    try {
+      await syncLeadWinBackTask({
+        leadId,
+        assigneeId: lead.owner_id,
+        actorId: user.id,
+        subject: lead.company || lead.name || lead.email || "Client",
+        reasonCode,
+        winBackAt,
+      });
+    } catch {
+      // The CRM win-back queue still uses win_back_at even if task creation is temporarily unavailable.
     }
   });
 

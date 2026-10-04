@@ -37,8 +37,8 @@ export default async function CandidateReviewPage({params}:{params:Promise<{id:s
 
   let shortlist:any=shortlistById;
   let application:any=applicationById;
-  let jobId=String(shortlistById?.job_id||applicationById?.job_id||"");
-  let vaId=String(shortlistById?.va_id||applicationById?.va_id||"");
+  const jobId=String(shortlistById?.job_id||applicationById?.job_id||"");
+  const vaId=String(shortlistById?.va_id||applicationById?.va_id||"");
   if(!jobId||!vaId)notFound();
 
   if(!shortlist){

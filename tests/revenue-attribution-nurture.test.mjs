@@ -32,6 +32,17 @@ test("payment attribution snapshots the originating lead and collected revenue s
   assert.match(dashboard,/Most losses/);
 });
 
+test("legacy leads receive deterministic first and last touch backfill without session guessing",async()=>{
+  const migration=await read("supabase/migrations/20261004205000_backfill_legacy_attribution.sql");
+  assert.match(migration,/first_touch_source/);
+  assert.match(migration,/last_touch_source/);
+  assert.match(migration,/nullif\(l\.attribution ->> 'utm_source',''\)/);
+  assert.match(migration,/nullif\(l\.attribution ->> 'referrer_host',''\)/);
+  assert.match(migration,/nullif\(l\.source_page,''\)/);
+  assert.match(migration,/l\.created_at::text/);
+  assert.doesNotMatch(migration,/analytics_events|session_id/);
+});
+
 test("long-term nurture is email-only, low priority, opt-out aware, and idempotent",async()=>{
   const [automation,email,unsubscribePage,unsubscribeAction,migration]=await Promise.all([
     read("src/lib/lead-nurture-automation.ts"),

@@ -37,7 +37,7 @@ const IMAGE_EXTENSIONS = new Set<ValidatedUpload["extension"]>(["jpg", "jpeg", "
 const MAX_DOCX_ENTRIES = 500;
 const MAX_DOCX_UNCOMPRESSED_BYTES = 25 * 1024 * 1024;
 const MAX_DOCX_SINGLE_ENTRY_BYTES = 15 * 1024 * 1024;
-const QUARANTINE_BUCKET = "resumes";
+const QUARANTINE_BUCKET = "upload-quarantine";
 
 const POLICIES: Record<UploadPurpose, UploadPolicy> = {
   resume: {
@@ -223,7 +223,7 @@ async function scanForMalware(upload: ValidatedUpload) {
   form.append(
     "file",
     new Blob([new Uint8Array(upload.buffer)], { type: upload.contentType }),
-    upload.originalName
+    `upload.${upload.extension}`
   );
 
   const controller = new AbortController();

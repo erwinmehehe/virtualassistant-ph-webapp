@@ -24,3 +24,13 @@ test("public pricing keeps the one-time direct-hire fee at the canonical busines
   assert.match(settings, /placementFee: 350/);
   assert.match(settings, /default_placement_fee \?\? fallback\.placementFee/);
 });
+
+
+test("public minimum-rate copy follows the shared product floor", () => {
+  const faq = read("src/app/faq/page.tsx");
+  const constants = read("src/lib/constants.ts");
+
+  assert.match(constants, /MIN_HOURLY_RATE = 6/);
+  assert.match(faq, /MIN_HOURLY_RATE/);
+  assert.doesNotMatch(faq, /USD 5\/hour/);
+});

@@ -204,6 +204,25 @@ async function recordInboundClientReply(
   });
   if (error) throw error;
 
+  if (attribution.subjectType === "lead") {
+    const { error: nurtureError } = await admin
+      .from("lead_nurture_state")
+      .update({
+        status: "paused",
+        next_send_at: null,
+        paused_reason: "client_replied",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("lead_id", attribution.subjectId)
+      .eq("status", "active");
+    if (nurtureError) {
+      console.error("[resend-webhook] could not pause nurture after client reply", {
+        leadId: attribution.subjectId,
+        error: nurtureError.message,
+      });
+    }
+  }
+
   if (attribution.ownerId) {
     await admin.from("notifications").insert({
       user_id: attribution.ownerId,

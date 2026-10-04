@@ -19,6 +19,9 @@ test("browser/database contract lane is isolated from production",async()=>{
   assert.match(bootstrap,/cp supabase\/schema\.sql/);
   assert.match(bootstrap,/drop view if exists public\.public_va_reviews/);
   assert.match(bootstrap,/drop view if exists public\.public_va_directory/);
+  assert.match(bootstrap,/grant select, insert, update, delete on all tables in schema public to service_role;/);
+  assert.match(bootstrap,/alter default privileges for role postgres in schema public/);
+  assert.match(sql,/service_role is missing required CRUD privileges/);
   assert.match(bootstrap,/supabase_cli start -x/);
   assert.match(bootstrap,/MIGRATION_STASH/);
   assert.match(bootstrap,/psql "\$DB_URL" -v ON_ERROR_STOP=1 -f "\$file"/);

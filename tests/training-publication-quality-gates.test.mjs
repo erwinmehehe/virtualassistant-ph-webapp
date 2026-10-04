@@ -49,39 +49,21 @@ test("admin readiness uses the same practical quality rules as publishing", asyn
 });
 
 
-test("specialist-gated courses require a current approved specialist review", async () => {
+
+test("course publishing uses editorial review plus lesson and assessment QA only", async () => {
   const actions = await readFile(actionPath, "utf8");
 
-  assert.match(actions, /getSpecialistReviewDefinition\(parsed\.data\.slug\) \? "specialist" : "editorial"/);
-  assert.match(actions, /course\.review_requirement === "specialist"/);
-  assert.match(actions, /training_specialist_reviews/);
-  assert.match(actions, /specialistReview\?\.decision === "approved"/);
-  assert.match(actions, /specialistReview\.review_revision/);
-  assert.match(actions, /specialistReview\.assigned_revision/);
-  assert.match(actions, /Complete the current specialist review before publishing this course/);
+  assert.match(actions, /review_requirement: "editorial"/);
+  assert.match(actions, /Record a reviewer and review date before publishing the course/);
+  assert.doesNotMatch(actions, /training_specialist_reviews/);
+  assert.doesNotMatch(actions, /getSpecialistReviewDefinition/);
+  assert.doesNotMatch(actions, /Complete the current specialist review before publishing this course/);
 });
 
-test("repair migration restores specialist classification without fabricating approval", async () => {
-  const migration = await readFile("supabase/migrations/20261004091000_restore_training_specialist_review_requirements.sql", "utf8");
+test("cleanup migration returns every course to editorial review only", async () => {
+  const migration = await readFile("supabase/migrations/20261004094500_remove_training_specialist_review_requirement.sql", "utf8");
 
-  for (const slug of [
-    "real-estate-virtual-assistant",
-    "medical-healthcare-virtual-assistant",
-    "bookkeeping-administration",
-    "payroll-administration",
-    "australian-allied-health-administration",
-    "cliniko-for-virtual-assistants",
-    "australian-bookkeeping-administration",
-    "xero-workflows-for-virtual-assistants",
-    "myob-workflows-for-virtual-assistants",
-    "ndis-administration-fundamentals",
-    "property-management-administration-australia",
-    "mortgage-broking-administration-australia",
-  ]) {
-    assert.ok(migration.includes(`'${slug}'`), "Missing specialist course classification: " + slug);
-  }
-
-  assert.match(migration, /review_requirement = 'specialist'/);
-  assert.doesNotMatch(migration, /specialist_reviewed_by\s*=/);
-  assert.doesNotMatch(migration, /status\s*=\s*'published'/);
+  assert.match(migration, /review_requirement = 'editorial'/);
+  assert.match(migration, /status = 'revoked'/);
+  assert.doesNotMatch(migration, /review_requirement = 'specialist'/);
 });

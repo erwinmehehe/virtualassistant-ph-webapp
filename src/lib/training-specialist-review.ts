@@ -168,3 +168,52 @@ export function getSpecialistReviewDefinition(slug: string) {
 export function getSpecialistReviewDefinitions() {
   return definitions;
 }
+
+export type SpecialistReviewDomain = "Healthcare" | "Finance" | "Property" | "Software";
+
+const specialistDomains: Record<string, SpecialistReviewDomain> = {
+  "medical-healthcare-virtual-assistant": "Healthcare",
+  "australian-allied-health-administration": "Healthcare",
+  "ndis-administration-fundamentals": "Healthcare",
+  "bookkeeping-administration": "Finance",
+  "payroll-administration": "Finance",
+  "australian-bookkeeping-administration": "Finance",
+  "mortgage-broking-administration-australia": "Finance",
+  "real-estate-virtual-assistant": "Property",
+  "property-management-administration-australia": "Property",
+  "cliniko-for-virtual-assistants": "Software",
+  "xero-workflows-for-virtual-assistants": "Software",
+  "myob-workflows-for-virtual-assistants": "Software",
+};
+
+const evidenceByDomain: Record<SpecialistReviewDomain, string[]> = {
+  Healthcare: [
+    "Check current official regulator, provider, privacy, or practice guidance where the lesson depends on rules or safeguards.",
+    "Verify the administrative workflow against current real-world practice, including escalation boundaries and minimum-necessary data handling.",
+    "Record any source, policy, or operating procedure that materially supports a correction or approval decision.",
+  ],
+  Finance: [
+    "Check current official tax, payroll, credit, accounting, or finance guidance where the course relies on regulated or jurisdiction-sensitive rules.",
+    "Verify payment, approval, reconciliation, fraud-control, and separation-of-duties steps against real operational practice.",
+    "Record the source or professional-practice basis for any material correction, limitation, or approval.",
+  ],
+  Property: [
+    "Check current state, territory, licensing, tenancy, trust-account, privacy, or agency guidance when the course touches regulated property workflows.",
+    "Verify the operational workflow against current agency practice and keep licensed or legal decisions outside the VA role.",
+    "Record the jurisdiction or operating-policy basis for corrections that depend on local rules.",
+  ],
+  Software: [
+    "Check current official vendor documentation for product-specific features, permissions, workflows, terminology, and limitations.",
+    "Verify that the course does not teach software automation as permission to bypass professional judgment, approvals, or client controls.",
+    "Record the vendor documentation or current-practice basis for any product-specific correction.",
+  ],
+};
+
+export function getSpecialistReviewDomain(slug: string): SpecialistReviewDomain | null {
+  return specialistDomains[slug] || null;
+}
+
+export function getSpecialistEvidenceRequirements(slug: string) {
+  const domain = getSpecialistReviewDomain(slug);
+  return domain ? evidenceByDomain[domain] : [];
+}

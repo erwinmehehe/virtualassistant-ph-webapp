@@ -90,7 +90,7 @@ begin
     raise exception 'A server-only hiring RPC is executable by a browser role';
   end if;
 end
-$$;
+$rpc_contract$;
 
 do $$
 declare

@@ -22,5 +22,7 @@ test("maintenance completion audit never changes task failure isolation", async 
   assert.match(source, /return \{ error: message \}/);
   assert.match(source, /const errorTasks = Object\.entries\(result\)/);
   assert.match(source, /ok: errorTasks\.length === 0/);
-  assert.match(source, /return NextResponse\.json\(result\)/);
+  assert.match(source, /const ok = errorTasks\.length === 0/);
+  assert.match(source, /\{ status: ok \? 200 : 500 \}/);
+  assert.match(source, /\{ \.\.\.result, ok, errorTasks \}/);
 });

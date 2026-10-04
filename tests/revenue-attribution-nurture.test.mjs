@@ -53,7 +53,7 @@ test("long-term nurture is email-only, low priority, opt-out aware, and idempote
     read("supabase/migrations/20261004202000_revenue_attribution_and_nurture.sql"),
   ]);
 
-  assert.match(automation,/sequence: "nurture" \| "winback"/);
+  assert.match(automation,/type Sequence = "nurture" \| "winback"/);
   assert.match(automation,/plusDays\(now, 14\)/);
   assert.match(automation,/NEXT_DELAY_DAYS = \[30, 60\]/);
   assert.match(automation,/status === "unsubscribed"/);

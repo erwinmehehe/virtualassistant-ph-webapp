@@ -16,7 +16,7 @@ test("software SEO uses clean slugs and Philippines keyword targeting", async ()
       description: match[5],
     }));
 
-  assert.equal(rows.length, 47);
+  assert.equal(rows.length, 59);
 
   for (const row of rows) {
     assert.equal(row.slug.includes("virtual-assistant"), false, `${row.slug} should use a clean software-only URL`);

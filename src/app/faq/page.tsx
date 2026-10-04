@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
+import { MIN_HOURLY_RATE } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "VirtualAssistant.com.ph FAQ", description: "Answers about hiring, vetting, pricing, client accounts, Virtual Assistant applications, privacy, and managed placements.", keywords: ["virtual assistant faq", "hiring a virtual assistant questions", "virtualassistant.com.ph faq"], alternates:{canonical:canonicalPath("/faq")}, ...socialMetadata({ title: "VirtualAssistant.com.ph FAQ", description: "Answers about hiring, vetting, pricing, client accounts, Virtual Assistant applications, privacy, and managed placements.", path: canonicalPath("/faq"), category: "hiring", eyebrow: "Frequently Asked Questions" }) };
 
@@ -13,7 +14,7 @@ const groups = [
   ["For clients", [
     ["Do I need an account to start?", "No. You can browse approved talent and send a private role brief without creating an account. A client account becomes useful when you want to manage jobs, candidates, messages, and hires."],
     ["Can I request a specific Virtual Assistant?", "Yes. Use Request an introduction on a public profile. We keep that profile attached to your hiring request so our team has the right context when following up."],
-    ["What is the minimum Virtual Assistant rate?", "Ongoing hourly roles cannot be set below USD 5/hour through our service. That is a minimum, not a recommendation for every specialty or experience level."],
+    ["What is the minimum Virtual Assistant rate?", `Ongoing hourly roles cannot be set below USD ${MIN_HOURLY_RATE}/hour through our service. That is a minimum, not a recommendation for every specialty or experience level.`],
     ["When do I see the service fee?", "The exact placement fee or managed-service margin is shown privately during role review before you make a hiring commitment."],
     ["What happens when I hire someone?", "You confirm the final rate, start date, and schedule before the hire is finalized. Managed placements then move into structured onboarding and ongoing placement support."],
     ["Who provides the computer and internet?", "Confirm this in the final engagement terms. Many remote professionals use their own equipment, but specialized security, calling, monitoring, backup power, or software requirements may need client-provided tools or an agreed allowance."],

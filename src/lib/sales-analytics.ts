@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOpenLeadStage } from "@/lib/lead-crm";
+import { inferLegacyLossReasonCode, isLeadLossReasonCode, isRecoverableLeadLoss, leadLossReasonLabel } from "@/lib/loss-reasons";
 
 export type SalesRangeDays = 30 | 90 | 365;
 
@@ -73,7 +74,7 @@ export async function getSalesAnalytics(args: {
 
   let leadQuery = admin
     .from("lead_intake")
-    .select("id,name,company,source_page,page_url,crm_stage,created_at,first_contact_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,discovery_outcome,owner_id,estimated_value_usd,won_at,lost_at,lost_reason")
+    .select("id,name,company,source_page,page_url,crm_stage,created_at,first_contact_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,discovery_outcome,owner_id,estimated_value_usd,won_at,lost_at,lost_reason,lost_reason_code,lost_competitor,win_back_at")
     .gte("created_at", since)
     .order("created_at", { ascending: false })
     .limit(5000);
@@ -241,15 +242,53 @@ export async function getSalesAnalytics(args: {
     }))
     .sort((a, b) => b.wins - a.wins || b.leads - a.leads);
 
-  const lossMap = new Map<string, number>();
-  for (const lead of leadRows) {
-    if (lead.crm_stage !== "lost") continue;
-    const reason = String(lead.lost_reason || "No reason recorded").trim() || "No reason recorded";
-    lossMap.set(reason, (lossMap.get(reason) || 0) + 1);
+  const lostRows = leadRows.filter((lead: any) => lead.crm_stage === "lost");
+  const lostValue = lostRows.reduce((sum: number, lead: any) => sum + Number(lead.estimated_value_usd || 0), 0);
+  const lossMap = new Map<string, { code: string; label: string; count: number; value: number; recoverable: boolean }>();
+  const competitorMap = new Map<string, number>();
+  let recoverableLost = 0;
+  let winBackScheduled = 0;
+  let winBackDue = 0;
+  let preProposalLost = 0;
+  let postProposalLost = 0;
+  const nowMs = Date.now();
+
+  for (const lead of lostRows) {
+    const code = isLeadLossReasonCode(lead.lost_reason_code)
+      ? lead.lost_reason_code
+      : inferLegacyLossReasonCode(lead.lost_reason) || "other";
+    const recoverable = isRecoverableLeadLoss(code);
+    const current = lossMap.get(code) || {
+      code,
+      label: leadLossReasonLabel(code),
+      count: 0,
+      value: 0,
+      recoverable,
+    };
+    current.count += 1;
+    current.value += Number(lead.estimated_value_usd || 0);
+    lossMap.set(code, current);
+
+    if (recoverable) recoverableLost += 1;
+    if (lead.win_back_at) {
+      winBackScheduled += 1;
+      const due = new Date(lead.win_back_at).getTime();
+      if (Number.isFinite(due) && due <= nowMs) winBackDue += 1;
+    }
+    if (sentLeadIds.has(lead.id)) postProposalLost += 1;
+    else preProposalLost += 1;
+
+    const competitor = String(lead.lost_competitor || "").trim();
+    if (competitor) competitorMap.set(competitor, (competitorMap.get(competitor) || 0) + 1);
   }
-  const lossReasons = [...lossMap.entries()]
-    .map(([reason, count]) => ({ reason, count }))
-    .sort((a, b) => b.count - a.count)
+
+  const lossReasons = [...lossMap.values()]
+    .map((row) => ({ ...row, share: pct(row.count, lostRows.length) }))
+    .sort((a, b) => b.count - a.count || b.value - a.value)
+    .slice(0, 14);
+  const competitors = [...competitorMap.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
     .slice(0, 10);
   const timeline = buildLeadTimeline(leadRows, args.days, since);
 
@@ -298,6 +337,12 @@ export async function getSalesAnalytics(args: {
       discoveryOutcomeRate: pct(discoveryResolved, discoveryReached),
       won,
       lost,
+      lostValue,
+      recoverableLost,
+      winBackScheduled,
+      winBackDue,
+      preProposalLost,
+      postProposalLost,
       hires: hiredLeadIds.size,
       openPipelineValue,
       wonValue,
@@ -319,6 +364,7 @@ export async function getSalesAnalytics(args: {
     sources,
     owners: ownersSummary,
     lossReasons,
+    competitors,
     dataQuality: {
       legacyQualifiedWithoutTimeline,
       missingSource,

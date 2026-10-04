@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   }),
 };
 
-export const SERVICE_CATEGORIES: { id: string; label: string; description: string; groups: string[] }[] = [
+const SERVICE_CATEGORIES: { id: string; label: string; description: string; groups: string[] }[] = [
   { id: "admin-executive", label: "Admin & Executive", description: "Inbox, calendar, operations, executive support, and recurring back-office work.", groups: ["Admin & Operations", "Executive Support"] },
   { id: "sales-customer", label: "Sales & Customer", description: "Lead follow-up, CRM upkeep, appointment setting, customer support, reception, and front-desk coverage.", groups: ["Sales & CRM", "Customer & Front Desk"] },
   { id: "marketing-creative", label: "Marketing & Creative", description: "SEO, social media, content production, design support, campaign execution, and reporting.", groups: ["Marketing & Growth", "Creative & Content"] },

@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpenCheck, FilePlus2, Pencil, Plus, ShieldCheck } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingCourseForAdmin } from "@/lib/training-admin";
-import { hasCompleteTrainingPracticalLesson, isTrainingAssessmentPublishReady, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
 import {
   createTrainingAssessmentAction,
   createTrainingLessonAction,
@@ -43,10 +42,25 @@ export default async function AdminTrainingCoursePage({
 
   const lessons = course.modules.flatMap((courseModule) => courseModule.lessons);
   const publishedLessons = lessons.filter((lesson) => lesson.is_published);
-  const assessmentReady =
-    course.assessments.length > 0 &&
-    course.assessments.every((assessment) => isTrainingAssessmentPublishReady(assessment)) &&
-    course.assessments.some((assessment) => isTrainingPracticalAssessmentReady(assessment));
+  const assessmentReady = course.assessments.every((assessment) =>
+    assessment.is_published &&
+    Boolean(assessment.instructions && assessment.instructions.trim().length >= 100) &&
+    assessment.pass_score !== null &&
+    (assessment.assessment_type !== "practical" || (
+      Array.isArray(assessment.rubric) &&
+      assessment.rubric.length >= 4 &&
+      assessment.rubric.reduce((sum, item) => sum + Number(item.weight || 0), 0) === 100 &&
+      Array.isArray(assessment.resource_pack) &&
+      assessment.resource_pack.length >= 2
+    ))
+  );
+  const specialistRequired = course.review_requirement === "specialist";
+  const specialistReady = !specialistRequired || Boolean(
+    course.specialist_reviewed_by &&
+    course.specialist_reviewer_role &&
+    course.specialist_reviewed_at &&
+    course.specialistReview?.current
+  );
   const calibration = course.assessmentCalibration;
   const firstAttemptPassRate = calibration.firstAttemptCount
     ? Math.round((calibration.firstAttemptPasses / calibration.firstAttemptCount) * 100)
@@ -55,12 +69,9 @@ export default async function AdminTrainingCoursePage({
     Boolean(course.reviewed_by && course.last_reviewed_at) &&
     lessons.length > 0 &&
     publishedLessons.length === lessons.length &&
-    lessons.every((lesson) =>
-      Array.isArray(lesson.content) &&
-      lesson.content.length >= 3 &&
-      hasCompleteTrainingPracticalLesson(lesson.content)
-    ) &&
-    assessmentReady;
+    lessons.every((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3) &&
+    assessmentReady &&
+    specialistReady;
 
   return (
     <div className="dash-page role-overview">
@@ -68,7 +79,7 @@ export default async function AdminTrainingCoursePage({
         kicker="Training authoring"
         title={course.title}
         subtitle={<>Build, review, and publish the private course. Learners cannot see drafts.</>}
-        actions={<Link className="dash-btn" href="/workspace/admin/training"><ArrowLeft size={15}/> Training</Link>}
+        actions={<><Link className="dash-btn" href="/workspace/admin/training"><ArrowLeft size={15}/> Training</Link>{specialistRequired ? <Link className="dash-btn" href="/workspace/admin/training/reviews"><ShieldCheck size={15}/> Specialist review</Link> : null}</>}
       />
 
       <div className="va-status-grid">
@@ -85,7 +96,7 @@ export default async function AdminTrainingCoursePage({
         <div className="status-summary-card">
           <div className="row-between"><span>Review</span><ShieldCheck size={18}/></div>
           <strong>{publishReady ? "Ready" : "Draft"}</strong>
-          <small>{reviewedLabel(course.last_reviewed_at)}</small>
+          <small>{specialistRequired ? (specialistReady ? "Editorial + specialist approved" : "Specialist approval required") : reviewedLabel(course.last_reviewed_at)}</small>
         </div>
       </div>
 
@@ -135,7 +146,7 @@ export default async function AdminTrainingCoursePage({
         <div className="dashboard-section-head">
           <div>
             <h2>Publishing</h2>
-            <p>A course can only go live after editorial review plus complete lesson and assessment QA.</p>
+            <p>A course can only go live after editorial review, complete lesson and assessment QA, and specialist approval when the subject requires it.</p>
           </div>
         </div>
         <div className="compact-list">
@@ -143,6 +154,7 @@ export default async function AdminTrainingCoursePage({
           <div><span><strong>Lesson content</strong><small>{lessons.length ? lessons.filter((lesson) => Array.isArray(lesson.content) && lesson.content.length >= 3).length + "/" + lessons.length + " have substantive blocks" : "No lessons yet"}</small></span></div>
           <div><span><strong>Lesson publishing</strong><small>{publishedLessons.length}/{lessons.length} lessons marked publishable</small></span></div>
           <div><span><strong>Assessments</strong><small>{course.assessments.length ? (assessmentReady ? "Published with instructions, rubric, source pack, and pass score" : "Assessment setup still needs review") : "No course assessment configured"}</small></span><span className={"badge " + (assessmentReady ? "badge-success" : "badge-warning")}>{assessmentReady ? "Ready" : "Needed"}</span></div>
+          {specialistRequired ? <div><span><strong>Specialist review</strong><small>{specialistReady ? (course.specialist_reviewed_by || "Reviewer") + " · " + (course.specialist_reviewer_role || "Role recorded") + " · " + reviewedLabel(course.specialist_reviewed_at) : course.specialistReview?.decision === "changes_requested" ? "Changes requested. Resolve them and refresh the specialist review." : course.specialistReview?.assigned_reviewer_name ? "Assigned to " + course.specialistReview.assigned_reviewer_name + ". Approval is still required." : "Assign a qualified subject-matter reviewer before publication."}</small></span><span className={"badge " + (specialistReady ? "badge-success" : "badge-warning")}>{specialistReady ? "Done" : "Needed"}</span></div> : null}
         </div>
         <div className="row wrap" style={{ marginTop: 16 }}>
           {course.status !== "published" ? (

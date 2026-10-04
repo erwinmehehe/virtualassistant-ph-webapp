@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export function TrainingMobileCta({ href }: { href: string }) {
+export function TrainingMobileCta({ href, label = "Start free training" }: { href: string; label?: string }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function TrainingMobileCta({ href }: { href: string }) {
         data-cta-position="mobile_sticky"
         tabIndex={visible ? 0 : -1}
       >
-        Start free training <ArrowRight size={15}/>
+        {label} <ArrowRight size={15}/>
       </Link>
     </div>
   );

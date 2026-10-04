@@ -56,16 +56,16 @@ test("malformed email addresses are rejected before Resend", () => {
   assert.match(email, /reason: !recipient \? "invalid_recipient" : "email_not_configured"/);
 });
 
-test("discovery team alerts go to Jervis and Bryan only, with Erwin removed", () => {
+test("discovery team alerts use configured role mailboxes without hard-coded personal addresses", () => {
   const email = source("src/lib/email.ts");
 
-  assert.match(email, /const PRIVATE_INTERNAL_EMAILS = normalizeEmailList\(\[[\s\S]*"erwinvalles20@gmail\.com"[\s\S]*"jrvsaccad@gmail\.com"[\s\S]*"bryanbatarina@gmail\.com"/);
+  assert.match(email, /const PRIVATE_INTERNAL_EMAILS = normalizeEmailList\(\[[\s\S]*process\.env\.PRIVATE_INTERNAL_EMAILS/);
   assert.match(email, /const BLOCKED_EMAIL_RECIPIENTS = normalizeEmailList\(\[\]\);/);
-  assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList\(\[[\s\S]*"jrvsaccad@gmail\.com"[\s\S]*"bryanbatarina@gmail\.com"[\s\S]*\]\);/);
+  assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList\(\[[\s\S]*process\.env\.BOOKING_TEAM_EMAILS[\s\S]*process\.env\.LEAD_NOTIFICATION_EMAIL/);
   const bookingTeamStart = email.indexOf("const BOOKING_TEAM_EMAILS");
   const bookingTeamEnd = email.indexOf("const staffClientFollowupBccRecipients", bookingTeamStart);
   const bookingTeamBlock = email.slice(bookingTeamStart, bookingTeamEnd);
-  assert.doesNotMatch(bookingTeamBlock, /erwinvalles20@gmail\.com/);
+  assert.doesNotMatch(bookingTeamBlock, /@gmail\.com/i);
   assert.match(email, /sendInternalDiscoveryBookingNotificationEmail[\s\S]*to: BOOKING_TEAM_EMAILS/);
   assert.match(email, /sendDiscoveryMeetingSetupFailureEmail[\s\S]*to: BOOKING_TEAM_EMAILS/);
   assert.match(email, /const hasExternalRecipient = rawTo\.some/);

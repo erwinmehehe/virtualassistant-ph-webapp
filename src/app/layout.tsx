@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Analytics } from "@/components/analytics";
+import { AttributionTracker } from "@/components/attribution-tracker";
 import "./globals.css";
 import "./operations.css";
 import "./marketing-refresh.css";
@@ -65,5 +66,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
       <Script id="ga4-init" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${gaId}');`}</Script>
     </> : null}
-    <Analytics/>{children}</body></html>;
+    <AttributionTracker/><Analytics/>{children}</body></html>;
 }

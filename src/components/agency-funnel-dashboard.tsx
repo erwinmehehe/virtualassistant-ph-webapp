@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle, BriefcaseBusiness, ShieldCheck, TrendingUp } from "lucide-react";
-import { getAgencyFunnelMetrics } from "@/lib/agency-funnel-metrics";
+import { getAgencyAttributionMetrics, getAgencyFunnelMetrics } from "@/lib/agency-funnel-metrics";
 
 function count(value: unknown) {
   const n = Number(value || 0);
@@ -10,6 +10,14 @@ function count(value: unknown) {
 function percent(value: number, denominator: number) {
   if (!denominator) return null;
   return Math.round((value / denominator) * 100);
+}
+
+function usd(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 type FunnelStage = { label:string; value:number; note:string };
@@ -47,8 +55,15 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   leadsPath:string;
   rolesPath:string;
 }) {
-  const {data,error}=await getAgencyFunnelMetrics(recruiterId,days);
+  const [
+    {data,error},
+    {data:attribution,error:attributionError},
+  ]=await Promise.all([
+    getAgencyFunnelMetrics(recruiterId,days),
+    getAgencyAttributionMetrics(recruiterId,days),
+  ]);
   if(error)throw error;
+  if(attributionError)throw attributionError;
 
   const journey={
     enquiries:count(data.journey?.enquiries),
@@ -193,6 +208,26 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
         <div><span>30-day retention</span><strong>{retained30==null?"—":`${retained30}%`}</strong><small>{retention.retained_30d} retained of {retention.eligible_30d} eligible</small></div>
         <div><span>90-day retention</span><strong>{retained90==null?"—":`${retained90}%`}</strong><small>{retention.retained_90d} retained of {retention.eligible_90d} eligible</small></div>
       </div>
+    </section>
+
+    <section className="agency-funnel-section">
+      <div className="agency-funnel-section-head">
+        <div><span className="agency-section-icon"><TrendingUp size={18}/></span><div><h2>Lead source → customer</h2><p>First-party attribution carried from the hiring form through won revenue. Use this to optimize channels for customers instead of form submissions.</p></div></div>
+      </div>
+      {attribution.length ? <div className="agency-health-grid agency-operations-grid">
+        {attribution.slice(0,8).map((row)=>{
+          const leadCount=count(row.leads);
+          const customerCount=count(row.customers);
+          const conversion=percent(customerCount,leadCount);
+          const label=row.campaign ? `${row.source} · ${row.campaign}` : row.source;
+          return <OpsMetric
+            key={`${row.source}:${row.campaign || ""}`}
+            label={label}
+            value={conversion==null?"—":`${conversion}%`}
+            note={`${leadCount} leads · ${customerCount} customers · ${usd(count(row.won_value_usd))} won value`}
+          />;
+        })}
+      </div> : <div className="agency-funnel-empty">Attribution will appear as new hiring briefs arrive with campaign or referrer data.</div>}
     </section>
 
     <section className="agency-funnel-explainer">

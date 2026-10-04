@@ -165,6 +165,12 @@ export async function saveProposalDraftAction(formData: FormData) {
   redirect(proposalReturnPath(leadId, "?saved=1"));
 }
 
+type AtomicProposalSendResult = {
+  ok?: boolean;
+  code?: string;
+  already_sent?: boolean;
+};
+
 export async function sendProposalToClientAction(formData: FormData) {
   const { user } = await requireAnyRole(["recruiter", "admin"]);
   const proposalId = String(formData.get("proposal_id") || "").trim();
@@ -220,6 +226,18 @@ export async function sendProposalToClientAction(formData: FormData) {
   }).eq("id", proposalId);
   if (saveError) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(saveError.message || "Could not save the proposal.")}`));
 
+  let proposalFollowUpTimeZone = isValidTimeZone(lead.timezone) ? String(lead.timezone) : "";
+  if (!proposalFollowUpTimeZone && lead.job_id) {
+    const { data: linkedJob } = await admin.from("jobs").select("timezone").eq("id", lead.job_id).maybeSingle();
+    if (isValidTimeZone(linkedJob?.timezone)) proposalFollowUpTimeZone = String(linkedJob?.timezone);
+  }
+  const proposalFollowUpAt = proposalFollowUpTimeZone
+    ? followUpAtClientNine(
+        addDaysToDateKey(localDateKey(now, proposalFollowUpTimeZone), 2),
+        proposalFollowUpTimeZone,
+      ) || new Date(now.getTime() + 2 * 86400000).toISOString()
+    : new Date(now.getTime() + 2 * 86400000).toISOString();
+
   try {
     const delivery = await sendTransactionalEventEmail({
       to: lead.email,
@@ -238,15 +256,41 @@ export async function sendProposalToClientAction(formData: FormData) {
     redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(message)}`));
   }
 
-  const { error: sentError } = await admin.from("lead_proposals").update({
-    status: "sent",
-    sent_at: now.toISOString(),
-    viewed_at: null,
-    expires_at: expiresAt.toISOString(),
-    send_count: nextSendCount,
-    updated_at: now.toISOString(),
-  }).eq("id", proposalId);
-  if (sentError) redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent(sentError.message || "Proposal email sent, but status could not be updated.")}`));
+  const { data: finalizedData, error: finalizedError } = await admin.rpc("finalize_lead_proposal_send_atomic", {
+    p_proposal_id: proposalId,
+    p_lead_id: leadId,
+    p_actor_id: user.id,
+    p_sent_at: now.toISOString(),
+    p_expires_at: expiresAt.toISOString(),
+    p_send_count: nextSendCount,
+    p_next_follow_up_at: proposalFollowUpAt,
+    p_follow_up_timezone: proposalFollowUpTimeZone || null,
+    p_role_title: fields.roleTitle,
+  });
+  const finalized = (finalizedData || {}) as AtomicProposalSendResult;
+  if (finalizedError || !finalized.ok) {
+    // The provider send is idempotent on proposal + send count. A safe retry
+    // reuses the same key until this transaction commits, so it cannot send a
+    // second client email merely because database finalization failed.
+    try {
+      await admin.from("recruiter_tasks").insert({
+        title: `Recover proposal send state · ${fields.roleTitle}`,
+        description: "The client proposal email was delivered, but CRM finalization did not commit. Retry the send action after checking database health; email idempotency prevents a duplicate delivery.",
+        assignee_id: lead.owner_id || user.id,
+        subject_type: "lead",
+        subject_id: leadId,
+        href: proposalReturnPath(leadId),
+        priority: "urgent",
+        status: "todo",
+        repeat_rule: "none",
+        due_at: new Date().toISOString(),
+      });
+    } catch {
+      // If the database itself is unavailable, recovery is still safe because
+      // the same email idempotency key will be reused on the next send attempt.
+    }
+    redirect(proposalReturnPath(leadId, `?error=${encodeURIComponent("The client email was delivered, but CRM finalization needs recovery. Retry this send after database health is restored; the email will not be duplicated.")}`));
+  }
 
   try {
     await resolveProposalClosingArtifacts(admin, proposalId, leadId);
@@ -259,50 +303,18 @@ export async function sendProposalToClientAction(formData: FormData) {
     });
   }
 
-  let proposalFollowUpTimeZone = isValidTimeZone(lead.timezone) ? String(lead.timezone) : "";
-  if (!proposalFollowUpTimeZone && lead.job_id) {
-    const { data: linkedJob } = await admin.from("jobs").select("timezone").eq("id", lead.job_id).maybeSingle();
-    if (isValidTimeZone(linkedJob?.timezone)) proposalFollowUpTimeZone = String(linkedJob?.timezone);
-  }
-  const proposalFollowUpAt = proposalFollowUpTimeZone
-    ? followUpAtClientNine(
-        addDaysToDateKey(localDateKey(now, proposalFollowUpTimeZone), 2),
-        proposalFollowUpTimeZone,
-      ) || new Date(now.getTime() + 2 * 86400000).toISOString()
-    : new Date(now.getTime() + 2 * 86400000).toISOString();
-
-  await admin.from("notifications")
+  const { error: notificationCleanupError } = await admin.from("notifications")
     .update({ done_at: now.toISOString(), read_at: now.toISOString(), snoozed_until: null })
     .eq("href", proposalReturnPath(leadId))
     .like("title", "Proposal changes requested:%")
     .is("done_at", null);
-
-  await admin.from("lead_intake").update({
-    crm_stage: "terms_sent",
-    status: "converted",
-    owner_id: lead.owner_id || user.id,
-    next_follow_up_at: proposalFollowUpAt,
-    stage_updated_at: now.toISOString(),
-    lost_at: null,
-    lost_reason: null,
-  }).eq("id", leadId);
-
-  await writeRecruiterActivity({
-    subjectType: "lead",
-    subjectId: leadId,
-    action: "proposal_sent",
-    description: `Hiring recommendation sent for ${fields.roleTitle}`,
-    actorId: user.id,
-    metadata: {
-      proposal_id: proposalId,
-      send_count: nextSendCount,
-      expires_at: expiresAt.toISOString(),
-      service_model: fields.serviceModel,
-      next_follow_up_at: proposalFollowUpAt,
-      follow_up_timezone: proposalFollowUpTimeZone || null,
-      follow_up_mode: proposalFollowUpTimeZone ? "client_local_9am" : "relative_48h",
-    },
-  });
+  if (notificationCleanupError) {
+    console.error("[proposal] notification cleanup failed", {
+      proposalId,
+      leadId,
+      error: notificationCleanupError.message,
+    });
+  }
 
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/today");
@@ -407,6 +419,25 @@ export async function createAndSendProposalAction(formData: FormData) {
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}proposal_saved=1`);
 }
 
+type AtomicProposalResponseResult = {
+  ok?: boolean;
+  code?: string;
+  already_responded?: boolean;
+  proposal_id?: string;
+  lead_id?: string;
+  decision?: string;
+};
+
+function proposalResponseErrorMessage(code?: string) {
+  switch (code) {
+    case "proposal_expired": return "This proposal has expired. Please contact your recruiter for an updated version.";
+    case "proposal_unavailable": return "This proposal is no longer waiting for a response.";
+    case "lead_not_found": return "The hiring request linked to this proposal could not be found.";
+    case "invalid_response": return "Tell us what should change, or why you are declining.";
+    default: return "We could not safely save your response. Nothing was partially updated. Please try again.";
+  }
+}
+
 export async function respondToLeadProposalAction(formData: FormData) {
   const token = String(formData.get("token") || "").trim();
   const decision = String(formData.get("decision") || "").trim();
@@ -416,46 +447,36 @@ export async function respondToLeadProposalAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
-  const { data: proposal } = await admin.from("lead_proposals").select("*").eq("public_token", token).maybeSingle();
-  if (!proposal) redirect("/proposal/not-found");
-  if (proposal.status !== "sent") {
-    redirect(`/proposal/${token}?error=${encodeURIComponent("This proposal is no longer waiting for a response.")}`);
+  const { data: proposal, error: proposalLookupError } = await admin
+    .from("lead_proposals")
+    .select("id,lead_id,status,role_title,public_token")
+    .eq("public_token", token)
+    .maybeSingle();
+  if (proposalLookupError || !proposal) redirect("/proposal/not-found");
+
+  const { data: lead, error: leadLookupError } = await admin
+    .from("lead_intake")
+    .select("id,name,email,owner_id,crm_stage")
+    .eq("id", proposal.lead_id)
+    .maybeSingle();
+  if (leadLookupError || !lead) {
+    redirect(`/proposal/${token}?error=${encodeURIComponent("The linked hiring request could not be found.")}`);
   }
-  if (proposal.expires_at && new Date(proposal.expires_at).getTime() < Date.now()) {
-    await admin.from("lead_proposals").update({ status: "expired", updated_at: new Date().toISOString() }).eq("id", proposal.id);
-    redirect(`/proposal/${token}?error=${encodeURIComponent("This proposal has expired. Please contact your recruiter for an updated version.")}`);
-  }
 
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,owner_id,crm_stage").eq("id", proposal.lead_id).maybeSingle();
-  if (!lead) redirect(`/proposal/${token}?error=${encodeURIComponent("The linked hiring request could not be found.")}`);
-
-  const now = new Date();
-  const askingForChanges = decision === "changes";
-  const recruiterHref = askingForChanges ? `/workspace/recruiter/crm/${lead.id}/proposal` : `/workspace/recruiter/crm/${lead.id}`;
-  await admin.from("lead_proposals").update({
-    status: askingForChanges ? "changes_requested" : "declined",
-    changes_requested_at: askingForChanges ? now.toISOString() : null,
-    declined_at: askingForChanges ? null : now.toISOString(),
-    decline_reason: reason,
-    updated_at: now.toISOString()
-  }).eq("id", proposal.id);
-
-  await admin.from("lead_intake").update({
-    crm_stage: askingForChanges ? "qualified" : "lost",
-    status: askingForChanges ? "converted" : "archived",
-    next_follow_up_at: null,
-    stage_updated_at: now.toISOString(),
-    lost_at: askingForChanges ? null : now.toISOString(),
-    lost_reason: askingForChanges ? null : reason
-  }).eq("id", lead.id);
-
-  await writeRecruiterActivity({
-    subjectType: "lead",
-    subjectId: lead.id,
-    action: askingForChanges ? "proposal_changes_requested" : "proposal_declined",
-    description: askingForChanges ? `Client requested proposal changes: ${reason}` : `Client declined proposal: ${reason}`,
-    metadata: { proposal_id: proposal.id, reason }
+  const { data: responseData, error: responseError } = await admin.rpc("respond_to_lead_proposal_atomic", {
+    p_token: token,
+    p_decision: decision,
+    p_reason: reason,
   });
+  const response = (responseData || {}) as AtomicProposalResponseResult;
+  if (responseError || !response.ok) {
+    redirect(`/proposal/${token}?error=${encodeURIComponent(proposalResponseErrorMessage(response.code))}`);
+  }
+
+  const askingForChanges = decision === "changes";
+  const recruiterHref = askingForChanges
+    ? `/workspace/recruiter/crm/${lead.id}/proposal`
+    : `/workspace/recruiter/crm/${lead.id}`;
 
   try {
     if (askingForChanges) {
@@ -479,40 +500,53 @@ export async function respondToLeadProposalAction(formData: FormData) {
     });
   }
 
-  let recipients: string[] = [];
-  if (lead.owner_id) {
-    recipients = [lead.owner_id];
-  } else {
-    const { data: staff } = await admin.from("profiles").select("id").in("role", ["recruiter", "admin"]).eq("account_status", "active");
-    recipients = (staff || []).map((row: any) => row.id);
-  }
-  if (recipients.length) {
-    await admin.from("notifications").insert(recipients.map((userId) => ({
-      user_id: userId,
-      title: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
-      body: reason,
-      href: recruiterHref,
-      type: "proposal",
-      priority: askingForChanges ? "high" : "normal"
-    })));
-  }
-
-  for (const userId of recipients.slice(0, 10)) {
-    try {
-      const { data } = await admin.auth.admin.getUserById(userId);
-      await sendTransactionalEventEmail({
-        to: data.user?.email,
-        subject: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
-        heading: askingForChanges ? "Client wants changes" : "Client declined the proposal",
+  if (!response.already_responded) {
+    let recipients: string[] = [];
+    if (lead.owner_id) {
+      recipients = [lead.owner_id];
+    } else {
+      const { data: staff } = await admin.from("profiles").select("id").in("role", ["recruiter", "admin"]).eq("account_status", "active");
+      recipients = (staff || []).map((row: any) => row.id);
+    }
+    if (recipients.length) {
+      const { error: notificationError } = await admin.from("notifications").insert(recipients.map((userId) => ({
+        user_id: userId,
+        title: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
         body: reason,
-        href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}${recruiterHref}`,
-        hrefLabel: "Open sales CRM"
-      });
-    } catch {}
+        href: recruiterHref,
+        type: "proposal",
+        priority: askingForChanges ? "high" : "normal"
+      })));
+      if (notificationError) {
+        console.error("[proposal] response notification insert failed", {
+          proposalId: proposal.id,
+          leadId: lead.id,
+          error: notificationError.message,
+        });
+      }
+    }
+
+    for (const userId of recipients.slice(0, 10)) {
+      try {
+        const { data } = await admin.auth.admin.getUserById(userId);
+        await sendTransactionalEventEmail({
+          to: data.user?.email,
+          subject: askingForChanges ? `Proposal changes requested: ${proposal.role_title}` : `Proposal declined: ${proposal.role_title}`,
+          heading: askingForChanges ? "Client wants changes" : "Client declined the proposal",
+          body: reason,
+          href: `${process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"}${recruiterHref}`,
+          hrefLabel: "Open sales CRM",
+          idempotencyKey: `proposal-response-${proposal.id}-${decision}`,
+          eventType: askingForChanges ? "proposal_changes_requested_staff" : "proposal_declined_staff",
+        });
+      } catch {}
+    }
   }
 
   revalidatePath("/workspace/recruiter");
+  revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter/crm");
+  revalidatePath(`/workspace/recruiter/crm/${lead.id}`);
   redirect(`/proposal/${token}?${askingForChanges ? "changes_requested=1" : "declined=1"}`);
 }
 

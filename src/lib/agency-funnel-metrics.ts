@@ -54,6 +54,15 @@ export type AgencyFunnelData = {
   };
 };
 
+export type AgencyAttributionRow = {
+  source:string;
+  campaign:string|null;
+  leads:number;
+  qualified:number;
+  customers:number;
+  won_value_usd:number;
+};
+
 export const getAgencyFunnelMetrics = cache(async function getAgencyFunnelMetrics(recruiterId:string|null,days:number){
   const admin=createAdminClient();
   const result=await withServerTiming("agency.funnel_summary",()=>admin.rpc("agency_funnel_metrics",{
@@ -61,4 +70,14 @@ export const getAgencyFunnelMetrics = cache(async function getAgencyFunnelMetric
     p_recruiter_id:recruiterId,
   }));
   return {data:(result.data||{}) as Partial<AgencyFunnelData>,error:result.error};
+});
+
+
+export const getAgencyAttributionMetrics = cache(async function getAgencyAttributionMetrics(recruiterId:string|null,days:number){
+  const admin=createAdminClient();
+  const result=await withServerTiming("agency.attribution_summary",()=>admin.rpc("agency_attribution_metrics",{
+    p_days:days,
+    p_recruiter_id:recruiterId,
+  }));
+  return {data:(Array.isArray(result.data)?result.data:[]) as AgencyAttributionRow[],error:result.error};
 });

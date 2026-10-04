@@ -10,18 +10,18 @@ test("homepage talent photos are clipped to clean 72px circles", async () => {
   assert.match(css, /\.hs-talent-top \.avatar img \{[\s\S]*width: 100%;[\s\S]*height: 100%;[\s\S]*border-radius: 50%;[\s\S]*object-fit: cover;/);
 });
 
-test("every public discovery booking sends Jervis and Bryan the full internal brief without copying Erwin", async () => {
+test("every public discovery booking sends the full internal brief to configured booking recipients", async () => {
   const [email, action] = await Promise.all([
     read("src/lib/email.ts"),
     read("src/app/actions/leads.ts"),
   ]);
 
   assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList/);
-  assert.match(email, /jrvsaccad@gmail\.com/);
-  assert.match(email, /bryanbatarina@gmail\.com/);
+  assert.match(email, /process\.env\.BOOKING_TEAM_EMAILS/);
+  assert.match(email, /process\.env\.LEAD_NOTIFICATION_EMAIL/);
   const bookingTeamStart = email.indexOf("const BOOKING_TEAM_EMAILS");
   const bookingTeamEnd = email.indexOf("const staffClientFollowupBccRecipients", bookingTeamStart);
-  assert.doesNotMatch(email.slice(bookingTeamStart, bookingTeamEnd), /erwinvalles20@gmail\.com/);
+  assert.doesNotMatch(email.slice(bookingTeamStart, bookingTeamEnd), /@gmail\.com/i);
   assert.match(email, /export async function sendInternalDiscoveryBookingNotificationEmail/);
   assert.match(email, /Role<\/td>/);
   assert.match(email, /Hours<\/td>/);

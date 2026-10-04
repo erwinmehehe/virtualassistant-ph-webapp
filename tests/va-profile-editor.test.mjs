@@ -45,7 +45,7 @@ test("resume autofill accepts generic browser MIME types by extension", async ()
 
 test("resume autofill has enough request body headroom", async () => {
   const config = await source("next.config.ts");
-  assert.match(config, /bodySizeLimit:\s*"8mb"/);
+  assert.match(config, /bodySizeLimit:\s*"12mb"/);
 });
 
 test("profile completeness listens to the external resume input", async () => {

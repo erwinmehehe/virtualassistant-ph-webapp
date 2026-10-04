@@ -241,6 +241,12 @@
 .proposal-success h1 { margin:4px 0 7px; font-size:30px; letter-spacing:-.04em; }
 .proposal-success p { margin:0; color:#475467; line-height:1.6; }
 .proposal-footer { display:flex; justify-content:space-between; gap:20px; color:#98a2b3; font-size:11px; padding:4px 2px; }
+.proposal-talent-preview { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:16px; }
+.proposal-talent-preview-row { display:flex; gap:10px; align-items:flex-start; padding:13px; border:1px solid #e4e7ec; border-radius:12px; background:#fcfcfd; }
+.proposal-talent-preview-row > div { display:grid; gap:2px; min-width:0; }
+.proposal-talent-preview-row strong { color:#101828; font-size:14px; }
+.proposal-talent-preview-row span { color:#475467; font-size:12px; line-height:1.4; }
+.proposal-talent-preview-row small { color:#667085; font-size:11px; line-height:1.4; }
 
 @media (max-width:760px) {
   .crm-close-tools { padding-left:14px; padding-right:14px; }
@@ -248,7 +254,7 @@
   .proposal-page { padding:24px 14px; }
   .proposal-head { flex-direction:column; }
   .proposal-expiry { white-space:normal; }
-  .proposal-facts,.proposal-price-grid { grid-template-columns:1fr; }
+  .proposal-facts,.proposal-price-grid,.proposal-talent-preview { grid-template-columns:1fr; }
   .proposal-footer { flex-direction:column; gap:5px; }
 }
 

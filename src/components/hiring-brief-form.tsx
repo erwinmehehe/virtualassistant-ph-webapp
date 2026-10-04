@@ -15,7 +15,6 @@ import { type TopMatch } from "@/lib/talent-preview";
 import { AttributionFields } from "@/components/attribution-fields";
 import { PublicAvatar } from "@/components/public-avatar";
 import { FormDraftPersistence } from "@/components/form-draft-persistence";
-import { getBrowserSessionId } from "@/lib/browser-session";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { indefiniteArticleFor } from "@/lib/content-language";
 import { TurnstileWidget } from "@/components/turnstile-widget";
@@ -228,8 +227,6 @@ function Foot() {
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {
   const action = props.variant === "service" ? submitServiceMatchWithAiAction : submitIndustryMatchWithAiAction;
   const [state, formAction, pending] = useActionState(action, initialState);
-  const [sessionId, setSessionId] = useState("");
-  useEffect(() => { setSessionId(getBrowserSessionId()); }, []);
 
   if (state.status === "success") {
     return <Success message={state.message} category={props.variant === "service" ? props.category : undefined} leadId={state.leadId} jobId={state.jobId} clientLinked={state.clientLinked} feedbackToken={state.matchFeedbackToken} />;
@@ -248,8 +245,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
       <form action={formAction} className="hb-form">
         <input type="hidden" name="slug" value={props.slug} />
         {props.variant === "service" ? <input type="hidden" name="category" value={props.category} /> : null}
-        <input type="hidden" name="source_path" value={sourcePath} />
-        <input type="hidden" name="session_id" value={sessionId} />
+        <AttributionFields sourcePath={sourcePath} />
         <BrowserTimeZoneField />
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />

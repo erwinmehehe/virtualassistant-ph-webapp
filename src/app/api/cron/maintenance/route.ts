@@ -17,6 +17,7 @@ import { ensurePlacementHandoffAction } from "@/lib/post-hire-automation";
 const NUDGE_GRACE_DAYS = 2;
 const NUDGE_REPEAT_DAYS = 7;
 const ABANDONED_VA_DAYS = 10;
+const ABANDONED_VA_PURGE_GRACE_DAYS = 7;
 const WORKFLOW_REMINDER_REPEAT_DAYS = 5;
 const MAX_WORKFLOW_REMINDERS = 3;
 
@@ -75,24 +76,31 @@ async function runExpiredJobCleanup(admin: ReturnType<typeof createAdminClient>)
 
 async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>) {
   const cutoff = daysAgo(ABANDONED_VA_DAYS);
-  const { data: candidates } = await admin
+  const purgeGraceCutoff = daysAgo(ABANDONED_VA_PURGE_GRACE_DAYS);
+  const { data: candidates, error: candidateError } = await admin
     .from("recruiter_va_directory")
     .select("user_id,completion_score,account_created_at")
     .eq("account_status", "active")
     .lt("completion_score", 100)
     .lte("account_created_at", cutoff)
     .limit(500);
+  if (candidateError) throw candidateError;
 
   const ids = (candidates || []).map((row: any) => row.user_id);
-  if (!ids.length) return { checked: 0, deleted: 0, protected: 0 };
+  if (!ids.length) return { checked: 0, queued: 0, deleted: 0, protected: 0 };
 
-  const [{ data: vetting }, { data: applications }, { data: workrooms }, { data: offers }, { data: profiles }] = await Promise.all([
+  const [{ data: vetting, error: vettingError }, { data: applications, error: applicationError }, { data: workrooms, error: workroomError }, { data: offers, error: offerError }, { data: profiles, error: profileError }] = await Promise.all([
     admin.from("va_vetting").select("va_id,stage").in("va_id", ids).in("stage", ["approved", "bench"]),
     admin.from("applications").select("va_id").in("va_id", ids),
     admin.from("workrooms").select("va_id").in("va_id", ids),
     admin.from("placement_offers").select("va_id").in("va_id", ids),
     admin.from("profiles").select("id,role").in("id", ids)
   ]);
+  if (vettingError) throw vettingError;
+  if (applicationError) throw applicationError;
+  if (workroomError) throw workroomError;
+  if (offerError) throw offerError;
+  if (profileError) throw profileError;
 
   const protectedIds = new Set<string>([
     ...(vetting || []).map((row: any) => row.va_id),
@@ -103,10 +111,71 @@ async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>
   ]);
 
   let deleted = 0;
+  let queued = 0;
   let storageObjectsDeleted = 0;
   let storageCleanupFailures = 0;
+
   for (const userId of ids) {
-    if (protectedIds.has(userId)) continue;
+    if (protectedIds.has(userId)) {
+      await admin.from("va_account_cleanup_queue").delete().eq("user_id", userId);
+      continue;
+    }
+
+    const { data: eligible, error: eligibilityError } = await admin.rpc("can_purge_abandoned_va", {
+      p_user_id: userId,
+      p_cutoff: cutoff,
+    });
+    if (eligibilityError) {
+      console.error("[maintenance] abandoned VA eligibility check failed", { userId, error: eligibilityError.message });
+      continue;
+    }
+    if (!eligible) {
+      await admin.from("va_account_cleanup_queue").delete().eq("user_id", userId);
+      continue;
+    }
+
+    const { data: queueRow, error: queueLookupError } = await admin
+      .from("va_account_cleanup_queue")
+      .select("user_id,first_marked_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (queueLookupError) throw queueLookupError;
+
+    if (!queueRow) {
+      const { error: queueError } = await admin.from("va_account_cleanup_queue").insert({
+        user_id: userId,
+        first_marked_at: new Date().toISOString(),
+        last_verified_at: new Date().toISOString(),
+      });
+      if (queueError) throw queueError;
+      queued += 1;
+      continue;
+    }
+
+    if (new Date(queueRow.first_marked_at).getTime() > new Date(purgeGraceCutoff).getTime()) {
+      const { error: touchError } = await admin
+        .from("va_account_cleanup_queue")
+        .update({ last_verified_at: new Date().toISOString() })
+        .eq("user_id", userId);
+      if (touchError) throw touchError;
+      queued += 1;
+      continue;
+    }
+
+    // Re-check immediately before destructive work. A VA must remain incomplete
+    // and have no application, offer, workroom, approved/bench vetting state, or
+    // non-VA role throughout the grace period.
+    const { data: stillEligible, error: finalEligibilityError } = await admin.rpc("can_purge_abandoned_va", {
+      p_user_id: userId,
+      p_cutoff: cutoff,
+    });
+    if (finalEligibilityError || !stillEligible) {
+      if (finalEligibilityError) {
+        console.error("[maintenance] final abandoned VA eligibility check failed", { userId, error: finalEligibilityError.message });
+      }
+      await admin.from("va_account_cleanup_queue").delete().eq("user_id", userId);
+      continue;
+    }
 
     // Never delete Auth if Storage cleanup is uncertain. Otherwise a transient
     // Storage failure can orphan a VA's CV/photo after the database cascades.
@@ -133,9 +202,12 @@ async function runAbandonedVaCleanup(admin: ReturnType<typeof createAdminClient>
     }
 
     const { error } = await admin.auth.admin.deleteUser(userId);
-    if (!error) deleted++;
+    if (!error) {
+      deleted++;
+      await admin.from("va_account_cleanup_queue").delete().eq("user_id", userId);
+    }
   }
-  return { checked: ids.length, deleted, protected: protectedIds.size, storageObjectsDeleted, storageCleanupFailures };
+  return { checked: ids.length, queued, deleted, protected: protectedIds.size, storageObjectsDeleted, storageCleanupFailures };
 }
 
 async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
@@ -951,5 +1023,9 @@ export async function GET(request: Request) {
     deploymentSha,
   });
 
-  return NextResponse.json(result);
+  const ok = errorTasks.length === 0;
+  return NextResponse.json(
+    { ...result, ok, errorTasks },
+    { status: ok ? 200 : 500 },
+  );
 }

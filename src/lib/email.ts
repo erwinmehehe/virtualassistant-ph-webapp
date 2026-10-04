@@ -61,32 +61,34 @@ function isNonDeliverableTestRecipient(value: string) {
   return NON_DELIVERABLE_TEST_DOMAINS.has(domain) || domain.endsWith(".invalid");
 }
 
-const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
-  "erwinvalles20@gmail.com",
-  "jrvsaccad@gmail.com",
-  "bryanbatarina@gmail.com",
-]);
-const privateInternalEmailSet = new Set(PRIVATE_INTERNAL_EMAILS.map((email) => email.toLowerCase()));
-const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(email.toLowerCase());
-
 const BOOKING_TEAM_EMAILS = normalizeEmailList([
-  "jrvsaccad@gmail.com",
-  "bryanbatarina@gmail.com",
+  process.env.BOOKING_TEAM_EMAILS,
+  process.env.LEAD_NOTIFICATION_EMAIL,
 ]);
 const staffClientFollowupBccRecipients = normalizeEmailList([
-  "jrvsaccad@gmail.com",
-  "erwinvalles20@gmail.com",
   process.env.CLIENT_FOLLOWUP_CC_EMAIL,
   process.env.CLIENT_FOLLOWUP_BCC_EMAIL,
 ]).filter((email) => !isBlockedEmailRecipient(email));
 
-// Available only to explicitly opted-in human follow-ups. Automated customer
-// and VA messages do not receive an archive copy by default.
-const DEFAULT_ARCHIVE_TO = "erwinvalles20@gmail.com";
-const configuredArchiveRecipients = normalizeEmailList(
-  process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC || DEFAULT_ARCHIVE_TO
+// Private/staff recipients are configured explicitly in production. Keeping
+// personal mailbox addresses out of source prevents accidental data routing
+// when staff or ownership changes.
+const PRIVATE_INTERNAL_EMAILS = normalizeEmailList([
+  process.env.PRIVATE_INTERNAL_EMAILS,
+  process.env.BOOKING_TEAM_EMAILS,
+  process.env.LEAD_NOTIFICATION_EMAIL,
+  process.env.CLIENT_FOLLOWUP_CC_EMAIL,
+  process.env.CLIENT_FOLLOWUP_BCC_EMAIL,
+  process.env.EMAIL_ARCHIVE_TO,
+  process.env.EMAIL_ARCHIVE_CC,
+  process.env.EMAIL_ARCHIVE_BCC,
+]);
+const privateInternalEmailSet = new Set(PRIVATE_INTERNAL_EMAILS.map((email) => email.toLowerCase()));
+const isPrivateInternalEmail = (email: string) => privateInternalEmailSet.has(email.toLowerCase());
+
+const archiveRecipients = normalizeEmailList(
+  process.env.EMAIL_ARCHIVE_TO || process.env.EMAIL_ARCHIVE_CC || process.env.EMAIL_ARCHIVE_BCC
 ).filter((email) => !isBlockedEmailRecipient(email));
-const archiveRecipients = configuredArchiveRecipients.length ? configuredArchiveRecipients : [DEFAULT_ARCHIVE_TO];
 
 // Anyone already addressed must not be repeated.
 function archiveExtraFor(payload: any) {

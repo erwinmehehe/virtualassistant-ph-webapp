@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { matchAssessment } from "@/lib/matching";
 import { clientRequestMoreOptionsAction, clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
@@ -73,6 +75,13 @@ export default async function ClientCandidatesPage({
   }
 
   const selectedJob = summary.selected_job;
+  const selectedJobDetail = selectedJob ? await createAdminClient()
+    .from("jobs")
+    .select("id,title,categories,required_skills,required_tools,nice_to_have_skills,must_have_skills,must_have_tools,required_industries,minimum_years_experience,hours_per_week,max_hourly_rate,communication_requirement,dealbreakers")
+    .eq("id", selectedJob.id)
+    .eq("client_id", userId)
+    .maybeSingle()
+    .then((result) => result.data) : null;
   const selectedReleased = summary.released || [];
   const selectedPublished = selectedJob?.status === "published";
   const selectedAccessUnlocked = selectedJob ? candidateAccessUnlocked(summary.access_status) : false;
@@ -157,7 +166,7 @@ export default async function ClientCandidatesPage({
     <div className="page-head client-hiring-room-head">
       <div>
         <h1>Hiring Room</h1>
-        <p>Only recruiter-selected candidates appear here. Choose Interested, Interview, or Pass for each VA, or ask your recruiter for more options.</p>
+        <p>Only recruiter-selected candidates appear here. Review the evidence, request an interview, keep a VA shortlisted, or pass and tell your recruiter why.</p>
       </div>
     </div>
 
@@ -191,7 +200,7 @@ export default async function ClientCandidatesPage({
       <div className="dashboard-section-head">
         <div>
           <h2>Recruiter shortlist{selectedJob ? ` for ${selectedJob.title}` : ""}</h2>
-          <p>We have already screened these VAs. Your decisions and notes appear immediately in the recruiter workspace. Questions belong in Client messages so the conversation stays with the role.</p>
+          <p>We have already screened these VAs. Start with the evidence on each card, open the full profile when useful, then request an interview, keep shortlisted, or pass. Your decision appears immediately in the recruiter workspace.</p>
         </div>
       </div>
 
@@ -230,7 +239,7 @@ export default async function ClientCandidatesPage({
               const va = vaMap.get(row.va_id);
               const decision = String(row.client_decision || "");
               const decisionLabel = decision === "interested"
-                ? "Interested"
+                ? "Kept shortlisted"
                 : decision === "interview"
                   ? "Interview requested"
                   : decision === "hold"
@@ -238,6 +247,30 @@ export default async function ClientCandidatesPage({
                     : decision === "pass"
                       ? "Passed"
                       : "";
+              const trainingCredentials = trainingByUser.get(row.va_id) || [];
+              const assessment = selectedJobDetail && va
+                ? matchAssessment(selectedJobDetail, va, trainingCredentials)
+                : null;
+              const whyMatches = [
+                assessment?.roleMatch?.matchedKeywords?.length
+                  ? `Role fit: ${assessment.roleMatch.matchedKeywords.slice(0, 3).join(", ")}`
+                  : null,
+                assessment?.matchedSkills?.length
+                  ? `Matched skills: ${assessment.matchedSkills.slice(0, 3).join(", ")}`
+                  : null,
+                assessment?.matchedTools?.length
+                  ? `Matched tools: ${assessment.matchedTools.slice(0, 3).join(", ")}`
+                  : null,
+                selectedJobDetail?.minimum_years_experience != null && va?.years_experience != null && Number(va.years_experience) >= Number(selectedJobDetail.minimum_years_experience)
+                  ? `${va.years_experience}+ years experience meets the role preference`
+                  : null,
+                selectedJobDetail?.hours_per_week && va?.weekly_hours && Number(va.weekly_hours) >= Number(selectedJobDetail.hours_per_week)
+                  ? `${va.weekly_hours} hrs/week availability covers the requested ${selectedJobDetail.hours_per_week} hrs/week`
+                  : null,
+                assessment?.trainingMatch?.matchedCourseTitles?.length
+                  ? `Verified training: ${assessment.trainingMatch.matchedCourseTitles.slice(0, 2).join(", ")}`
+                  : null,
+              ].filter((value): value is string => Boolean(value));
 
               return <div className="client-candidate-review-card" key={row.va_id}>
                 <ClientCandidateViewTracker jobId={selectedJob.id} vaId={row.va_id}/>
@@ -252,7 +285,9 @@ export default async function ClientCandidatesPage({
                 skills={va?.skills}
                 tools={va?.tools}
                 recommendation={row.client_recommendation}
-                trainingCredentials={trainingByUser.get(row.va_id) || []}
+                trainingCredentials={trainingCredentials}
+                whyMatches={whyMatches}
+                profileHref={`/workspace/client/candidates/${row.id}`}
                 status={decisionLabel ? (
                   <span className={`badge ${decision === "pass" || decision === "hold" ? "badge-warning" : "badge-success"}`}>
                     {decisionLabel}
@@ -267,15 +302,15 @@ export default async function ClientCandidatesPage({
                     <div className="row wrap client-shortlist-action-grid">
                       <PendingSubmitButton
                         className={`btn btn-sm ${decision === "interested" ? "btn-primary" : ""}`}
-                        label="Interested"
+                        label="Keep shortlisted"
                         pendingLabel="Saving…"
                         name="decision"
                         value="interested"
                       />
                       <PendingSubmitButton
                         className={`btn btn-sm ${decision === "interview" ? "btn-primary" : ""}`}
-                        label="Interview"
-                        pendingLabel="Saving…"
+                        label="Request interview"
+                        pendingLabel="Requesting…"
                         name="decision"
                         value="interview"
                       />

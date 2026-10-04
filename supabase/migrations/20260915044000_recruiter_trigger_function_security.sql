@@ -2,4 +2,8 @@
 revoke execute on function public.trigger_refresh_job_matches() from public, anon, authenticated;
 revoke execute on function public.trigger_refresh_va_matches() from public, anon, authenticated;
 revoke execute on function public.trigger_refresh_vetting_matches() from public, anon, authenticated;
-revoke execute on function public.trigger_interview_request() from public, anon, authenticated;
+do $ begin
+  if to_regprocedure('public.trigger_interview_request()') is not null then
+    revoke execute on function public.trigger_interview_request() from public, anon, authenticated;
+  end if;
+end $;

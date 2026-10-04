@@ -64,3 +64,27 @@ test("vetted application still notifies the job poster", async () => {
   assert.match(action, /New application for \$\{job\.title\}/);
   assert.match(action, /redirect\("\/workspace\/va\/applications\?applied=1"\)/);
 });
+
+
+test("public header is software-first and role-aware", async () => {
+  const [nav, header] = await Promise.all([
+    read("src/components/site-nav.tsx"),
+    read("src/components/site-header.tsx"),
+  ]);
+
+  const primaryStart = nav.indexOf('<nav className="nav-links" aria-label="Primary navigation">');
+  const primaryEnd = nav.indexOf("</nav>", primaryStart);
+  const primary = nav.slice(primaryStart, primaryEnd);
+  assert.match(primary, /href="\/software">Software/);
+  assert.doesNotMatch(primary, /href="\/how-vetting-works">How it works/);
+  assert.doesNotMatch(primary, /href="\/pricing">Pricing/);
+
+  assert.match(nav, /getSessionProfile/);
+  assert.match(nav, /profile\?\.role === "client"/);
+  assert.match(nav, /href="\/workspace\/client\/jobs\/new">Post a job/);
+  assert.match(nav, /profile\?\.role === "va"/);
+  assert.match(nav, /href="\/jobs">Browse VA jobs/);
+  assert.match(nav, /href=\{workspaceHref\}>My workspace/);
+  assert.match(nav, /href="\/software">Software/);
+  assert.match(header, /export async function SiteHeader/);
+});

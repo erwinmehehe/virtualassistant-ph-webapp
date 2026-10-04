@@ -39,7 +39,7 @@ test("recoverable losses create internal win-back work without reopening the lea
   assert.match(taxonomy,/winBackDays: 30/);
   assert.match(taxonomy,/winBackDays: 60/);
   assert.match(taxonomy,/winBackDays: 90/);
-  assert.match(crm,/["winback", "Win-back"]/);
+  assert.match(crm,/\["winback", "Win-back"\]/);
   assert.match(crm,/Win-back due/);
   assert.match(crm,/lead\.win_back_at/);
 });

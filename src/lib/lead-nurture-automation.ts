@@ -69,7 +69,7 @@ export async function syncLeadNurtureState(args: {
   const admin = createAdminClient();
   const { data: existing, error: existingError } = await admin
     .from("lead_nurture_state")
-    .select("lead_id,sequence,status,step")
+    .select("lead_id,sequence,status,step,paused_reason")
     .eq("lead_id", args.leadId)
     .maybeSingle();
   if (existingError) throw existingError;
@@ -99,6 +99,9 @@ export async function syncLeadNurtureState(args: {
 
   if (existing?.status === "unsubscribed") {
     return { active: false, unsubscribed: true };
+  }
+  if (existing?.status === "paused" && existing.paused_reason === "client_replied" && existing.sequence === sequence) {
+    return { active: false, paused: true, reason: "client_replied" };
   }
 
   const now = new Date();

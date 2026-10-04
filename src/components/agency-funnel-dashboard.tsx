@@ -64,10 +64,9 @@ function AttributionTable({ rows, model }: { rows:AgencyAttributionRow[]; model:
         const discovery=count(row.discovery_booked);
         const proposalLeads=count(row.proposal_leads);
         const customers=count(row.customers);
-        const spamRate=count(row.spam_rate);
         return <tr key={`${row.source}:${row.medium || ""}:${row.campaign || ""}`}>
           <td data-label={model}><strong>{attributionLabel(row)}</strong></td>
-          <td data-label="Leads">{leadCount}<small className="muted" style={{display:"block"}}>{count(row.spam_leads)} spam · {spamRate}%</small></td>
+          <td data-label="Leads">{leadCount}<small className="muted" style={{display:"block"}}>{count(row.junk_leads)} junk · {count(row.junk_rate)}%</small></td>
           <td data-label="Quality">{qualified} <small className="muted">{percent(qualified,leadCount) ?? 0}% qualified</small></td>
           <td data-label="Discovery">{discovery}</td>
           <td data-label="Proposal accept">{proposalLeads ? `${count(row.proposal_acceptance_rate)}%` : "—"}</td>
@@ -192,7 +191,7 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   const bestRevenue=[...realSources].filter(row=>count(row.collected_revenue_usd)>0).sort((a,b)=>count(b.collected_revenue_usd)-count(a.collected_revenue_usd))[0]||null;
   const bestProposal=[...realSources].filter(row=>count(row.proposal_leads)>0).sort((a,b)=>count(b.proposal_acceptance_rate)-count(a.proposal_acceptance_rate)||count(b.proposal_accepted)-count(a.proposal_accepted))[0]||null;
   const bestCustomerValue=[...realSources].filter(row=>count(row.customers)>0).sort((a,b)=>count(b.avg_customer_value_usd)-count(a.avg_customer_value_usd))[0]||null;
-  const noisiestSource=[...firstTouch].filter(row=>count(row.spam_leads)>0).sort((a,b)=>count(b.spam_rate)-count(a.spam_rate)||count(b.spam_leads)-count(a.spam_leads))[0]||null;
+  const noisiestSource=[...firstTouch].filter(row=>count(row.junk_leads)>0).sort((a,b)=>count(b.junk_rate)-count(a.junk_rate)||count(b.junk_leads)-count(a.junk_leads))[0]||null;
   const biggestLossSource=[...realSources].filter(row=>count(row.lost_leads)>0).sort((a,b)=>count(b.lost_leads)-count(a.lost_leads))[0]||null;
 
   return <div className="agency-funnel-page">
@@ -280,7 +279,7 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
         <OpsMetric label="Highest collected revenue" value={bestRevenue?usd(count(bestRevenue.collected_revenue_usd)):"—"} note={bestRevenue?attributionLabel(bestRevenue):"No collected revenue attributed yet"}/>
         <OpsMetric label="Best proposal acceptance" value={bestProposal?`${count(bestProposal.proposal_acceptance_rate)}%`:"—"} note={bestProposal?attributionLabel(bestProposal):"No proposal source data yet"}/>
         <OpsMetric label="Highest avg customer value" value={bestCustomerValue?usd(count(bestCustomerValue.avg_customer_value_usd)):"—"} note={bestCustomerValue?attributionLabel(bestCustomerValue):"No won customer value yet"}/>
-        <OpsMetric label="Highest spam rate" value={noisiestSource?`${count(noisiestSource.spam_rate)}%`:"—"} note={noisiestSource?`${attributionLabel(noisiestSource)} · ${count(noisiestSource.spam_leads)} spam`:"No attributed spam in this period"}/>
+        <OpsMetric label="Highest junk rate" value={noisiestSource?`${count(noisiestSource.junk_rate)}%`:"—"} note={noisiestSource?`${attributionLabel(noisiestSource)} · ${count(noisiestSource.junk_leads)} spam/duplicate`:"No attributed junk in this period"}/>
         <OpsMetric label="Most losses" value={biggestLossSource?count(biggestLossSource.lost_leads):"—"} note={biggestLossSource?`${attributionLabel(biggestLossSource)} · ${leadLossReasonLabel(biggestLossSource.top_loss_reason_code)}`:"No attributed losses in this period"}/>
       </div>
       <div className="dashboard-section-head"><div><h3>First-touch acquisition</h3><p>Use this view to decide which channels deserve more acquisition budget.</p></div></div>

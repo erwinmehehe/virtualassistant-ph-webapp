@@ -2,23 +2,13 @@
 
 import { requireRole } from "@/lib/auth";
 import { extractResumeText, parseResumeWithAI, type ParsedResumeFields } from "@/lib/resume-parsing";
+import { validateUpload } from "@/lib/file-security";
 
 export type ParseResumeState = {
   status: "idle" | "success" | "error";
   message?: string;
   fields?: ParsedResumeFields;
 };
-
-const PDF_MIME = "application/pdf";
-const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-const GENERIC_MIME = new Set(["", "application/octet-stream"]);
-
-function resolvedResumeType(file: File) {
-  const name = file.name.toLowerCase();
-  if (file.type === PDF_MIME || (GENERIC_MIME.has(file.type) && name.endsWith(".pdf"))) return PDF_MIME;
-  if (file.type === DOCX_MIME || (GENERIC_MIME.has(file.type) && name.endsWith(".docx"))) return DOCX_MIME;
-  return null;
-}
 
 /**
  * Parses an uploaded resume and returns suggested profile fields for the
@@ -33,22 +23,29 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
   if (!(file instanceof File) || file.size === 0) {
     return { status: "error", message: "Choose a resume file first." };
   }
-  if (file.size > 5 * 1024 * 1024) {
-    return { status: "error", message: "Resume must be 5 MB or smaller." };
-  }
-  const resumeType = resolvedResumeType(file);
-  if (!resumeType) {
-    const isLegacyDoc = file.name.toLowerCase().endsWith(".doc");
+  let validated;
+  try {
+    validated = await validateUpload(file, "resume");
+  } catch {
     return {
       status: "error",
-      message: isLegacyDoc
-        ? "Your DOC resume can still be saved with the profile, but auto-fill needs a PDF or DOCX file."
-        : "Auto-fill supports PDF and DOCX files. If this is a valid resume, export it again as PDF or DOCX and retry."
+      message: "Auto-fill only accepts a genuine PDF or DOCX file whose contents match its file name.",
     };
   }
 
+  if (!validated) {
+    return { status: "error", message: "Choose a resume file first." };
+  }
+  if (validated.extension === "doc") {
+    return {
+      status: "error",
+      message: "Your DOC resume can still be saved with the profile, but auto-fill needs a PDF or DOCX file."
+    };
+  }
+
+  const resumeType = validated.contentType;
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer = validated.buffer;
     const text = await Promise.race([
       extractResumeText(buffer, resumeType),
       new Promise<never>((_, reject) => {

@@ -184,12 +184,12 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
   const attributedLeads=firstTouch.reduce((sum,row)=>sum+count(row.leads),0);
   const paidPayments=firstTouch.reduce((sum,row)=>sum+count(row.paid_payments),0);
   const realSources=firstTouch.filter(row=>count(row.leads)>0);
-  const bestConversion=[...realSources].sort((a,b)=>{
+  const bestConversion=[...realSources].filter(row=>count(row.customers)>0).sort((a,b)=>{
     const aRate=count(a.leads)?count(a.customers)/count(a.leads):0;
     const bRate=count(b.leads)?count(b.customers)/count(b.leads):0;
     return bRate-aRate||count(b.customers)-count(a.customers);
   })[0]||null;
-  const bestRevenue=[...realSources].sort((a,b)=>count(b.collected_revenue_usd)-count(a.collected_revenue_usd)||count(b.won_value_usd)-count(a.won_value_usd))[0]||null;
+  const bestRevenue=[...realSources].filter(row=>count(row.collected_revenue_usd)>0).sort((a,b)=>count(b.collected_revenue_usd)-count(a.collected_revenue_usd))[0]||null;
   const bestProposal=[...realSources].filter(row=>count(row.proposal_leads)>0).sort((a,b)=>count(b.proposal_acceptance_rate)-count(a.proposal_acceptance_rate)||count(b.proposal_accepted)-count(a.proposal_accepted))[0]||null;
   const bestCustomerValue=[...realSources].filter(row=>count(row.customers)>0).sort((a,b)=>count(b.avg_customer_value_usd)-count(a.avg_customer_value_usd))[0]||null;
   const noisiestSource=[...firstTouch].filter(row=>count(row.spam_leads)>0).sort((a,b)=>count(b.spam_rate)-count(a.spam_rate)||count(b.spam_leads)-count(a.spam_leads))[0]||null;

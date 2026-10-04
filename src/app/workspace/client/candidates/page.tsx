@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { clientRequestMoreOptionsAction, clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
@@ -76,13 +75,7 @@ export default async function ClientCandidatesPage({
   }
 
   const selectedJob = summary.selected_job;
-  const selectedJobDetail = selectedJob ? await createAdminClient()
-    .from("jobs")
-    .select("id,title,categories,required_skills,required_tools,nice_to_have_skills,must_have_skills,must_have_tools,required_industries,minimum_years_experience,hours_per_week,max_hourly_rate,communication_requirement,dealbreakers")
-    .eq("id", selectedJob.id)
-    .eq("client_id", userId)
-    .maybeSingle()
-    .then((result) => result.data) : null;
+  const selectedJobDetail = selectedJob;
   const selectedReleased = summary.released || [];
   const selectedPublished = selectedJob?.status === "published";
   const selectedAccessUnlocked = selectedJob ? candidateAccessUnlocked(summary.access_status) : false;
@@ -136,8 +129,8 @@ export default async function ClientCandidatesPage({
         ? {
             title: `${remaining} shortlist decision${remaining === 1 ? "" : "s"} still open`,
             copy: held
-              ? `You have ${held} legacy hold decision${held === 1 ? "" : "s"}. Update those candidates to Interested, Interview, or Pass, or ask for more options.`
-              : "Mark each recruiter-selected VA as Interested, Interview, or Pass. If the shortlist is not right, ask your recruiter for more options.",
+              ? `You have ${held} legacy hold decision${held === 1 ? "" : "s"}. Update those candidates to Request interview, Keep shortlisted, or Pass, or ask for more options.`
+              : "Request an interview, keep a candidate shortlisted for comparison, or pass. If the shortlist is not right, ask your recruiter for more options.",
             href: selectedJob
               ? `/workspace/client/candidates?role=${encodeURIComponent(selectedJob.id)}#recruiter-shortlist`
               : "/workspace/client/candidates",

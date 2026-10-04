@@ -1,5 +1,11 @@
 import type { VaProfile } from "./types";
 
+export type VerifiedTrainingEvidence = {
+  courseTitle: string;
+  courseSlug?: string | null;
+  credentialCode?: string | null;
+};
+
 type JobLike = {
   title?: string | null;
   summary?: string | null;
@@ -201,7 +207,75 @@ function categoryFit(job: JobLike, va: Partial<VaProfile>) {
   };
 }
 
-export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
+function verifiedTrainingFit(job: JobLike, evidence: VerifiedTrainingEvidence[]) {
+  const normalizedEvidence = evidence
+    .map((credential) => ({
+      ...credential,
+      searchable: normalize(`${credential.courseTitle} ${credential.courseSlug || ""}`),
+    }))
+    .filter((credential) => Boolean(credential.searchable));
+
+  if (!normalizedEvidence.length) {
+    return {
+      assessed: false,
+      bonus: 0,
+      matchedTools: [] as string[],
+      matchedSkills: [] as string[],
+      matchedCategories: [] as string[],
+      matchedRoleKeywords: [] as string[],
+      matchedCourseTitles: [] as string[],
+    };
+  }
+
+  const evidenceMatches = (value: string) =>
+    normalizedEvidence.some((credential) => termsMatch(value, credential.searchable));
+
+  const matchedTools = (job.required_tools || []).filter(evidenceMatches);
+  const matchedSkills = (job.required_skills || []).filter(evidenceMatches);
+  const matchedCategories = (job.categories || []).filter(evidenceMatches);
+  const titleTokens = [...new Set(roleTokens(job.title))];
+  const matchedRoleKeywords = titleTokens.filter(evidenceMatches);
+
+  const toolRatio = job.required_tools?.length ? matchedTools.length / job.required_tools.length : 0;
+  const skillRatio = job.required_skills?.length ? matchedSkills.length / job.required_skills.length : 0;
+  const categoryRatio = job.categories?.length ? matchedCategories.length / job.categories.length : 0;
+  const roleRatio = titleTokens.length ? matchedRoleKeywords.length / titleTokens.length : 0;
+
+  // Verified training is deliberately a supporting signal only. It can move a
+  // candidate by at most five points and never satisfies a must-have skill,
+  // must-have tool, industry-experience, readiness, or availability gate.
+  const bonus = Math.min(
+    5,
+    Math.max(
+      0,
+      Math.round((toolRatio * 2) + (skillRatio * 1.5) + (categoryRatio * 1) + (roleRatio * 0.5)),
+    ),
+  );
+
+  const matchedCourseTitles = normalizedEvidence
+    .filter((credential) =>
+      [...matchedTools, ...matchedSkills, ...matchedCategories, ...matchedRoleKeywords]
+        .some((term) => termsMatch(term, credential.searchable)),
+    )
+    .map((credential) => credential.courseTitle)
+    .filter((title, index, values) => values.indexOf(title) === index);
+
+  return {
+    assessed: true,
+    bonus,
+    matchedTools,
+    matchedSkills,
+    matchedCategories,
+    matchedRoleKeywords,
+    matchedCourseTitles,
+  };
+}
+
+export function matchAssessment(
+  job: JobLike,
+  va: Partial<VaProfile>,
+  trainingEvidence: VerifiedTrainingEvidence[] = [],
+) {
   const hardFailures: string[] = [];
   const evidenceGaps: string[] = [];
 
@@ -270,11 +344,15 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
   }
 
   const normalizedScore = assessedWeight ? Math.round((score / assessedWeight) * totalWeight) : 0;
+  const trainingMatch = verifiedTrainingFit(job, trainingEvidence);
+  const scoreWithTraining = Math.min(normalizedScore + trainingMatch.bonus, 100);
   const eligible = hardFailures.length === 0;
 
   return {
-    score: eligible ? Math.min(normalizedScore, 100) : 0,
-    rawScore: Math.min(normalizedScore, 100),
+    score: eligible ? scoreWithTraining : 0,
+    rawScore: scoreWithTraining,
+    baseScore: Math.min(normalizedScore, 100),
+    trainingBonus: trainingMatch.bonus,
     confidence: Math.min(100, Math.round((assessedWeight / totalWeight) * 100)),
     assessedWeight,
     eligible,
@@ -284,11 +362,16 @@ export function matchAssessment(job: JobLike, va: Partial<VaProfile>) {
     categoryMatched: categoryMatch.matched,
     matchedSkills: skills.matched,
     matchedTools: tools.matched,
+    trainingMatch,
   };
 }
 
-export function matchScore(job: JobLike, va: Partial<VaProfile>) {
-  return matchAssessment(job, va).score;
+export function matchScore(
+  job: JobLike,
+  va: Partial<VaProfile>,
+  trainingEvidence: VerifiedTrainingEvidence[] = [],
+) {
+  return matchAssessment(job, va, trainingEvidence).score;
 }
 
 export function matchLabel(score: number) {

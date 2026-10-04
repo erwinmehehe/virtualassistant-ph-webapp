@@ -194,7 +194,9 @@ export async function SiteNav({
 
         <div className="nav-actions">
           {isTrainingContext ? (
-            <Link className="va-nav-account-login" href={trainingContextLoginHref} data-track="training_login_click">Training login</Link>
+            <Link className="va-nav-account-login" href={user ? "/workspace/training" : trainingContextLoginHref} data-track="training_login_click">
+              {user ? "My learning" : "Training login"}
+            </Link>
           ) : user ? (
             <Link className="va-nav-account-login" href={workspaceHref}>My workspace</Link>
           ) : (
@@ -204,11 +206,11 @@ export async function SiteNav({
           {isTrainingContext ? (
             <Link
               className="btn btn-primary desktop-hire-cta training-header-cta"
-              href={trainingContextJoinHref}
+              href={user ? "/workspace/training" : trainingContextJoinHref}
               data-track="training_account_click"
               data-cta-position="header"
             >
-              Start free training <ArrowRight size={14} aria-hidden="true"/>
+              {user ? "Continue training" : "Start free training"} <ArrowRight size={14} aria-hidden="true"/>
             </Link>
           ) : profile?.role === "client" ? (
             <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/workspace/client/jobs/new">Post a job</Link>
@@ -224,11 +226,11 @@ export async function SiteNav({
               {isTrainingContext ? (
                 <Link
                   className="mobile-menu-primary"
-                  href={trainingContextJoinHref}
+                  href={user ? "/workspace/training" : trainingContextJoinHref}
                   data-track="training_account_click"
                   data-cta-position="mobile_menu"
                 >
-                  Start free training
+                  {user ? "Continue training" : "Start free training"}
                 </Link>
               ) : profile?.role === "client" ? (
                 <Link className="mobile-menu-primary" href="/workspace/client/jobs/new">Post a job</Link>
@@ -252,7 +254,9 @@ export async function SiteNav({
               ) : null}
               <span className="va-mobile-panel-label">Account</span>
               {isTrainingContext ? (
-                <Link href={trainingContextLoginHref} data-track="training_login_click">Training login</Link>
+                <Link href={user ? "/workspace/training" : trainingContextLoginHref} data-track="training_login_click">
+                  {user ? "My learning" : "Training login"}
+                </Link>
               ) : user ? (
                 <Link href={workspaceHref}>My workspace</Link>
               ) : (

@@ -61,7 +61,6 @@ async function invalidateCourseReview(admin: ReturnType<typeof createAdminClient
     })
     .eq("id", courseId);
 
-  await invalidateSpecialistReview(admin, courseId);
   revalidateTag("public-training");
 }
 

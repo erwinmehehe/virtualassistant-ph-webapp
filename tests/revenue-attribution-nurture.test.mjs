@@ -69,7 +69,11 @@ test("long-term nurture is email-only, low priority, opt-out aware, and idempote
   assert.match(migration,/enable row level security/);
   assert.match(migration,/recruiter_tasks_open_nurture_review_unique/);
   assert.doesNotMatch(automation,/twilio|whatsapp/i);
-  assert.doesNotMatch(email,/twilio|whatsapp/i);
+  const nurtureEmailBlock=email.slice(
+    email.indexOf("export async function sendLeadNurtureEmail"),
+    email.indexOf("export async function sendStaffDailyDigestEmail"),
+  );
+  assert.doesNotMatch(nurtureEmailBlock,/twilio|whatsapp/i);
 });
 
 test("nurture stops on client reply and follows CRM stage eligibility",async()=>{

@@ -51,6 +51,8 @@ export default async function CandidateReviewPage({params}:{params:Promise<{id:s
       .maybeSingle();
     shortlist=data;
   }
+  // Raw VA interest and applications are recruiter-only. A client can open a
+  // candidate detail only after the recruiter intentionally releases that VA.
   if(!shortlist)notFound();
 
   if(!application){

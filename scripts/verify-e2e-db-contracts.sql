@@ -48,7 +48,27 @@ begin
 end
 $$;
 
-do $$
+do $
+declare
+  table_name text;
+begin
+  foreach table_name in array array[
+    'profiles',
+    'client_profiles',
+    'va_profiles'
+  ]
+  loop
+    if not has_table_privilege('service_role', format('public.%I', table_name), 'SELECT')
+       or not has_table_privilege('service_role', format('public.%I', table_name), 'INSERT')
+       or not has_table_privilege('service_role', format('public.%I', table_name), 'UPDATE')
+       or not has_table_privilege('service_role', format('public.%I', table_name), 'DELETE') then
+      raise exception 'service_role is missing required CRUD privileges on public.%', table_name;
+    end if;
+  end loop;
+end
+$;
+
+do $
 begin
   if exists (
     select 1

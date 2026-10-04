@@ -2,17 +2,31 @@ name: Encrypted production database backup
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/database-backup.yml"
+      - "scripts/create-encrypted-db-backup.sh"
+      - "scripts/verify-encrypted-db-backup.sh"
+      - "scripts/restore-test-db-backup.sh"
 
 permissions:
   contents: read
 
+concurrency:
+  group: production-database-backup
+  cancel-in-progress: false
+
 jobs:
   backup:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
       BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+      RESTORE_POSTGRES_IMAGE: supabase/postgres:17.6.1.155
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -30,7 +44,7 @@ jobs:
         id: backup
         shell: bash
         run: |
-          chmod +x scripts/create-encrypted-db-backup.sh scripts/verify-encrypted-db-backup.sh
+          chmod +x scripts/create-encrypted-db-backup.sh scripts/verify-encrypted-db-backup.sh scripts/restore-test-db-backup.sh
           backup_path="$(scripts/create-encrypted-db-backup.sh backup | tail -n 1)"
           echo "path=$backup_path" >> "$GITHUB_OUTPUT"
 
@@ -38,12 +52,16 @@ jobs:
         shell: bash
         run: scripts/verify-encrypted-db-backup.sh "${{ steps.backup.outputs.path }}"
 
-      - name: Upload encrypted off-site artifact
+      - name: Restore-test encrypted archive
+        shell: bash
+        run: scripts/restore-test-db-backup.sh "${{ steps.backup.outputs.path }}"
+
+      - name: Upload encrypted off-provider artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: vaph-production-db-backup
+          name: vaph-production-db-backup-${{ github.run_id }}
           path: |
             ${{ steps.backup.outputs.path }}
             ${{ steps.backup.outputs.path }}.sha256
           if-no-files-found: error
-          retention-days: 2
+          retention-days: 30

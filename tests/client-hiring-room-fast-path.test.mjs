@@ -20,7 +20,8 @@ test("client Hiring Room uses the consolidated summary fast path", async () => {
   assert.doesNotMatch(page, /getTrainingCredentialsForUsers/);
 
   assert.match(helper, /admin\.rpc\("client_hiring_room_summary"/);
-  assert.match(helper, /withServerTiming\("client\.hiring_room_summary"/);\n  assert.match(helper, /required_skills,required_tools/);
+  assert.match(helper, /withServerTiming\("client\.hiring_room_summary"/);
+  assert.match(helper, /required_skills,required_tools/);
   assert.match(helper, /admin\.rpc\("record_client_shortlist_view"/);
 });
 

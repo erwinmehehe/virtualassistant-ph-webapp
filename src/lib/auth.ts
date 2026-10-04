@@ -62,16 +62,22 @@ export const getSessionProfile = cache(async function getSessionProfile() {
 });
 
 // Fast path for authenticated workspace shells that only need the verified user id
-// plus the application profile. getClaims() avoids the Auth user-record network
-// lookup that getUser() performs while still cryptographically verifying the JWT.
+// plus the application profile. Prefer getClaims() for the common case, but fall
+// back to getUser() when the local claim check cannot recover a valid SSR session.
+// This prevents an already signed-in learner from being sent back to login when
+// opening a course after a token refresh boundary.
 export const getFastRoleProfile = cache(async function getFastRoleProfile() {
   return withServerTiming("auth.fast-role", async () => {
     try {
       const supabase = await createClient();
       const { data, error } = await supabase.auth.getClaims();
-      if (error || !data?.claims?.sub) return { userId: null, profile: null };
+      let userId = typeof data?.claims?.sub === "string" ? data.claims.sub : null;
 
-      const userId = data.claims.sub;
+      if (error || !userId) {
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData.user) return { userId: null, profile: null };
+        userId = userData.user.id;
+      }
       const { data: profile } = await supabase
         .from("profiles")
         .select("id, role, full_name, avatar_url, account_status, last_active_at")

@@ -9,6 +9,7 @@ type HandoffFailureReason =
   | "missing_email"
   | "existing_client_missing"
   | "identity_mismatch"
+  | "identity_lookup_error"
   | "invite_error"
   | "role_conflict"
   | "profile_error"
@@ -23,16 +24,22 @@ function failure(reason: HandoffFailureReason, blocking = false) {
   };
 }
 
-async function findAuthUserByEmail(admin: AdminClient, email: string): Promise<User | null> {
+type AuthEmailLookup =
+  | { status: "found"; user: User }
+  | { status: "not_found" }
+  | { status: "error" };
+
+async function findAuthUserByEmail(admin: AdminClient, email: string): Promise<AuthEmailLookup> {
   const wanted = email.trim().toLowerCase();
-  for (let page = 1; page <= 20; page += 1) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 100 });
-    if (error) return null;
-    const found = data.users.find((user) => String(user.email || "").trim().toLowerCase() === wanted);
-    if (found) return found;
-    if (data.users.length < 100) break;
-  }
-  return null;
+  const { data: userId, error: lookupError } = await admin.rpc("find_auth_user_id_by_email", {
+    p_email: wanted,
+  });
+  if (lookupError) return { status: "error" };
+  if (!userId) return { status: "not_found" };
+
+  const { data, error } = await admin.auth.admin.getUserById(String(userId));
+  if (error || !data.user) return { status: "error" };
+  return { status: "found", user: data.user };
 }
 
 async function ensureClientProfile(admin: AdminClient, user: User, lead: any) {
@@ -94,7 +101,9 @@ export async function ensureAcceptedLeadClientWorkspace(args: {
     if (!existingEmail || existingEmail !== leadEmail) return failure("identity_mismatch", true);
     user = data.user;
   } else {
-    user = await findAuthUserByEmail(admin, leadEmail);
+    const lookup = await findAuthUserByEmail(admin, leadEmail);
+    if (lookup.status === "error") return failure("identity_lookup_error", true);
+    user = lookup.status === "found" ? lookup.user : null;
   }
 
   let actionLink: string | null = null;

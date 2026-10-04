@@ -40,7 +40,11 @@ test("client role wizard is mobile first for create and edit", async () => {
   assert.match(css, /\.client-role-wizard-shell \.wizard[\s\S]*grid-template-columns: 1fr/);
   assert.match(css, /\.client-role-wizard-shell input,[\s\S]*font-size: 16px/);
   assert.match(css, /\.client-role-wizard-shell \.wizard-actions[\s\S]*position: sticky/);
-  assert.match(css, /\.client-role-wizard-shell \.service-model-grid[\s\S]*grid-template-columns: 1fr/);
+  assert.match(newPage, /client-job-create-hero/);
+  assert.match(newPage, /3 simple steps/);
+  assert.match(css, /Client post-job workspace: focused 3-step composer/);
+  assert.match(css, /\.client-role-new \.client-role-wizard-shell \.wizard-steps[\s\S]*grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.client-role-new \.client-role-wizard-shell \.post-job-primary-input[\s\S]*min-height: 158px/);
 });
 
 test("client role detail keeps stage terms readiness and brief readable on phones", async () => {

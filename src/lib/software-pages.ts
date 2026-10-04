@@ -2,7 +2,7 @@
 
 export type SoftwareSeoPage = {
   slug: string;
-  locale?: "en-AU";
+  locale?: "en-AU" | "en-GB";
   name: string;
   software: string;
   aliases?: string[];

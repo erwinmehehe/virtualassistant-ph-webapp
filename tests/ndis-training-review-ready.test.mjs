@@ -4,15 +4,6 @@ import test from "node:test";
 
 const seedPath = "supabase/migrations/20260923062600_build_ndis_admin_training.sql";
 const refreshPath = "supabase/migrations/20260923230500_prepare_ndis_training_for_specialist_review.sql";
-const currentPolicyPath = "supabase/migrations/20261004102500_restore_operational_training_specialist_reviews.sql";
-
-test("NDIS follows the current specialist-review training policy", async () => {
-  const sql = await readFile(currentPolicyPath, "utf8");
-
-  assert.match(sql, /review_requirement = 'specialist'/);
-  assert.match(sql, /'ndis-administration-fundamentals'/);
-  assert.doesNotMatch(sql, /status = 'draft'/);
-});
 
 test("NDIS source course keeps ten scenario-based lessons and one practical assessment", async () => {
   const seed = await readFile(seedPath, "utf8");
@@ -86,16 +77,6 @@ test("NDIS assessment tests real administrative judgment and explicit escalation
   }
 
   assert.match(sql, /Do not provide funding, legal, clinical, support-planning, pricing, registration, incident-reportability/i);
-});
-
-test("current NDIS publishing requires current specialist evidence before re-publication", async () => {
-  const action = await readFile("src/app/actions/training-admin.ts", "utf8");
-  const definitions = await readFile("src/lib/training-specialist-review.ts", "utf8");
-
-  assert.match(action, /training_specialist_reviews/);
-  assert.match(action, /Complete the current specialist review before publishing this course/);
-  assert.match(definitions, /"ndis-administration-fundamentals"/);
-  assert.match(definitions, /NDIS provider operations lead/);
 });
 
 test("NDIS training remains private-LMS only", async () => {

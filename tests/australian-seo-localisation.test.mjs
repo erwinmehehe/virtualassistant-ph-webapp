@@ -285,15 +285,17 @@ test("Australian SEO templates render AU English and Australian market metadata"
   assert.match(language, /"relatedServiceSlugs"/);
   assert.match(language, /"primaryKeyword"/);
 
-  assert.match(serviceRoute, /locale: page\.locale === "en-AU" \? "en_AU" : undefined/);
-  assert.match(serviceRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);
+  assert.match(serviceRoute, /locale: page\.locale === "en-AU" \? "en_AU" : page\.locale === "en-GB" \? "en_GB" : undefined/);
+  assert.match(serviceRoute, /const market = s\.locale === "en-AU" \? "Australia"/);
+  assert.match(serviceRoute, /areaServed: market \|\| "Worldwide"/);
   assert.match(serviceRoute, /titleLead=\{serviceMetaTitle\(s\)\}/);
 
   assert.match(industryRoute, /locale: industry\.locale === "en-AU" \? "en_AU" : undefined/);
   assert.match(industryRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);
   assert.match(industryRoute, /localizeContent\(industryFirst30Days\(page\), page\.locale\)/);
 
-  assert.match(softwareRoute, /locale: page\.locale === "en-AU" \? "en_AU" : undefined/);
-  assert.match(softwareRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);
+  assert.match(softwareRoute, /locale: page\.locale === "en-AU" \? "en_AU" : page\.locale === "en-GB" \? "en_GB" : undefined/);
+  assert.match(softwareRoute, /const market = page\.locale === "en-AU" \? "Australia"/);
+  assert.match(softwareRoute, /areaServed: market \|\| "Worldwide"/);
   assert.match(softwareRoute, /localizeContent\(softwareLongFormCopy\(page\), page\.locale\)/);
 });

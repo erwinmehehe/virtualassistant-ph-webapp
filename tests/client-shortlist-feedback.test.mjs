@@ -33,8 +33,8 @@ test("recruiters can attach client-facing recommendations while availability sta
 test("client shortlist keeps decisions simple and gives the recruiter an explicit more-options signal", () => {
   assert.match(clientCandidates, /recordClientShortlistView/);
   assert.match(clientHiringRoomMigration, /client_shortlist_viewed/);
-  assert.match(clientCandidates, /label="Interested"/);
-  assert.match(clientCandidates, /label="Interview"/);
+  assert.match(clientCandidates, /label="Keep shortlisted"/);
+  assert.match(clientCandidates, /label="Request interview"/);
   assert.match(clientCandidates, /label="Confirm pass"/);
   assert.match(clientCandidates, /Need more options/);
   assert.match(clientCandidates, /clientRequestMoreOptionsAction/);

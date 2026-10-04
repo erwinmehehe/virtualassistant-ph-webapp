@@ -45,6 +45,8 @@ jobs:
         run: npm run archive:check
       - name: Content intent overlap report
         run: npm run content:intent-audit
+      - name: Lint
+        run: npm run lint
       - name: Type-check
         run: npm run typecheck
       - name: Security audit

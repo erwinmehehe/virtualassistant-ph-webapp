@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { privateStorageDownloadResponse } from "@/lib/private-storage-download";
 
 export async function GET(_: Request, { params }: { params: Promise<{ leadId: string }> }) {
   const { leadId } = await params;
   const { user, profile } = await getSessionProfile();
   if (!user || !profile || !["admin", "recruiter"].includes(profile.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("attachment_path").eq("id", leadId).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("attachment_path,attachment_name").eq("id", leadId).maybeSingle();
   if (!lead?.attachment_path) return NextResponse.json({ error: "No client document" }, { status: 404 });
-  const { data, error } = await admin.storage.from("lead-attachments").createSignedUrl(lead.attachment_path, 60);
-  if (error || !data?.signedUrl) return NextResponse.json({ error: "Document unavailable" }, { status: 404 });
-  const response = NextResponse.redirect(data.signedUrl);
-  response.headers.set("Cache-Control", "private, no-store, max-age=0");
-  response.headers.set("Referrer-Policy", "no-referrer");
-  return response;
+  const response = await privateStorageDownloadResponse({
+    bucket: "lead-attachments",
+    path: lead.attachment_path,
+    downloadName: lead.attachment_name || "client-document",
+  });
+  return response || NextResponse.json({ error: "Document unavailable" }, { status: 404 });
 }

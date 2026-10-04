@@ -20,6 +20,7 @@ import { ensurePendingRoleForLead, jobTitleForCategory, rateRangeFromBudget } fr
 import { isValidTimeZone } from "@/lib/timezone";
 import { queueDiscoveryOutcomeAutomation, queueLeadSlaAutomation } from "@/lib/trigger-automation";
 import { resolveDiscoveryOutcomeArtifacts } from "@/lib/discovery-outcome-automation";
+import { quarantineScanAndStoreUpload, validateUpload } from "@/lib/file-security";
 
 export type ServiceMatchState = {
   status: "idle" | "success" | "error";
@@ -674,14 +675,17 @@ export async function submitRoleBriefAction(formData: FormData) {
   const raw = Object.fromEntries(formData);
   const attachmentValue = formData.get("attachment");
   const attachment = attachmentValue instanceof File && attachmentValue.size > 0 ? attachmentValue : null;
-  const allowedAttachmentTypes = new Set(["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"]);
-  const allowedAttachmentName = /\.(pdf|doc|docx|txt)$/i;
   // Return the visitor to the page they submitted from. Validated the same way
   // as source_path, so it can only ever be a path on this site.
   const rawReturn = String(formData.get("source_path") || "").trim();
   const returnTo = rawReturn.startsWith("/") && !rawReturn.startsWith("//") ? rawReturn : "/hire";
-  if (attachment && (attachment.size > 10 * 1024 * 1024 || (!allowedAttachmentTypes.has(attachment.type) && !allowedAttachmentName.test(attachment.name)))) {
-    redirect(`${returnTo}?error=${encodeURIComponent("Attach a PDF, Word, or text file no larger than 10 MB.")}`);
+  let attachmentUpload = null;
+  if (attachment) {
+    try {
+      attachmentUpload = await validateUpload(attachment, "lead-attachment");
+    } catch {
+      redirect(`${returnTo}?error=${encodeURIComponent("Attach a genuine PDF, Word, or text file no larger than 10 MB.")}`);
+    }
   }
   const parsed = roleBriefSchema.safeParse(raw);
   if (!parsed.success) {
@@ -752,18 +756,23 @@ export async function submitRoleBriefAction(formData: FormData) {
   }).select("id").single();
   if (error || !lead?.id) redirect(`${returnTo}?error=${encodeURIComponent("We could not save your request. Please try again.")}`);
 
-  if (attachment) {
-    const safeName = attachment.name.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(-140) || "client-brief";
-    const attachmentPath = `${lead.id}/${Date.now()}-${safeName}`;
-    const { error: uploadError } = await admin.storage.from("lead-attachments").upload(attachmentPath, attachment, { upsert: false, contentType: attachment.type });
-    if (uploadError) {
+  if (attachmentUpload) {
+    let attachmentPath: string;
+    try {
+      attachmentPath = await quarantineScanAndStoreUpload({
+        upload: attachmentUpload,
+        targetBucket: "lead-attachments",
+        targetPrefix: lead.id,
+      });
+    } catch {
       await admin.from("lead_intake").delete().eq("id", lead.id);
-      redirect(`${returnTo}?error=${encodeURIComponent("We could not securely upload that document. Please try again without it or use a smaller file.")}`);
+      redirect(`${returnTo}?error=${encodeURIComponent("We could not securely scan and attach that document. Please try again without it.")}`);
     }
+
     const { error: metadataError } = await admin.from("lead_intake").update({
       attachment_path: attachmentPath,
-      attachment_name: attachment.name.slice(0, 255),
-      attachment_type: attachment.type || null,
+      attachment_name: attachmentUpload.originalName,
+      attachment_type: attachmentUpload.contentType,
     }).eq("id", lead.id);
     if (metadataError) {
       await admin.storage.from("lead-attachments").remove([attachmentPath]);

@@ -4,6 +4,7 @@ import { acceptLeadProposalAction, respondToLeadProposalAction } from "@/app/act
 import { createAdminClient } from "@/lib/supabase/admin";
 import { proposalClientMonthlyTotal, proposalMonthlyVaCost, proposalStatusLabel } from "@/lib/proposals";
 import { ProposalViewTracker } from "@/components/proposal-view-tracker";
+import { PublicAvatar } from "@/components/public-avatar";
 
 export const metadata = {
   title: "Hiring Proposal | VirtualAssistant.com.ph",
@@ -45,6 +46,23 @@ export default async function ProposalPage({
     admin.from("lead_intake").select("name,email,company,service,client_id").eq("id", proposal.lead_id).maybeSingle(),
     proposal.job_id ? admin.from("jobs").select("id,status").eq("id", proposal.job_id).maybeSingle() : Promise.resolve({ data: null } as any)
   ]);
+
+  const { data: publicTalentRows } = await admin
+    .from("public_va_directory")
+    .select("user_id,full_name,headline,primary_category,categories,avatar_url,years_experience,weekly_hours")
+    .limit(120);
+  const publicTalent = (publicTalentRows || []).filter((candidate: any) => (
+    candidate?.user_id &&
+    candidate?.full_name &&
+    (
+      !lead?.service ||
+      candidate.primary_category === lead.service ||
+      (Array.isArray(candidate.categories) && candidate.categories.includes(lead.service))
+    )
+  ));
+  const talentPool = (publicTalent.length >= 3 ? publicTalent : (publicTalentRows || []).filter((candidate: any) => candidate?.user_id && candidate?.full_name))
+    .sort((a: any, b: any) => Number(b.years_experience || 0) - Number(a.years_experience || 0))
+    .slice(0, 3);
 
   const expired = proposal.status === "sent" && proposal.expires_at && new Date(proposal.expires_at).getTime() < Date.now();
   const status = expired ? "expired" : proposal.status;
@@ -178,6 +196,26 @@ export default async function ProposalPage({
           </p>
           {proposal.commercial_note ? <p className="proposal-price-note"><strong>Commercial note:</strong> {proposal.commercial_note}</p> : null}
         </section>
+
+        {talentPool.length ? <section className="proposal-summary-card">
+          <div>
+            <span className="small muted">Examples from our approved talent pool</span>
+            <h2>People your recruiter can evaluate against this brief</h2>
+            <p>These are public-profile examples, not a reserved shortlist. Your recruiter still verifies role fit, availability, compensation, and evidence before releasing candidates to you.</p>
+            <div className="proposal-talent-preview">
+              {talentPool.map((candidate: any) => (
+                <div className="proposal-talent-preview-row" key={candidate.user_id}>
+                  <PublicAvatar name={candidate.full_name} src={candidate.avatar_url} size="sm" />
+                  <div>
+                    <strong>{candidate.full_name}</strong>
+                    <span>{candidate.headline || candidate.primary_category || "Virtual Assistant"}</span>
+                    <small>{Number(candidate.years_experience || 0)} years experience{candidate.weekly_hours ? ` · ${Number(candidate.weekly_hours)} hrs/week available` : ""}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section> : null}
 
         <section className="proposal-summary-card">
           <div>

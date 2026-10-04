@@ -71,6 +71,24 @@ begin
 end
 $service_role_contract$;
 
+do $authenticated_profile_contract$
+declare
+  table_name text;
+begin
+  foreach table_name in array array[
+    'profiles',
+    'client_profiles',
+    'va_profiles',
+    'va_vetting'
+  ]
+  loop
+    if not has_table_privilege('authenticated', format('public.%I', table_name), 'SELECT') then
+      raise exception 'authenticated is missing required SELECT on public.%', table_name;
+    end if;
+  end loop;
+end
+$authenticated_profile_contract$;
+
 do $rpc_contract$
 begin
   if exists (

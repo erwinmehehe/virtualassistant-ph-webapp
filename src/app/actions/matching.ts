@@ -9,6 +9,7 @@ import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { publicationMissingDetails } from "@/lib/job-publication";
 import { isTalentAgencyCertified } from "@/lib/talent-operations";
+import { getTrainingCredentialsForUsers } from "@/lib/training-credentials";
 import { queueShortlistReviewAutomation } from "@/lib/trigger-automation";
 
 const ACCESS_STATUSES: CandidateAccessStatus[] = ["locked", "requested", "quoted", "invoiced", "paid"];
@@ -168,7 +169,10 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
   const approvedIds = [...new Set((directory || []).map((row: any) => String(row.user_id)).filter(Boolean))];
   if (!approvedIds.length) return fail("No approved or bench Virtual Assistants are available to review.");
 
-  const { data: vas, error: vaError } = await admin.from("va_profiles").select("*").in("user_id", approvedIds);
+  const [{ data: vas, error: vaError }, trainingByUser] = await Promise.all([
+    admin.from("va_profiles").select("*").in("user_id", approvedIds),
+    getTrainingCredentialsForUsers(approvedIds),
+  ]);
   if (vaError) return fail("Could not load client-ready VAs. Please try again.");
 
   const stageMap = new Map((directory || []).map((row: any) => [String(row.user_id), row.stage]));
@@ -183,7 +187,7 @@ export async function prepareTopMatchesForReviewAction(formData: FormData) {
         availabilityConfirmedAt: va.availability_confirmed_at,
       });
     })
-    .map((va: any) => ({ va, assessment: matchAssessment(job, va) }))
+    .map((va: any) => ({ va, assessment: matchAssessment(job, va, trainingByUser.get(String(va.user_id)) || []) }))
     .filter(({ assessment }) => assessment.eligible !== false && assessment.score >= 60)
     .sort((a, b) => b.assessment.score - a.assessment.score || b.assessment.confidence - a.assessment.confidence)
     .slice(0, needed);
@@ -286,9 +290,10 @@ export async function saveJobShortlistAction(formData: FormData) {
     inviteLead = { id: lead.id, name: lead.name, email: lead.email };
   }
 
-  const [{ data: vas }, { data: existing }] = await Promise.all([
+  const [{ data: vas }, { data: existing }, trainingByUser] = await Promise.all([
     admin.from("va_profiles").select("*").in("user_id", selected),
-    admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId)
+    admin.from("job_shortlist_candidates").select("va_id,shortlist_status,shortlist_order").eq("job_id", jobId),
+    getTrainingCredentialsForUsers(selected),
   ]);
   const vaMap = new Map((vas || []).map((va: any) => [va.user_id, va]));
   const existingMap = new Map((existing || []).map((row: any) => [row.va_id, row.shortlist_status]));
@@ -302,7 +307,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   const rows = orderedSelected.map((vaId, index) => {
     const va = vaMap.get(vaId) as any;
     if (!va) return fail("A selected VA profile could not be loaded. Refresh and try again.");
-    const assessment = matchAssessment(job, va);
+    const assessment = matchAssessment(job, va, trainingByUser.get(String(vaId)) || []);
     const prior = existingMap.get(vaId);
     const status = mode === "release" ? "released" : prior === "released" ? "released" : "proposed";
     return {

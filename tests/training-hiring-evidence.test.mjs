@@ -117,9 +117,9 @@ test("recruiter matching surfaces verified training badges as supporting evidenc
   const table = await source("src/components/matching-candidate-table.tsx");
 
   assert.match(matching, /getTrainingCredentialsForUsers\(ids\)/);
-  assert.match(matching, /trainingCredentials:trainingByUser\.get\(va\.user_id\)\|\|\[\]/);
+  assert.match(matching, /const trainingCredentials=trainingByUser\.get\(va\.user_id\)\|\|\[\]/);
   assert.match(table, /aria-label="Verified training"/);
   assert.match(table, /badge badge-success/);
-  assert.match(table, /training completed/);
+  assert.match(table, /Verified training:/);
   assert.match(table, /credential\.courseTitle/);
 });

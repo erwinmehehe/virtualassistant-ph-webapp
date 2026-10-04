@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { LessonContentBlock, LessonRow, TrainingAssessment } from "@/lib/training";
+import { hasCompleteTrainingPracticalLesson, isTrainingAssessmentPublishReady, isTrainingPracticalAssessmentReady } from "@/lib/training-quality";
 
 type AdminCourse = {
   id: string;
@@ -17,6 +18,11 @@ type AdminCourse = {
   trademark_disclaimer: string | null;
   reviewed_by: string | null;
   last_reviewed_at: string | null;
+  review_requirement: "editorial" | "specialist";
+  specialist_reviewed_by: string | null;
+  specialist_reviewer_role: string | null;
+  specialist_review_notes: string | null;
+  specialist_reviewed_at: string | null;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -49,7 +55,7 @@ export async function getTrainingCourseForAdmin(courseId: string) {
 
   const modules = (moduleData || []) as AdminModule[];
   const moduleIds = modules.map((item) => item.id);
-  const [{ data: lessonData }, { data: assessmentData }] = await Promise.all([
+  const [{ data: lessonData }, { data: assessmentData }, { data: specialistReviewData }] = await Promise.all([
     moduleIds.length
       ? admin
           .from("training_lessons")
@@ -62,6 +68,13 @@ export async function getTrainingCourseForAdmin(courseId: string) {
       .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published,rubric,resource_pack")
       .eq("course_id", courseId)
       .order("position"),
+    course.review_requirement === "specialist"
+      ? admin
+          .from("training_specialist_reviews")
+          .select("decision,reviewed_at,review_revision,assigned_revision,reviewer_name,reviewer_role,assigned_reviewer_name,assigned_reviewer_role,review_due_date,notes")
+          .eq("course_id", courseId)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   const lessons = (lessonData || []) as LessonRow[];
@@ -129,6 +142,18 @@ export async function getTrainingCourseForAdmin(courseId: string) {
       modules: hydratedModules,
       assessments,
       assessmentCalibration,
+      specialistReview: specialistReviewData
+        ? {
+            ...specialistReviewData,
+            current:
+              specialistReviewData.decision === "approved" &&
+              Boolean(specialistReviewData.reviewed_at) &&
+              Boolean(specialistReviewData.reviewer_name) &&
+              Boolean(specialistReviewData.reviewer_role) &&
+              Number(specialistReviewData.review_revision || 0) > 0 &&
+              Number(specialistReviewData.review_revision || 0) === Number(specialistReviewData.assigned_revision || 0),
+          }
+        : null,
     },
     error: null,
   };
@@ -153,4 +178,288 @@ export function lessonBlocks(value: unknown): LessonContentBlock[] {
     const type = String((block as { type?: unknown }).type || "");
     return ["heading", "paragraph", "list", "steps", "callout", "scenario", "exercise", "template", "checklist"].includes(type);
   });
+}
+
+
+export type SpecialistTrainingReviewQueueItem = {
+  course: Pick<AdminCourse,
+    "id" | "slug" | "title" | "status" | "content_version" |
+    "reviewed_by" | "last_reviewed_at" |
+    "specialist_reviewed_by" | "specialist_reviewer_role" |
+    "specialist_review_notes" | "specialist_reviewed_at"
+  >;
+  moduleCount: number;
+  lessonCount: number;
+  publishedLessonCount: number;
+  substantiveLessonCount: number;
+  assessmentCount: number;
+  assessmentReadyCount: number;
+  editorialReady: boolean;
+  contentReady: boolean;
+  assessmentReady: boolean;
+  specialistReady: boolean;
+  assignmentCurrent: boolean;
+  review: {
+    reviewer_name: string | null;
+    reviewer_role: string | null;
+    assigned_reviewer_name: string | null;
+    assigned_reviewer_role: string | null;
+    review_due_date: string | null;
+    assigned_at: string | null;
+    assigned_by: string | null;
+    review_revision: number;
+    assigned_revision: number | null;
+    checklist: Record<string, boolean>;
+    notes: string | null;
+    decision: "in_progress" | "changes_requested" | "approved";
+    reviewed_at: string | null;
+    updated_at: string;
+  } | null;
+  invite: {
+    id: string;
+    reviewer_email: string;
+    reviewer_name: string;
+    reviewer_role: string;
+    review_revision: number;
+    assigned_revision: number;
+    course_content_version: number;
+    due_at: string | null;
+    expires_at: string;
+    status: "pending" | "opened" | "submitted" | "revoked";
+    sent_at: string | null;
+    opened_at: string | null;
+    submitted_at: string | null;
+    created_at: string;
+  } | null;
+  history: Array<{
+    id: string;
+    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated" | "invite_sent" | "invite_opened" | "invite_revoked" | "external_changes_requested" | "external_approved";
+    actor_id: string | null;
+    actor_label: string | null;
+    reviewer_name: string | null;
+    reviewer_role: string | null;
+    review_due_date: string | null;
+    review_revision: number;
+    assigned_revision: number | null;
+    course_content_version: number | null;
+    notes: string | null;
+    created_at: string;
+  }>;
+};
+
+export async function getTrainingSpecialistReviewQueue() {
+  const admin = createAdminClient();
+  const { data: courseData, error } = await admin
+    .from("training_courses")
+    .select("id,slug,title,status,content_version,reviewed_by,last_reviewed_at,specialist_reviewed_by,specialist_reviewer_role,specialist_review_notes,specialist_reviewed_at")
+    .eq("review_requirement", "specialist")
+    .order("recommended_order", { ascending: true })
+    .order("title");
+
+  if (error) {
+    return { items: [] as SpecialistTrainingReviewQueueItem[], error: error.message };
+  }
+
+  const courses = (courseData || []) as SpecialistTrainingReviewQueueItem["course"][];
+  const courseIds = courses.map((course) => course.id);
+  if (!courseIds.length) return { items: [] as SpecialistTrainingReviewQueueItem[], error: null };
+
+  const [{ data: moduleData }, { data: assessmentData }, { data: reviewData }, { data: eventData }, { data: inviteData }] = await Promise.all([
+    admin
+      .from("training_modules")
+      .select("id,course_id")
+      .in("course_id", courseIds),
+    admin
+      .from("training_assessments")
+      .select("course_id,is_published,instructions,pass_score,assessment_type,rubric,resource_pack")
+      .in("course_id", courseIds),
+    admin
+      .from("training_specialist_reviews")
+      .select("course_id,reviewer_name,reviewer_role,assigned_reviewer_name,assigned_reviewer_role,review_due_date,assigned_at,assigned_by,review_revision,assigned_revision,checklist,notes,decision,reviewed_at,updated_at")
+      .in("course_id", courseIds),
+    admin
+      .from("training_specialist_review_events")
+      .select("id,course_id,event_type,actor_id,actor_label,reviewer_name,reviewer_role,review_due_date,review_revision,assigned_revision,course_content_version,notes,created_at")
+      .in("course_id", courseIds)
+      .order("created_at", { ascending: false })
+      .limit(140),
+    admin
+      .from("training_specialist_review_invites")
+      .select("id,course_id,reviewer_email,reviewer_name,reviewer_role,review_revision,assigned_revision,course_content_version,due_at,expires_at,status,sent_at,opened_at,submitted_at,created_at")
+      .in("course_id", courseIds)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const modules = (moduleData || []) as Array<{ id: string; course_id: string }>;
+  const moduleIds = modules.map((module) => module.id);
+  const { data: lessonData } = moduleIds.length
+    ? await admin
+        .from("training_lessons")
+        .select("id,module_id,is_published,content")
+        .in("module_id", moduleIds)
+    : { data: [] };
+
+  const lessons = (lessonData || []) as Array<{
+    id: string;
+    module_id: string;
+    is_published: boolean;
+    content: unknown;
+  }>;
+  const assessments = (assessmentData || []) as Array<{
+    course_id: string;
+    is_published: boolean;
+    instructions: string | null;
+    pass_score: number | null;
+    assessment_type: "knowledge" | "practical";
+    rubric: unknown;
+    resource_pack: unknown;
+  }>;
+  const reviews = new Map(
+    ((reviewData || []) as Array<{
+      course_id: string;
+      reviewer_name: string | null;
+      reviewer_role: string | null;
+      assigned_reviewer_name: string | null;
+      assigned_reviewer_role: string | null;
+      review_due_date: string | null;
+      assigned_at: string | null;
+      assigned_by: string | null;
+      review_revision: number;
+      assigned_revision: number | null;
+      checklist: Record<string, boolean> | null;
+      notes: string | null;
+      decision: "in_progress" | "changes_requested" | "approved";
+      reviewed_at: string | null;
+      updated_at: string;
+    }>).map((review) => [review.course_id, {
+      reviewer_name: review.reviewer_name,
+      reviewer_role: review.reviewer_role,
+      assigned_reviewer_name: review.assigned_reviewer_name,
+      assigned_reviewer_role: review.assigned_reviewer_role,
+      review_due_date: review.review_due_date,
+      assigned_at: review.assigned_at,
+      assigned_by: review.assigned_by,
+      review_revision: Math.max(1, Number(review.review_revision || 1)),
+      assigned_revision: review.assigned_revision,
+      checklist: review.checklist || {},
+      notes: review.notes,
+      decision: review.decision,
+      reviewed_at: review.reviewed_at,
+      updated_at: review.updated_at,
+    }]),
+  );
+  const events = (eventData || []) as Array<{
+    id: string;
+    course_id: string;
+    event_type: "assigned" | "reassigned" | "progress_saved" | "changes_requested" | "approved" | "invalidated" | "invite_sent" | "invite_opened" | "invite_revoked" | "external_changes_requested" | "external_approved";
+    actor_id: string | null;
+    actor_label: string | null;
+    reviewer_name: string | null;
+    reviewer_role: string | null;
+    review_due_date: string | null;
+    review_revision: number;
+    assigned_revision: number | null;
+    course_content_version: number | null;
+    notes: string | null;
+    created_at: string;
+  }>;
+  const latestInviteByCourse = new Map<string, SpecialistTrainingReviewQueueItem["invite"]>();
+  for (const invite of (inviteData || []) as Array<{
+    id: string;
+    course_id: string;
+    reviewer_email: string;
+    reviewer_name: string;
+    reviewer_role: string;
+    review_revision: number;
+    assigned_revision: number;
+    course_content_version: number;
+    due_at: string | null;
+    expires_at: string;
+    status: "pending" | "opened" | "submitted" | "revoked";
+    sent_at: string | null;
+    opened_at: string | null;
+    submitted_at: string | null;
+    created_at: string;
+  }>) {
+    if (!latestInviteByCourse.has(invite.course_id)) {
+      latestInviteByCourse.set(invite.course_id, {
+        id: invite.id,
+        reviewer_email: invite.reviewer_email,
+        reviewer_name: invite.reviewer_name,
+        reviewer_role: invite.reviewer_role,
+        review_revision: invite.review_revision,
+        assigned_revision: invite.assigned_revision,
+        course_content_version: invite.course_content_version,
+        due_at: invite.due_at,
+        expires_at: invite.expires_at,
+        status: invite.status,
+        sent_at: invite.sent_at,
+        opened_at: invite.opened_at,
+        submitted_at: invite.submitted_at,
+        created_at: invite.created_at,
+      });
+    }
+  }
+
+  const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
+
+  const items: SpecialistTrainingReviewQueueItem[] = courses.map((course) => {
+    const courseModules = modules.filter((module) => module.course_id === course.id);
+    const courseLessons = lessons.filter((lesson) => moduleCourse.get(lesson.module_id) === course.id);
+    const courseAssessments = assessments.filter((assessment) => assessment.course_id === course.id);
+    const publishedLessonCount = courseLessons.filter((lesson) => lesson.is_published).length;
+    const substantiveLessonCount = courseLessons.filter(
+      (lesson) =>
+        Array.isArray(lesson.content) &&
+        lesson.content.length >= 3 &&
+        hasCompleteTrainingPracticalLesson(lesson.content),
+    ).length;
+    const assessmentReadyCount = courseAssessments.filter(isTrainingAssessmentPublishReady).length;
+    const editorialReady = Boolean(course.reviewed_by && course.last_reviewed_at);
+    const contentReady =
+      courseLessons.length > 0 &&
+      publishedLessonCount === courseLessons.length &&
+      substantiveLessonCount === courseLessons.length;
+    const assessmentReady =
+      courseAssessments.length > 0 &&
+      assessmentReadyCount === courseAssessments.length &&
+      courseAssessments.some(isTrainingPracticalAssessmentReady);
+    const review = reviews.get(course.id) || null;
+    const assignmentCurrent = Boolean(
+      review?.assigned_reviewer_name &&
+      review.assigned_reviewer_role &&
+      review.assigned_revision &&
+      review.assigned_revision === review.review_revision,
+    );
+    const specialistReady = Boolean(
+      course.specialist_reviewed_by &&
+      course.specialist_reviewer_role &&
+      course.specialist_reviewed_at &&
+      course.specialist_review_notes &&
+      course.specialist_review_notes.trim().length >= 20 &&
+      review?.decision === "approved" &&
+      assignmentCurrent &&
+      review.reviewed_at,
+    );
+
+    return {
+      course,
+      moduleCount: courseModules.length,
+      lessonCount: courseLessons.length,
+      publishedLessonCount,
+      substantiveLessonCount,
+      assessmentCount: courseAssessments.length,
+      assessmentReadyCount,
+      editorialReady,
+      contentReady,
+      assessmentReady,
+      specialistReady,
+      assignmentCurrent,
+      review,
+      invite: latestInviteByCourse.get(course.id) || null,
+      history: events.filter((event) => event.course_id === course.id).slice(0, 16),
+    };
+  });
+
+  return { items, error: null };
 }

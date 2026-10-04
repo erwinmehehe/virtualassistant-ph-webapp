@@ -21,7 +21,7 @@ export default async function AdminTrainingPage() {
         kicker="Learning system"
         title="Training"
         subtitle={<>Manage the free learning library separately from hiring. Published lessons are private to signed-in learners and remain out of search indexing.</>}
-        actions={<><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
+        actions={<><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/admin/training/reviews"><ShieldCheck size={15}/> Specialist reviews</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
       />
 
       <div className="va-status-grid">
@@ -216,6 +216,7 @@ export default async function AdminTrainingPage() {
                   <span className="dash-action-title"><strong>{course.recommended_order ? "#" + course.recommended_order + " " : ""}{course.title}</strong><span className="badge">{course.status}</span></span>
                   <small>{course.modules} module{course.modules === 1 ? "" : "s"} · {course.publishedLessons}/{course.lessons} lessons published · v{course.content_version}</small>
                   <small className="muted">{reviewState(course.last_reviewed_at)}{course.reviewed_by ? " · " + course.reviewed_by : ""}</small>
+                  {course.review_requirement === "specialist" ? <small className="muted">{course.specialist_reviewed_at ? "Specialist review · approved " + reviewState(course.specialist_reviewed_at).toLowerCase() : course.status === "published" ? "Published · specialist review pending" : "Specialist review required before publication"}</small> : null}
                   {course.trademark_disclaimer ? <small className="muted">Course notice recorded</small> : null}
                 </span>
               </Link>
@@ -232,6 +233,7 @@ export default async function AdminTrainingPage() {
           <div><span><strong>Free learning and certificates</strong><small>No lesson, assessment, or completion certificate is paywalled.</small></span></div>
           <div><span><strong>Independent from hiring</strong><small>Course completion never controls job access or shortlisting.</small></span></div>
           <div><span><strong>Editorial QA before release</strong><small>Every course needs a recorded editorial review, complete lesson content, and ready assessments before publication.</small></span></div>
+          <div><span><strong>Specialist QA for higher-risk subjects</strong><small>Healthcare, finance, regulated-industry, and specialist software courses with configured review standards also require a current subject-matter approval.</small></span></div>
           <div><span><strong>Composite scenarios only</strong><small>Real briefs can inspire exercises, but a single client brief should never be lightly anonymized and reused.</small></span></div>
         </div>
       </section>

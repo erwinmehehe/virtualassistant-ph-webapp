@@ -1359,7 +1359,7 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     ],
     internalLinks: [
       { href: "/blog/virtual-assistant-requirements-philippines", label: "Virtual Assistant requirements in the Philippines", description: "Check equipment, internet, workspace, communication, and application requirements together." },
-      { href: "/blog/virtual-assistant-tools", label: "Best Virtual Assistant tools", description: "Match laptop specifications to the actual software and workflows you plan to use." },
+      { href: "/resources/best-tools-for-virtual-assistants", label: "Best Virtual Assistant tools", description: "Match laptop specifications to the actual software and workflows you plan to use." },
       { href: "/blog/how-to-become-a-virtual-assistant-philippines", label: "How to become a Virtual Assistant", description: "Build a realistic path from skills and equipment to a job-ready profile." },
       { href: "/blog/virtual-assistant-skills", label: "Virtual Assistant skills employers look for", description: "Choose a laptop around the role capabilities you are actually building." },
       { href: "/training", label: "Free Virtual Assistant training", description: "Practice role-specific workflows before spending heavily on equipment." },

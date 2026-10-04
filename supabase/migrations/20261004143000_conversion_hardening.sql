@@ -389,3 +389,74 @@ grant execute on function public.agency_attribution_metrics(integer, uuid) to se
 
 comment on function public.agency_attribution_metrics(integer, uuid)
 is 'Service-role-only lead source to customer/value attribution summary for the hiring funnel.';
+
+
+create table if not exists public.va_account_cleanup_queue (
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+  first_marked_at timestamptz not null default now(),
+  last_verified_at timestamptz not null default now()
+);
+
+alter table public.va_account_cleanup_queue enable row level security;
+revoke all on table public.va_account_cleanup_queue from public, anon, authenticated;
+grant select, insert, update, delete on table public.va_account_cleanup_queue to service_role;
+
+drop policy if exists "deny browser access to va account cleanup queue" on public.va_account_cleanup_queue;
+create policy "deny browser access to va account cleanup queue"
+  on public.va_account_cleanup_queue
+  as restrictive
+  for all
+  to anon, authenticated
+  using (false)
+  with check (false);
+
+create or replace function public.can_purge_abandoned_va(
+  p_user_id uuid,
+  p_cutoff timestamptz
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $function$
+  select exists (
+    select 1
+    from public.recruiter_va_directory d
+    where d.user_id = p_user_id
+      and d.account_status = 'active'
+      and d.completion_score < 100
+      and d.account_created_at <= p_cutoff
+      and not exists (
+        select 1 from public.va_vetting v
+        where v.va_id = p_user_id
+          and v.stage in ('approved', 'bench')
+      )
+      and not exists (
+        select 1 from public.applications a
+        where a.va_id = p_user_id
+      )
+      and not exists (
+        select 1 from public.workrooms w
+        where w.va_id = p_user_id
+      )
+      and not exists (
+        select 1 from public.placement_offers o
+        where o.va_id = p_user_id
+      )
+      and exists (
+        select 1 from public.profiles p
+        where p.id = p_user_id
+          and p.role = 'va'::public.user_role
+      )
+  )
+$function$;
+
+revoke all on function public.can_purge_abandoned_va(uuid, timestamptz) from public, anon, authenticated;
+grant execute on function public.can_purge_abandoned_va(uuid, timestamptz) to service_role;
+
+comment on table public.va_account_cleanup_queue
+is 'Server-only grace queue for incomplete VA accounts. Accounts must remain eligible across multiple maintenance runs before hard deletion.';
+
+comment on function public.can_purge_abandoned_va(uuid, timestamptz)
+is 'Service-role-only final eligibility check immediately before destructive abandoned-VA cleanup.';

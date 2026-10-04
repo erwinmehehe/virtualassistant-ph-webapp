@@ -35,8 +35,15 @@ test("browser/database contract lane is isolated from production",async()=>{
   assert.match(sql,/security_invoker=true/);
   assert.match(sql,/security_barrier=true/);
 
-  const productCroMigration=await read("supabase/migrations/20260809_v4_product_cro.sql");
+  const [productCroMigration,rateLimitMigration]=await Promise.all([
+    read("supabase/migrations/20260809_v4_product_cro.sql"),
+    read("supabase/migrations/20261004211000_restore_atomic_rate_limit_contract.sql"),
+  ]);
   assert.match(productCroMigration,/drop policy if exists "va deletes unapproved own time" on public\.time_entries;/);
+  assert.match(rateLimitMigration,/create table if not exists public\.action_rate_limits/);
+  assert.match(rateLimitMigration,/create or replace function public\.consume_action_rate_limit/);
+  assert.match(rateLimitMigration,/revoke all on function public\.consume_action_rate_limit[\s\S]*from public, anon, authenticated;/);
+  assert.match(rateLimitMigration,/grant execute on function public\.consume_action_rate_limit[\s\S]*to service_role;/);
 });
 
 test("Playwright covers public routes and all three workspace roles",async()=>{

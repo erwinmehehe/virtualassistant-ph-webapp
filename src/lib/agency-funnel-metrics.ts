@@ -61,7 +61,9 @@ export type AgencyAttributionRow = {
   total_inquiries:number;
   leads:number;
   spam_leads:number;
+  junk_leads:number;
   spam_rate:number;
+  junk_rate:number;
   qualified:number;
   discovery_booked:number;
   discovery_completed:number;

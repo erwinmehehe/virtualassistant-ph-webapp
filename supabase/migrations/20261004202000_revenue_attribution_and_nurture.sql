@@ -112,6 +112,10 @@ create index if not exists lead_nurture_due_idx
   on public.lead_nurture_state (next_send_at asc)
   where status = 'active' and next_send_at is not null;
 
+create unique index if not exists recruiter_tasks_open_nurture_review_unique
+  on public.recruiter_tasks (subject_id, title)
+  where subject_type = 'lead' and status = 'todo' and title = 'Review nurtured lead';
+
 alter table public.lead_nurture_state enable row level security;
 revoke all on table public.lead_nurture_state from public, anon, authenticated;
 grant select, insert, update, delete on table public.lead_nurture_state to service_role;

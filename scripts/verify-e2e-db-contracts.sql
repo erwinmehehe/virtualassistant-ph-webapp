@@ -48,7 +48,7 @@ begin
 end
 $$;
 
-do $
+do $service_role_contract$
 declare
   table_name text;
 begin
@@ -66,9 +66,9 @@ begin
     end if;
   end loop;
 end
-$;
+$service_role_contract$;
 
-do $
+do $rpc_contract$
 begin
   if exists (
     select 1

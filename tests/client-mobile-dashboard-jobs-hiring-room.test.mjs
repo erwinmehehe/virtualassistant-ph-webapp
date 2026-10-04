@@ -92,3 +92,24 @@ test("client dashboard connects posted jobs to recruiter-managed application act
   assert.match(jobDetail,/Recruiter reviewing vetted applicants/);
   assert.match(jobDetail,/from\("applications"\)\.select\("id",\{count:"exact",head:true\}\)/);
 });
+
+
+test("client dashboard uses the primary indigo job CTA and structured active-role cards", async () => {
+  const [page, css] = await Promise.all([
+    read("src/app/workspace/client/page.tsx"),
+    read("src/app/workspace/client/client-mobile.css"),
+  ]);
+
+  assert.match(page, /client-dashboard-post-job/);
+  assert.doesNotMatch(page, /dash-btn-dark" href="\/workspace\/client\/jobs\/new"/);
+  assert.match(page, /Active hiring roles/);
+  assert.match(page, /View all roles/);
+  assert.match(page, /client-active-role-row/);
+  assert.match(page, /client-active-role-stats/);
+  assert.match(page, /Applications/);
+  assert.match(page, /Shortlist/);
+  assert.match(css, /\.client-mobile-dashboard-head \.client-dashboard-post-job/);
+  assert.match(css, /linear-gradient\(135deg, #4f46e5, #7c3aed\)/);
+  assert.match(css, /\.client-active-role-stats[\s\S]*grid-template-columns: repeat\(5/);
+  assert.match(css, /@media \(max-width: 520px\)[\s\S]*\.client-active-role-stats[\s\S]*repeat\(2/);
+});

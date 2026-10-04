@@ -1,4 +1,5 @@
 alter table public.va_profiles
+  add column if not exists address text,
   add column if not exists address_resume_checked_at timestamptz,
   add column if not exists address_resume_status text;
 

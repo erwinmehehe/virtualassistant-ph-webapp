@@ -311,8 +311,6 @@ export async function assignTrainingSpecialistReviewerAction(formData: FormData)
       specialist_reviewer_role: null,
       specialist_review_notes: null,
       specialist_reviewed_at: null,
-      status: "draft",
-      published_at: null,
       updated_at: now,
     })
     .eq("id", courseId);

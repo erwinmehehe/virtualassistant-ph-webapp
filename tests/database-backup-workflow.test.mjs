@@ -9,7 +9,7 @@ test("production backup workflow never uploads a plaintext dump", async () => {
 
   assert.match(workflow, /workflow_dispatch/);
   assert.match(workflow, /schedule:/);
-  assert.match(workflow, /cron: "17 6 \\* \\* \\*"/);
+  assert.match(workflow, /cron: "17 6 \* \* \*"/);
   assert.match(workflow, /SUPABASE_DB_URL/);
   assert.match(workflow, /BACKUP_ENCRYPTION_PASSPHRASE/);
   assert.match(workflow, /retention-days: 30/);

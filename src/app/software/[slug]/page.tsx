@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       path: canonical,
       category: "software",
-      locale: page.locale === "en-AU" ? "en_AU" : undefined,
+      locale: page.locale === "en-AU" ? "en_AU" : page.locale === "en-GB" ? "en_GB" : undefined,
       eyebrow: page.software,
       points: page.tasks.slice(0, 4),
     })
@@ -74,7 +74,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const page = getSoftwarePage(slug);
   if (!page) notFound();
-  const isAu = page.locale === "en-AU";
+  const market = page.locale === "en-AU" ? "Australia" : page.locale === "en-GB" ? "United Kingdom" : null;
   const loc = (value: string) => localizeEnglish(value, page.locale);
 
   const relatedServices = localizeContent(page.relatedServiceSlugs.map(servicePageBySlug).filter(Boolean), page.locale);
@@ -98,7 +98,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   ], page.locale);
 
   const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoH1, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: isAu ? "Australia" : "Worldwide" },
+    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoH1, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: market || "Worldwide" },
     { "@context": "https://schema.org", "@type": "FAQPage", "@id": `${pageUrl}#faq`, mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },

@@ -20,7 +20,10 @@ test("browser/database contract lane is isolated from production",async()=>{
   assert.match(bootstrap,/drop view if exists public\.public_va_reviews/);
   assert.match(bootstrap,/drop view if exists public\.public_va_directory/);
   assert.match(bootstrap,/supabase_cli start -x/);
-  assert.match(bootstrap,/trap cleanup EXIT/);
+  assert.match(bootstrap,/MIGRATION_STASH/);
+  assert.match(bootstrap,/psql "\$DB_URL" -v ON_ERROR_STOP=1 -f "\$file"/);
+  assert.match(bootstrap,/deterministic chronological order/);
+  assert.match(bootstrap,/trap restore_migrations EXIT/);
   assert.doesNotMatch(workflow,/ywkgcyilxhezrfxuwius/);
   assert.doesNotMatch(workflow,/SUPABASE_ACCESS_TOKEN|secrets\\.SUPABASE_DB_URL|secrets\\.SUPABASE_SERVICE_ROLE_KEY/);
   assert.doesNotMatch(seed,/@gmail\.com|virtualassistant\.com\.ph/i);

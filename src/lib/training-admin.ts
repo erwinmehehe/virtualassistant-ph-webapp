@@ -55,7 +55,7 @@ export async function getTrainingCourseForAdmin(courseId: string) {
 
   const modules = (moduleData || []) as AdminModule[];
   const moduleIds = modules.map((item) => item.id);
-  const [{ data: lessonData }, { data: assessmentData }] = await Promise.all([
+  const [{ data: lessonData }, { data: assessmentData }, { data: specialistReviewData }] = await Promise.all([
     moduleIds.length
       ? admin
           .from("training_lessons")
@@ -68,6 +68,13 @@ export async function getTrainingCourseForAdmin(courseId: string) {
       .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published,rubric,resource_pack")
       .eq("course_id", courseId)
       .order("position"),
+    course.review_requirement === "specialist"
+      ? admin
+          .from("training_specialist_reviews")
+          .select("decision,reviewed_at,review_revision,assigned_revision,reviewer_name,reviewer_role,assigned_reviewer_name,assigned_reviewer_role,review_due_date,notes")
+          .eq("course_id", courseId)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   const lessons = (lessonData || []) as LessonRow[];
@@ -135,6 +142,18 @@ export async function getTrainingCourseForAdmin(courseId: string) {
       modules: hydratedModules,
       assessments,
       assessmentCalibration,
+      specialistReview: specialistReviewData
+        ? {
+            ...specialistReviewData,
+            current:
+              specialistReviewData.decision === "approved" &&
+              Boolean(specialistReviewData.reviewed_at) &&
+              Boolean(specialistReviewData.reviewer_name) &&
+              Boolean(specialistReviewData.reviewer_role) &&
+              Number(specialistReviewData.review_revision || 0) > 0 &&
+              Number(specialistReviewData.review_revision || 0) === Number(specialistReviewData.assigned_revision || 0),
+          }
+        : null,
     },
     error: null,
   };

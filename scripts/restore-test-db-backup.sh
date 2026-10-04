@@ -46,11 +46,11 @@ docker exec "$container_name" pg_restore \
   /backup/vaph.dump
 
 docker exec "$container_name" psql -U postgres -d vaph_restore_test -v ON_ERROR_STOP=1 -Atc \
-  "select case when to_regclass('public.lead_intake') is not null then 'lead_intake_ok' else 1/0::text end;" \
-  | grep -qx "lead_intake_ok"
+  "select to_regclass('public.lead_intake') is not null;" \
+  | grep -qx "t"
 
 docker exec "$container_name" psql -U postgres -d vaph_restore_test -v ON_ERROR_STOP=1 -Atc \
-  "select case when count(*) > 0 then 'public_tables_ok' else 1/0::text end from pg_tables where schemaname='public';" \
-  | grep -qx "public_tables_ok"
+  "select count(*) > 0 from pg_tables where schemaname='public';" \
+  | grep -qx "t"
 
 echo "Encrypted backup restored successfully into an isolated Supabase Postgres container."

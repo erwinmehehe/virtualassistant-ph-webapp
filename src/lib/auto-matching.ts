@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
+import { getTrainingCredentialsForUsers } from "@/lib/training-credentials";
 
 const SUGGESTION_SCORE_THRESHOLD = 60;
 const SUGGESTION_MAX_CANDIDATES = 8;
@@ -111,16 +112,17 @@ export async function refreshMatchSuggestionsForJob(
   const ids = [...new Set((vettingRows || []).map((row: { va_id: string }) => row.va_id))];
   if (!ids.length) return { proposedCount: 0, notifiedVaCount: 0 };
 
-  const [{ data: vas }, { data: existing }, { data: recruiters }] = await Promise.all([
+  const [{ data: vas }, { data: existing }, { data: recruiters }, trainingByUser] = await Promise.all([
     admin.from("va_profiles").select("*").in("user_id", ids),
     admin.from("job_shortlist_candidates").select("va_id,shortlist_status,created_by").eq("job_id", job.id),
-    admin.from("profiles").select("id").eq("role", "recruiter")
+    admin.from("profiles").select("id").eq("role", "recruiter"),
+    getTrainingCredentialsForUsers(ids),
   ]);
   const existingMap = new Map((existing || []).map((row: { va_id: string; shortlist_status: string; created_by: string | null }) => [row.va_id, row]));
 
   const qualified = (vas || [])
     .filter((va: { availability_status?: string | null }) => va.availability_status === "available")
-    .map((va) => ({ va, ...matchAssessment(job, va) }))
+    .map((va) => ({ va, ...matchAssessment(job, va, trainingByUser.get(va.user_id) || []) }))
     .filter((entry) => entry.eligible && entry.score >= SUGGESTION_SCORE_THRESHOLD)
     .filter((entry) => !["hidden", "released"].includes(existingMap.get(entry.va.user_id)?.shortlist_status || ""))
     .sort((a, b) => b.score - a.score || b.confidence - a.confidence)

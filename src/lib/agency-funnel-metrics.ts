@@ -56,12 +56,24 @@ export type AgencyFunnelData = {
 
 export type AgencyAttributionRow = {
   source:string;
+  medium:string|null;
   campaign:string|null;
   leads:number;
   qualified:number;
+  discovery_booked:number;
+  discovery_completed:number;
+  proposal_leads:number;
+  proposals:number;
+  proposal_accepted:number;
   customers:number;
+  pipeline_value_usd:number;
   won_value_usd:number;
+  collected_revenue_usd:number;
+  paid_payments:number;
+  revenue_per_lead_usd:number;
 };
+
+export type AttributionModel = "first_touch" | "last_touch";
 
 export const getAgencyFunnelMetrics = cache(async function getAgencyFunnelMetrics(recruiterId:string|null,days:number){
   const admin=createAdminClient();
@@ -73,11 +85,16 @@ export const getAgencyFunnelMetrics = cache(async function getAgencyFunnelMetric
 });
 
 
-export const getAgencyAttributionMetrics = cache(async function getAgencyAttributionMetrics(recruiterId:string|null,days:number){
+export const getAgencyRevenueAttributionMetrics = cache(async function getAgencyRevenueAttributionMetrics(
+  recruiterId:string|null,
+  days:number,
+  model:AttributionModel,
+){
   const admin=createAdminClient();
-  const result=await withServerTiming("agency.attribution_summary",()=>admin.rpc("agency_attribution_metrics",{
+  const result=await withServerTiming(`agency.revenue_attribution.${model}`,()=>admin.rpc("agency_revenue_attribution_metrics",{
     p_days:days,
     p_recruiter_id:recruiterId,
+    p_model:model,
   }));
   return {data:(Array.isArray(result.data)?result.data:[]) as AgencyAttributionRow[],error:result.error};
 });

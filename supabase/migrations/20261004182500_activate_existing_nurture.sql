@@ -2,6 +2,20 @@
 -- Intentionally does not enroll historical Lost leads; older losses should not
 -- receive unexpected win-back email without a fresh recruiter decision.
 
+create table if not exists public.lead_nurture_state (
+  lead_id uuid primary key references public.lead_intake(id) on delete cascade,
+  sequence text not null check (sequence in ('nurture','winback')),
+  status text not null default 'active' check (status in ('active','paused','unsubscribed','completed')),
+  step integer not null default 0 check (step >= 0 and step <= 3),
+  next_send_at timestamptz,
+  last_sent_at timestamptz,
+  last_event text,
+  paused_reason text,
+  unsubscribe_token uuid not null default gen_random_uuid() unique,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 insert into public.lead_nurture_state (
   lead_id,
   sequence,

@@ -66,3 +66,17 @@ test("editorial conversion preserves rich laptop tables sources and Oct 4 modifi
   assert.match(editorialText, /best-laptop-for-virtual-assistant" \? "2026-10-04"/);
   assert.match(datesText, /"best-laptop-for-virtual-assistant": "2026-10-04"/);
 });
+
+
+test("best laptop guide uses canonical internal links", async () => {
+  const text = await source();
+  const start = text.indexOf('slug: "best-laptop-for-virtual-assistant"');
+  const end = text.indexOf('slug: "freelance-platforms-for-virtual-assistants"', start);
+  const article = text.slice(start, end);
+
+  assert.match(article, /\/resources\/best-tools-for-virtual-assistants/);
+  assert.doesNotMatch(article, /\/blog\/virtual-assistant-tools/);
+  assert.match(article, /\/blog\/virtual-assistant-requirements-philippines/);
+  assert.match(article, /\/blog\/how-to-become-a-virtual-assistant-philippines/);
+  assert.match(article, /\/blog\/virtual-assistant-skills/);
+});

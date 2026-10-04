@@ -72,17 +72,21 @@ function resourceToBlog(slug: string): BlogPost {
     clusterLabel: page.clusterLabel,
     intent: "informational",
     publishedAt: "2026-09-22",
-    updatedAt: "2026-09-22",
+    updatedAt: slug === "best-laptop-for-virtual-assistant" ? "2026-10-04" : "2026-09-22",
     author: "VirtualAssistant.com.ph Editorial Team",
     reviewedBy: "VirtualAssistant.com.ph Editorial Team",
+    reviewNote: page.reviewNote,
     keyTakeaways: page.sections.slice(0, 4).map((section) => section.heading),
     sections: page.sections.map((section) => ({
       heading: section.heading,
       paragraphs: section.paragraphs,
-      bullets: section.bullets
+      bullets: section.bullets,
+      numbered: section.numbered,
+      table: section.table
     })),
     faqs: page.faqs.map((faq) => ({ question: faq.q, answer: faq.a })),
-    internalLinks: page.internalLinks
+    internalLinks: page.internalLinks,
+    sources: page.sources
   };
 }
 

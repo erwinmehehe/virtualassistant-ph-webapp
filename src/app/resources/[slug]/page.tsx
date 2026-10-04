@@ -112,6 +112,8 @@ export default async function ResourcePage({ params }: { params: Promise<{ slug:
               <p>{bullet}</p>
             </article>)}
           </div> : null}
+          {section.numbered?.length ? <ol className="hs-lede">{section.numbered.map((item) => <li key={item}>{item}</li>)}</ol> : null}
+          {section.table ? <div className="sp-table-wrap"><table><thead><tr>{section.table.headers.map((heading) => <th key={heading}>{heading}</th>)}</tr></thead><tbody>{section.table.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cell + cellIndex}>{cell}</td>)}</tr>)}</tbody></table></div> : null}
         </Band>)}
 
         <Band tone={page.sections.length % 2 ? "white" : "soft"}>

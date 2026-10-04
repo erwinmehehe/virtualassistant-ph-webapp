@@ -29,7 +29,10 @@ test("discovery to proposal to shortlist to interview to offer stays one connect
 });
 
 test("proposal follow-up timing never silently assumes Manila and revision alerts resolve on resend", async () => {
-  const proposals = await read("src/app/actions/proposals.ts");
+  const [proposals,hardening] = await Promise.all([
+    read("src/app/actions/proposals.ts"),
+    read("supabase/migrations/20261004143000_conversion_hardening.sql"),
+  ]);
   const sendStart = proposals.indexOf("export async function sendProposalToClientAction");
   const sendEnd = proposals.indexOf("export async function createAndSendProposalAction", sendStart);
   const sendBlock = proposals.slice(sendStart, sendEnd);
@@ -39,10 +42,13 @@ test("proposal follow-up timing never silently assumes Manila and revision alert
 
   assert.ok(sendStart >= 0 && sendEnd > sendStart);
   assert.doesNotMatch(sendBlock, /proposalFollowUpTimeZone = "Asia\/Manila"/);
-  assert.match(sendBlock, /follow_up_mode: proposalFollowUpTimeZone \? "client_local_9am" : "relative_48h"/);
+  assert.match(sendBlock, /p_follow_up_timezone: proposalFollowUpTimeZone/);
+  assert.match(hardening, /when nullif\(btrim\(coalesce\(p_follow_up_timezone, ''\)\), ''\) is null then 'relative_48h'/);
+  assert.match(hardening, /else 'client_local_9am'/);
   assert.match(sendBlock, /Proposal changes requested:%/);
   assert.match(sendBlock, /done_at: now\.toISOString\(\)/);
-  assert.match(responseBlock, /next_follow_up_at: null/);
+  assert.match(responseBlock, /respond_to_lead_proposal_atomic/);
+  assert.match(hardening, /next_follow_up_at = null/);
   assert.match(responseBlock, /type: "proposal"/);
 });
 

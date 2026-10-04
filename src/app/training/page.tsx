@@ -390,7 +390,7 @@ export default async function TrainingPage() {
           </div>
         </section>
 
-        <TrainingMobileCta href={JOIN_HREF}/>
+        <TrainingMobileCta href={trainingHomeHref} label={signedIn ? "Continue training" : "Start free training"}/>
 
         <section className="tr-proof-strip" aria-label="Training catalogue summary">
           <div className="container tr-proof-grid">

@@ -152,8 +152,38 @@ export async function SalesAnalyticsDashboard({
     </section> : null}
 
     <section className="card">
-      <div className="dashboard-section-head"><div><h2>Why opportunities are lost</h2><p>Record a specific lost reason in the CRM so this becomes useful for pricing and sales decisions.</p></div></div>
-      {data.lossReasons.length ? <div className="compact-list">{data.lossReasons.map((row) => <div className="compact-static" key={row.reason}><span><strong>{row.reason}</strong></span><span className="badge">{row.count}</span></div>)}</div> : <div className="empty">No lost opportunities with recorded reasons in this period.</div>}
+      <div className="dashboard-section-head"><div><h2>Win / loss intelligence</h2><p>Structured close reasons show what blocks hiring, what revenue was lost, and which opportunities should come back into a recruiter win-back queue.</p></div></div>
+      <div className="sales-stage-summary">
+        <div><span>Lost opportunities</span><strong>{data.totals.lost}</strong><small>{usd(data.totals.lostValue)} estimated value</small></div>
+        <div><span>Recoverable</span><strong>{data.totals.recoverableLost}</strong><small>{data.totals.winBackScheduled} win-backs scheduled</small></div>
+        <div><span>Win-backs due</span><strong>{data.totals.winBackDue}</strong><small>Recruiter action required</small></div>
+        <div><span>Top loss reason</span><strong>{data.lossReasons[0]?.label || "No data"}</strong><small>{data.lossReasons[0] ? `${data.lossReasons[0].share}% of losses` : "Classify lost opportunities to learn"}</small></div>
+      </div>
+
+      {data.lossReasons.length ? <div className="table-wrap responsive-table"><table>
+        <thead><tr><th>Reason</th><th>Losses</th><th>Share</th><th>Lost value</th><th>Recovery</th></tr></thead>
+        <tbody>{data.lossReasons.map((row) => <tr key={row.code}>
+          <td data-label="Reason"><strong>{row.label}</strong></td>
+          <td data-label="Losses">{row.count}</td>
+          <td data-label="Share">{row.share}%</td>
+          <td data-label="Lost value">{usd(row.value)}</td>
+          <td data-label="Recovery">{row.recoverable ? <span className="badge">Win-back</span> : <span className="muted">Closed</span>}</td>
+        </tr>)}</tbody>
+      </table></div> : <div className="empty">No lost opportunities in this reporting window.</div>}
+
+      <div className="grid-2 sales-analysis-grid">
+        <div>
+          <div className="dashboard-section-head"><div><h3>Where losses happen</h3><p>Separate qualification problems from proposal-stage objections.</p></div></div>
+          <div className="sales-stage-summary">
+            <div><span>Before proposal</span><strong>{data.totals.preProposalLost}</strong></div>
+            <div><span>After proposal</span><strong>{data.totals.postProposalLost}</strong></div>
+          </div>
+        </div>
+        <div>
+          <div className="dashboard-section-head"><div><h3>Competitor signals</h3><p>Only populated when the recruiter records who the client chose.</p></div></div>
+          {data.competitors.length ? <div className="compact-list">{data.competitors.map((row) => <div className="compact-static" key={row.name}><span><strong>{row.name}</strong></span><span className="badge">{row.count}</span></div>)}</div> : <div className="empty">No named competitors recorded yet.</div>}
+        </div>
+      </div>
     </section>
   </>;
 }

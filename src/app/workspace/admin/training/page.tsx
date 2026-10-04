@@ -216,7 +216,7 @@ export default async function AdminTrainingPage() {
                   <span className="dash-action-title"><strong>{course.recommended_order ? "#" + course.recommended_order + " " : ""}{course.title}</strong><span className="badge">{course.status}</span></span>
                   <small>{course.modules} module{course.modules === 1 ? "" : "s"} · {course.publishedLessons}/{course.lessons} lessons published · v{course.content_version}</small>
                   <small className="muted">{reviewState(course.last_reviewed_at)}{course.reviewed_by ? " · " + course.reviewed_by : ""}</small>
-                  {course.review_requirement === "specialist" ? <small className="muted">Specialist review · {course.specialist_reviewed_at ? "approved " + reviewState(course.specialist_reviewed_at).toLowerCase() : "required"}</small> : null}
+                  {course.review_requirement === "specialist" ? <small className="muted">{course.specialist_reviewed_at ? "Specialist review · approved " + reviewState(course.specialist_reviewed_at).toLowerCase() : course.status === "published" ? "Published · specialist review pending" : "Specialist review required before publication"}</small> : null}
                   {course.trademark_disclaimer ? <small className="muted">Course notice recorded</small> : null}
                 </span>
               </Link>

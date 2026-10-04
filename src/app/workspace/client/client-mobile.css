@@ -1931,7 +1931,7 @@
 
   .client-role-wizard-shell .wizard-steps {
     display: grid;
-    grid-template-columns: repeat(4, minmax(118px, 1fr));
+    grid-template-columns: repeat(3, minmax(118px, 1fr));
     gap: 6px;
     overflow-x: auto;
     padding: 2px 0 6px;
@@ -2322,7 +2322,7 @@
   }
 
   .client-role-wizard-shell .wizard-steps {
-    grid-template-columns: repeat(4, minmax(108px, 1fr));
+    grid-template-columns: repeat(3, minmax(108px, 1fr));
   }
 
   .client-role-wizard-shell .wizard-actions {
@@ -2850,4 +2850,398 @@
   .client-role-wizard-shell .review-edit-row { justify-content: flex-start; }
   .client-role-wizard-shell .wizard-optional-grid { grid-template-columns: 1fr; }
   .client-role-wizard-shell .wizard-optional-grid .span-2 { grid-column: span 1; }
+}
+
+
+/* Client post-job workspace: focused 3-step composer */
+.client-role-new {
+  width: min(100%, 1040px);
+  margin-inline: auto;
+}
+
+.client-job-create-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 26px;
+  align-items: end;
+  margin-bottom: 14px;
+  padding: 26px 28px;
+  overflow: hidden;
+  border: 1px solid #dfe3ea;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(68,76,231,.13), transparent 34%),
+    linear-gradient(145deg,#ffffff 0%,#f8f9ff 100%);
+  box-shadow: 0 14px 36px rgba(16,24,40,.055);
+}
+
+.client-job-create-copy {
+  max-width: 680px;
+}
+
+.client-job-create-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #444ce7;
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.client-job-create-hero h1 {
+  margin: 9px 0 8px;
+  color: #101828;
+  font-size: clamp(30px,4vw,40px);
+  line-height: 1.04;
+  letter-spacing: -.045em;
+}
+
+.client-job-create-copy > p {
+  max-width: 650px;
+  margin: 0;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.client-job-create-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 17px;
+}
+
+.client-job-create-proof span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #475467;
+  font-size: 11.5px;
+}
+
+.client-job-create-proof svg {
+  color: #444ce7;
+}
+
+.client-job-create-proof strong {
+  font-weight: 740;
+}
+
+.client-job-create-note {
+  padding: 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  background: rgba(255,255,255,.82);
+}
+
+.client-job-create-note > span {
+  display: block;
+  margin-bottom: 5px;
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.client-job-create-note > strong {
+  display: block;
+  color: #101828;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.client-job-create-note p {
+  margin: 6px 0 0;
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.client-role-new .client-role-requested-banner {
+  margin: 0 0 12px !important;
+}
+
+.client-role-new .client-role-wizard-shell .wizard {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-steps {
+  position: static;
+  top: auto;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+  padding: 0;
+  overflow: visible;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-step {
+  display: grid;
+  grid-template-columns: 30px minmax(0,1fr);
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+  min-height: 54px;
+  padding: 10px 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  background: #fff;
+  color: #667085;
+  text-align: left;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-step.active {
+  border-color: #a4bcfd;
+  background: #f5f7ff;
+  color: #3538cd;
+  box-shadow: 0 0 0 3px rgba(68,76,231,.07);
+}
+
+.client-role-new .client-role-wizard-shell .wizard-step.complete {
+  border-color: #b7e8cf;
+  background: #f6fef9;
+  color: #067647;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-step:disabled:not(.active) {
+  opacity: .62;
+  cursor: default;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-number {
+  width: 30px;
+  height: 30px;
+  border-color: #d0d5dd;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-step > span:last-child {
+  display: block !important;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.3;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-panel {
+  min-height: 0;
+  padding: 24px;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 9px 26px rgba(16,24,40,.035);
+}
+
+.client-role-new .client-role-wizard-shell .wizard-head {
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-step-label {
+  color: #444ce7;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-head h2 {
+  margin: 3px 0 0;
+  color: #101828;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -.025em;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-save {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+}
+
+.client-role-new .client-role-wizard-shell .post-job-primary-input {
+  min-height: 158px;
+  padding: 14px 15px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.client-role-new .client-role-wizard-shell .field > label {
+  margin-bottom: 6px;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.client-role-new .client-role-wizard-shell input,
+.client-role-new .client-role-wizard-shell select,
+.client-role-new .client-role-wizard-shell textarea {
+  border-color: #d0d5dd;
+  border-radius: 10px;
+}
+
+.client-role-new .client-role-wizard-shell input:focus,
+.client-role-new .client-role-wizard-shell select:focus,
+.client-role-new .client-role-wizard-shell textarea:focus {
+  border-color: #8098f9;
+  box-shadow: 0 0 0 3px rgba(68,76,231,.09);
+  outline: none;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-optional {
+  border-color: #e4e7ec;
+  background: #fafbfc;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-optional > summary {
+  padding: 13px 14px;
+  font-size: 12px;
+}
+
+.client-role-new .client-role-wizard-shell .estimate-strip {
+  border: 1px solid #c7d7fe;
+  background: #f8f9ff;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-actions {
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 17px;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-actions .btn {
+  min-height: 44px;
+}
+
+.client-role-new .client-role-wizard-shell .wizard-actions-right .btn-primary {
+  min-width: 205px;
+  justify-content: center;
+}
+
+@media (max-width: 820px) {
+  .client-job-create-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 16px;
+  }
+
+  .client-job-create-note {
+    max-width: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .client-role-new {
+    gap: 10px;
+  }
+
+  .client-job-create-hero {
+    margin-bottom: 0;
+    padding: 17px;
+    border-radius: 16px;
+  }
+
+  .client-job-create-hero h1 {
+    font-size: 27px;
+    line-height: 1.07;
+  }
+
+  .client-job-create-copy > p {
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+
+  .client-job-create-proof {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 7px;
+    margin-top: 13px;
+  }
+
+  .client-job-create-note {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-steps {
+    grid-template-columns: repeat(3,minmax(118px,1fr));
+    gap: 6px;
+    overflow-x: auto;
+    padding: 1px 0 5px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-step {
+    min-height: 48px;
+    padding: 8px 9px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-panel {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-head {
+    gap: 9px;
+    margin-bottom: 15px;
+    padding-bottom: 13px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-head h2 {
+    font-size: 19px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-save {
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .client-role-new .client-role-wizard-shell .post-job-primary-input {
+    min-height: 135px;
+    font-size: 16px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-actions {
+    position: sticky;
+    bottom: calc(env(safe-area-inset-bottom) + 8px);
+    z-index: 5;
+    margin: 12px -6px -6px;
+    padding: 8px;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(10px);
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-actions-right .btn-primary {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-job-create-hero h1 {
+    font-size: 25px;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-steps {
+    grid-template-columns: repeat(3,minmax(108px,1fr));
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .client-role-new .client-role-wizard-shell .wizard-actions > .btn,
+  .client-role-new .client-role-wizard-shell .wizard-actions-right,
+  .client-role-new .client-role-wizard-shell .wizard-actions-right .btn {
+    width: 100%;
+  }
 }

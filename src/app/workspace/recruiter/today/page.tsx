@@ -786,8 +786,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             <div className={styles.followActions}>
               <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/crm/${lead.id}`}>Open</Link>
             </div>
-          </div>;
-        })}
+          </div>
+        ))}
       </div> : null}
 
       {clientWaits.length ? <div className={styles.followList}>
@@ -805,8 +805,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
               {item.subject_id ? <form action={sendClientShortlistFollowupAction}><input type="hidden" name="job_id" value={item.subject_id}/><input type="hidden" name="return_to" value="/workspace/recruiter/today"/><button className="btn btn-sm btn-primary" type="submit">Follow up</button></form> : null}
               {item.subject_id ? <Link prefetch={false} className="btn btn-sm" href={`/workspace/recruiter/roles/${item.subject_id}`}>Open</Link> : null}
             </div>
-          </div>
-        ))}
+          </div>;
+        })}
       </div> : null}
 
       {staleRolePreview.length ? <div className={styles.followList}>

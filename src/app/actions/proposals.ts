@@ -16,6 +16,9 @@ import { ensureAcceptedLeadClientWorkspace } from "@/lib/client-handoff";
 import { isValidTimeZone, zonedDateTimeToUtc } from "@/lib/timezone";
 import { queueProposalClosingAutomation } from "@/lib/trigger-automation";
 import { ensureProposalClosingTask, resolveProposalClosingArtifacts } from "@/lib/proposal-closing-automation";
+import { inferLegacyLossReasonCode, winBackAtForLoss } from "@/lib/loss-reasons";
+import { syncLeadWinBackTask } from "@/lib/loss-recovery";
+import { syncLeadNurtureState } from "@/lib/lead-nurture-automation";
 
 function safePath(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -477,6 +480,45 @@ export async function respondToLeadProposalAction(formData: FormData) {
   const recruiterHref = askingForChanges
     ? `/workspace/recruiter/crm/${lead.id}/proposal`
     : `/workspace/recruiter/crm/${lead.id}`;
+
+  if (!askingForChanges && !response.already_responded) {
+    const lossCode = inferLegacyLossReasonCode(reason) || "other";
+    const winBackAt = winBackAtForLoss(lossCode);
+    const { error: classifyError } = await admin.from("lead_intake").update({
+      lost_reason_code: lossCode,
+      win_back_at: winBackAt,
+      stage_updated_at: new Date().toISOString(),
+    }).eq("id", lead.id).eq("crm_stage", "lost");
+    if (classifyError) {
+      console.error("[proposal] decline classification failed", {
+        proposalId: proposal.id,
+        leadId: lead.id,
+        error: classifyError.message,
+      });
+    } else {
+      try {
+        await syncLeadWinBackTask({
+          leadId: lead.id,
+          assigneeId: lead.owner_id,
+          actorId: null,
+          subject: proposal.role_title || lead.name || lead.email || "Client proposal",
+          reasonCode: lossCode,
+          winBackAt,
+        });
+        await syncLeadNurtureState({
+          leadId: lead.id,
+          crmStage: "lost",
+          winBackAt,
+        });
+      } catch (automationError) {
+        console.error("[proposal] decline nurture setup failed", {
+          proposalId: proposal.id,
+          leadId: lead.id,
+          error: automationError instanceof Error ? automationError.message : String(automationError),
+        });
+      }
+    }
+  }
 
   try {
     if (askingForChanges) {

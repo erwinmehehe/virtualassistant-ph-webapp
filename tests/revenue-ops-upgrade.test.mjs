@@ -6,10 +6,12 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("lead scoring is deterministic and uses stage, recency, value, and follow-up urgency", async()=>{
   const scoring=await read("src/lib/lead-scoring.ts");
-  assert.match(scoring,/STAGE_POINTS/);
+  assert.match(scoring,/DEFAULT_LEAD_SCORING_RULES/);
+  assert.match(scoring,/normalizeLeadScoringRules/);
   assert.match(scoring,/estimated_value_usd/);
   assert.match(scoring,/next_follow_up_at/);
-  assert.match(scoring,/finalScore >= 70 \? "hot" : finalScore >= 40 \? "warm" : "cold"/);
+  assert.match(scoring,/rules\.hotThreshold/);
+  assert.match(scoring,/rules\.warmThreshold/);
   assert.match(scoring,/First response overdue/);
 });
 

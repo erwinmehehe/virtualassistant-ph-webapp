@@ -86,7 +86,7 @@ test("floating call prompt is restricted to high-intent behavior", async () => {
   assert.match(cta, /isHighIntentPath/);
 });
 
-test("client booking prevents slot conflicts, records CRM state, and privately notifies Jervis and Bryan while the dashboard covers all meetings", async () => {
+test("client booking prevents slot conflicts, records CRM state, and uses configured booking-team recipients while the dashboard covers all meetings", async () => {
   const [action, email, migration] = await Promise.all([
     read("src/app/actions/leads.ts"),
     read("src/lib/email.ts"),
@@ -98,11 +98,12 @@ test("client booking prevents slot conflicts, records CRM state, and privately n
   assert.match(migration, /create unique index/);
   assert.match(migration, /discovery_scheduled_at/);
   assert.match(email, /const BOOKING_TEAM_EMAILS = normalizeEmailList/);
-  assert.match(email, /jrvsaccad@gmail\.com/);
-  assert.match(email, /bryanbatarina@gmail\.com/);
+  assert.match(email, /process\.env\.BOOKING_TEAM_EMAILS/);
+  assert.match(email, /process\.env\.LEAD_NOTIFICATION_EMAIL/);
+  assert.doesNotMatch(email, /@gmail\.com/i);
   const bookingTeamStart = email.indexOf("const BOOKING_TEAM_EMAILS");
   const bookingTeamEnd = email.indexOf("const staffClientFollowupBccRecipients", bookingTeamStart);
-  assert.doesNotMatch(email.slice(bookingTeamStart, bookingTeamEnd), /erwinvalles20@gmail\.com/);
+  assert.match(email.slice(bookingTeamStart, bookingTeamEnd), /process\.env\.BOOKING_TEAM_EMAILS/);
   assert.match(email, /"discovery_booking_internal_team"/);
   assert.doesNotMatch(email, /Jervis or Bryan will add the meeting link/);
   assert.match(email, /virtualassistant-discovery-call\.ics/);

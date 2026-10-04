@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
-import { ArrowRight, BadgeCheck, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, BookOpen, BriefcaseBusiness, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { softwarePages, getSoftwarePage, softwareSeoDescription, softwareSeoH1, softwareSeoTitle } from "@/lib/software-pages";
@@ -84,6 +84,8 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const pageUrl = `${base}/software/${page.slug}`;
   const hireHref = `/hire?category=${encodeURIComponent(page.directoryCategory)}`;
   const talentHref = `/find-talent?category=${encodeURIComponent(page.directoryCategory)}`;
+  const trainingHref = "/training#course-library";
+  const jobsHref = `/jobs?q=${encodeURIComponent(page.software)}`;
   const matchService = relatedServices.find((service) => service?.directoryCategory === page.directoryCategory) || relatedServices[0];
   const matchExample = `Run our ${page.software} workflow: ${page.tasks.slice(0, 3).join(", ")}, and flag anything that needs a decision.`;
   const seoDescription = localizeEnglish(softwareSeoDescription(page), page.locale);
@@ -211,6 +213,13 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
     {relatedIndustries.length ? <section className="section section-white"><div className="container"><div className="section-head"><h2>Related industries.</h2></div>
       <div className="grid-3">{relatedIndustries.map((industry) => industry ? <Link className="card card-hover" href={`/industries/${industry.slug}`} key={industry.slug}><h3>{industry.label}</h3><p className="muted small">{industry.metaDescription}</p></Link> : null)}</div>
     </div></section> : null}
+
+    <section className="section"><div className="container"><div className="section-head"><div className="kicker">Training & jobs</div><h2>Learn the workflow or find roles using {page.software}.</h2><p>Connect this software guide to free practical training and current Virtual Assistant opportunities.</p></div>
+      <div className="grid-3">
+        <Link className="card card-hover" href={trainingHref}><BookOpen size={20}/><h3>Free Virtual Assistant training</h3><p className="muted small">Browse software, industry, and core workflow training. Training is optional and separate from hiring.</p><span className="text-link">Browse training <ArrowRight size={13}/></span></Link>
+        <Link className="card card-hover" href={jobsHref}><BriefcaseBusiness size={20}/><h3>{page.software} Virtual Assistant jobs</h3><p className="muted small">Search current roles that mention {page.software} and compare pay, hours, and responsibilities.</p><span className="text-link">Browse jobs <ArrowRight size={13}/></span></Link>
+      </div>
+    </div></section>
 
     {relatedGuides.length ? <section className="section section-white"><div className="container"><div className="section-head"><h2>{page.software} guides.</h2><p>Use these workflow guides to scope the role before you hire.</p></div>
       <div className="grid-3">{relatedGuides.map((guide) => <Link className="card card-hover" href={blogHref(guide)} key={guide.slug}><h3>{guide.title}</h3><p className="muted small">{guide.excerpt}</p><span className="text-link">Read guide <ArrowRight size={13}/></span></Link>)}</div>

@@ -28,13 +28,15 @@ export const metadata: Metadata = {
 };
 
 const SERVICE_CATEGORIES: { id: string; label: string; description: string; groups: string[] }[] = [
-  { id: "admin-executive", label: "Admin & Executive", description: "Inbox, calendar, operations, executive support, recruiting coordination, and recurring back-office work.", groups: ["Admin & Operations", "Executive Support", "People & HR"] },
+  { id: "admin-executive", label: "Admin & Executive", description: "Inbox, calendar, operations, executive support, and recurring back-office work.", groups: ["Admin & Operations", "Executive Support"] },
   { id: "sales-customer", label: "Sales & Customer", description: "Lead follow-up, CRM upkeep, appointment setting, customer support, reception, and front-desk coverage.", groups: ["Sales & CRM", "Customer & Front Desk"] },
   { id: "marketing-creative", label: "Marketing & Creative", description: "SEO, social media, content production, design support, campaign execution, and reporting.", groups: ["Marketing & Growth", "Creative & Content"] },
   { id: "ecommerce-web", label: "Ecommerce & Web", description: "Store operations, listings, order support, marketplace administration, websites, and technical coordination.", groups: ["Ecommerce", "Technology & Web"] },
-  { id: "finance-legal", label: "Finance & Legal", description: "Bookkeeping support, billing administration, insurance workflows, legal operations, and document coordination.", groups: ["Finance & Accounting", "Finance & Insurance", "Legal"] },
+  { id: "finance-legal", label: "Finance, Insurance & Legal", description: "Bookkeeping, payroll, lending, insurance workflows, legal operations, and document-heavy administration.", groups: ["Finance & Accounting", "Finance & Insurance", "Finance & Lending", "Insurance & Finance", "Legal"] },
   { id: "healthcare", label: "Healthcare", description: "Non-clinical scheduling, reminders, intake, billing support, records coordination, and patient communication.", groups: ["Healthcare"] },
-  { id: "real-estate-home", label: "Real Estate & Home", description: "Lead coordination, listings, transaction support, dispatch, estimates, customer follow-up, and field-service admin.", groups: ["Real Estate", "Home Services"] },
+  { id: "real-estate-home", label: "Real Estate & Home", description: "Lettings, property management, listings, transaction support, dispatch, estimates, and field-service administration.", groups: ["Real Estate", "Home Services"] },
+  { id: "recruitment-hr", label: "Recruitment & HR", description: "Candidate sourcing, recruitment coordination, compliance administration, onboarding support, and people operations.", groups: ["People & HR", "Recruitment", "Recruitment & HR"] },
+  { id: "construction-engineering", label: "Construction & Engineering", description: "BIM, Revit, estimating, tender support, technical document control, and project administration.", groups: ["Architecture & Engineering"] },
   { id: "hospitality", label: "Hospitality", description: "Guest messaging, reservations, calendar monitoring, vendor coordination, and property operations support.", groups: ["Hospitality"] }
 ];
 
@@ -67,6 +69,21 @@ export default async function ServicesPage() {
           <nav className="service-category-nav" aria-label="Service categories">
             {SERVICE_CATEGORIES.map((category) => <a href={`#${category.id}`} key={category.id}>{category.label}</a>)}
           </nav>
+
+          <div className="premium-service-grid" aria-label="Browse services by workflow">
+            {SERVICE_CATEGORIES.map((category) => {
+              const count = SERVICE_PAGES.filter((page) => category.groups.includes(page.group)).length;
+              return <a className="premium-service-card" href={`#${category.id}`} key={category.id}>
+                <div>
+                  <h3>{category.label}</h3>
+                  <p>{category.description}</p>
+                  <div className="pill-list"><span className="badge">{count} hiring guide{count === 1 ? "" : "s"}</span></div>
+                </div>
+                <span className="premium-service-link">Browse category <ChevronRight size={14}/></span>
+              </a>;
+            })}
+          </div>
+
           <nav className="service-category-nav" aria-label="Virtual Assistant guides">
             <Link href="/blog/what-is-a-virtual-assistant">What is a VA?</Link>
             <Link href="/types-of-virtual-assistants">Types of VAs</Link>

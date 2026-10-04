@@ -585,6 +585,8 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const editorial = localizeContent(serviceEditorial(s), s.locale);
   const priorityModule = localizeContent(priorityServiceModule(s.slug), s.locale);
   const talentHref = `/find-talent?category=${encodeURIComponent(s.directoryCategory)}&q=${encodeURIComponent(roleName(s.name))}`;
+  const jobsHref = `/jobs?category=${encodeURIComponent(s.directoryCategory)}`;
+  const trainingHref = "/training#course-library";
   const matchExample = localizeEnglish(`Handle ${s.tasks.slice(0, 3).join(", ")} and keep our team updated on progress, exceptions, and next steps.`, s.locale);
 
   const interviewQuestions = localizeContent([
@@ -902,6 +904,13 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
               <SectionHead kicker="Industry guides" title="See how this role fits specific business workflows." lede="Industry guides connect the role to the systems, access rules, customers, and handoffs that change by business type."/>
               <LinkTiles items={relatedIndustries.map((industry) => ({ href: `/industries/${industry.slug}`, label: `Virtual Assistant guide for ${industry.label}`, sub: `See how ${s.name} work fits the workflows used by ${industry.audience}.`, icon: <UsersRound size={16}/> }))}/>
             </div> : null}
+            <div>
+              <SectionHead kicker="Training & jobs" title="Connect the hiring guide to the skills and opportunities around it." lede="Use the free training library to understand the workflow, or browse current roles that use the same specialty."/>
+              <LinkTiles items={[
+                { href: trainingHref, label: `Free training related to ${roleName(s.name)} work`, sub: "Browse practical VA courses and software training without making training a hiring requirement.", icon: <BookOpen size={16}/> },
+                { href: jobsHref, label: `${s.name} jobs`, sub: "Browse current published roles in this specialty and see the hours, pay, tools, and responsibilities employers are posting.", icon: <BriefcaseBusiness size={16}/> }
+              ]}/>
+            </div>
           </div>
         </Band>
 

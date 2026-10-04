@@ -4,7 +4,7 @@ import { INDUSTRIES } from "./industries";
 /**
  * The public training catalogue.
  *
- * Software and industry courses are derived from the pages we already sell,
+ * Software and industry courses are derived from the commercial pages we already publish,
  * not invented: if a business hires a Salestrekker VA through us, that is
  * exactly the course a Filipino VA should be able to take for free. Each
  * course therefore links to its commercial page, and the two audiences meet
@@ -127,7 +127,7 @@ export const TRAINING_LEVELS: TrainingLevel[] = [
     display: "grid",
     level: "Level 3",
     title: "Software",
-    intro: "The tools Australian businesses actually run on, including the niche ones no other course covers.",
+    intro: "The tools Australian and UK businesses actually run on, including niche platforms that generic VA courses rarely cover.",
     courses: SOFTWARE
   },
   {

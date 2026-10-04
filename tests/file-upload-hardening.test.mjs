@@ -5,12 +5,19 @@ import { readFile } from "node:fs/promises";
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
 test("uploaded bytes are content-sniffed and DOCX packages are structurally verified", async()=>{
-  const [security,pkg]=await Promise.all([
+  const [security,pkg,migration,dbContracts]=await Promise.all([
     read("src/lib/file-security.ts"),
     read("package.json"),
+    read("supabase/migrations/20261004164625_upload_quarantine_bucket.sql"),
+    read("scripts/verify-e2e-db-contracts.sql"),
   ]);
 
   assert.match(pkg,/"jszip": "3\.10\.1"/);
+  assert.match(security,/QUARANTINE_BUCKET = "upload-quarantine"/);
+  assert.match(migration,/public,\n  file_size_limit,\n  allowed_mime_types/);
+  assert.match(migration,/'upload-quarantine'/);
+  assert.match(migration,/10485760/);
+  assert.match(dbContracts,/Upload quarantine bucket must remain private/);
   assert.match(security,/0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1/);
   assert.match(security,/%PDF-/);
   assert.match(security,/0x89, 0x50, 0x4e, 0x47/);

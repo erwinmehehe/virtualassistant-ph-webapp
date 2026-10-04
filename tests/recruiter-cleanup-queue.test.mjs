@@ -38,11 +38,11 @@ test("cleanup actions preserve history without pre-shortlist client email", () =
   assert.doesNotMatch(action, /send_followup|sendStaffClientFollowupEmail/);
   assert.doesNotMatch(page, /cleanup_action" value="send_followup"/);
   assert.doesNotMatch(page, /recruiterCleanupLeadAction|closeLeadAction|Review again in 3 days/);
-  for (const closeReason of ["No response", "Spam", "Not a fit"]) {
-    assert.match(closeAction, new RegExp(`\\"${closeReason}\\"`));
-  }
+  assert.match(closeAction, /inferLegacyLossReasonCode/);
+  assert.match(closeAction, /lost_reason_code: reasonCode/);
+  assert.match(closeAction, /win_back_at: winBackAt/);
   assert.match(action, /now\.getTime\(\) \+ 3 \* 86400000/);
-  assert.match(closeAction, /lost_reason: rawReason/);
+  assert.match(closeAction, /lost_reason: storedReason/);
   assert.match(action, /writeRecruiterActivity/);
   assert.match(closeAction, /writeRecruiterActivity/);
   assert.match(action, /This lead belongs to another recruiter/);

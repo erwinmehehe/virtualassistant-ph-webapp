@@ -22,7 +22,8 @@
     "content:intent-audit": "node scripts/audit-content-intent-overlap.mjs",
     "seo:expansion-check": "node scripts/check-seo-expansion.mjs",
     "seo:ranking-check": "node --test tests/post-expansion-ranking-push.test.mjs",
-    "seo:production-audit": "node scripts/audit-seo-production.mjs"
+    "seo:production-audit": "node scripts/audit-seo-production.mjs",
+    "smoke:production": "node scripts/production-browser-smoke.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

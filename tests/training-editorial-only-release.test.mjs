@@ -2,32 +2,48 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const cleanupMigrationPath = "supabase/migrations/20261004094500_remove_training_specialist_review_requirement.sql";
+const policyPath = "supabase/migrations/20261004102500_restore_operational_training_specialist_reviews.sql";
 
-test("current training policy is editorial-only", async () => {
-  const sql = await readFile(cleanupMigrationPath, "utf8");
+test("current training policy restores specialist review for the configured higher-risk courses", async () => {
+  const sql = await readFile(policyPath, "utf8");
 
-  assert.match(sql, /review_requirement = 'editorial'/);
-  assert.match(sql, /specialist_reviewed_by = null/);
-  assert.match(sql, /specialist_reviewer_role = null/);
-  assert.match(sql, /specialist_review_notes = null/);
-  assert.match(sql, /specialist_reviewed_at = null/);
-  assert.match(sql, /status = 'revoked'/);
-  assert.doesNotMatch(sql, /review_requirement = 'specialist'/);
+  assert.match(sql, /review_requirement = 'specialist'/);
+  for (const slug of [
+    "real-estate-virtual-assistant",
+    "medical-healthcare-virtual-assistant",
+    "bookkeeping-administration",
+    "payroll-administration",
+    "australian-allied-health-administration",
+    "cliniko-for-virtual-assistants",
+    "australian-bookkeeping-administration",
+    "xero-workflows-for-virtual-assistants",
+    "myob-workflows-for-virtual-assistants",
+    "ndis-administration-fundamentals",
+    "property-management-administration-australia",
+    "mortgage-broking-administration-australia",
+  ]) {
+    assert.ok(sql.includes("'" + slug + "'"), "Missing specialist course: " + slug);
+  }
+  assert.doesNotMatch(sql, /status = 'draft'/);
 });
 
-test("course authoring no longer derives or enforces specialist review", async () => {
+test("course authoring derives specialist requirements and exposes the review workflow", async () => {
   const action = await readFile("src/app/actions/training-admin.ts", "utf8");
   const coursePage = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
   const inventory = await readFile("src/app/workspace/admin/training/page.tsx", "utf8");
+  const queue = await readFile("src/app/workspace/admin/training/reviews/page.tsx", "utf8");
 
-  assert.match(action, /review_requirement: "editorial"/);
-  assert.doesNotMatch(action, /getSpecialistReviewDefinition/);
-  assert.doesNotMatch(action, /training_specialist_reviews/);
-  assert.doesNotMatch(action, /assignTrainingSpecialistReviewerAction/);
-  assert.doesNotMatch(action, /saveTrainingSpecialistReviewAction/);
-  assert.doesNotMatch(coursePage, /Specialist review/);
-  assert.doesNotMatch(coursePage, /specialistReady/);
-  assert.doesNotMatch(inventory, /Specialist reviews/);
-  assert.doesNotMatch(inventory, /Specialist QA for higher-risk subjects/);
+  assert.match(action, /getSpecialistReviewDefinition/);
+  assert.match(action, /training_specialist_reviews/);
+  assert.match(action, /assignTrainingSpecialistReviewerAction/);
+  assert.match(action, /saveTrainingSpecialistReviewAction/);
+  assert.match(coursePage, /Specialist review/);
+  assert.match(coursePage, /specialistReady/);
+  assert.match(inventory, /Specialist reviews/);
+  assert.match(inventory, /Published · specialist review pending/);
+  assert.match(queue, /Needs reviewer/);
+  assert.match(queue, /Review assigned/);
+  assert.match(queue, /In review/);
+  assert.match(queue, /Changes requested/);
+  assert.match(queue, /Approved/);
 });

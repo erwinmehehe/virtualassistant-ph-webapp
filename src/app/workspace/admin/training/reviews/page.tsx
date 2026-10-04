@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ClipboardCheck, ExternalLink, Mail, Send, ShieldAlert, XCircle } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingSpecialistReviewQueue } from "@/lib/training-admin";
-import { getSpecialistReviewDefinition } from "@/lib/training-specialist-review";
+import { getSpecialistReviewDefinition, getSpecialistReviewDomain } from "@/lib/training-specialist-review";
 import {
   assignTrainingSpecialistReviewerAction,
   saveTrainingSpecialistReviewAction,
@@ -36,6 +36,32 @@ function eventLabel(value: string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+type ReviewQueueState = "needs_reviewer" | "review_assigned" | "in_review" | "changes_requested" | "approved";
+
+function queueState(item: Awaited<ReturnType<typeof getTrainingSpecialistReviewQueue>>["items"][number]): ReviewQueueState {
+  if (item.specialistReady) return "approved";
+  if (item.review?.decision === "changes_requested") return "changes_requested";
+  if (!item.review?.assigned_reviewer_name || !item.review?.assigned_reviewer_role) return "needs_reviewer";
+  if (item.invite?.status === "opened") return "in_review";
+  return "review_assigned";
+}
+
+function queueStateLabel(state: ReviewQueueState) {
+  if (state === "needs_reviewer") return "Needs reviewer";
+  if (state === "review_assigned") return "Review assigned";
+  if (state === "in_review") return "In review";
+  if (state === "changes_requested") return "Changes requested";
+  return "Approved";
+}
+
+function filterHref(state: string, domain: string) {
+  const params = new URLSearchParams();
+  if (state && state !== "all") params.set("state", state);
+  if (domain && domain !== "all") params.set("domain", domain);
+  const suffix = params.toString();
+  return suffix ? `/workspace/admin/training/reviews?${suffix}` : "/workspace/admin/training/reviews";
+}
+
 export default async function SpecialistTrainingReviewPage({
   searchParams,
 }: {
@@ -43,12 +69,26 @@ export default async function SpecialistTrainingReviewPage({
 }) {
   const query = await searchParams;
   const { items, error } = await getTrainingSpecialistReviewQueue();
+  const stateFilter = query.state || "all";
+  const domainFilter = query.domain || "all";
   const approved = items.filter((item) => item.specialistReady).length;
   const changesRequested = items.filter((item) => item.review?.decision === "changes_requested").length;
   const activeInvites = items.filter((item) => ["pending", "opened"].includes(item.invite?.status || "")).length;
   const releaseReady = items.filter(
     (item) => item.editorialReady && item.contentReady && item.assessmentReady && item.specialistReady,
   ).length;
+  const overdue = items.filter((item) => {
+    if (item.specialistReady || !item.review?.review_due_date) return false;
+    const due = new Date(item.review.review_due_date + "T23:59:59+08:00");
+    return !Number.isNaN(due.getTime()) && due.getTime() < Date.now();
+  }).length;
+  const filteredItems = items.filter((item) => {
+    const stateMatches = stateFilter === "all"
+      || (stateFilter === "overdue" && item.review?.review_due_date && !item.specialistReady && new Date(item.review.review_due_date + "T23:59:59+08:00").getTime() < Date.now())
+      || queueState(item) === stateFilter;
+    const domainMatches = domainFilter === "all" || getSpecialistReviewDomain(item.course.slug) === domainFilter;
+    return stateMatches && domainMatches;
+  });
 
   return (
     <div className="dash-page role-overview">
@@ -84,6 +124,34 @@ export default async function SpecialistTrainingReviewPage({
         </div>
       </div>
 
+      <section className="card dashboard-section-card">
+        <div className="dashboard-section-head">
+          <div>
+            <h2>Review queue</h2>
+            <p>Filter by workflow state or specialist domain. Published courses can remain live while review is pending, but any future re-publication still requires current approval.</p>
+          </div>
+          <span className="badge">{filteredItems.length} shown</span>
+        </div>
+        <div className="row wrap" style={{ gap: 8 }}>
+          {[
+            ["all", "All"],
+            ["needs_reviewer", "Needs reviewer"],
+            ["review_assigned", "Review assigned"],
+            ["in_review", "In review"],
+            ["changes_requested", "Changes requested"],
+            ["approved", "Approved"],
+            ["overdue", `Overdue (${overdue})`],
+          ].map(([value, label]) => (
+            <Link key={value} className={"btn btn-sm " + (stateFilter === value ? "btn-primary" : "")} href={filterHref(value, domainFilter)}>{label}</Link>
+          ))}
+        </div>
+        <div className="row wrap" style={{ gap: 8, marginTop: 10 }}>
+          {["all", "Healthcare", "Finance", "Property", "Software"].map((value) => (
+            <Link key={value} className={"btn btn-sm " + (domainFilter === value ? "btn-primary" : "")} href={filterHref(stateFilter, value)}>{value === "all" ? "All domains" : value}</Link>
+          ))}
+        </div>
+      </section>
+
       {error ? (
         <section className="card dashboard-section-card">
           <h2>Review queue unavailable</h2>
@@ -107,7 +175,7 @@ export default async function SpecialistTrainingReviewPage({
       </section>
 
       <div className="stack">
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const definition = getSpecialistReviewDefinition(item.course.slug);
           if (!definition) {
             return <section className="card dashboard-section-card" key={item.course.id}>
@@ -121,18 +189,23 @@ export default async function SpecialistTrainingReviewPage({
           const canReview = item.assignmentCurrent;
           const canApprove = item.contentReady && item.assessmentReady && item.assignmentCurrent;
           const canPublish = item.editorialReady && item.contentReady && item.assessmentReady && item.specialistReady;
+          const state = queueState(item);
+          const domain = getSpecialistReviewDomain(item.course.slug);
 
           return (
             <section className="card dashboard-section-card" key={item.course.id}>
               <div className="dashboard-section-head">
                 <div>
-                  <div className="small muted">{definition.title}</div>
+                  <div className="small muted">{definition.title}{domain ? " · " + domain : ""}</div>
                   <h2>{item.course.title}</h2>
                   <p>{definition.reviewerHint}</p>
                 </div>
-                <span className={"badge " + (item.specialistReady ? "badge-success" : review?.decision === "changes_requested" ? "badge-warning" : "")}>
-                  {item.specialistReady ? "Specialist approved" : review?.decision === "changes_requested" ? "Needs changes" : review?.decision === "in_progress" ? "In progress" : "Waiting"}
-                </span>
+                <div className="row wrap" style={{ justifyContent: "flex-end" }}>
+                  {item.course.status === "published" && !item.specialistReady ? <span className="badge badge-warning">Published · specialist review pending</span> : null}
+                  <span className={"badge " + (state === "approved" ? "badge-success" : state === "changes_requested" ? "badge-warning" : "")}>
+                    {queueStateLabel(state)}
+                  </span>
+                </div>
               </div>
 
               <div className="compact-list">
@@ -158,7 +231,7 @@ export default async function SpecialistTrainingReviewPage({
                 <input type="hidden" name="course_id" value={item.course.id}/>
                 <div className="dashboard-section-head">
                   <div>
-                    <h3>Reviewer assignment</h3>
+                    <h3>{review?.assigned_reviewer_name ? "Reviewer assignment" : "Assign specialist"}</h3>
                     <p>Assignment locks this review to revision {review?.review_revision || 1}. Any later course edit makes the assignment stale until it is refreshed.</p>
                   </div>
                   <span className={"badge " + (item.assignmentCurrent ? "badge-success" : "badge-warning")}>

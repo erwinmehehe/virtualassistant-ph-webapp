@@ -54,7 +54,8 @@ grant select on public.public_company_profiles to anon, authenticated;
 
 -- Only high-quality, approved profiles may be surfaced publicly. The view remains
 -- deliberately contact-safe: no email, resume path, legal name, or private links.
-create or replace view public.public_va_directory as
+drop view if exists public.public_va_directory;
+create view public.public_va_directory as
 select
   v.user_id,
   v.slug,

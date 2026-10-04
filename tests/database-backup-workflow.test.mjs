@@ -8,10 +8,12 @@ test("production backup workflow never uploads a plaintext dump", async () => {
   const verify = await readFile("scripts/verify-encrypted-db-backup.sh", "utf8");
 
   assert.match(workflow, /workflow_dispatch/);
-  assert.doesNotMatch(workflow, /schedule:/);
+  assert.match(workflow, /schedule:/);
+  assert.match(workflow, /cron: "17 6 \\* \\* \\*"/);
   assert.match(workflow, /SUPABASE_DB_URL/);
   assert.match(workflow, /BACKUP_ENCRYPTION_PASSPHRASE/);
-  assert.match(workflow, /retention-days: 2/);
+  assert.match(workflow, /retention-days: 30/);
+  assert.match(workflow, /Restore-test encrypted archive/);
   assert.match(workflow, /steps\.backup\.outputs\.path/);
 
   assert.match(create, /postgres:17/);
@@ -27,9 +29,10 @@ test("production backup workflow never uploads a plaintext dump", async () => {
   assert.match(verify, /aes-256-cbc/);
 });
 
-test("backup runbook does not confuse archive verification with a restore rehearsal", async () => {
+test("backup runbook documents the automated isolated restore rehearsal and remaining secret gate", async () => {
   const runbook = await readFile("docs/PRODUCTION_DATABASE_BACKUP.md", "utf8");
-  assert.match(runbook, /Archive verification is not a full restore rehearsal/);
-  assert.match(runbook, /isolated disposable PostgreSQL\/Supabase environment/);
+  assert.match(runbook, /daily/);
+  assert.match(runbook, /isolated disposable Supabase Postgres environment/);
+  assert.match(runbook, /30 days/);
   assert.match(runbook, /Do not claim the backup launch gate is complete/);
 });

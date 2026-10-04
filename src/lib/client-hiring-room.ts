@@ -10,6 +10,18 @@ export type ClientHiringRoomJob = {
   title: string | null;
   status: string;
   created_at: string;
+  categories?: string[] | null;
+  required_skills?: string[] | null;
+  required_tools?: string[] | null;
+  nice_to_have_skills?: string[] | null;
+  must_have_skills?: string[] | null;
+  must_have_tools?: string[] | null;
+  required_industries?: string[] | null;
+  minimum_years_experience?: number | null;
+  hours_per_week?: number | null;
+  max_hourly_rate?: number | null;
+  communication_requirement?: string | null;
+  dealbreakers?: string[] | null;
 };
 
 export type ClientHiringRoomReleasedCandidate = {
@@ -76,8 +88,25 @@ export const getClientHiringRoomSummary = cache(async function getClientHiringRo
     }),
   );
 
+  const data = (result.data || null) as ClientHiringRoomSummary | null;
+  if (!result.error && data?.selected_job?.id) {
+    const { data: matchContext, error: matchContextError } = await admin
+      .from("jobs")
+      .select("id,categories,required_skills,required_tools,nice_to_have_skills,must_have_skills,must_have_tools,required_industries,minimum_years_experience,hours_per_week,max_hourly_rate,communication_requirement,dealbreakers")
+      .eq("id", data.selected_job.id)
+      .eq("client_id", clientId)
+      .maybeSingle();
+
+    if (matchContextError) return { data, error: matchContextError };
+
+    if (matchContext) {
+      data.selected_job = { ...data.selected_job, ...matchContext };
+      data.jobs = data.jobs.map((job) => job.id === matchContext.id ? { ...job, ...matchContext } : job);
+    }
+  }
+
   return {
-    data: (result.data || null) as ClientHiringRoomSummary | null,
+    data,
     error: result.error,
   };
 });

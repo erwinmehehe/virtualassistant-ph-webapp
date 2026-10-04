@@ -17,7 +17,7 @@ export function titleCaseWithAcronyms(value: string) {
 }
 
 
-export type ContentLocale = "en-AU";
+export type ContentLocale = "en-AU" | "en-GB";
 
 const AU_ENGLISH_REPLACEMENTS: Array<[RegExp, string]> = [
   [/\borganizations\b/gi, "organisations"],
@@ -62,7 +62,7 @@ function preserveReplacementCase(match: string, replacement: string) {
 }
 
 export function localizeEnglish(value: string, locale?: ContentLocale) {
-  if (locale !== "en-AU") return value;
+  if (locale !== "en-AU" && locale !== "en-GB") return value;
   return AU_ENGLISH_REPLACEMENTS.reduce(
     (result, [pattern, replacement]) => result.replace(pattern, (match) => preserveReplacementCase(match, replacement)),
     value
@@ -85,7 +85,7 @@ const NON_LOCALIZED_CONTENT_KEYS = new Set([
 ]);
 
 export function localizeContent<T>(value: T, locale?: ContentLocale, key?: string): T {
-  if (locale !== "en-AU") return value;
+  if (locale !== "en-AU" && locale !== "en-GB") return value;
   if (key && NON_LOCALIZED_CONTENT_KEYS.has(key)) return value;
   if (typeof value === "string") return localizeEnglish(value, locale) as T;
   if (Array.isArray(value)) return value.map((item) => localizeContent(item, locale, key)) as T;

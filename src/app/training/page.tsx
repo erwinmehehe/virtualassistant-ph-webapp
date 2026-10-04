@@ -26,7 +26,8 @@ import {
   getPublicTrainingOverview,
   type PublicTrainingCourse,
 } from "@/lib/public-training";
-import { trainingJoinHref } from "@/lib/training-intent";
+import { trainingCourseDestination, trainingJoinHref } from "@/lib/training-intent";
+import { getSessionProfile } from "@/lib/auth";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import "../training-landing.css";
 
@@ -105,10 +106,10 @@ function courseDescriptor(course: PublicTrainingCourse) {
   return "Practical role training";
 }
 
-function CourseCard({ course, position }: { course: PublicTrainingCourse; position: string }) {
+function CourseCard({ course, position, signedIn }: { course: PublicTrainingCourse; position: string; signedIn: boolean }) {
   const { tone } = courseVisual(course);
   const recommended = course.slug === "virtual-assistant-foundations";
-  const joinHref = trainingJoinHref(course.slug);
+  const courseHref = signedIn ? trainingCourseDestination(course.slug) : trainingJoinHref(course.slug);
 
   return (
     <article className={`tr-course-card tr-course-card-v2 tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
@@ -138,12 +139,12 @@ function CourseCard({ course, position }: { course: PublicTrainingCourse; positi
 
         <Link
           className="tr-course-cta"
-          href={joinHref}
+          href={courseHref}
           data-track="training_course_interest_click"
           data-course-slug={course.slug}
           data-cta-position={position}
         >
-          {recommended ? "Start Foundations" : "Start this course"} <ArrowRight size={13}/>
+          {signedIn ? "Open course" : recommended ? "Start Foundations" : "Start this course"} <ArrowRight size={13}/>
         </Link>
       </div>
     </article>
@@ -210,7 +211,12 @@ const FAQS = [
 ] as const;
 
 export default async function TrainingPage() {
-  const { courses } = await getPublicTrainingOverview();
+  const [{ courses }, { user }] = await Promise.all([
+    getPublicTrainingOverview(),
+    getSessionProfile(),
+  ]);
+  const signedIn = Boolean(user);
+  const trainingHomeHref = signedIn ? "/workspace/training" : JOIN_HREF;
   const publishedCourses = courses.filter((course) => course.status === "published");
   const globalCourses = publishedCourses.filter((course) => !course.country_focus);
   const australiaCourses = publishedCourses.filter((course) => course.country_focus === "Australia");
@@ -291,11 +297,11 @@ export default async function TrainingPage() {
               <div className="tr-cta-row">
                 <Link
                   className="tr-btn tr-btn-primary"
-                  href={JOIN_HREF}
+                  href={trainingHomeHref}
                   data-track="training_account_click"
                   data-cta-position="hero"
                 >
-                  Start free training <ArrowRight size={17}/>
+                  {signedIn ? "Continue training" : "Start free training"} <ArrowRight size={17}/>
                 </Link>
                 <a
                   className="tr-btn tr-btn-secondary"
@@ -313,10 +319,21 @@ export default async function TrainingPage() {
               </div>
 
               <p className="tr-login-note">
-                Already registered?{" "}
-                <Link href={LOGIN_HREF} data-track="training_login_click">
-                  Continue training
-                </Link>
+                {signedIn ? (
+                  <>
+                    You’re signed in.{" "}
+                    <Link href="/workspace/training" data-track="training_login_click">
+                      Go to learner dashboard
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    Already registered?{" "}
+                    <Link href={LOGIN_HREF} data-track="training_login_click">
+                      Continue training
+                    </Link>
+                  </>
+                )}
               </p>
             </div>
 
@@ -373,7 +390,7 @@ export default async function TrainingPage() {
           </div>
         </section>
 
-        <TrainingMobileCta href={JOIN_HREF}/>
+        <TrainingMobileCta href={trainingHomeHref} label={signedIn ? "Continue training" : "Start free training"}/>
 
         <section className="tr-proof-strip" aria-label="Training catalogue summary">
           <div className="container tr-proof-grid">
@@ -431,12 +448,12 @@ export default async function TrainingPage() {
                 <span><BadgeCheck size={13}/>Certificate included</span>
                 <Link
                   className="tr-foundation-cta"
-                  href={trainingJoinHref("virtual-assistant-foundations")}
+                  href={signedIn ? trainingCourseDestination("virtual-assistant-foundations") : trainingJoinHref("virtual-assistant-foundations")}
                   data-track="training_course_interest_click"
                   data-course-slug="virtual-assistant-foundations"
                   data-cta-position="foundations_callout"
                 >
-                  Start Foundations free <ArrowRight size={13}/>
+                  {signedIn ? "Open Foundations" : "Start Foundations free"} <ArrowRight size={13}/>
                 </Link>
               </div>
             </div>
@@ -457,7 +474,7 @@ export default async function TrainingPage() {
                 <>
                   <div className="tr-course-grid">
                     {globalCourses.slice(0, 6).map((course) => (
-                      <CourseCard course={course} position="global_visible" key={course.id}/>
+                      <CourseCard course={course} signedIn={signedIn} position="global_visible" key={course.id}/>
                     ))}
                   </div>
                   {globalCourses.length > 6 ? (
@@ -467,7 +484,7 @@ export default async function TrainingPage() {
                       </summary>
                       <div className="tr-course-grid tr-course-grid-more">
                         {globalCourses.slice(6).map((course) => (
-                          <CourseCard course={course} position="global_expanded" key={course.id}/>
+                          <CourseCard course={course} signedIn={signedIn} position="global_expanded" key={course.id}/>
                         ))}
                       </div>
                     </details>
@@ -496,7 +513,7 @@ export default async function TrainingPage() {
                 <>
                   <div className="tr-course-grid">
                     {australiaCourses.slice(0, 6).map((course) => (
-                      <CourseCard course={course} position="australia_visible" key={course.id}/>
+                      <CourseCard course={course} signedIn={signedIn} position="australia_visible" key={course.id}/>
                     ))}
                   </div>
                   {australiaCourses.length > 6 ? (
@@ -506,7 +523,7 @@ export default async function TrainingPage() {
                       </summary>
                       <div className="tr-course-grid tr-course-grid-more">
                         {australiaCourses.slice(6).map((course) => (
-                          <CourseCard course={course} position="australia_expanded" key={course.id}/>
+                          <CourseCard course={course} signedIn={signedIn} position="australia_expanded" key={course.id}/>
                         ))}
                       </div>
                     </details>
@@ -579,8 +596,8 @@ export default async function TrainingPage() {
               </ul>
 
               <div className="tr-cta-row">
-                <Link className="tr-btn tr-btn-primary" href={JOIN_HREF} data-track="training_account_click" data-cta-position="certificate">
-                  Start free training <ArrowRight size={16}/>
+                <Link className="tr-btn tr-btn-primary" href={trainingHomeHref} data-track="training_account_click" data-cta-position="certificate">
+                  {signedIn ? "Continue training" : "Start free training"} <ArrowRight size={16}/>
                 </Link>
               </div>
             </div>
@@ -711,11 +728,11 @@ export default async function TrainingPage() {
             </div>
 
             <div className="tr-close-actions">
-              <Link className="tr-btn tr-btn-light" href={JOIN_HREF} data-track="training_account_click" data-cta-position="final">
-                Start free training <ArrowRight size={16}/>
+              <Link className="tr-btn tr-btn-light" href={trainingHomeHref} data-track="training_account_click" data-cta-position="final">
+                {signedIn ? "Continue training" : "Start free training"} <ArrowRight size={16}/>
               </Link>
-              <Link className="tr-close-login" href={LOGIN_HREF} data-track="training_login_click">
-                Already registered? Continue training
+              <Link className="tr-close-login" href={signedIn ? "/workspace/training" : LOGIN_HREF} data-track="training_login_click">
+                {signedIn ? "Go to learner dashboard" : "Already registered? Continue training"}
               </Link>
             </div>
           </div>

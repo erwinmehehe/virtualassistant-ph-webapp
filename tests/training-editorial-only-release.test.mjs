@@ -37,3 +37,20 @@ test("training publication continues with editorial, lesson, and assessment QA",
   assert.match(action, /Publish at least one complete practical final assessment before the course can go live/);
   assert.match(coursePage, /editorial review plus complete lesson and assessment QA/i);
 });
+
+
+test("learner and admin training queries match the editorial-only course schema", async () => {
+  const training = await readFile("src/lib/training.ts", "utf8");
+
+  for (const removedField of [
+    "review_requirement",
+    "specialist_reviewed_by",
+    "specialist_reviewer_role",
+    "specialist_review_notes",
+    "specialist_reviewed_at",
+  ]) {
+    assert.doesNotMatch(training, new RegExp(removedField));
+  }
+
+  assert.match(training, /reviewed_by,last_reviewed_at,published_at,updated_at/);
+});

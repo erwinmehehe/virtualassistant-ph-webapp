@@ -82,3 +82,29 @@ test("training-only Google accounts cannot leak into the VA recruiter directory"
   assert.match(migration, /raw_app_meta_data->>'account_type' = 'training'/);
   assert.match(migration, /revoke all on public\.recruiter_va_directory from public, anon, authenticated/);
 });
+
+
+test("training session continuity falls back to the verified auth user when claims need refresh", async () => {
+  const auth = await read("src/lib/auth.ts");
+
+  assert.match(auth, /let userId = typeof data\?\.claims\?\.sub === "string"/);
+  assert.match(auth, /if \(error \|\| !userId\) \{[\s\S]*supabase\.auth\.getUser\(\)/);
+  assert.match(auth, /userId = userData\.user\.id/);
+});
+
+test("signed-in learners are not sent back through training login or signup CTAs", async () => {
+  const [page, nav] = await Promise.all([
+    read("src/app/training/page.tsx"),
+    read("src/components/site-nav.tsx"),
+  ]);
+
+  assert.match(page, /getSessionProfile/);
+  assert.match(page, /const signedIn = Boolean\(user\)/);
+  assert.match(page, /signedIn \? trainingCourseDestination\(course\.slug\) : trainingJoinHref\(course\.slug\)/);
+  assert.match(page, /signedIn \? "\/workspace\/training" : JOIN_HREF/);
+  assert.match(page, /Go to learner dashboard/);
+  assert.match(page, /<TrainingMobileCta href=\{trainingHomeHref\} label=\{signedIn \? "Continue training" : "Start free training"\}\/>/);
+  assert.match(nav, /href=\{user \? "\/workspace\/training" : trainingContextLoginHref\}/);
+  assert.match(nav, /user \? "Continue training" : "Start free training"/);
+  assert.match(nav, /user \? "My learning" : "Training login"/);
+});

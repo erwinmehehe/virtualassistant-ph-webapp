@@ -7,7 +7,7 @@ const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 test("proposal response and delivered-send finalization are database-atomic",async()=>{
   const [actions,migration]=await Promise.all([
     read("src/app/actions/proposals.ts"),
-    read("supabase/migrations/20261004143000_conversion_hardening.sql"),
+    read("supabase/migrations/20261004202000_revenue_attribution_and_nurture.sql"),
   ]);
 
   assert.match(actions,/respond_to_lead_proposal_atomic/);
@@ -38,7 +38,7 @@ test("client handoff uses exact service-role identity lookup instead of paginate
   assert.match(migration,/grant execute on function public\.find_auth_user_id_by_email\(text\) to service_role/);
 });
 
-test("hiring forms persist first-touch marketing attribution through to customer reporting",async()=>{
+test("hiring forms persist immutable first-touch and mutable last-touch attribution through to revenue reporting",async()=>{
   const [fields,forms,leads,metrics,dashboard,migration]=await Promise.all([
     read("src/components/attribution-fields.tsx"),
     read("src/components/hiring-brief-form.tsx"),
@@ -48,16 +48,19 @@ test("hiring forms persist first-touch marketing attribution through to customer
     read("supabase/migrations/20261004143000_conversion_hardening.sql"),
   ]);
 
-  for(const key of ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","referrer","landing_page","first_touch_source"]){
+  for(const key of ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","referrer","landing_page","first_touch_source","first_touch_at","last_touch_source","last_touch_at"]){
     assert.match(fields,new RegExp(`name="${key}"`));
   }
   assert.match(forms,/AttributionFields sourcePath=\{sourcePath\}/);
   assert.match(leads,/attribution: leadAttribution\(formData, sourcePath\)/);
-  assert.match(metrics,/getAgencyAttributionMetrics/);
-  assert.match(dashboard,/Lead source → customer/);
-  assert.match(dashboard,/won value/);
-  assert.match(migration,/agency_attribution_metrics/);
-  assert.match(migration,/won_value_usd/);
+  assert.match(metrics,/getAgencyRevenueAttributionMetrics/);
+  assert.match(dashboard,/Marketing → revenue/);
+  assert.match(dashboard,/Collected revenue/);
+  assert.match(dashboard,/First-touch acquisition/);
+  assert.match(dashboard,/Last-touch conversion influence/);
+  assert.match(migration,/preserve_lead_first_touch_attribution/);
+  assert.match(migration,/agency_revenue_attribution_metrics/);
+  assert.match(migration,/collected_revenue_usd/);
 });
 
 test("upload transport limit safely exceeds the advertised 10 MB attachment limit",async()=>{

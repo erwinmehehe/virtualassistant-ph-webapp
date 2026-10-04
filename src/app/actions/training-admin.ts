@@ -158,6 +158,7 @@ export async function createTrainingCourseAction(formData: FormData) {
   if (!parsed.success) throw new Error("Check the course title, slug, summary, category, and duration.");
 
   const admin = createAdminClient();
+  const reviewRequirement = getSpecialistReviewDefinition(parsed.data.slug) ? "specialist" : "editorial";
   const { data, error } = await admin
     .from("training_courses")
     .insert({
@@ -165,7 +166,7 @@ export async function createTrainingCourseAction(formData: FormData) {
       country_focus: parsed.data.country_focus || null,
       recommended_order: parsed.data.recommended_order || null,
       trademark_disclaimer: parsed.data.trademark_disclaimer || null,
-      review_requirement: "editorial",
+      review_requirement: reviewRequirement,
       status: "draft",
     })
     .select("id")
@@ -191,6 +192,7 @@ export async function updateTrainingCourseAction(formData: FormData) {
   if (!courseId || !parsed.success) throw new Error("Check the course fields and try again.");
 
   const admin = createAdminClient();
+  const reviewRequirement = getSpecialistReviewDefinition(parsed.data.slug) ? "specialist" : "editorial";
   const reviewedBy = requiredString(formData, "reviewed_by") || null;
   const reviewAction = requiredString(formData, "review_action");
   const { data: existing } = await admin
@@ -210,7 +212,7 @@ export async function updateTrainingCourseAction(formData: FormData) {
       country_focus: parsed.data.country_focus || null,
       recommended_order: parsed.data.recommended_order || null,
       trademark_disclaimer: parsed.data.trademark_disclaimer || null,
-      review_requirement: "editorial",
+      review_requirement: reviewRequirement,
       reviewed_by: reviewedBy,
       last_reviewed_at: lastReviewedAt,
       specialist_reviewed_by: null,
@@ -493,7 +495,7 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
   if (status === "published") {
     const { data: course } = await admin
       .from("training_courses")
-      .select("reviewed_by,last_reviewed_at")
+      .select("slug,review_requirement,reviewed_by,last_reviewed_at,specialist_reviewed_by,specialist_reviewer_role,specialist_reviewed_at")
       .eq("id", courseId)
       .maybeSingle();
     const { data: modules } = await admin
@@ -516,6 +518,31 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
 
     if (!course?.reviewed_by || !course.last_reviewed_at) {
       throw new Error("Record a reviewer and review date before publishing the course.");
+    }
+    if (course.review_requirement === "specialist") {
+      if (!getSpecialistReviewDefinition(course.slug)) {
+        throw new Error("This course is specialist-gated but has no specialist review checklist configured.");
+      }
+      const { data: specialistReview, error: specialistReviewError } = await admin
+        .from("training_specialist_reviews")
+        .select("decision,reviewed_at,review_revision,assigned_revision,reviewer_name,reviewer_role")
+        .eq("course_id", courseId)
+        .maybeSingle();
+      if (specialistReviewError) throw specialistReviewError;
+      const currentApprovedReview = Boolean(
+        specialistReview?.decision === "approved" &&
+        specialistReview.reviewed_at &&
+        specialistReview.reviewer_name &&
+        specialistReview.reviewer_role &&
+        Number(specialistReview.review_revision || 0) > 0 &&
+        Number(specialistReview.review_revision || 0) === Number(specialistReview.assigned_revision || 0) &&
+        course.specialist_reviewed_by &&
+        course.specialist_reviewer_role &&
+        course.specialist_reviewed_at
+      );
+      if (!currentApprovedReview) {
+        throw new Error("Complete the current specialist review before publishing this course.");
+      }
     }
     if (!(lessons || []).length) throw new Error("Add lessons before publishing the course.");
     if ((lessons || []).some((lesson) => !lesson.is_published)) {

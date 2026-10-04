@@ -13,7 +13,7 @@ test("recruiter matching receives completed learning paths as supporting evidenc
   assert.match(staff, /completedTrainingSpecializations/);
   assert.match(staff, /const trainingCredentials=trainingByUser\.get\(va\.user_id\)\|\|\[\]/);
   assert.match(staff, /const trainingPaths=completedTrainingSpecializations\(trainingCredentials\)/);
-  assert.match(staff, /trainingCredentials:trainingByUser\.get\(va\.user_id\)\|\|\[\],trainingPaths/);
+  assert.match(staff, /return\{va,account,shortlist,job,interest,trainingCredentials,trainingPaths/);
 });
 
 test("candidate table can search and filter verified training without changing shortlist rules", async () => {
@@ -24,19 +24,21 @@ test("candidate table can search and filter verified training without changing s
   assert.match(table, /Completed learning path/);
   assert.match(table, /row\.trainingPaths/);
   assert.match(table, /path\.title/);
-  assert.match(table, /Training is supporting evidence only and does not change the match score or client-readiness gate/);
+  assert.match(table, /Directly relevant verified training can add up to 5 supporting match points/);
   assert.match(table, /matching-path-evidence/);
   assert.match(table, /Open recruiter scorecard/);
 });
 
-test("verified training evidence does not alter the core matching score", async () => {
+test("verified training can only add a capped supporting bonus to the core score", async () => {
   const matching = await readFile(matchingPath, "utf8");
 
-  assert.doesNotMatch(matching, /trainingCredentials|trainingPaths|certificate|learning path/i);
   assert.match(matching, /const roleMatch = roleIdentityFit\(job, va\)/);
   assert.match(matching, /const categoryMatch = categoryFit\(job, va\)/);
   assert.match(matching, /const skills = overlapRatio\(job\.required_skills, va\.skills\)/);
   assert.match(matching, /const tools = overlapRatio\(job\.required_tools, va\.tools\)/);
+  assert.match(matching, /const trainingMatch = verifiedTrainingFit\(job, trainingEvidence\)/);
+  assert.match(matching, /Math\.min\(\s*5/);
+  assert.match(matching, /missingHardRequirements\(job\.must_have_tools, va\.tools\)/);
 });
 
 test("recruiter evidence controls are responsive", async () => {

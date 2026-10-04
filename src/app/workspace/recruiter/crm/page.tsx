@@ -10,6 +10,7 @@ import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOpenLeadStage, leadStageLabel } from "@/lib/lead-crm";
 import { leadTemperatureLabel, normalizeLeadScoringRules, scoreLead } from "@/lib/lead-scoring";
+import { leadLossReasonLabel } from "@/lib/loss-reasons";
 import { clientReplyNeedsAction, clientReplyStatusLabel } from "@/lib/client-reply-state";
 import { isValidTimeZone } from "@/lib/timezone";
 import { RecruiterLeadKanban, type PipelineLead, type PipelineStage } from "@/components/recruiter-lead-kanban";
@@ -39,6 +40,9 @@ type LeadRow = {
   discovery_scheduled_at: string | null;
   discovery_completed_at: string | null;
   estimated_value_usd: number | string | null;
+  lost_reason_code: string | null;
+  lost_competitor: string | null;
+  win_back_at: string | null;
   stage_updated_at: string | null;
   created_at: string;
 };
@@ -70,6 +74,7 @@ const SYSTEM_VIEWS = [
   ["discovery", "Discovery"],
   ["qualified", "Qualified"],
   ["won", "Won"],
+  ["winback", "Win-back"],
   ["lost", "Closed"],
 ] as const;
 
@@ -101,6 +106,7 @@ function viewMatch(view: string, lead: LeadRow, userId: string, now: number, act
   if (view === "discovery") return stage === "discovery_booked";
   if (view === "qualified") return ["qualified", "terms_sent", "shortlist_sent"].includes(stage);
   if (view === "won") return stage === "won";
+  if (view === "winback") return stage === "lost" && Boolean(lead.win_back_at);
   if (view === "lost") return stage === "lost";
   return isOpenLeadStage(stage);
 }
@@ -119,7 +125,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
   let leadQuery = admin
     .from("lead_intake")
-    .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,acknowledgement_sent_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,stage_updated_at,created_at")
+    .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,acknowledgement_sent_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,lost_reason_code,lost_competitor,win_back_at,stage_updated_at,created_at")
     .eq("lead_type", "client_hiring")
     .order("created_at", { ascending: false })
     .limit(500);
@@ -200,6 +206,11 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
         if (scoreDiff !== 0) return scoreDiff;
         const aDue = a.next_follow_up_at ? new Date(a.next_follow_up_at).getTime() : Number.MAX_SAFE_INTEGER;
         const bDue = b.next_follow_up_at ? new Date(b.next_follow_up_at).getTime() : Number.MAX_SAFE_INTEGER;
+        if (aDue !== bDue) return aDue - bDue;
+      }
+      if (view === "winback") {
+        const aDue = a.win_back_at ? new Date(a.win_back_at).getTime() : Number.MAX_SAFE_INTEGER;
+        const bDue = b.win_back_at ? new Date(b.win_back_at).getTime() : Number.MAX_SAFE_INTEGER;
         if (aDue !== bDue) return aDue - bDue;
       }
       if (view === "active" || view === "mine" || view === "qualified") {
@@ -348,7 +359,14 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                     const unreadChat = Number(activity?.unread_chat || 0);
                     const vaViews = Number(activity?.va_views || 0);
                     const needsMoreOptions = activity?.latest_decision === "need_more_options";
-                    const nextStepLabel = unreadChat > 0 ? "Reply in chat" : needsMoreOptions ? "Build more options" : clientReplyStatusLabel(replyStatus);
+                    const winBackDue = Boolean(lead.win_back_at && new Date(lead.win_back_at).getTime() <= now);
+                    const nextStepLabel = lead.win_back_at
+                      ? (winBackDue ? "Win-back due" : "Win-back scheduled")
+                      : unreadChat > 0
+                        ? "Reply in chat"
+                        : needsMoreOptions
+                          ? "Build more options"
+                          : clientReplyStatusLabel(replyStatus);
                     return <tr key={lead.id}>
                       <td className={styles.selectCell}><input className={styles.rowCheckbox} type="checkbox" name="lead_id" value={lead.id} aria-label={`Select ${lead.name || lead.company || lead.email || "client"}`}/></td>
                       <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
@@ -373,13 +391,13 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                         </div>
                       </td>
                       <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
-                      <td className={overdue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
+                      <td className={overdue || winBackDue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
                         <Link className={styles.nextStepLink} href={`/workspace/recruiter/crm/${lead.id}`}>
                           <span className={unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
-                            {unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
+                            {winBackDue || unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
                             {nextStepLabel}
                           </span>
-                          <small className={styles.nextStepDate}>{unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
+                          <small className={styles.nextStepDate}>{lead.win_back_at ? `${leadLossReasonLabel(lead.lost_reason_code)} · ${shortDate(lead.win_back_at)}` : unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
                         </Link>
                       </td>
                     </tr>;

@@ -2,6 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import { closeLeadAction } from "@/app/actions/close-lead";
+import { LEAD_LOSS_REASONS } from "@/lib/loss-reasons";
 
 function CloseLeadSubmitButton() {
   const { pending } = useFormStatus();
@@ -24,17 +25,19 @@ export function CloseLeadForm({
         <input type="hidden" name="lead_id" value={leadId}/>
         <input type="hidden" name="return_to" value={returnTo}/>
         <div className="field">
-          <label>Close reason</label>
-          <select name="reason" defaultValue="Spam" required>
-            <option value="Spam">Spam</option>
-            <option value="Duplicate inquiry">Duplicate inquiry</option>
-            <option value="No response">No response</option>
-            <option value="Not a fit">Not a fit</option>
-            <option value="Budget">Budget</option>
-            <option value="Timing">Timing</option>
-            <option value="Hired elsewhere">Hired elsewhere</option>
-            <option value="Other">Other</option>
+          <label>Why was this opportunity lost?</label>
+          <select name="lost_reason_code" defaultValue="" required>
+            <option value="" disabled>Choose a reason</option>
+            {LEAD_LOSS_REASONS.map((reason) => <option key={reason.code} value={reason.code}>{reason.label}{reason.recoverable ? " · win-back" : ""}</option>)}
           </select>
+        </div>
+        <div className="field">
+          <label>Competitor <span className="small muted">(only when applicable)</span></label>
+          <input name="lost_competitor" maxLength={200} placeholder="Company or alternative chosen"/>
+        </div>
+        <div className="field">
+          <label>Internal detail <span className="small muted">(optional)</span></label>
+          <input name="lost_reason_detail" maxLength={1000} placeholder="What specifically blocked the hire?"/>
         </div>
         {hasLinkedRole ? (
           <label className="row wrap small">
@@ -44,7 +47,7 @@ export function CloseLeadForm({
         ) : null}
         <div className="row wrap">
           <CloseLeadSubmitButton/>
-          <span className="small muted">Moves the lead to Lost, clears follow-up, and keeps the CRM history.</span>
+          <span className="small muted">Recoverable reasons automatically schedule a recruiter win-back task.</span>
         </div>
       </form>
     </details>

@@ -4,7 +4,7 @@ import test from "node:test";
 
 const qualityPath = "src/lib/training-quality.ts";
 const actionPath = "src/app/actions/training-admin.ts";
-const adminPath = "src/lib/training-admin.ts";
+const adminPath = "src/app/workspace/admin/training/[courseId]/page.tsx";
 
 test("lesson quality requires exactly one exercise template and checklist", async () => {
   const quality = await readFile(qualityPath, "utf8");
@@ -43,9 +43,9 @@ test("admin readiness uses the same practical quality rules as publishing", asyn
   const admin = await readFile(adminPath, "utf8");
 
   assert.match(admin, /hasCompleteTrainingPracticalLesson\(lesson\.content\)/);
-  assert.match(admin, /isTrainingAssessmentPublishReady/);
-  assert.match(admin, /courseAssessments\.some\(isTrainingPracticalAssessmentReady\)/);
-  assert.match(admin, /assessment_type,rubric,resource_pack/);
+  assert.match(admin, /isTrainingAssessmentPublishReady\(assessment\)/);
+  assert.match(admin, /isTrainingPracticalAssessmentReady\(assessment\)/);
+  assert.match(admin, /assessmentReady/);
 });
 
 

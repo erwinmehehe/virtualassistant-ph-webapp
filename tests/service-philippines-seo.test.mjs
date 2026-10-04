@@ -15,7 +15,7 @@ test("all service SEO owners use Philippines-focused primary keywords and pure t
   const source = await readFile("src/lib/service-pages.ts", "utf8");
   const services = parseServiceArray(source);
 
-  assert.equal(services.length, 86);
+  assert.equal(services.length, 96);
 
   for (const page of services) {
     assert.match(page.primaryKeyword, /philippines$/i, `${page.slug} primary keyword must end in Philippines`);

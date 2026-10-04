@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
+import { recordProductEvent } from "@/lib/product-events";
 import { clientRequestMoreOptionsAction, clientShortlistDecisionAction } from "@/app/actions/client-shortlist";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { ClientShortlistCandidateCard } from "@/components/client-shortlist-candidate-card";
@@ -88,7 +89,14 @@ export default async function ClientCandidatesPage({
 
   if (selectedJob && selectedPublished && selectedAccessUnlocked && selectedReleased.length) {
     try {
-      await recordClientShortlistView(userId, selectedJob.id, selectedReleased.length);
+      const viewResult = await recordClientShortlistView(userId, selectedJob.id, selectedReleased.length);
+      if (viewResult.data) {
+        await recordProductEvent("shortlist_viewed", {
+          userId,
+          path: `/workspace/client/candidates?role=${selectedJob.id}`,
+          metadata: { job_id: selectedJob.id, released_count: selectedReleased.length },
+        });
+      }
     } catch {
       // Shortlist analytics should never block the client from reviewing candidates.
     }
@@ -103,7 +111,7 @@ export default async function ClientCandidatesPage({
   const held = selectedReleased.filter((row) => row.client_decision === "hold").length;
   const undecided = selectedReleased.filter((row) => !row.client_decision || row.client_decision === "hold").length;
   const remaining = undecided;
-  const interested = selectedReleased.filter((row) => row.client_decision === "interested").length;
+  const shortlisted = selectedReleased.filter((row) => row.client_decision === "interested").length;
   const interviewRequested = selectedReleased.filter((row) => row.client_decision === "interview").length;
   const passed = selectedReleased.filter((row) => row.client_decision === "pass").length;
   const allPassed = selectedReleased.length > 0 && selectedReleased.every((row) => row.client_decision === "pass");
@@ -136,10 +144,10 @@ export default async function ClientCandidatesPage({
             label: "Review Hiring Room",
             waiting: "Waiting on you",
           }
-        : interested
+        : shortlisted
           ? {
-              title: "Your recruiter has your feedback",
-              copy: "You marked a candidate as interested. Our recruiting team will coordinate the appropriate next step.",
+              title: "Your shortlist is saved",
+              copy: "You kept a candidate shortlisted. Request an interview when ready, or compare the remaining recruiter-selected VAs.",
               href: "/workspace/client/interviews",
               label: "View interviews",
               waiting: "Waiting on our recruiting team",
@@ -206,7 +214,7 @@ export default async function ClientCandidatesPage({
 
       {selectedReleased.length ? <div className="role-handoff-stats" style={{marginBottom:16}}>
         <div><span>Waiting</span><strong>{undecided}</strong></div>
-        <div><span>Interested</span><strong>{interested}</strong></div>
+        <div><span>Shortlisted</span><strong>{shortlisted}</strong></div>
         <div><span>Interview</span><strong>{interviewRequested}</strong></div>
         <div><span>Passed</span><strong>{passed}</strong></div>
       </div> : null}

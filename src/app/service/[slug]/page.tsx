@@ -629,15 +629,16 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const siteId = websiteId(base);
   const serviceLanguage = s.locale || "en-US";
 
+  const serviceAreaNames: Record<string, string> = {
+    US: "United States",
+    AU: "Australia",
+    CA: "Canada",
+    GB: "United Kingdom",
+    NZ: "New Zealand",
+  };
   const areaServed = serviceAreas.map((countryCode) => ({
     "@type": "Country",
-    name: {
-      US: "United States",
-      AU: "Australia",
-      CA: "Canada",
-      GB: "United Kingdom",
-      NZ: "New Zealand",
-    }[countryCode] || countryCode,
+    name: serviceAreaNames[countryCode] || countryCode,
   }));
 
   const schema = {

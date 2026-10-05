@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionProfile } from "@/lib/auth";
 import { applyToJobAction, saveJobAction } from "@/app/actions/applications";
-import { money, dateShort } from "@/lib/format";
+import { dateShort } from "@/lib/format";
 import { isUuid, jobPublicHref } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";

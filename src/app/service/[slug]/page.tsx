@@ -34,7 +34,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata, serviceOgCategory } from "@/lib/og";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
-import { organizationRef } from "@/lib/organization";
+import { organizationId } from "@/lib/organization";
 import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
 import { softwarePagesForTools } from "@/lib/software-pages";
@@ -606,17 +606,38 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
     { q: "Can this role be part-time?", a: "Often, yes. Define the workload, response-time expectations, and required schedule overlap first so candidates can tell you whether the hours are realistic." }
   ], s.locale);
 
+  const serviceAreas = market === "Australia"
+    ? ["AU"]
+    : market === "United Kingdom"
+      ? ["GB"]
+      : ["US", "AU", "CA", "GB", "NZ"];
+
+  const serviceCapabilities = uniqueStrings(s.tasks)
+    .slice(0, 6)
+    .map((task) => ({
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: toTitle(task),
+      },
+    }));
+
   const schema = [
     {
       "@context": "https://schema.org",
       "@type": "Service",
       "@id": `${pageUrl}#service`,
       name: serviceMetaTitle(s),
-      serviceType: s.name,
+      serviceType: `${s.name} Services`,
       url: pageUrl,
       description: serviceMetaDescription(s),
-      provider: organizationRef(base),
-      areaServed: market || "Worldwide"
+      provider: { "@id": organizationId(base) },
+      areaServed: serviceAreas,
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: `${roleName(s.name)} VA Capabilities`,
+        itemListElement: serviceCapabilities,
+      },
     },
     {
       "@context": "https://schema.org",

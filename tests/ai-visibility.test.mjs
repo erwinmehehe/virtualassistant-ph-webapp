@@ -53,7 +53,7 @@ test("one Organization entity, referenced by every page that names us", () => {
     "src/app/jobs/[id]/page.tsx"
   ]) {
     const page = source(path);
-    assert.match(page, /organizationRef\(base\)/, `${path} should reference the canonical organization`);
+    assert.match(page, /organization(?:Ref|Id)\(base\)/, `${path} should reference the canonical organization`);
     assert.doesNotMatch(page, /"@type": "Organization", name: "VirtualAssistant\.com\.ph"/, `${path} still declares its own organization`);
   }
 });

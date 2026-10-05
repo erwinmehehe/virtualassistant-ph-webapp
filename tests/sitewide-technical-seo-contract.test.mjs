@@ -59,6 +59,7 @@ test("llms.txt surfaces the candidate application journey without private routes
 test("public templates keep visible FAQs but never emit FAQPage structured data", async () => {
   const publicTemplates = [
     "src/app/page.tsx",
+    "src/app/[legacy]/page.tsx",
     "src/app/service/[slug]/page.tsx",
     "src/app/blog/[slug]/page.tsx",
     "src/app/resources/[slug]/page.tsx",

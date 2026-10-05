@@ -34,7 +34,7 @@ import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata, serviceOgCategory } from "@/lib/og";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
-import { organizationRef } from "@/lib/organization";
+import { organizationId } from "@/lib/organization";
 import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
 import { softwarePagesForTools } from "@/lib/software-pages";
@@ -631,7 +631,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       serviceType: `${s.name} Services`,
       url: pageUrl,
       description: serviceMetaDescription(s),
-      provider: { "@id": organizationRef(base)["@id"] },
+      provider: { "@id": organizationId(base) },
       areaServed: serviceAreas,
       hasOfferCatalog: {
         "@type": "OfferCatalog",

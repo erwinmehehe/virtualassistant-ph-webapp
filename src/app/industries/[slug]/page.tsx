@@ -20,7 +20,7 @@ import { servicePageBySlug } from "@/lib/service-pages";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
-import { organizationRef } from "@/lib/organization";
+import { organizationId, websiteId } from "@/lib/organization";
 import { localizeContent, localizeEnglish, titleCaseWithAcronyms } from "@/lib/content-language";
 import { industryTalentFilters } from "@/lib/industry-talent-mappings";
 import { socialMetadata } from "@/lib/og";
@@ -71,7 +71,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   ).slice(0, 6), page.locale);
   const hub = localizeContent(page.clusterSlug ? industryBySlug(page.clusterSlug) : undefined, page.locale);
   const spokes = localizeContent(INDUSTRIES.filter((i) => i.clusterSlug === page.slug), page.locale);
-  const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const pageUrl = `${base}/industries/${page.slug}`;
   const talentFilters = industryTalentFilters(page.slug);
   const talentParams = new URLSearchParams();
@@ -102,15 +102,62 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
     { q: `How much does an industry-specific Virtual Assistant cost?`, a: `Rates vary with experience, specialization, live coverage, technical depth, and decision ownership. Compare candidates against the responsibility level you need rather than choosing only by the lowest hourly rate.` }
   ], page.locale);
 
-  const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoTitle, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: isAu ? "Australia" : "Worldwide" },
-    { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: base },
-      { "@type": "ListItem", position: 2, name: "Industries", item: `${base}/industries` },
-      ...(hub ? [{ "@type": "ListItem", position: 3, name: hub.label, item: `${base}/industries/${hub.slug}` }] : []),
-      { "@type": "ListItem", position: hub ? 4 : 3, name: page.label, item: pageUrl }
-    ] }
-  ];
+  const serviceId = `${pageUrl}#service`;
+  const webpageId = `${pageUrl}#webpage`;
+  const breadcrumbId = `${pageUrl}#breadcrumb`;
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+  const pageLanguage = page.locale || "en-US";
+  const serviceAreas = isAu
+    ? [{ "@type": "Country", name: "Australia" }]
+    : [
+        { "@type": "Country", name: "United States" },
+        { "@type": "Country", name: "Australia" },
+        { "@type": "Country", name: "Canada" },
+        { "@type": "Country", name: "United Kingdom" },
+        { "@type": "Country", name: "New Zealand" }
+      ];
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url: pageUrl,
+        name: seoTitle,
+        description: seoDescription,
+        inLanguage: pageLanguage,
+        isPartOf: { "@id": siteId },
+        about: { "@id": serviceId },
+        mainEntity: { "@id": serviceId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId }
+      },
+      {
+        "@type": "Service",
+        "@id": serviceId,
+        name: seoTitle,
+        serviceType: `${page.label} Virtual Assistant Services`,
+        url: pageUrl,
+        description: seoDescription,
+        inLanguage: pageLanguage,
+        mainEntityOfPage: { "@id": webpageId },
+        provider: { "@id": orgId },
+        areaServed: serviceAreas
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: base },
+          { "@type": "ListItem", position: 2, name: "Industries", item: `${base}/industries` },
+          ...(hub ? [{ "@type": "ListItem", position: 3, name: hub.label, item: `${base}/industries/${hub.slug}` }] : []),
+          { "@type": "ListItem", position: hub ? 4 : 3, name: page.label, item: pageUrl }
+        ]
+      }
+    ]
+  };
 
   return <><SiteHeader/><main id="main-content">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(schema) }} />

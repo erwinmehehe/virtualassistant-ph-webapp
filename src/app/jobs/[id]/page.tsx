@@ -14,7 +14,7 @@ import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
 import { isPublishableCompanyName } from "@/lib/job-publication";
-import { organizationRef } from "@/lib/organization";
+import { organizationId, websiteId } from "@/lib/organization";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import "./job-detail.css";
 
@@ -143,47 +143,74 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   ].filter(Boolean).join("\n");
 
   const base=(process.env.NEXT_PUBLIC_APP_URL||"https://virtualassistant.com.ph").replace(/\/$/,"");
-  const jobSchemaId = `${base}${canonicalHref}#job`;
+  const pageUrl = `${base}${canonicalHref}`;
+  const jobSchemaId = `${pageUrl}#job`;
+  const webpageId = `${pageUrl}#webpage`;
+  const breadcrumbId = `${pageUrl}#breadcrumb`;
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": `${base}${canonicalHref}`,
-        publisher: organizationRef(base),
+        "@id": webpageId,
+        url: pageUrl,
+        name: job.title,
+        description: structuredDescription,
+        inLanguage: "en-PH",
+        isPartOf: { "@id": siteId },
+        about: { "@id": jobSchemaId },
         mainEntity: { "@id": jobSchemaId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId },
       },
       {
         "@type": "JobPosting",
         "@id": jobSchemaId,
         title: job.title,
-    description: structuredDescription,
-    identifier: { "@type": "PropertyValue", name: "VirtualAssistant.com.ph", value: job.id },
-    datePosted: job.published_at || job.created_at,
-    validThrough: job.expires_at || undefined,
-    url: `${base}${canonicalHref}`,
-    employmentType: job.hours_per_week ? (job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME") : undefined,
-    jobLocationType: "TELECOMMUTE",
-    applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
-    hiringOrganization: {
-      "@type": "Organization",
-      name: companyName,
-      ...(companyWebsite ? { sameAs: companyWebsite } : {}),
-      ...(company?.logo_url ? { logo: company.logo_url } : {}),
-    },
-    responsibilities: uniqueStrings(job.responsibilities).length ? uniqueStrings(job.responsibilities).join("; ") : undefined,
-    skills: mergeUniqueStrings(job.required_skills, job.required_tools).length ? mergeUniqueStrings(job.required_skills, job.required_tools).join(", ") : undefined,
-    workHours: job.hours_per_week ? `${job.hours_per_week} hours per week` : undefined,
-    experienceRequirements: job.experience_level ? `Experience level: ${job.experience_level}` : undefined,
-        baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
+        description: structuredDescription,
+        identifier: { "@type": "PropertyValue", name: "VirtualAssistant.com.ph", value: job.id },
+        datePosted: job.published_at || job.created_at,
+        validThrough: job.expires_at || undefined,
+        url: pageUrl,
+        mainEntityOfPage: { "@id": webpageId },
+        employmentType: job.hours_per_week ? (job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME") : undefined,
+        jobLocationType: "TELECOMMUTE",
+        applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
+        hiringOrganization: {
+          "@type": "Organization",
+          name: companyName,
+          ...(companyWebsite ? { url: companyWebsite, sameAs: companyWebsite } : {}),
+          ...(company?.logo_url ? { logo: company.logo_url } : {}),
+        },
+        responsibilities: uniqueStrings(job.responsibilities).length ? uniqueStrings(job.responsibilities).join("; ") : undefined,
+        skills: mergeUniqueStrings(job.required_skills, job.required_tools).length ? mergeUniqueStrings(job.required_skills, job.required_tools).join(", ") : undefined,
+        workHours: job.hours_per_week ? `${job.hours_per_week} hours per week` : undefined,
+        experienceRequirements: job.experience_level ? `Experience level: ${job.experience_level}` : undefined,
+        baseSalary: job.min_hourly_rate ? {
+          "@type": "MonetaryAmount",
+          currency: "USD",
+          value: {
+            "@type": "QuantitativeValue",
+            minValue: job.min_hourly_rate,
+            ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}),
+            unitText: "HOUR"
+          }
+        } : undefined
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: base },
+          { "@type": "ListItem", position: 2, name: "Virtual Assistant Jobs", item: `${base}/jobs` },
+          { "@type": "ListItem", position: 3, name: job.title, item: pageUrl }
+        ]
       }
     ]
   };
-
-  const rateText = job.max_hourly_rate ? `${money(job.min_hourly_rate)}–${money(job.max_hourly_rate)}/hr` : `${money(job.min_hourly_rate)}/hr`;
-  const employerLabel = companyName;
-  const skillsAndTools = mergeUniqueStrings(job.required_skills, job.required_tools);
-  const responsibilities = uniqueStrings(job.responsibilities);
 
   return (
     <>

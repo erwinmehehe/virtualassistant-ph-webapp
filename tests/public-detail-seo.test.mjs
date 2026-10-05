@@ -40,7 +40,7 @@ test("service pages preserve the long-form sections that support search intent",
     assert.ok(page.includes(section), `service template is missing ${section}`);
   }
   assert.match(page, /BreadcrumbList/);
-  assert.match(page, /FAQPage/);
+  assert.doesNotMatch(page, /FAQPage/);
   assert.match(page, /canonicalPath/);
 });
 

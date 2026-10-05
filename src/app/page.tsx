@@ -32,7 +32,7 @@ import "./homepage-seo-evidence.css";
 import "./homepage-growth.css";
 import "./homepage-sections.css";
 import "./homepage-reference-polish.css";
-import { ORGANIZATION_ALTERNATE_NAME, ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
+import { ORGANIZATION_ALTERNATE_NAME, ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId, websiteId } from "@/lib/organization";
 
 export const metadata: Metadata = {
   title: { absolute: "Virtual Assistant Philippines | VirtualAssistant.com.ph" },
@@ -139,7 +139,7 @@ export default async function HomePage() {
   const homeTitle = "Virtual Assistant Philippines | VirtualAssistant.com.ph";
   const homeDescription =
     "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.";
-  const websiteId = `${base}/#website`;
+  const siteId = websiteId(base);
   const webpageId = `${base}/#webpage`;
   const logoId = `${base}/#logo`;
   const primaryImageId = `${base}/#primaryimage`;
@@ -155,7 +155,7 @@ export default async function HomePage() {
         name: homeTitle,
         description: homeDescription,
         inLanguage: "en-US",
-        isPartOf: { "@id": websiteId },
+        isPartOf: { "@id": siteId },
         about: { "@id": organizationId(base) },
         primaryImageOfPage: { "@id": primaryImageId },
         breadcrumb: { "@id": breadcrumbId },
@@ -168,7 +168,7 @@ export default async function HomePage() {
       },
       {
         "@type": "WebSite",
-        "@id": websiteId,
+        "@id": siteId,
         url: `${base}/`,
         name: "Virtual Assistant Philippines",
         alternateName: ORGANIZATION_ALTERNATE_NAME,

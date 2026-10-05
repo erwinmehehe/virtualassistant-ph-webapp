@@ -74,3 +74,44 @@ test("public templates keep visible FAQs but never emit FAQPage structured data"
     assert.doesNotMatch(page, /FAQPage/, `${path} must not emit FAQPage schema`);
   }
 });
+
+
+test("public schema templates converge on the canonical VAPH website and organization IDs", async () => {
+  const organization = await read("src/lib/organization.ts");
+  assert.match(organization, /export function websiteId\(base: string\)/);
+  assert.match(organization, /#website/);
+  assert.match(organization, /#organization/);
+
+  const templates = [
+    "src/app/page.tsx",
+    "src/app/service/[slug]/page.tsx",
+    "src/app/blog/[slug]/page.tsx",
+    "src/app/resources/[slug]/page.tsx",
+    "src/app/jobs/[id]/page.tsx",
+    "src/app/software/[slug]/page.tsx",
+    "src/app/industries/[slug]/page.tsx",
+  ];
+
+  for (const path of templates) {
+    const page = await read(path);
+    assert.match(page, /organizationId\(base\)/, `${path} must reference the canonical organization ID`);
+    assert.match(page, /websiteId\(base\)/, `${path} must reference the canonical website ID`);
+    assert.match(page, /"@type": "WebPage"/, `${path} must expose a WebPage node`);
+    assert.match(page, /isPartOf: \{ "@id": siteId \}/, `${path} WebPage must connect to #website`);
+  }
+});
+
+test("content and commerce entities point back to their canonical WebPage nodes", async () => {
+  const expectations = [
+    ["src/app/service/[slug]/page.tsx", /mainEntityOfPage: \{ "@id": webpageId \}/],
+    ["src/app/blog/[slug]/page.tsx", /mainEntityOfPage: \{ "@id": webpageId \}/],
+    ["src/app/resources/[slug]/page.tsx", /mainEntityOfPage: \{ "@id": webpageId \}/],
+    ["src/app/jobs/[id]/page.tsx", /mainEntityOfPage: \{ "@id": webpageId \}/],
+    ["src/app/software/[slug]/page.tsx", /mainEntityOfPage: \{ "@id": webpageId \}/],
+    ["src/app/industries/[slug]/page.tsx", /mainEntityOfPage: \{ "@id": webpageId \}/],
+  ];
+
+  for (const [path, pattern] of expectations) {
+    assert.match(await read(path), pattern, `${path} entity must point to its canonical WebPage`);
+  }
+});

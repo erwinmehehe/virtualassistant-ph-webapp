@@ -13,6 +13,7 @@ import "@/app/homepage-sections.css";
 import "@/app/hiring-pages.css";
 import "@/app/info-pages.css";
 import { socialMetadata } from "@/lib/og";
+import { organizationId, websiteId } from "@/lib/organization";
 
 export function generateStaticParams() {
   return SEO_RESOURCE_PAGES.map((page) => ({ slug: page.slug }));
@@ -59,30 +60,56 @@ export default async function ResourcePage({ params }: { params: Promise<{ slug:
     ? { href: "/auth/join/va", label: "Create your profile" }
     : { href: "/hire", label: "Send a hiring brief" };
 
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "@id": url + "#article",
-      headline: page.title,
-      description: page.metaDescription,
-      mainEntityOfPage: url,
-      datePublished: seoResourcePublishedAt(page.slug),
-      dateModified: seoResourceUpdatedAt(page.slug),
-      author: { "@type": "Organization", name: "VirtualAssistant.com.ph Editorial Team", url: base + "/authors/editorial-team" },
-      publisher: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base }
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "@id": url + "#breadcrumb",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: base },
-        { "@type": "ListItem", position: 2, name: "Resources", item: base + "/resources" },
-        { "@type": "ListItem", position: 3, name: page.title, item: url }
-      ]
-    }
-  ];
+  const articleId = url + "#article";
+  const webpageId = url + "#webpage";
+  const breadcrumbId = url + "#breadcrumb";
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+  const editorialTeamId = base + "/authors/editorial-team#organization";
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url,
+        name: page.metaTitle,
+        description: page.metaDescription,
+        inLanguage: "en-PH",
+        isPartOf: { "@id": siteId },
+        about: { "@id": articleId },
+        mainEntity: { "@id": articleId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId }
+      },
+      {
+        "@type": "Article",
+        "@id": articleId,
+        headline: page.title,
+        description: page.metaDescription,
+        mainEntityOfPage: { "@id": webpageId },
+        datePublished: seoResourcePublishedAt(page.slug),
+        dateModified: seoResourceUpdatedAt(page.slug),
+        author: {
+          "@type": "Organization",
+          "@id": editorialTeamId,
+          name: "VirtualAssistant.com.ph Editorial Team",
+          url: base + "/authors/editorial-team"
+        },
+        publisher: { "@id": orgId }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: base },
+          { "@type": "ListItem", position: 2, name: "Resources", item: base + "/resources" },
+          { "@type": "ListItem", position: 3, name: page.title, item: url }
+        ]
+      }
+    ]
+  };
 
   return <>
     <SiteHeader />

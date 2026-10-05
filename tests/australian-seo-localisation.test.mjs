@@ -289,7 +289,9 @@ test("Australian SEO templates render AU English and Australian market metadata"
   assert.match(serviceRoute, /const market = s\.locale === "en-AU" \? "Australia"/);
   assert.match(serviceRoute, /const serviceAreas = market === "Australia"/);
   assert.match(serviceRoute, /\? \["AU"\]/);
-  assert.match(serviceRoute, /areaServed: serviceAreas/);
+  assert.match(serviceRoute, /const areaServed = serviceAreas\.map/);
+  assert.match(serviceRoute, /areaServed,/);
+  assert.match(serviceRoute, /"@type": "Country"/);
   assert.match(serviceRoute, /titleLead=\{serviceMetaTitle\(s\)\}/);
 
   assert.match(industryRoute, /locale: industry\.locale === "en-AU" \? "en_AU" : undefined/);

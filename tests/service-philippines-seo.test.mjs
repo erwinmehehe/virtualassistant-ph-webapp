@@ -52,3 +52,18 @@ test("relevant service tools link to software-specific Philippines pages", async
   assert.match(route, /href=\{\`\/software\/\$\{software\.slug\}\`\}/);
   assert.match(route, /Software hiring guides/);
 });
+
+
+test("service pages emit transactional Service schema linked to the canonical agency", async () => {
+  const route = await readFile("src/app/service/[slug]/page.tsx", "utf8");
+
+  assert.match(route, /"@type": "Service"/);
+  assert.match(route, /serviceType: \`\$\{s\.name\} Services\`/);
+  assert.match(route, /provider: \{ "@id": organizationId\(base\) \}/);
+  assert.match(route, /areaServed: serviceAreas/);
+  assert.match(route, /\["US", "AU", "CA", "GB", "NZ"\]/);
+  assert.match(route, /"@type": "OfferCatalog"/);
+  assert.match(route, /itemListElement: serviceCapabilities/);
+  assert.match(route, /"@type": "Offer"/);
+  assert.match(route, /name: toTitle\(task\)/);
+});

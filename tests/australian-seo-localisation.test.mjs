@@ -295,11 +295,15 @@ test("Australian SEO templates render AU English and Australian market metadata"
   assert.match(serviceRoute, /titleLead=\{serviceMetaTitle\(s\)\}/);
 
   assert.match(industryRoute, /locale: industry\.locale === "en-AU" \? "en_AU" : undefined/);
-  assert.match(industryRoute, /areaServed: isAu \? "Australia" : "Worldwide"/);
+  assert.match(industryRoute, /const serviceAreas = isAu/);
+  assert.match(industryRoute, /areaServed: serviceAreas/);
+  assert.match(industryRoute, /"@type": "Country"/);
   assert.match(industryRoute, /localizeContent\(industryFirst30Days\(page\), page\.locale\)/);
 
   assert.match(softwareRoute, /locale: page\.locale === "en-AU" \? "en_AU" : page\.locale === "en-GB" \? "en_GB" : undefined/);
   assert.match(softwareRoute, /const market = page\.locale === "en-AU" \? "Australia"/);
-  assert.match(softwareRoute, /areaServed: market \|\| "Worldwide"/);
+  assert.match(softwareRoute, /const serviceAreas = market === "Australia"/);
+  assert.match(softwareRoute, /areaServed: serviceAreas/);
+  assert.match(softwareRoute, /"@type": "Country"/);
   assert.match(softwareRoute, /localizeContent\(softwareLongFormCopy\(page\), page\.locale\)/);
 });

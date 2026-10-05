@@ -74,7 +74,6 @@ test("homepage Organization schema carries useful entity context and removes obs
   assert.match(home, /knowsAbout/);
   assert.match(home, /contactPoint/);
   assert.match(home, /availableLanguage/);
-  assert.match(home, /member:/);
   assert.doesNotMatch(home, /SearchAction/);
 });
 

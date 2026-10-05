@@ -664,7 +664,6 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         serviceType: `${s.name} Services`,
         url: pageUrl,
         description: serviceMetaDescription(s),
-        inLanguage: serviceLanguage,
         mainEntityOfPage: { "@id": webpageId },
         provider: { "@id": orgId },
         areaServed,

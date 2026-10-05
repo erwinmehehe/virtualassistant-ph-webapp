@@ -140,7 +140,6 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
         serviceType: `${page.software} Virtual Assistant Services`,
         url: pageUrl,
         description: seoDescription,
-        inLanguage: pageLanguage,
         mainEntityOfPage: { "@id": webpageId },
         provider: { "@id": orgId },
         areaServed: serviceAreas

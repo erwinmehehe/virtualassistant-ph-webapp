@@ -35,7 +35,7 @@ import "./homepage-reference-polish.css";
 import { ORGANIZATION_ALTERNATE_NAME, ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
 
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Philippines | VirtualAssistant.com.ph" },
+  title: { absolute: "VirtualAssistant.com.ph | Virtual Assistant Philippines" },
   description:
     "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.",
   keywords: [
@@ -136,7 +136,7 @@ export default async function HomePage() {
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
     .slice(0, 6);
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const homeTitle = "Virtual Assistant Philippines | VirtualAssistant.com.ph";
+  const homeTitle = "VirtualAssistant.com.ph | Virtual Assistant Philippines";
   const homeDescription =
     "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.";
   const websiteId = `${base}/#website`;

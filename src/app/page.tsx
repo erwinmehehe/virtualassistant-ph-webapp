@@ -178,7 +178,7 @@ export default async function HomePage() {
         publisher: { "@id": organizationId(base) },
       },
       {
-        "@type": "Organization",
+        "@type": ["Organization", "EmploymentAgency"],
         "@id": organizationId(base),
         name: ORGANIZATION_NAME,
         alternateName: ORGANIZATION_ALTERNATE_NAME,
@@ -187,21 +187,19 @@ export default async function HomePage() {
         image: { "@id": logoId },
         sameAs: ORGANIZATION_SAME_AS,
         description:
-          "Philippines-focused recruiting and managed hiring for businesses looking for vetted Filipino Virtual Assistants.",
-        areaServed: [
-          { "@type": "Country", name: "Australia" },
-          { "@type": "Country", name: "United States" },
-          { "@type": "Country", name: "United Kingdom" },
-        ],
+          "Managed Virtual Assistant recruitment, screening, and ongoing client success matching for businesses worldwide.",
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "PH",
+        },
+        areaServed: ["US", "AU", "CA", "GB", "NZ"],
         knowsAbout: [
-          "Virtual Assistant Philippines",
+          "Virtual Assistance",
+          "Remote Staffing",
+          "BPO Philippines",
+          "Offshore Delegation",
           "Filipino Virtual Assistants",
           "Virtual Assistant recruitment",
-          "Administrative support",
-          "Executive assistance",
-          "Customer service",
-          "Lead generation",
-          "Ecommerce support",
         ],
         contactPoint: [
           {
@@ -209,22 +207,18 @@ export default async function HomePage() {
             contactType: "sales",
             url: `${base}/contact`,
             availableLanguage: ["English"],
-            areaServed: ["AU", "US", "GB"],
+            areaServed: ["US", "AU", "CA", "GB", "NZ"],
           },
-        ],
-        member: [
-          { "@type": "Person", name: "Jervis Accad" },
-          { "@type": "Person", name: "Bryan Batarina" },
         ],
       },
       {
         "@type": "ImageObject",
         "@id": logoId,
         inLanguage: "en-US",
-        url: `${base}/favicon.png`,
-        contentUrl: `${base}/favicon.png`,
-        width: 96,
-        height: 96,
+        url: `${base}/icon.svg`,
+        contentUrl: `${base}/icon.svg`,
+        width: 512,
+        height: 512,
         caption: "Virtual Assistant Philippines",
       },
       {

@@ -68,8 +68,9 @@ test("homepage visible FAQ covers commercial hiring questions and emits matching
 
 test("homepage Organization schema carries useful entity context and removes obsolete search action markup", () => {
   const home = source("src/app/page.tsx");
-  assert.match(home, /\"@type\": \"Organization\"/);
-  assert.match(home, /areaServed/);
+  assert.match(home, /\"@type\": \[\"Organization\", \"EmploymentAgency\"\]/);
+  assert.match(home, /addressCountry: "PH"/);
+  assert.match(home, /areaServed: \["US", "AU", "CA", "GB", "NZ"\]/);
   assert.match(home, /knowsAbout/);
   assert.match(home, /contactPoint/);
   assert.match(home, /availableLanguage/);
@@ -107,12 +108,15 @@ test("homepage schema exposes a connected WebPage, WebSite, Organization, image 
   assert.match(home, /"@graph"/);
   assert.match(home, /"@type": "WebPage"/);
   assert.match(home, /"@type": "WebSite"/);
-  assert.match(home, /"@type": "Organization"/);
+  assert.match(home, /"@type": \["Organization", "EmploymentAgency"\]/);
   assert.match(home, /"@type": "ImageObject"/);
   assert.match(home, /"@type": "BreadcrumbList"/);
   assert.match(home, /name: "Virtual Assistant Philippines"/);
   assert.match(home, /alternateName: ORGANIZATION_ALTERNATE_NAME/);
   assert.match(home, /primaryImageOfPage/);
+  assert.match(home, /contentUrl: \`\$\{base\}\/icon\.svg\`/);
+  assert.match(home, /width: 512/);
+  assert.match(home, /height: 512/);
   assert.match(home, /breadcrumb:/);
   assert.match(home, /isPartOf:/);
   assert.match(home, /about:/);

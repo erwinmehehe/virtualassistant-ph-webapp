@@ -240,6 +240,23 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
 
 type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va";
 async function sendWorkflowReminder(admin: ReturnType<typeof createAdminClient>, args: { subjectType: ReminderSubject; subjectId: string; recipientId: string; action: string; title: string; body: string; href: string; repeatDays?: number; maxReminders?: number; email?: boolean; emailPriority?: "critical" | "standard" | "low"; emailEventType?: string; emailHrefLabel?: string; notificationType?: string }) {
+  // Workflow subjects can outlive the account they originally referenced.
+  // Never let a stale/deleted/inactive recipient reach reminder or notification
+  // writes: both tables intentionally keep their profile foreign keys strict.
+  const { data: recipient, error: recipientError } = await admin
+    .from("profiles")
+    .select("id,account_status")
+    .eq("id", args.recipientId)
+    .maybeSingle();
+  if (recipientError) {
+    console.error("[maintenance] workflow reminder recipient lookup failed", {
+      recipientId: args.recipientId,
+      error: recipientError.message,
+    });
+    return false;
+  }
+  if (!recipient || recipient.account_status !== "active") return false;
+
   const repeatCutoff = daysAgo(args.repeatDays || WORKFLOW_REMINDER_REPEAT_DAYS);
   const { data: previous } = await admin.from("workflow_reminders").select("reminder_count,last_sent_at").eq("subject_type", args.subjectType).eq("subject_id", args.subjectId).eq("recipient_id", args.recipientId).eq("action", args.action).maybeSingle();
   const maxReminders = args.maxReminders ?? MAX_WORKFLOW_REMINDERS;

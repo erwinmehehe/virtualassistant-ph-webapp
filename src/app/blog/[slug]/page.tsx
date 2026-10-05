@@ -145,15 +145,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         publisher: organizationRef(base)
       },
       {
-        "@type": "FAQPage",
-        "@id": `${base}${blogHref(post)}#faq`,
-        mainEntity: post.faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer }
-        }))
-      },
-      {
         "@type": "BreadcrumbList",
         "@id": `${base}${blogHref(post)}#breadcrumb`,
         itemListElement: [

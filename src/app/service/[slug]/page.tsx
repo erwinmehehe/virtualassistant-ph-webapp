@@ -641,12 +641,6 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
     },
     {
       "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "@id": `${pageUrl}#faq`,
-      mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } }))
-    },
-    {
-      "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "@id": `${pageUrl}#breadcrumb`,
       itemListElement: [

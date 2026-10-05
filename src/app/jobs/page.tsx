@@ -122,15 +122,6 @@ export default async function PublicJobsPage({
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(requestedPage, pages);
   const floor = settings.minHourlyRate;
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: jobFaqs.map(([question, answer]) => ({
-      "@type": "Question",
-      name: question,
-      acceptedAnswer: { "@type": "Answer", text: answer },
-    })),
-  };
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -154,10 +145,6 @@ export default async function PublicJobsPage({
     <>
       <SiteHeader />
       <main id="main-content" className="public-jobs-page">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }}

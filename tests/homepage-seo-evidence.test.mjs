@@ -55,15 +55,14 @@ test("homepage service section uses explicit Virtual Assistant service entities"
   assert.match(home, /Social Media Management/);
 });
 
-test("homepage visible FAQ covers commercial hiring questions and emits matching FAQ schema", () => {
+test("homepage keeps useful visible FAQs without FAQPage structured data", () => {
   const home = source("src/app/page.tsx");
   assert.match(home, /What does it cost to get started\?/);
   assert.match(home, /How fast can my virtual assistant start\?/);
   assert.match(home, /What if my virtual assistant is not the right fit\?/);
   assert.match(home, /What hours do Filipino virtual assistants work\?/);
   assert.match(home, /How do you screen and vet candidates\?/);
-  assert.match(home, /\"@type\": \"FAQPage\"/);
-  assert.match(home, /mainEntity: faqs\.map/);
+  assert.doesNotMatch(home, /\"@type\": \"FAQPage\"/);
 });
 
 test("homepage Organization schema carries useful entity context and removes obsolete search action markup", () => {

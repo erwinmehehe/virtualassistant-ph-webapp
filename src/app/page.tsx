@@ -243,16 +243,6 @@ export default async function HomePage() {
           },
         ],
       },
-      {
-        "@type": "FAQPage",
-        "@id": `${base}/#faq`,
-        isPartOf: { "@id": webpageId },
-        mainEntity: faqs.map(([question, answer]) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
-      },
     ],
   };
 

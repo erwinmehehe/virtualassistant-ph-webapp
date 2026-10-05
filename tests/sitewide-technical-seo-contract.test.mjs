@@ -54,3 +54,23 @@ test("llms.txt surfaces the candidate application journey without private routes
   assert.match(llms, /blogHref/);
   assert.doesNotMatch(llms, /workspace\/recruiter|workspace\/client|workspace\/va/);
 });
+
+
+test("public templates keep visible FAQs but never emit FAQPage structured data", async () => {
+  const publicTemplates = [
+    "src/app/page.tsx",
+    "src/app/[legacy]/page.tsx",
+    "src/app/service/[slug]/page.tsx",
+    "src/app/blog/[slug]/page.tsx",
+    "src/app/resources/[slug]/page.tsx",
+    "src/app/software/[slug]/page.tsx",
+    "src/app/industries/[slug]/page.tsx",
+    "src/app/jobs/page.tsx",
+    "src/app/training/page.tsx",
+  ];
+
+  for (const path of publicTemplates) {
+    const page = await read(path);
+    assert.doesNotMatch(page, /FAQPage/, `${path} must not emit FAQPage schema`);
+  }
+});

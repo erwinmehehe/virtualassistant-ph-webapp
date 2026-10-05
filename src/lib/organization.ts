@@ -7,7 +7,7 @@
  */
 
 function canonicalBase(base: string) {
-  return canonicalBase(base);
+  return base.replace(/\/$/, "");
 }
 
 export function organizationId(base: string) {

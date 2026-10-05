@@ -54,16 +54,28 @@ test("relevant service tools link to software-specific Philippines pages", async
 });
 
 
-test("service pages emit transactional Service schema linked to the canonical agency", async () => {
+test("service pages emit a connected transactional Service entity graph", async () => {
   const route = await readFile("src/app/service/[slug]/page.tsx", "utf8");
 
+  assert.match(route, /"@graph"/);
+  assert.match(route, /"@type": "WebPage"/);
   assert.match(route, /"@type": "Service"/);
-  assert.match(route, /serviceType: \`\$\{s\.name\} Services\`/);
-  assert.match(route, /provider: \{ "@id": organizationId\(base\) \}/);
-  assert.match(route, /areaServed: serviceAreas/);
+  assert.match(route, /serviceType: `\$\{s\.name\} Services`/);
+  assert.match(route, /const orgId = organizationId\(base\)/);
+  assert.match(route, /const siteId = websiteId\(base\)/);
+  assert.match(route, /isPartOf: \{ "@id": siteId \}/);
+  assert.match(route, /about: \{ "@id": serviceId \}/);
+  assert.match(route, /mainEntity: \{ "@id": serviceId \}/);
+  assert.match(route, /mainEntityOfPage: \{ "@id": webpageId \}/);
+  assert.match(route, /provider: \{ "@id": orgId \}/);
+  assert.match(route, /publisher: \{ "@id": orgId \}/);
+  assert.match(route, /areaServed,/);
+  assert.match(route, /"@type": "Country"/);
   assert.match(route, /\["US", "AU", "CA", "GB", "NZ"\]/);
   assert.match(route, /"@type": "OfferCatalog"/);
+  assert.match(route, /"@id": `\$\{serviceId\}-offers`/);
   assert.match(route, /itemListElement: serviceCapabilities/);
   assert.match(route, /"@type": "Offer"/);
   assert.match(route, /name: toTitle\(task\)/);
+  assert.match(route, /"@type": "BreadcrumbList"/);
 });

@@ -74,12 +74,6 @@ export default async function ResourcePage({ params }: { params: Promise<{ slug:
     },
     {
       "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "@id": url + "#faq",
-      mainEntity: page.faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } }))
-    },
-    {
-      "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "@id": url + "#breadcrumb",
       itemListElement: [

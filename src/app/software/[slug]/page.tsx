@@ -101,7 +101,6 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
 
   const schema = [
     { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoH1, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: market || "Worldwide" },
-    { "@context": "https://schema.org", "@type": "FAQPage", "@id": `${pageUrl}#faq`, mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: base },
       { "@type": "ListItem", position: 2, name: "Software", item: `${base}/software` },

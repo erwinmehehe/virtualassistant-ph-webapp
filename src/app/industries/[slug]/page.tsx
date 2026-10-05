@@ -141,7 +141,6 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
         serviceType: `${page.label} Virtual Assistant Services`,
         url: pageUrl,
         description: seoDescription,
-        inLanguage: pageLanguage,
         mainEntityOfPage: { "@id": webpageId },
         provider: { "@id": orgId },
         areaServed: serviceAreas

@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionProfile } from "@/lib/auth";
 import { applyToJobAction, saveJobAction } from "@/app/actions/applications";
-import { dateShort } from "@/lib/format";
+import { money, dateShort } from "@/lib/format";
 import { isUuid, jobPublicHref } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
@@ -211,6 +211,11 @@ export default async function JobPage({ params, searchParams }: { params: Promis
       }
     ]
   };
+
+  const rateText = job.max_hourly_rate ? `${money(job.min_hourly_rate)}–${money(job.max_hourly_rate)}/hr` : `${money(job.min_hourly_rate)}/hr`;
+  const employerLabel = companyName;
+  const skillsAndTools = mergeUniqueStrings(job.required_skills, job.required_tools);
+  const responsibilities = uniqueStrings(job.responsibilities);
 
   return (
     <>

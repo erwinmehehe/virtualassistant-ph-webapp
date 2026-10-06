@@ -5,7 +5,6 @@ import { ArrowLeft, BriefcaseBusiness, CheckCircle2, Clock3, Globe2, ShieldCheck
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionProfile } from "@/lib/auth";
 import { applyToJobAction, saveJobAction } from "@/app/actions/applications";
 import { money, dateShort } from "@/lib/format";
@@ -27,23 +26,6 @@ async function getPublishedJob(key: string) {
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.warn("[jobs/[id]] Supabase unavailable:", (err as Error).message);
     return null;
-  }
-}
-
-
-async function wasPreviouslyPublicJob(key: string) {
-  try {
-    const admin = createAdminClient();
-    let query = admin.from("jobs").select("id,slug,status,published_at,expires_at");
-    query = isUuid(key) ? query.eq("id", key) : query.eq("slug", key);
-    const { data } = await query.maybeSingle();
-    if (!data?.published_at) return false;
-
-    const expired = Boolean(data.expires_at && new Date(data.expires_at).getTime() <= Date.now());
-    return data.status === "closed" || expired;
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") console.warn("[jobs/[id]] retired job lookup unavailable:", (err as Error).message);
-    return false;
   }
 }
 

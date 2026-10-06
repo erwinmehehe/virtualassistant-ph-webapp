@@ -10,6 +10,7 @@ import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
 import { isPublishableCompanyName, publicationMissingDetails } from "@/lib/job-publication";
 import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
+import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
 function csv(value: FormDataEntryValue | null) {
   return String(value ?? "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
@@ -222,10 +223,19 @@ export async function createJobAction(formData: FormData) {
     }
   }
 
+  let publicJobForIndexing: { id: string; slug: string | null } | null = null;
+  if (savedStatus === "published") {
+    const { data } = await admin.from("jobs").select("id,slug").eq("id", savedId).maybeSingle();
+    publicJobForIndexing = data;
+    if (publicJobForIndexing) {
+      await notifyGoogleIndexingBestEffort(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`, "URL_UPDATED");
+    }
+  }
+
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/jobs");
-  if (savedStatus === "published") revalidatePath(`/jobs/${savedId}`);
+  if (publicJobForIndexing) revalidatePath(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`);
   redirect(`/workspace/client/jobs/${savedId}?saved=1`);
 }
 
@@ -245,6 +255,7 @@ export async function closeJobAction(formData: FormData) {
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${job.slug || id}`);
+  await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_DELETED");
 }
 
 export async function acceptCommercialTermsAction(formData: FormData) {
@@ -263,7 +274,7 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const admin = createAdminClient();
   await admin.from("job_commercials").update({commercial_status:"accepted"}).eq("job_id",jobId);
   const publishedAt = new Date().toISOString();
-  const { data: publishedJob } = await admin.from("jobs").update({status:"published",published_at:publishedAt}).eq("id",jobId).eq("client_id",user.id).select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours").single();
+  const { data: publishedJob } = await admin.from("jobs").update({status:"published",published_at:publishedAt}).eq("id",jobId).eq("client_id",user.id).select("id,client_id,title,slug,categories,required_skills,required_tools,hours_per_week,overlap_hours").single();
   if (publishedJob) {
     await admin.from("job_candidate_access").upsert({
       job_id: jobId,
@@ -275,6 +286,7 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   }
 
   if (publishedJob) {
+    await notifyGoogleIndexingBestEffort(`/jobs/${publishedJob.slug || publishedJob.id}`, "URL_UPDATED");
     await recordProductEvent("job_published", { userId: user.id, path: `/workspace/client/jobs/${jobId}`, metadata: { job_id: jobId } });
     try {
       const { autoReleaseTopMatches } = await import("@/lib/auto-matching");

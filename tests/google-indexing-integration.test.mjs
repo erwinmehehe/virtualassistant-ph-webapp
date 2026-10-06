@@ -18,7 +18,8 @@ test("Google Indexing API integration is restricted to individual job URLs", () 
 });
 
 test("published and closed job actions notify Google without blocking the product flow", () => {
-  assert.match(actions, /notifyGoogleIndexingBestEffort/);\n  assert.doesNotMatch(actions, /\\\\nimport/);
+  assert.match(actions, /notifyGoogleIndexingBestEffort/);
+  assert.doesNotMatch(actions, /\\\\nimport/);
   assert.match(actions, /"URL_UPDATED"/);
   assert.match(actions, /"URL_DELETED"/);
 });

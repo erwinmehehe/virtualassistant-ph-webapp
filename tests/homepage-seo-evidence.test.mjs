@@ -93,7 +93,7 @@ test("homepage uses the approved brand-first title and Virtual Assistant Philipp
   const layout = source("src/app/layout.tsx");
   const organization = source("src/lib/organization.ts");
 
-  assert.match(home, /Virtual Assistant Philippines \| VirtualAssistant\.com\.ph/);
+  assert.match(home, /VirtualAssistant\.com\.ph \| Virtual Assistant Philippines/);
   assert.match(layout, /applicationName: "Virtual Assistant Philippines"/);
   assert.match(layout, /siteName: "Virtual Assistant Philippines"/);
   assert.match(organization, /ORGANIZATION_NAME = "Virtual Assistant Philippines"/);

@@ -9,7 +9,7 @@ const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const backfill = readFileSync("scripts/google-indexing-backfill.mjs", "utf8");
 
 test("Google Indexing API integration is restricted to individual job URLs", () => {
-  assert.match(indexing, /\^\\\/jobs\\\/\[\^\/\]\+\\\/?\$/);
+  assert.ok(indexing.includes('if (!/^\\/jobs\\/[^/]+\\/?$/.test(url.pathname))'));
   assert.match(indexing, /different origin/);
   assert.match(indexing, /URL_UPDATED/);
   assert.match(indexing, /URL_DELETED/);
@@ -18,7 +18,7 @@ test("Google Indexing API integration is restricted to individual job URLs", () 
 });
 
 test("published and closed job actions notify Google without blocking the product flow", () => {
-  assert.match(actions, /notifyGoogleIndexingBestEffort/);
+  assert.match(actions, /notifyGoogleIndexingBestEffort/);\n  assert.doesNotMatch(actions, /\\\\nimport/);
   assert.match(actions, /"URL_UPDATED"/);
   assert.match(actions, /"URL_DELETED"/);
 });

@@ -222,10 +222,19 @@ export async function createJobAction(formData: FormData) {
     }
   }
 
+  let publicJobForIndexing: { id: string; slug: string | null } | null = null;
+  if (savedStatus === "published") {
+    const { data } = await admin.from("jobs").select("id,slug").eq("id", savedId).maybeSingle();
+    publicJobForIndexing = data;
+    if (publicJobForIndexing) {
+      await notifyGoogleIndexingBestEffort(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`, "URL_UPDATED");
+    }
+  }
+
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/jobs");
-  if (savedStatus === "published") revalidatePath(`/jobs/${savedId}`);
+  if (publicJobForIndexing) revalidatePath(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`);
   redirect(`/workspace/client/jobs/${savedId}?saved=1`);
 }
 
@@ -240,6 +249,7 @@ export async function closeJobAction(formData: FormData) {
   const now = new Date().toISOString();
   const { error } = await admin.from("jobs").update({ status: "closed", closed_at: now, updated_at: now }).eq("id", id).eq("client_id", user.id);
   if (error) throw error;
+  await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_DELETED");
   revalidatePath(`/workspace/client/jobs/${id}`);
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
@@ -275,6 +285,7 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   }
 
   if (publishedJob) {
+    await notifyGoogleIndexingBestEffort(`/jobs/${publishedJob.slug || publishedJob.id}`, "URL_UPDATED");
     await recordProductEvent("job_published", { userId: user.id, path: `/workspace/client/jobs/${jobId}`, metadata: { job_id: jobId } });
     try {
       const { autoReleaseTopMatches } = await import("@/lib/auto-matching");

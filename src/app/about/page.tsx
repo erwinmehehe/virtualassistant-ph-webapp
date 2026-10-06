@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Eye, LockKeyhole, Scale, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, Linkedin, LockKeyhole, Scale, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
@@ -61,6 +61,21 @@ export default function AboutPage() {
             <li><CheckCircle2 size={16}/>Ongoing support available after placement</li>
           </ul>
         </div>
+      </div>
+    </section>
+
+    <section className="section">
+      <div className="container">
+        <div className="section-head">
+          <div className="kicker">Founder &amp; site leadership</div>
+          <h2>Building VirtualAssistant.com.ph around better hiring, useful training, and sustainable organic growth.</h2>
+        </div>
+        <article className="card" style={{maxWidth:720}}>
+          <h3 style={{marginBottom:6}}>Erwin Valles</h3>
+          <p style={{margin:"0 0 10px",fontWeight:700}}>Founder &amp; Head of SEO, Web Design &amp; Development</p>
+          <p className="muted" style={{margin:"0 0 16px"}}>Leads organic search strategy, website experience, design direction, technical development, and ongoing product growth across VirtualAssistant.com.ph.</p>
+          <a className="btn btn-sm" href="https://www.linkedin.com/in/seo-expert-ph/" target="_blank" rel="noopener noreferrer"><Linkedin size={15}/> View LinkedIn</a>
+        </article>
       </div>
     </section>
 

@@ -9,7 +9,8 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
 import { isPublishableCompanyName, publicationMissingDetails } from "@/lib/job-publication";
-import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";\nimport { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
+import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
+import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
 function csv(value: FormDataEntryValue | null) {
   return String(value ?? "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
@@ -249,12 +250,12 @@ export async function closeJobAction(formData: FormData) {
   const now = new Date().toISOString();
   const { error } = await admin.from("jobs").update({ status: "closed", closed_at: now, updated_at: now }).eq("id", id).eq("client_id", user.id);
   if (error) throw error;
-  await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_DELETED");
   revalidatePath(`/workspace/client/jobs/${id}`);
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${job.slug || id}`);
+  await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_DELETED");
 }
 
 export async function acceptCommercialTermsAction(formData: FormData) {

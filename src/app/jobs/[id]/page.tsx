@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, permanentRedirect, redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, BriefcaseBusiness, CheckCircle2, Clock3, Globe2, ShieldCheck, WalletCards } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -98,10 +98,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   const { id } = await params;
   const query = await searchParams;
   const job = await getPublishedJob(id);
-  if (!job) {
-    if (await wasPreviouslyPublicJob(id)) permanentRedirect("/jobs?closed=1");
-    notFound();
-  }
+  if (!job) notFound();
   const canonicalHref = jobPublicHref(job);
   if (isUuid(id) && job.slug) redirect(canonicalHref);
 

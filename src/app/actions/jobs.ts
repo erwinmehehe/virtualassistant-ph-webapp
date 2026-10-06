@@ -9,7 +9,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
 import { isPublishableCompanyName, publicationMissingDetails } from "@/lib/job-publication";
-import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
+import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";\nimport { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
 function csv(value: FormDataEntryValue | null) {
   return String(value ?? "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 30);
@@ -263,7 +263,7 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const admin = createAdminClient();
   await admin.from("job_commercials").update({commercial_status:"accepted"}).eq("job_id",jobId);
   const publishedAt = new Date().toISOString();
-  const { data: publishedJob } = await admin.from("jobs").update({status:"published",published_at:publishedAt}).eq("id",jobId).eq("client_id",user.id).select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours").single();
+  const { data: publishedJob } = await admin.from("jobs").update({status:"published",published_at:publishedAt}).eq("id",jobId).eq("client_id",user.id).select("id,client_id,title,slug,categories,required_skills,required_tools,hours_per_week,overlap_hours").single();
   if (publishedJob) {
     await admin.from("job_candidate_access").upsert({
       job_id: jobId,

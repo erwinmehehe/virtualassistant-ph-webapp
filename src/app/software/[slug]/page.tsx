@@ -9,7 +9,7 @@ import { softwarePages, getSoftwarePage, softwareSeoDescription, softwareSeoH1, 
 import { servicePageBySlug } from "@/lib/service-pages";
 import { industryBySlug } from "@/lib/industries";
 import { canonicalPath } from "@/lib/seo-url";
-import { organizationRef } from "@/lib/organization";
+import { organizationId, websiteId } from "@/lib/organization";
 import { blogHref, softwareBlogPosts } from "@/lib/blog";
 import { localizeContent, localizeEnglish } from "@/lib/content-language";
 import { socialMetadata } from "@/lib/og";
@@ -80,7 +80,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
   const relatedServices = localizeContent(page.relatedServiceSlugs.map(servicePageBySlug).filter(Boolean), page.locale);
   const relatedIndustries = localizeContent(page.relatedIndustrySlugs.map(industryBySlug).filter(Boolean), page.locale);
   const relatedGuides = localizeContent(softwareBlogPosts(page.slug, 4), page.locale);
-  const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const pageUrl = `${base}/software/${page.slug}`;
   const hireHref = `/hire?category=${encodeURIComponent(page.directoryCategory)}`;
   const talentHref = `/find-talent?category=${encodeURIComponent(page.directoryCategory)}`;
@@ -99,14 +99,62 @@ export default async function SoftwarePage({ params }: { params: Promise<{ slug:
     { q: `How is this different from a generic virtual assistant?`, a: `A ${page.software} Virtual Assistant is trained on this specific platform from day one, so onboarding is faster and the role can start on real production work sooner instead of learning the system from scratch.` }
   ], page.locale);
 
-  const schema = [
-    { "@context": "https://schema.org", "@type": "Service", "@id": `${pageUrl}#service`, name: seoH1, url: pageUrl, description: seoDescription, provider: organizationRef(base), areaServed: market || "Worldwide" },
-    { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: base },
-      { "@type": "ListItem", position: 2, name: "Software", item: `${base}/software` },
-      { "@type": "ListItem", position: 3, name: page.software, item: pageUrl }
-    ] }
-  ];
+  const serviceId = `${pageUrl}#service`;
+  const webpageId = `${pageUrl}#webpage`;
+  const breadcrumbId = `${pageUrl}#breadcrumb`;
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+  const pageLanguage = page.locale || "en-US";
+  const serviceAreas = market === "Australia"
+    ? [{ "@type": "Country", name: "Australia" }]
+    : market === "United Kingdom"
+      ? [{ "@type": "Country", name: "United Kingdom" }]
+      : [
+          { "@type": "Country", name: "United States" },
+          { "@type": "Country", name: "Australia" },
+          { "@type": "Country", name: "Canada" },
+          { "@type": "Country", name: "United Kingdom" },
+          { "@type": "Country", name: "New Zealand" }
+        ];
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url: pageUrl,
+        name: seoH1,
+        description: seoDescription,
+        inLanguage: pageLanguage,
+        isPartOf: { "@id": siteId },
+        about: { "@id": serviceId },
+        mainEntity: { "@id": serviceId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId }
+      },
+      {
+        "@type": "Service",
+        "@id": serviceId,
+        name: seoH1,
+        serviceType: `${page.software} Virtual Assistant Services`,
+        url: pageUrl,
+        description: seoDescription,
+        mainEntityOfPage: { "@id": webpageId },
+        provider: { "@id": orgId },
+        areaServed: serviceAreas
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: base },
+          { "@type": "ListItem", position: 2, name: "Software", item: `${base}/software` },
+          { "@type": "ListItem", position: 3, name: page.software, item: pageUrl }
+        ]
+      }
+    ]
+  };
 
   return <><SiteHeader/><main id="main-content">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(schema) }} />

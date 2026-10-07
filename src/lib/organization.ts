@@ -6,8 +6,24 @@
  * reference, while the entity itself is "Virtual Assistant Philippines".
  */
 
+function canonicalBase(base: string) {
+  return base.replace(/\/$/, "");
+}
+
 export function organizationId(base: string) {
-  return `${base.replace(/\/$/, "")}/#organization`;
+  return `${canonicalBase(base)}/#organization`;
+}
+
+export function websiteId(base: string) {
+  return `${canonicalBase(base)}/#website`;
+}
+
+export function websiteRef(base: string) {
+  return { "@id": websiteId(base) };
+}
+
+export function organizationPointer(base: string) {
+  return { "@id": organizationId(base) };
 }
 
 export const ORGANIZATION_NAME = "Virtual Assistant Philippines";
@@ -25,6 +41,6 @@ export function organizationRef(base: string) {
     "@id": organizationId(base),
     name: ORGANIZATION_NAME,
     alternateName: ORGANIZATION_ALTERNATE_NAME,
-    url: base.replace(/\/$/, ""),
+    url: canonicalBase(base),
   };
 }

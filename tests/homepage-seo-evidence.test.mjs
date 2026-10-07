@@ -10,6 +10,12 @@ function homepageSource() {
   return `${source("src/app/page.tsx")}\n${source("src/components/homepage-sections.tsx")}`;
 }
 
+test("homepage H1 is exactly Virtual Assistant Philippines", () => {
+  const home = source("src/app/page.tsx");
+  assert.match(home, /<h1>Virtual Assistant Philippines<\/h1>/);
+  assert.doesNotMatch(home, /Hire a Vetted Virtual Assistant <em>in the Philippines<\/em>/);
+});
+
 test("homepage does not render the removed live talent statistics block or its extra query", () => {
   const home = source("src/app/page.tsx");
   assert.doesNotMatch(home, /Live approved talent data/);

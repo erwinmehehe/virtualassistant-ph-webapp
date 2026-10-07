@@ -134,8 +134,7 @@ test("resource hub keeps a shallow crawl path without rendering every client gui
 test("volume-backed expansion preserves approved homepage SEO copy while allowing infrastructure-only performance work", () => {
   const home = source("src/app/page.tsx");
   assert.match(home, /Virtual Assistant Philippines \| Vetted Filipino VA Agency/);
-  assert.match(home, /Hire a Vetted Virtual Assistant/);
-  assert.match(home, /in the Philippines/);
+  assert.match(home, /<h1>Virtual Assistant Philippines<\/h1>/);
   assert.match(home, /Get matched with a Filipino virtual assistant who fits your role, tools, schedule, and way of working\./);
   assert.match(home, /<HiringBriefForm variant="general" sourcePath="\/" \/>/);
   assert.match(home, /canonicalPath\("\/"\)/);

@@ -213,10 +213,6 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
         const bDue = b.win_back_at ? new Date(b.win_back_at).getTime() : Number.MAX_SAFE_INTEGER;
         if (aDue !== bDue) return aDue - bDue;
       }
-      if (view === "active" || view === "mine" || view === "qualified") {
-        const scoreDiff = (scoreByLeadId.get(b.id)?.score || 0) - (scoreByLeadId.get(a.id)?.score || 0);
-        if (scoreDiff !== 0) return scoreDiff;
-      }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 

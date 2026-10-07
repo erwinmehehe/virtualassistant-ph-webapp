@@ -262,9 +262,7 @@ export default async function HomePage() {
                 <span><ShieldCheck size={14} /> Vetted &amp; managed</span>
                 <strong>Vetted Filipino VAs for growing teams worldwide</strong>
               </div>
-              <h1>
-                Hire a Vetted Virtual Assistant <em>in the Philippines</em>
-              </h1>
+              <h1>Virtual Assistant Philippines</h1>
               <p className="pva-hero-lede">
                 Get matched with a Filipino virtual assistant who fits your role, tools, schedule, and way of working.
               </p>

@@ -3,13 +3,13 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/lib/category-inference";
 import { getClassificationEvidenceReadiness } from "@/lib/classification-readiness";
 import { isPubliclyEligible } from "@/lib/public-visibility";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
+import { quarantineScanAndStoreUpload, validateUpload } from "@/lib/file-security";
 
 // Each tag is meant to be a short label ("Customer Service", "HubSpot"),
 // not a pasted paragraph. A missing comma between entries (usually from
@@ -57,59 +57,9 @@ const cleanUrl = (value: FormDataEntryValue | null) => {
   return url.toString();
 };
 
-function validateResumeUpload(value: FormDataEntryValue | null) {
-  if (!(value instanceof File) || value.size === 0) return null;
-  if (value.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
-
-  const extension = value.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
-  const mimeByExtension: Record<string, string> = {
-    pdf: "application/pdf",
-    doc: "application/msword",
-    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  };
-  const expectedMime = extension ? mimeByExtension[extension] : null;
-  const genericMime = !value.type || value.type === "application/octet-stream";
-  if (!extension || !expectedMime || (!genericMime && value.type !== expectedMime)) {
-    throw new Error("Upload a PDF, DOC, or DOCX resume only.");
-  }
-
-  return {
-    file: value,
-    expectedMime,
-    safeName: value.name.replace(/[^a-zA-Z0-9._-]/g, "-"),
-  };
-}
-
-function validateAvatarUpload(value: FormDataEntryValue | null) {
-  if (!(value instanceof File) || value.size === 0) return null;
-  if (value.size > 3 * 1024 * 1024) throw new Error("Photo must be 3 MB or smaller.");
-
-  const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
-  if (!allowedMime.has(value.type)) throw new Error("Upload a JPG, PNG, or WEBP photo only.");
-
-  return {
-    file: value,
-    extension: value.type === "image/png" ? "png" : value.type === "image/webp" ? "webp" : "jpg",
-  };
-}
-
-function validateCompanyLogoUpload(value: FormDataEntryValue | null) {
-  if (!(value instanceof File) || value.size === 0) return null;
-  if (value.size > 3 * 1024 * 1024) throw new Error("Company logo must be 3 MB or smaller.");
-
-  const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
-  if (!allowedMime.has(value.type)) throw new Error("Upload a JPG, PNG, or WEBP company logo.");
-
-  return {
-    file: value,
-    extension: value.type === "image/png" ? "png" : value.type === "image/webp" ? "webp" : "jpg",
-  };
-}
-
 export async function updateVaProfileAction(formData: FormData) {
   try {
   const { user } = await requireRole("va");
-  const supabase = await createClient();
   const admin = createAdminClient();
 
   const fullName = String(formData.get("full_name") ?? "").trim();
@@ -159,8 +109,10 @@ export async function updateVaProfileAction(formData: FormData) {
   // Validate every file before writing profile fields. A rejected resume/photo
   // must not leave the user with a "save failed" message after other edits
   // were already persisted.
-  const resumeUpload = validateResumeUpload(formData.get("resume"));
-  const avatarUpload = validateAvatarUpload(formData.get("avatar"));
+  const [resumeUpload, avatarUpload] = await Promise.all([
+    validateUpload(formData.get("resume"), "resume"),
+    validateUpload(formData.get("avatar"), "avatar"),
+  ]);
 
   const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
     admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
@@ -248,34 +200,36 @@ export async function updateVaProfileAction(formData: FormData) {
   }
 
   if (resumeUpload) {
-    const { file: resume, expectedMime, safeName } = resumeUpload;
-    const path = `${user.id}/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: expectedMime });
-    if (error) throw error;
+    const path = await quarantineScanAndStoreUpload({
+      upload: resumeUpload,
+      targetBucket: "resumes",
+      targetPrefix: user.id,
+    });
     const { error: resumePathError } = await admin.from("va_profiles").update({ resume_path: path }).eq("user_id", user.id);
     if (resumePathError) {
-      await supabase.storage.from("resumes").remove([path]);
+      await admin.storage.from("resumes").remove([path]);
       throw resumePathError;
     }
-    if (current.resume_path && current.resume_path !== path) await supabase.storage.from("resumes").remove([current.resume_path]);
+    if (current.resume_path && current.resume_path !== path) await admin.storage.from("resumes").remove([current.resume_path]);
     materialChanged = true;
   }
 
   if (avatarUpload) {
-    const { file: avatar, extension } = avatarUpload;
-    const path = `${user.id}/${Date.now()}.${extension}`;
-    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, avatar, { upsert: false, contentType: avatar.type });
-    if (uploadError) throw uploadError;
-    const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(path);
+    const path = await quarantineScanAndStoreUpload({
+      upload: avatarUpload,
+      targetBucket: "avatars",
+      targetPrefix: user.id,
+    });
+    const { data: publicUrl } = admin.storage.from("avatars").getPublicUrl(path);
     const { error: avatarPathError } = await admin.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", user.id);
     if (avatarPathError) {
-      await supabase.storage.from("avatars").remove([path]);
+      await admin.storage.from("avatars").remove([path]);
       throw avatarPathError;
     }
     // Best-effort cleanup of the previous photo, matched by the storage path
     // segment after "/avatars/" in its public URL.
     const previousPath = currentProfile?.avatar_url?.split("/avatars/")[1];
-    if (previousPath && previousPath !== path) await supabase.storage.from("avatars").remove([previousPath]);
+    if (previousPath && previousPath !== path) await admin.storage.from("avatars").remove([previousPath]);
     materialChanged = true;
   }
 
@@ -323,7 +277,8 @@ export async function updateVaProfileAction(formData: FormData) {
     const safePrefixes = [
       "Enter ", "Hourly rate ", "Years of experience ", "Weekly availability ", "Daily overlap ",
       "Your headline ", "One of your ", "Use a valid URL", "Only http or https",
-      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG", "Choose a valid primary specialty"
+      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG", "Choose a valid primary specialty",
+      "The uploaded file ", "The uploaded image ", "File scanning ", "The uploaded file was rejected "
     ];
     const message = safePrefixes.some((prefix) => raw.startsWith(prefix))
       ? raw
@@ -334,7 +289,6 @@ export async function updateVaProfileAction(formData: FormData) {
 
 export async function removeVaResumeAction() {
   const { user } = await requireRole("va");
-  const supabase = await createClient();
   const admin = createAdminClient();
 
   const [{ data: va }, { data: vetting }] = await Promise.all([
@@ -345,7 +299,7 @@ export async function removeVaResumeAction() {
   if (va?.resume_path) {
     const { error } = await admin.from("va_profiles").update({ resume_path: null }).eq("user_id", user.id);
     if (error) throw error;
-    await supabase.storage.from("resumes").remove([va.resume_path]);
+    await admin.storage.from("resumes").remove([va.resume_path]);
 
     if (vetting && ["approved", "bench"].includes(vetting.stage)) {
       await admin.from("va_vetting").update({ edited_since_approval_at: new Date().toISOString() }).eq("va_id", user.id);
@@ -376,7 +330,7 @@ export async function updateClientProfileAction(formData: FormData) {
   // table so an invalid URL/logo cannot leave a partially saved company form.
   const website = cleanUrl(formData.get("website"));
   const logoUrl = cleanUrl(formData.get("logo_url"));
-  const logoUpload = validateCompanyLogoUpload(formData.get("logo"));
+  const logoUpload = await validateUpload(formData.get("logo"), "company-logo");
 
   const { error: nameError } = await admin.from("profiles").update({ full_name: fullName || null }).eq("id", user.id);
   if (nameError) throw nameError;
@@ -394,10 +348,11 @@ export async function updateClientProfileAction(formData: FormData) {
   }).eq("user_id", user.id);
   if (companyError) throw companyError;
   if (logoUpload) {
-    const { file: logo, extension } = logoUpload;
-    const path = `${user.id}/logo-${Date.now()}.${extension}`;
-    const { error: uploadError } = await admin.storage.from("company-logos").upload(path, logo, { upsert: false, contentType: logo.type });
-    if (uploadError) throw uploadError;
+    const path = await quarantineScanAndStoreUpload({
+      upload: logoUpload,
+      targetBucket: "company-logos",
+      targetPrefix: user.id,
+    });
     const { data: publicUrl } = admin.storage.from("company-logos").getPublicUrl(path);
     const { error: logoError } = await admin.from("client_profiles").update({ logo_url: publicUrl.publicUrl }).eq("user_id", user.id);
     if (logoError) { await admin.storage.from("company-logos").remove([path]); throw logoError; }

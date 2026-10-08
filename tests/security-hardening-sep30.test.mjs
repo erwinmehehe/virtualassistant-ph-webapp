@@ -53,15 +53,24 @@ test("public event ingestion and payment/email webhooks have request body ceilin
   assert.match(stripe, /status:\s*413/);
 });
 
-test("private resume and lead-document redirects cannot be cached or leak referrers", async () => {
-  for (const path of [
-    "src/app/api/admin/va-resume/[vaId]/route.ts",
-    "src/app/api/recruiter/lead-attachment/[leadId]/route.ts",
-    "src/app/api/resume/[applicationId]/route.ts",
-  ]) {
-    const source = await read(path);
-    assert.match(source, /Cache-Control", "private, no-store, max-age=0"/, path);
-    assert.match(source, /Referrer-Policy", "no-referrer"/, path);
+test("private resume and lead-document downloads are forced, no-store, and referrer-safe", async () => {
+  const [helper, ...routes] = await Promise.all([
+    read("src/lib/private-storage-download.ts"),
+    read("src/app/api/admin/va-resume/[vaId]/route.ts"),
+    read("src/app/api/recruiter/lead-attachment/[leadId]/route.ts"),
+    read("src/app/api/resume/[applicationId]/route.ts"),
+  ]);
+
+  assert.match(helper, /Content-Disposition/);
+  assert.match(helper, /attachment;/);
+  assert.match(helper, /Cache-Control": "private, no-store, max-age=0"/);
+  assert.match(helper, /Referrer-Policy": "no-referrer"/);
+  assert.match(helper, /X-Content-Type-Options": "nosniff"/);
+
+  for (const source of routes) {
+    assert.match(source, /privateStorageDownloadResponse/);
+    assert.doesNotMatch(source, /createSignedUrl/);
+    assert.doesNotMatch(source, /NextResponse\.redirect/);
   }
 });
 

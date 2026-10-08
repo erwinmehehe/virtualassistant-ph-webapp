@@ -18,6 +18,8 @@ const resendWebhookSecret = process.env.RESEND_WEBHOOK_SECRET?.trim() || "";
 const triggerSecret = process.env.TRIGGER_SECRET_KEY?.trim() || "";
 const automationCallbackSecret = process.env.AUTOMATION_CALLBACK_SECRET?.trim() || "";
 const triggerAutomationsActive = process.env.TRIGGER_AUTOMATIONS_ACTIVE?.trim() || "";
+const malwareScanEndpoint = process.env.MALWARE_SCAN_ENDPOINT?.trim() || "";
+const malwareScanToken = process.env.MALWARE_SCAN_TOKEN?.trim() || "";
 const triggerAutomationConfigured =
   triggerSecret.length >= 20 &&
   automationCallbackSecret.length >= 32 &&
@@ -82,6 +84,13 @@ const checks = [
     name: "RESEND_WEBHOOK_SECRET",
     ok: resendWebhookSecret.length >= 16,
     detail: resendWebhookSecret.length >= 16 ? "configured" : "missing or unexpectedly short"
+  },
+  {
+    name: "MALWARE_SCAN_ENDPOINT",
+    ok: /^https:\/\//i.test(malwareScanEndpoint),
+    detail: /^https:\/\//i.test(malwareScanEndpoint)
+      ? `configured${malwareScanToken ? " with bearer token" : " without bearer token"}`
+      : "missing or not an HTTPS endpoint; production file uploads fail closed without it"
   },
   {
     name: "TRIGGER_AUTOMATIONS",

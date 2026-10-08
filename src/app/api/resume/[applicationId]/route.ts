@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionProfile } from "@/lib/auth";
+import { extensionFromStoragePath, privateStorageDownloadResponse } from "@/lib/private-storage-download";
 
 export async function GET(_: Request, { params }: { params: Promise<{ applicationId: string }> }) {
   const { applicationId } = await params;
@@ -32,10 +33,11 @@ export async function GET(_: Request, { params }: { params: Promise<{ applicatio
     .maybeSingle();
   const path = vaProfile?.resume_path;
   if (!path) return NextResponse.json({ error: "No resume uploaded" }, { status: 404 });
-  const { data, error } = await admin.storage.from("resumes").createSignedUrl(path, 60);
-  if (error || !data?.signedUrl) return NextResponse.json({ error: "Resume unavailable" }, { status: 404 });
-  const response = NextResponse.redirect(data.signedUrl);
-  response.headers.set("Cache-Control", "private, no-store, max-age=0");
-  response.headers.set("Referrer-Policy", "no-referrer");
-  return response;
+  const extension = extensionFromStoragePath(path);
+  const response = await privateStorageDownloadResponse({
+    bucket: "resumes",
+    path,
+    downloadName: extension ? `resume.${extension}` : "resume",
+  });
+  return response || NextResponse.json({ error: "Resume unavailable" }, { status: 404 });
 }

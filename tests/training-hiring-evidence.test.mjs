@@ -74,11 +74,16 @@ test("profile readiness links point to current profile sections", async () => {
   assert.match(live, /href=\{state\.nextHref\}/);
 });
 
-test("profile save accepts generic MIME resume uploads by validated extension", async () => {
-  const action = await source("src/app/actions/profile.ts");
-  assert.match(action, /application\/octet-stream/);
-  assert.match(action, /mimeByExtension/);
-  assert.match(action, /contentType: expectedMime/);
+test("profile save accepts generic browser MIME only after content and extension validation", async () => {
+  const [action, fileSecurity] = await Promise.all([
+    source("src/app/actions/profile.ts"),
+    source("src/lib/file-security.ts"),
+  ]);
+  assert.match(action, /validateUpload\(formData\.get\("resume"\), "resume"\)/);
+  assert.match(fileSecurity, /application\/octet-stream/);
+  assert.match(fileSecurity, /GENERIC_MIME/);
+  assert.match(fileSecurity, /declaredMime !== expectedMime/);
+  assert.match(fileSecurity, /contentsMatchExtension/);
 });
 
 

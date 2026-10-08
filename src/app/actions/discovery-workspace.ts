@@ -237,36 +237,50 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   }
 
   if (intent !== "save") {
-    const stage: LeadCrmStage = intent === "proposal" ? "qualified" : "nurture";
+    const stage: LeadCrmStage = intent === "proposal"
+      ? "qualified"
+      : intent === "nurture"
+        ? "nurture"
+        : (lead.crm_stage as LeadCrmStage) || "contacted";
     const nextFollowUpAt = intent === "proposal"
       ? new Date(now.getTime() + 86400000).toISOString()
       : intent === "follow_up"
         ? new Date(now.getTime() + 2 * 86400000).toISOString()
         : new Date(now.getTime() + 14 * 86400000).toISOString();
 
-    const { error: leadUpdateError } = await admin.from("lead_intake").update({
-      discovery_completed_at: now.toISOString(),
-      discovery_outcome: intent === "proposal" ? "qualified" : "attended",
-      discovery_notes: summary || values.additionalNotes || "Discovery workspace completed.",
-      crm_stage: stage,
-      status: legacyLeadStatus(stage),
+    // Follow-up and nurture describe a sales next step, not proof of an
+    // attended discovery. Only the qualified recommendation path records
+    // a completed call here. The CRM outcome form handles no-shows/attendance.
+    const leadPatch: Record<string, unknown> = {
+      discovery_notes: summary || values.additionalNotes || null,
       next_follow_up_at: nextFollowUpAt,
       stage_updated_at: now.toISOString(),
-      lost_reason: null,
-      lost_at: null,
-    }).eq("id", leadId);
+    };
+    if (intent !== "follow_up") {
+      leadPatch.crm_stage = stage;
+      leadPatch.status = legacyLeadStatus(stage);
+      leadPatch.lost_reason = null;
+      leadPatch.lost_at = null;
+    }
+    if (intent === "proposal") {
+      leadPatch.discovery_completed_at = now.toISOString();
+      leadPatch.discovery_outcome = "qualified";
+    }
+    const { error: leadUpdateError } = await admin.from("lead_intake").update(leadPatch).eq("id", leadId);
     if (leadUpdateError) redirect(safeReturn(leadId, `?error=${encodeURIComponent(leadUpdateError.message || "Could not update the lead.")}`));
 
-    if (stage !== String(lead.crm_stage || "new")) {
+    if (intent !== "follow_up" && stage !== String(lead.crm_stage || "new")) {
       await runCrmStageWorkflows({ leadId, stage, actorId: user.id });
     }
-    try {
-      await resolveDiscoveryOutcomeArtifacts(admin, leadId);
-    } catch (automationError) {
-      console.error("[automation] discovery outcome cleanup failed", {
-        leadId,
-        error: automationError instanceof Error ? automationError.message : String(automationError),
-      });
+    if (intent === "proposal") {
+      try {
+        await resolveDiscoveryOutcomeArtifacts(admin, leadId);
+      } catch (automationError) {
+        console.error("[automation] discovery outcome cleanup failed", {
+          leadId,
+          error: automationError instanceof Error ? automationError.message : String(automationError),
+        });
+      }
     }
   }
 

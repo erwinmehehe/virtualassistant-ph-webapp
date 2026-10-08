@@ -226,3 +226,5 @@
 @media (max-width: 380px) {
   .factGrid { grid-template-columns:1fr; }
 }
+
+.nextStepHelp{margin:9px 0 0;color:#667085;font-size:11px;line-height:1.55}

@@ -39,6 +39,7 @@ type LeadRow = {
   next_follow_up_at: string | null;
   discovery_scheduled_at: string | null;
   discovery_completed_at: string | null;
+  discovery_cancelled_at: string | null;
   estimated_value_usd: number | string | null;
   lost_reason_code: string | null;
   lost_competitor: string | null;
@@ -93,6 +94,14 @@ function stageClass(stage?: string | null) {
   return `${styles.stage} ${styles[`stage_${value}`] || ""}`;
 }
 
+function discoveryOutcomeOverdue(lead: LeadRow, now: number) {
+  return Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at && !lead.discovery_cancelled_at && new Date(lead.discovery_scheduled_at).getTime() < now && isOpenLeadStage(lead.crm_stage) && lead.crm_stage !== "nurture");
+}
+
+function missingFollowupPlan(lead: LeadRow) {
+  return Boolean(isOpenLeadStage(lead.crm_stage) && ["contacted", "qualified", "terms_sent", "shortlist_sent"].includes(String(lead.crm_stage)) && lead.first_contact_at && !lead.next_follow_up_at && !lead.discovery_scheduled_at);
+}
+
 function viewMatch(view: string, lead: LeadRow, userId: string, now: number, activity?: ClientActivitySnapshot | null) {
   const stage = lead.crm_stage || "new";
   const followDue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(stage));
@@ -101,7 +110,7 @@ function viewMatch(view: string, lead: LeadRow, userId: string, now: number, act
   if (view === "all") return true;
   if (view === "nurture") return stage === "nurture";
   if (view === "mine") return lead.owner_id === userId && isOpenLeadStage(stage);
-  if (view === "attention") return (isOpenLeadStage(stage) && (unreadChat > 0 || activity?.latest_decision === "need_more_options" || clientReplyNeedsAction(activity?.reply_status))) || followDue || firstResponseDue;
+  if (view === "attention") return (isOpenLeadStage(stage) && (unreadChat > 0 || activity?.latest_decision === "need_more_options" || clientReplyNeedsAction(activity?.reply_status))) || discoveryOutcomeOverdue(lead, now) || followDue || firstResponseDue || missingFollowupPlan(lead);
   if (view === "timezone") return isOpenLeadStage(stage) && !isValidTimeZone(lead.timezone);
   if (view === "discovery") return stage === "discovery_booked";
   if (view === "qualified") return ["qualified", "terms_sent", "shortlist_sent"].includes(stage);
@@ -125,7 +134,7 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
 
   let leadQuery = admin
     .from("lead_intake")
-    .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,acknowledgement_sent_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,estimated_value_usd,lost_reason_code,lost_competitor,win_back_at,stage_updated_at,created_at")
+    .select("id,name,email,phone,company,service,hours,budget,timezone,message,crm_stage,owner_id,client_id,job_id,acknowledgement_sent_at,first_contact_at,last_contact_at,next_follow_up_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,estimated_value_usd,lost_reason_code,lost_competitor,win_back_at,stage_updated_at,created_at")
     .eq("lead_type", "client_hiring")
     .order("created_at", { ascending: false })
     .limit(500);
@@ -199,8 +208,18 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
       if (view === "attention") {
         const aActivity = activityMap.get(a.id);
         const bActivity = activityMap.get(b.id);
-        const aPriority = Number(aActivity?.unread_chat || 0) > 0 ? 0 : aActivity?.latest_decision === "need_more_options" ? 1 : clientReplyNeedsAction(aActivity?.reply_status) ? 2 : 3;
-        const bPriority = Number(bActivity?.unread_chat || 0) > 0 ? 0 : bActivity?.latest_decision === "need_more_options" ? 1 : clientReplyNeedsAction(bActivity?.reply_status) ? 2 : 3;
+        const priority = (lead: LeadRow, activity?: ClientActivitySnapshot | null) => {
+          if (Number(activity?.unread_chat || 0) > 0) return 0;
+          if (activity?.latest_decision === "need_more_options") return 1;
+          if (clientReplyNeedsAction(activity?.reply_status)) return 2;
+          if (discoveryOutcomeOverdue(lead, now)) return 3;
+          if (lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now) return 4;
+          if (!lead.first_contact_at && lead.crm_stage === "new") return 5;
+          if (missingFollowupPlan(lead)) return 6;
+          return 7;
+        };
+        const aPriority = priority(a, aActivity);
+        const bPriority = priority(b, bActivity);
         if (aPriority !== bPriority) return aPriority - bPriority;
         const scoreDiff = (scoreByLeadId.get(b.id)?.score || 0) - (scoreByLeadId.get(a.id)?.score || 0);
         if (scoreDiff !== 0) return scoreDiff;
@@ -350,6 +369,8 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                     const job = lead.job_id ? jobMap.get(lead.job_id) : null;
                     const scored = scoreByLeadId.get(lead.id) || scoreLead(lead, now, scoringRules);
                     const overdue = Boolean(lead.next_follow_up_at && new Date(lead.next_follow_up_at).getTime() < now && isOpenLeadStage(lead.crm_stage || "new"));
+                    const overdueDiscovery = discoveryOutcomeOverdue(lead, now);
+                    const followupMissing = missingFollowupPlan(lead);
                     const activity = activityMap.get(lead.id);
                     const replyStatus = String(activity?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
                     const unreadChat = Number(activity?.unread_chat || 0);
@@ -362,7 +383,16 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                         ? "Reply in chat"
                         : needsMoreOptions
                           ? "Build more options"
-                          : clientReplyStatusLabel(replyStatus);
+                          : overdueDiscovery
+                            ? "Record discovery outcome"
+                            : followupMissing
+                              ? "Set follow-up date"
+                              : clientReplyStatusLabel(replyStatus);
+                    const nextStepHref = overdueDiscovery
+                      ? `/workspace/recruiter/crm/${lead.id}#discovery-booking`
+                      : followupMissing
+                        ? `/workspace/recruiter/crm/${lead.id}#crm-settings`
+                        : `/workspace/recruiter/crm/${lead.id}`;
                     return <tr key={lead.id}>
                       <td className={styles.selectCell}><input className={styles.rowCheckbox} type="checkbox" name="lead_id" value={lead.id} aria-label={`Select ${lead.name || lead.company || lead.email || "client"}`}/></td>
                       <td><Link className={styles.recordLink} href={`/workspace/recruiter/crm/${lead.id}`}><span className={styles.avatar}>{(lead.name || lead.company || lead.email || "?").slice(0, 1).toUpperCase()}</span><span><strong>{lead.name || lead.company || lead.email || "Client lead"}</strong><small>{lead.company || lead.email || "No company"}</small></span></Link></td>
@@ -387,13 +417,13 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                         </div>
                       </td>
                       <td>{lead.owner_id ? ownerMap.get(lead.owner_id) || "Assigned" : <span className={styles.muted}>Unassigned</span>}</td>
-                      <td className={overdue || winBackDue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
-                        <Link className={styles.nextStepLink} href={`/workspace/recruiter/crm/${lead.id}`}>
+                      <td className={overdue || overdueDiscovery || followupMissing || winBackDue || unreadChat > 0 || needsMoreOptions ? styles.overdue : undefined}>
+                        <Link className={styles.nextStepLink} href={nextStepHref}>
                           <span className={unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? `${styles.replyState} ${styles.replyNeedsAction}` : replyStatus === "awaiting_reply" ? `${styles.replyState} ${styles.replyAwaiting}` : replyStatus === "handled" ? `${styles.replyState} ${styles.replyHandled}` : styles.replyState}>
-                            {winBackDue || unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
+                            {overdueDiscovery || followupMissing || winBackDue || unreadChat > 0 || needsMoreOptions || replyStatus === "needs_action" ? <span className={styles.replyDot} aria-hidden="true"/> : null}
                             {nextStepLabel}
                           </span>
-                          <small className={styles.nextStepDate}>{lead.win_back_at ? `${leadLossReasonLabel(lead.lost_reason_code)} · ${shortDate(lead.win_back_at)}` : unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
+                          <small className={styles.nextStepDate}>{overdueDiscovery ? "Scheduled call · outcome not recorded" : followupMissing ? "Contacted · no follow-up scheduled" : lead.win_back_at ? `${leadLossReasonLabel(lead.lost_reason_code)} · ${shortDate(lead.win_back_at)}` : unreadChat > 0 ? `${unreadChat} unread client message${unreadChat === 1 ? "" : "s"}` : needsMoreOptions ? `Requested ${shortDate(activity?.latest_decision_at)}` : replyStatus === "needs_action" && activity?.last_client_reply_at ? `Replied ${shortDate(activity.last_client_reply_at)}` : shortDate(lead.next_follow_up_at, "No follow-up")}</small>
                         </Link>
                       </td>
                     </tr>;

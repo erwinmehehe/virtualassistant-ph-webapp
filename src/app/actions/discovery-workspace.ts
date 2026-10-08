@@ -252,11 +252,13 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
     // attended discovery. Only the qualified recommendation path records
     // a completed call here. The CRM outcome form handles no-shows/attendance.
     const leadPatch: Record<string, unknown> = {
-      discovery_notes: summary || values.additionalNotes || null,
       next_follow_up_at: nextFollowUpAt,
-      stage_updated_at: now.toISOString(),
     };
+    if (summary || values.additionalNotes) {
+      leadPatch.discovery_notes = summary || values.additionalNotes;
+    }
     if (intent !== "follow_up") {
+      leadPatch.stage_updated_at = now.toISOString();
       leadPatch.crm_stage = stage;
       leadPatch.status = legacyLeadStatus(stage);
       leadPatch.lost_reason = null;

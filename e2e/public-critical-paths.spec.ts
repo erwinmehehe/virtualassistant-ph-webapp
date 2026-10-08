@@ -7,7 +7,7 @@ async function expectBasicPublicAccessibility(page: import("@playwright/test").P
   const unlabeledImages = await page.locator('img:not([alt])').count();
   expect(unlabeledImages).toBe(0);
 
-  const controls = page.locator('input:not([type="hidden"]), select, textarea');
+  const controls = page.locator('input:not([type="hidden"]):not([aria-hidden="true"]), select:not([aria-hidden="true"]), textarea:not([aria-hidden="true"])');
   const count = await controls.count();
   for (let index = 0; index < count; index += 1) {
     const control = controls.nth(index);

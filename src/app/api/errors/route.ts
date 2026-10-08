@@ -11,6 +11,7 @@ type ClientErrorPayload = {
   stack?: unknown;
   digest?: unknown;
   path?: unknown;
+  source?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -22,6 +23,9 @@ export async function POST(request: Request) {
     const errorName = body?.name ? String(body.name).slice(0, 200) : "Error";
     const path = body?.path ? String(body.path).slice(0, 500) : null;
     const clientStack = body?.stack ? String(body.stack).slice(0, 6000) : null;
+    const source = body?.source === "training_checkpoint_recoverable"
+      ? "training_checkpoint_recoverable"
+      : "next_error_boundary";
     const suppliedDigest = body?.digest ? String(body.digest).slice(0, 200) : null;
     const digest = suppliedDigest || createHash("sha256")
       .update([errorName, message, path || ""].join("|"))
@@ -40,7 +44,7 @@ export async function POST(request: Request) {
       user_id: user?.id || null,
       user_agent: request.headers.get("user-agent")?.slice(0, 500) || null,
       metadata: {
-        source: "next_error_boundary",
+        source,
         error_name: errorName,
         client_stack: clientStack,
         release_sha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null,

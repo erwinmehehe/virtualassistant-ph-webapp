@@ -29,8 +29,8 @@ type Owner = { id: string; full_name: string | null };
 type Job = { id: string; title: string | null };
 
 const VIEWS = [
-  ["upcoming", "Upcoming"],
   ["action", "Needs action"],
+  ["upcoming", "Upcoming"],
   ["completed", "Completed"],
   ["all", "All discovery"],
 ] as const;
@@ -65,6 +65,8 @@ function callState(lead: DiscoveryLead, now: number) {
 }
 
 function needsAction(lead: DiscoveryLead, now: number) {
+  // Historical won/lost clients and cancelled bookings are not live sales work.
+  if (["won", "lost", "nurture"].includes(String(lead.crm_stage || ""))) return false;
   const state = callState(lead, now);
   if (state === "overdue") return true;
   if (!lead.discovery_completed_at) return false;
@@ -81,8 +83,9 @@ export default async function RecruiterDiscoveryPage({
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   const admin = createAdminClient();
-  const requested = String(params.view || "upcoming");
-  const view = VIEWS.some(([value]) => value === requested) ? requested : "upcoming";
+  // Surface unresolved discovery outcomes by default, not an empty upcoming tab.
+  const requested = String(params.view || "action");
+  const view = VIEWS.some(([value]) => value === requested) ? requested : "action";
 
   const [{ data: leadData, error: leadError }, { data: ownerData, error: ownerError }] = await Promise.all([
     admin
@@ -136,7 +139,7 @@ export default async function RecruiterDiscoveryPage({
         <div>
           <span className={styles.kicker}>Recruiter workspace</span>
           <h1>Discovery calls</h1>
-          <p>Prepare for calls, capture discovery, qualify the role, and hand the client directly into matching.</p>
+          <p>Record the outcome of each call, prepare the recommendation, and send the client proposal before recruiting.</p>
         </div>
         <div className={styles.headerActions}>
           <Link className={styles.secondaryButton} href="/workspace/recruiter/crm?view=discovery"><UsersRound size={15}/> Client pipeline</Link>
@@ -144,11 +147,21 @@ export default async function RecruiterDiscoveryPage({
       </header>
 
       <section className={styles.summary} aria-label="Discovery summary">
-        <div><span>Upcoming</span><strong>{upcoming.length}</strong><small>Booked calls ahead</small></div>
         <div><span>Needs action</span><strong>{action.length}</strong><small>Past calls or follow-up due</small></div>
+        <div><span>Upcoming</span><strong>{upcoming.length}</strong><small>Booked calls ahead</small></div>
         <div><span>Completed</span><strong>{completed.length}</strong><small>Discovery history</small></div>
         <div><span>Assigned to me</span><strong>{all.filter((lead) => lead.owner_id === userId).length}</strong><small>Your discovery records</small></div>
       </section>
+
+      {action.length > 0 ? (
+        <section className={styles.actionNotice} aria-label="Discovery action backlog">
+          <div>
+            <strong>{action.length} discovery record{action.length === 1 ? "" : "s"} need a decision.</strong>
+            <span>Confirm whether the call happened, record the actual outcome, or follow up. Do not mark a client qualified without a real conversation.</span>
+          </div>
+          <Link className={styles.secondaryButton} href="/workspace/recruiter/crm?view=attention">Review full client queue</Link>
+        </section>
+      ) : null}
 
       <nav className={styles.tabs} aria-label="Discovery views">
         {VIEWS.map(([value, label]) => (
@@ -161,6 +174,7 @@ export default async function RecruiterDiscoveryPage({
       <section className={styles.list}>
         {visible.map((lead) => {
           const state = callState(lead, now);
+          const needsOutcome = state === "overdue";
           const timeZone = isValidTimeZone(lead.timezone) ? String(lead.timezone) : "";
           const role = lead.job_id ? jobs.get(lead.job_id) : null;
           return (
@@ -182,7 +196,10 @@ export default async function RecruiterDiscoveryPage({
               </div>
 
               <div className={styles.actions}>
-                <Link className={styles.primaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Open Discovery Workspace</Link>
+                <Link className={styles.primaryButton} href={needsOutcome ? `/workspace/recruiter/crm/${lead.id}#discovery-booking` : state === "completed" ? `/workspace/recruiter/crm/${lead.id}#client-followup` : `/workspace/recruiter/crm/${lead.id}/discovery`}>
+                  {needsOutcome ? "Record call outcome" : state === "completed" ? "Review follow-up" : "Open Discovery Workspace"}
+                </Link>
+                {needsOutcome ? <Link className={styles.secondaryButton} href={`/workspace/recruiter/crm/${lead.id}/discovery`}>Review discovery notes</Link> : null}
                 {lead.discovery_meeting_url && state === "upcoming" ? (
                   <a className={styles.secondaryButton} href={lead.discovery_meeting_url} target="_blank" rel="noreferrer">
                     Join Meet <ExternalLink size={13}/>
@@ -196,8 +213,8 @@ export default async function RecruiterDiscoveryPage({
         {!visible.length ? (
           <div className={styles.empty}>
             <CalendarDays size={24}/>
-            <strong>No discovery calls in this view.</strong>
-            <p>Booked calls will appear here automatically.</p>
+            <strong>{view === "action" ? "No discovery actions are overdue." : "No discovery calls in this view."}</strong>
+            <p>{view === "action" ? "New calls that need an outcome or follow-up will appear here." : "Booked calls will appear here automatically."}</p>
             <Link href="/workspace/recruiter/crm">Open client pipeline</Link>
           </div>
         ) : null}

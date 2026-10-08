@@ -114,7 +114,11 @@ export async function joinTrainingAction(
     );
   }
 
-  if (await isKnownCompromisedPassword(parsed.data.password)) {
+  const trainingBreachCheck = await isKnownCompromisedPassword(parsed.data.password);
+  if (trainingBreachCheck === null) {
+    return joinError(previousState, "Password security verification is temporarily unavailable. Please try again.", "breach_check_unavailable");
+  }
+  if (trainingBreachCheck) {
     return joinError(
       previousState,
       "That password appears in known data breaches. Choose a different password.",

@@ -2,8 +2,9 @@ import "server-only";
 
 import { createHash } from "node:crypto";
 
-export async function isKnownCompromisedPassword(password: string) {
-  if (!password) return false;
+// null means the breach-check service was unreachable; never silently treat it as safe.
+export async function isKnownCompromisedPassword(password: string): Promise<boolean | null> {
+  if (!password) return null;
 
   const sha1 = createHash("sha1").update(password, "utf8").digest("hex").toUpperCase();
   const prefix = sha1.slice(0, 5);
@@ -21,7 +22,7 @@ export async function isKnownCompromisedPassword(password: string) {
 
     if (!response.ok) {
       console.warn("[password-safety] HIBP range lookup failed", { status: response.status });
-      return false;
+      return null;
     }
 
     const body = await response.text();
@@ -34,6 +35,6 @@ export async function isKnownCompromisedPassword(password: string) {
     console.warn("[password-safety] HIBP range lookup unavailable", {
       message: error instanceof Error ? error.message : "unknown",
     });
-    return false;
+    return null;
   }
 }

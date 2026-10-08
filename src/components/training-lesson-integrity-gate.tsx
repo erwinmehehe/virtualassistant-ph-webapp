@@ -188,8 +188,19 @@ export function TrainingLessonIntegrityGate({
           setCheckpointMessage("Not quite. Review the relevant part of the lesson, then try again.");
         }
       } catch {
-        // An old open tab can hold a server-action reference from a previous release.
-        // Keep the learner on the page and offer a safe refresh instead of crashing.
+        // A stale tab or interrupted server action must be visible in internal
+        // error telemetry, even when the learner can safely retry the lesson.
+        // The payload is intentionally static and contains no answer or PII.
+        void fetch("/api/errors", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            name: "TrainingCheckpointActionError",
+            message: "Training checkpoint answer was not saved",
+            source: "training_checkpoint_recoverable",
+            path: window.location.pathname,
+          }),
+        }).catch(() => {});
         setCheckpointMessage("We couldn't save that answer. Check your connection or reload this lesson, then try again.");
       }
     });

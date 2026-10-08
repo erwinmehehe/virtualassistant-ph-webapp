@@ -66,7 +66,7 @@ function callState(lead: DiscoveryLead, now: number) {
 
 function needsAction(lead: DiscoveryLead, now: number) {
   // Historical won/lost clients and cancelled bookings are not live sales work.
-  if (["won", "lost"].includes(String(lead.crm_stage || ""))) return false;
+  if (["won", "lost", "nurture"].includes(String(lead.crm_stage || ""))) return false;
   const state = callState(lead, now);
   if (state === "overdue") return true;
   if (!lead.discovery_completed_at) return false;

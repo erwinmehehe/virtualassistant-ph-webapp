@@ -281,9 +281,10 @@ export default async function DiscoveryWorkspacePage({
                 </button>
                 <button type="submit" name="intent" value="save" className={styles.secondaryButton}>Save workspace</button>
                 <div className={styles.secondaryActions}>
-                  <button type="submit" name="intent" value="follow_up">Follow up</button>
-                  <button type="submit" name="intent" value="nurture">Nurture</button>
+                  <button type="submit" name="intent" value="follow_up">Save follow-up</button>
+                  <button type="submit" name="intent" value="nurture">Move to nurture</button>
                 </div>
+                <p className={styles.nextStepHelp}>Follow-up and nurture save a next step; they do not mark a call attended. Record attended, no-show, or cancelled outcomes in the client record.</p>
               </div>
             </div>
           </aside>

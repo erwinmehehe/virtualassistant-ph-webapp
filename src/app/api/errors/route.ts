@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   if (isExplicitCrossSiteRequest(request)) return new Response(null, { status: 204 });
 
   try {
-    const body = await readRequestJson<ClientErrorPayload>(request, 32_768).catch(() => ({}));
+    const body = await readRequestJson<ClientErrorPayload>(request, 32_768).catch(() => ({} as ClientErrorPayload));
     const message = String(body?.message || "Unknown client error").slice(0, 1000);
     const errorName = body?.name ? String(body.name).slice(0, 200) : "Error";
     const path = body?.path ? String(body.path).slice(0, 500) : null;

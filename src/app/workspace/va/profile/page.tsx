@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReloadPageButton } from "@/components/reload-page-button";
 import { Suspense } from "react";
 import { Clock3, Eye, ShieldCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
@@ -47,7 +48,7 @@ export default async function VaProfilePage({
   if (profileError) {
     // Never show an empty editable form when a profile read failed: submitting it
     // could replace real data with default/blank values.
-    return <main className="dash-page"><section className="card stack" role="alert"><h1>Profile temporarily unavailable</h1><p>We couldn't load your saved profile. Nothing on this page has been changed. Reload before editing so you can review your existing details.</p><div className="row wrap"><a className="btn btn-primary" href="/workspace/va/profile">Reload profile</a><Link className="btn" href="/workspace/va">Back to workspace</Link></div></section></main>;
+    return <main className="dash-page"><section className="card stack" role="alert"><h1>Profile temporarily unavailable</h1><p>We couldn't load your saved profile. Nothing on this page has been changed. Reload before editing so you can review your existing details.</p><div className="row wrap"><ReloadPageButton label="Reload profile"/><Link className="btn" href="/workspace/va">Back to workspace</Link></div></section></main>;
   }
 
   const savedResumeName = va?.resume_path?.split("/").pop()?.replace(/^\d+-/, "") || null;

@@ -26,6 +26,16 @@ test("training checkpoint failure does not crash a learner's lesson", async () =
   assert.match(sourceText, /window\.location\.reload\(\)/);
 });
 
+test("training workspace provides a full reload for stale bundles and uncertain submissions", async () => {
+  const [boundary, shared] = await Promise.all([
+    source("src/app/workspace/training/error.tsx"),
+    source("src/components/workspace-error.tsx"),
+  ]);
+  assert.match(boundary, /<WorkspaceError error=\{error\} reset=\{reset\} home="\/workspace\/training"/);
+  assert.match(shared, /window\.location\.reload\(\)/);
+  assert.match(shared, /your changes may already have saved/);
+});
+
 test("VA setup and profile never render blank editable forms after failed reads", async () => {
   const [onboarding, profile] = await Promise.all([
     source("src/app/workspace/va/onboarding/page.tsx"),

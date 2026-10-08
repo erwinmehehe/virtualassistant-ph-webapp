@@ -20,7 +20,11 @@ export default async function VaOnboardingPage({ searchParams }: { searchParams:
   const params = await searchParams;
   const [{ user, profile }, settings] = await Promise.all([requireRole("va"), getBusinessSettings()]);
   const supabase = await createClient();
-  const { data: va } = await supabase.from("va_profiles").select("*").eq("user_id", user.id).maybeSingle();
+  const { data: va, error: profileError } = await supabase.from("va_profiles").select("*").eq("user_id", user.id).maybeSingle();
+  if (profileError) {
+    // Failed reads must not turn a saved onboarding profile into a blank form.
+    return <main className="va-quick-setup-page"><section className="card stack" role="alert"><h1>We couldn't load your saved progress.</h1><p>Your existing setup may still be saved. Reload the page before entering anything new.</p><div className="row wrap"><a className="btn btn-primary" href="/workspace/va/onboarding">Reload setup</a><Link className="btn" href="/workspace/va">Back to workspace</Link></div></section></main>;
+  }
   const completion = getVaCompletion(va, profile.avatar_url);
 
   const basicsDone = Boolean(

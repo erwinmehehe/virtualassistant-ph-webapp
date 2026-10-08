@@ -50,7 +50,11 @@ function followUpAtClientNine(dateKey: string | null, timeZone: string) {
 }
 
 function numberValue(value: FormDataEntryValue | null) {
-  const n = Number(value);
+  // Number("") is zero: absent optional salary/rate fields must not become
+  // a fictional 0 compensation figure in a client-facing proposal.
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const n = Number(raw);
   return Number.isFinite(n) ? n : null;
 }
 

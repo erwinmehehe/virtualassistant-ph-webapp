@@ -50,7 +50,7 @@ test("discovery workspace stores structured notes server-side and sends qualifie
   assert.match(page, /Business problem understood/);
   assert.match(page, /Budget discussed/);
   assert.match(action, /lead_discovery_briefs/);
-  assert.match(action, /crm_stage: stage/);
+  assert.match(action, /leadPatch\.crm_stage = stage/);
   assert.match(action, /required_skills/);
   assert.match(action, /required_tools/);
   assert.doesNotMatch(action, /jobPatch\.must_have_skills = values\.recommendedSkills/);

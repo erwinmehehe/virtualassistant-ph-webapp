@@ -954,7 +954,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
 
         <aside className="stack">
-          <details className={styles.panelDetails}>
+          <details id="crm-settings" className={styles.panelDetails} open={Boolean(!lead.next_follow_up_at && ["contacted", "qualified", "terms_sent", "shortlist_sent"].includes(stage))}>
             <summary><span><strong>Record settings</strong><small>Owner, CRM stage, follow-up date</small></span><ArrowRight size={15}/></summary>
             <div className={styles.panelBody}>
               <form action={updateLeadCrmAction} className={styles.form}>

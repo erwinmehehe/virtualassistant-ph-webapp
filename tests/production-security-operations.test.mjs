@@ -35,9 +35,10 @@ test("all app-controlled password changes stop when breach verification is unava
   assert.ok(training.indexOf("trainingBreachCheck === null") < training.indexOf("admin.auth.admin.generateLink"));
   assert.match(account, /accountBreachCheck === null/);
   assert.ok(account.indexOf("accountBreachCheck === null") < account.indexOf("supabase.auth.updateUser({ password: newPassword })"));
-  for (const source of [auth, training, account]) {
+  for (const source of [auth, training]) {
     assert.match(source, /Password security verification is temporarily unavailable/);
   }
+  assert.match(account, /Password%20security%20verification%20is%20temporarily%20unavailable/);
 });
 
 test("production Turnstile token verification checks expected hostname and action", async () => {

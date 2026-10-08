@@ -109,6 +109,9 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
     .eq("lead_type", "client_hiring")
     .maybeSingle();
   if (leadError || !lead) redirect("/workspace/recruiter/crm?discovery_error=Lead%20not%20found.");
+  if (["won", "lost"].includes(String(lead.crm_stage || ""))) {
+    redirect(safeReturn(leadId, "?error=Closed%20leads%20must%20be%20reopened%20before%20creating%20a%20new%20proposal."));
+  }
   const now = new Date();
   const nextStep = intent === "save" ? null : intent;
   const qualificationStatus = intent === "proposal"
@@ -172,6 +175,66 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   }
 
   const summary = discoverySummary(values);
+
+  if (intent === "proposal") {
+    // Commit the internal draft before changing the lead to qualified. If the
+    // proposal write fails, no qualified lead is silently stranded without a draft.
+    const responsibilities = values.ownershipNeeded
+      .split(/\n|;/)
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .slice(0, 12);
+
+    const proposalPayload = {
+      role_title: values.recommendedRole,
+      summary: values.currentPain || values.whyNow || values.ownershipNeeded || "Virtual Assistant hiring recommendation",
+      hours_per_week: values.recommendedHours,
+      responsibilities,
+      required_skills: values.recommendedSkills,
+      required_tools: values.recommendedTools,
+      salary_min: values.recommendedSalaryMin,
+      salary_max: values.recommendedSalaryMax,
+      salary_currency: values.salaryCurrency,
+      commercial_note: values.vaphFeeNote || null,
+      recommended_start_date: values.recommendedStartDate,
+      start_timing: values.recommendedStartDate || lead.start_time || null,
+      job_id: lead.job_id || null,
+      updated_at: now.toISOString(),
+    };
+
+    const { data: latestProposal, error: existingProposalError } = await admin
+      .from("lead_proposals")
+      .select("id,status")
+      .eq("lead_id", leadId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existingProposalError) {
+      redirect(safeReturn(leadId, `?error=${encodeURIComponent("Could not verify the existing client proposal.")}`));
+    }
+    if (latestProposal && ["sent", "accepted"].includes(String(latestProposal.status))) {
+      redirect(safeReturn(leadId, "?error=This%20lead%20already%20has%20a%20sent%20or%20accepted%20proposal.%20Review%20it%20before%20creating%20another."));
+    }
+
+    if (latestProposal && ["draft", "changes_requested"].includes(String(latestProposal.status))) {
+      const { error: proposalError } = await admin
+        .from("lead_proposals")
+        .update({ ...proposalPayload, status: "draft" })
+        .eq("id", latestProposal.id);
+      if (proposalError) redirect(safeReturn(leadId, `?error=${encodeURIComponent(proposalError.message || "Could not prepare the proposal.")}`));
+    } else {
+      const { error: proposalError } = await admin
+        .from("lead_proposals")
+        .insert({
+          lead_id: leadId,
+          status: "draft",
+          service_model: "curated_placement",
+          created_by: user.id,
+          ...proposalPayload,
+        });
+      if (proposalError) redirect(safeReturn(leadId, `?error=${encodeURIComponent(proposalError.message || "Could not prepare the proposal.")}`));
+    }
+  }
 
   if (intent !== "save") {
     const stage: LeadCrmStage = intent === "proposal" ? "qualified" : "nurture";
@@ -240,58 +303,6 @@ export async function saveDiscoveryWorkspaceAction(formData: FormData) {
   }
 
   if (intent === "proposal") {
-    const responsibilities = values.ownershipNeeded
-      .split(/\n|;/)
-      .map((value) => value.trim())
-      .filter(Boolean)
-      .slice(0, 12);
-
-    const proposalPayload = {
-      role_title: values.recommendedRole,
-      summary: values.currentPain || values.whyNow || values.ownershipNeeded || "Virtual Assistant hiring recommendation",
-      hours_per_week: values.recommendedHours,
-      responsibilities,
-      required_skills: values.recommendedSkills,
-      required_tools: values.recommendedTools,
-      salary_min: values.recommendedSalaryMin,
-      salary_max: values.recommendedSalaryMax,
-      salary_currency: values.salaryCurrency,
-      commercial_note: values.vaphFeeNote || null,
-      recommended_start_date: values.recommendedStartDate,
-      start_timing: values.recommendedStartDate || lead.start_time || null,
-      job_id: lead.job_id || null,
-      updated_at: now.toISOString(),
-    };
-
-    const { data: existingDraft } = await admin
-      .from("lead_proposals")
-      .select("id,status")
-      .eq("lead_id", leadId)
-      .in("status", ["draft", "changes_requested"])
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (existingDraft) {
-      const { error: proposalError } = await admin
-        .from("lead_proposals")
-        .update({ ...proposalPayload, status: "draft" })
-        .eq("id", existingDraft.id);
-      if (proposalError) redirect(safeReturn(leadId, `?error=${encodeURIComponent(proposalError.message || "Could not prepare the proposal.")}`));
-    } else {
-      const { error: proposalError } = await admin
-        .from("lead_proposals")
-        .insert({
-          lead_id: leadId,
-          status: "draft",
-          service_model: "curated_placement",
-          created_by: user.id,
-          ...proposalPayload,
-        });
-      if (proposalError) redirect(safeReturn(leadId, `?error=${encodeURIComponent(proposalError.message || "Could not prepare the proposal.")}`));
-    }
-
-    revalidatePath(`/workspace/recruiter/crm/${leadId}/proposal`);
     redirect(`/workspace/recruiter/crm/${leadId}/proposal?generated=1`);
   }
 

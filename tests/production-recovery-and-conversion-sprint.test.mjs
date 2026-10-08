@@ -21,7 +21,7 @@ test("invalid proposal recovery has a boundary beside the dynamic token route", 
 test("training checkpoint failure does not crash a learner's lesson", async () => {
   const sourceText = await source("src/components/training-lesson-integrity-gate.tsx");
   assert.match(sourceText, /try \{\s*const result = await checkTrainingLessonCheckpointAction/);
-  assert.match(sourceText, /catch \{\s*\/\/ An old open tab/);
+  assert.match(sourceText, /catch \{\s*\/\/ A stale tab or interrupted server action/);
   assert.match(sourceText, /We couldn't save that answer/);
   assert.match(sourceText, /window\.location\.reload\(\)/);
 });

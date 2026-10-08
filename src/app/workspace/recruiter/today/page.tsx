@@ -318,8 +318,11 @@ function actionLabel(item:any) {
 export default async function RecruiterTodayPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
-  const { data: summaryData, error: summaryError } = await withServerTiming("recruiter.today_summary", () => createAdminClient().rpc("recruiter_today_summary", { p_user_id:userId }));
-  const roleSummary = await getRecruiterRolesSummary(userId);
+  // These independent queries previously ran serially and delayed the Today screen.
+  const [{ data: summaryData, error: summaryError }, roleSummary] = await Promise.all([
+    withServerTiming("recruiter.today_summary", () => createAdminClient().rpc("recruiter_today_summary", { p_user_id:userId })),
+    getRecruiterRolesSummary(userId),
+  ]);
   if (summaryError) throw summaryError;
   if (roleSummary.error) throw roleSummary.error;
 

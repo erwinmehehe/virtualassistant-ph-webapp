@@ -202,7 +202,11 @@ export async function changeAccountPasswordAction(formData: FormData) {
   if (!accountPasswordSchema.safeParse(newPassword).success) {
     redirect("/workspace/account?tab=security&error=Use%2012%2B%20characters%20with%20uppercase%2C%20lowercase%2C%20a%20number%2C%20and%20a%20symbol.%20Avoid%20common%20password%20phrases.");
   }
-  if (await isKnownCompromisedPassword(newPassword)) {
+  const accountBreachCheck = await isKnownCompromisedPassword(newPassword);
+  if (accountBreachCheck === null) {
+    redirect("/workspace/account?tab=security&error=Password%20security%20verification%20is%20temporarily%20unavailable.%20Please%20try%20again.");
+  }
+  if (accountBreachCheck) {
     redirect("/workspace/account?tab=security&error=That%20password%20appears%20in%20known%20data%20breaches.%20Choose%20a%20different%20password.");
   }
 

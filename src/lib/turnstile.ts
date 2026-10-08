@@ -58,6 +58,23 @@ export async function verifyTurnstile(formData: FormData, expectedAction?: strin
       });
       return false;
     }
+    if (process.env.VERCEL_ENV === "production") {
+      // A valid token from a different hostname is not authorization to
+      // submit this site's forms. Only the canonical and www hosts are valid.
+      let expectedHost = "";
+      try {
+        expectedHost = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph")
+          .hostname.toLowerCase().replace(/^www\./, "");
+      } catch {
+        console.error("[turnstile] production app URL is invalid");
+        return false;
+      }
+      const receivedHost = String(result.hostname || "").toLowerCase();
+      if (!expectedHost || ![expectedHost, "www." + expectedHost].includes(receivedHost)) {
+        console.warn("[turnstile] hostname mismatch");
+        return false;
+      }
+    }
     return true;
   } catch {
     return false;

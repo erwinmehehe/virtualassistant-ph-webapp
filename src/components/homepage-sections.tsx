@@ -436,7 +436,7 @@ export function TalentSection({ talent }: { talent: FeaturedVa[] }) {
                 </div>
                 <div className="hs-facts">
                   <span><Clock3 size={14} aria-hidden="true" /> {va.weekly_hours ? `${va.weekly_hours} hrs/week available` : "Flexible availability"}</span>
-                  {va.hourly_rate ? <span><CheckCircle2 size={14} aria-hidden="true" /> ${Number(va.hourly_rate).toFixed(0)}/hr preferred</span> : null}
+                  <span><CheckCircle2 size={14} aria-hidden="true" /> Compensation and service fees quoted separately</span>
                 </div>
               </article>
             ))}

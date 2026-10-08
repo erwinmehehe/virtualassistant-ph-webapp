@@ -12,7 +12,13 @@ export function WorkspaceError({ error, reset, home }: { error: Error & { digest
     fetch("/api/errors", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ message: error.message, digest: error.digest, path: window.location.pathname })
+      body: JSON.stringify({
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        digest: error.digest,
+        path: window.location.pathname
+      })
     }).catch(() => {});
   }, [error]);
 

@@ -31,7 +31,11 @@ test("VA profile shows certificates in the main profile flow and explains automa
   assert.match(page, /showEmpty/);
 
   const formEnd = page.indexOf("</form>");
-  const training = page.indexOf('heading="Training & certificates"');
+  // The credential panel now streams through Suspense, but stays outside the
+  // editable profile form and before the public-profile/privacy controls.
+  const training = page.indexOf('<VaProfileCredentials userId={userId}/>');
+  assert.match(page, /async function VaProfileCredentials/);
+  assert.match(page, /<Suspense fallback=\{null\}><VaProfileCredentials/);
   const visibility = page.indexOf('id="visibility"');
   const sidebar = page.indexOf('<aside className="profile-editor-sidebar">');
 

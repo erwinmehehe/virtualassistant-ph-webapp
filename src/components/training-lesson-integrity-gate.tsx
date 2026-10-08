@@ -174,17 +174,23 @@ export function TrainingLessonIntegrityGate({
   function checkAnswer() {
     if (!checkpoint || !selectedOption) return;
     startChecking(async () => {
-      const result = await checkTrainingLessonCheckpointAction({
-        lessonId,
-        courseSlug,
-        optionId: selectedOption,
-      });
-      if (result.correct) {
-        setCheckpointPassed(true);
-        setCheckpointMessage("Correct. Your quick check is saved.");
-      } else {
-        setCheckpointPassed(false);
-        setCheckpointMessage("Not quite. Review the relevant part of the lesson, then try again.");
+      try {
+        const result = await checkTrainingLessonCheckpointAction({
+          lessonId,
+          courseSlug,
+          optionId: selectedOption,
+        });
+        if (result.correct) {
+          setCheckpointPassed(true);
+          setCheckpointMessage("Correct. Your quick check is saved.");
+        } else {
+          setCheckpointPassed(false);
+          setCheckpointMessage("Not quite. Review the relevant part of the lesson, then try again.");
+        }
+      } catch {
+        // An old open tab can hold a server-action reference from a previous release.
+        // Keep the learner on the page and offer a safe refresh instead of crashing.
+        setCheckpointMessage("We couldn't save that answer. Check your connection or reload this lesson, then try again.");
       }
     });
   }
@@ -252,6 +258,9 @@ export function TrainingLessonIntegrityGate({
               {isChecking ? "Checking…" : "Check answer"}
             </button>
             {checkpointMessage ? <span className="training-checkpoint-message" role="status">{checkpointMessage}</span> : null}
+            {checkpointMessage.startsWith("We couldn't save") ? (
+              <button className="btn btn-sm" type="button" onClick={() => window.location.reload()}>Reload lesson</button>
+            ) : null}
           </div>
         </div>
       ) : checkpointMessage ? (

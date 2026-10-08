@@ -11,7 +11,7 @@ const routes = [
   { name: "hire", path: "/hire", status: 200, minText: 200 },
   { name: "booking", path: "/book-client-call", status: 200, minText: 150 },
   { name: "contact", path: "/contact", status: 200, minText: 120 },
-  { name: "proposal-not-found", path: "/proposal/not-found", status: 404, minText: 20 },
+  { name: "proposal-not-found", path: "/proposal/not-found", status: 404, minText: 20, expectedHeading: "We couldn’t find this hiring proposal." },
 ];
 
 const browser = await chromium.launch({ headless: true });
@@ -38,6 +38,17 @@ try {
       });
 
       const status = response?.status() ?? 0;
+      // A Next.js not-found boundary can stream after DOMContentLoaded. Wait for
+      // the actual recovery content; a bare 404 status is not a passing check.
+      if (route.expectedHeading) {
+        try {
+          await page.getByRole("heading", { name: route.expectedHeading }).waitFor({ state: "visible", timeout: 20000 });
+        } catch {
+          await page.screenshot({ path: path.join(outputDir, `${route.name}-${viewport.name}-failed.png`), fullPage: true });
+          await fs.writeFile(path.join(outputDir, `${route.name}-${viewport.name}-failed.html`), await page.content());
+          throw new Error(`${route.name} did not render its recovery heading after waiting for streamed content`);
+        }
+      }
       const bodyText = (await page.locator("body").innerText()).trim();
       const overlay = await page.locator("[data-nextjs-dialog], .vite-error-overlay, #webpack-dev-server-client-overlay").count();
       const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
@@ -46,7 +57,12 @@ try {
         throw new Error(`${route.name} returned HTTP ${status}; expected ${route.status}`);
       }
       if (bodyText.length < route.minText) {
+        await page.screenshot({ path: path.join(outputDir, `${route.name}-${viewport.name}-failed.png`), fullPage: true });
+        await fs.writeFile(path.join(outputDir, `${route.name}-${viewport.name}-failed.html`), await page.content());
         throw new Error(`${route.name} rendered too little content (${bodyText.length} chars)`);
+      }
+      if (route.name === "proposal-not-found") {
+        await page.getByRole("link", { name: "Contact the recruiting team" }).waitFor({ state: "visible", timeout: 5000 });
       }
       if (overlay) throw new Error(`${route.name} rendered a framework error overlay`);
       if (horizontalOverflow) throw new Error(`${route.name} has horizontal overflow on ${viewport.name}`);

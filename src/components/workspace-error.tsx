@@ -27,9 +27,10 @@ export function WorkspaceError({ error, reset, home }: { error: Error & { digest
       <div className="workspace-error-icon"><AlertTriangle size={22} /></div>
       <div>
         <h2>This page didn’t load.</h2>
-        <p className="muted">Your data is safe — the page failed to render, nothing was changed. Try again, and if it keeps happening the error has been logged for the internal health screen.</p>
+        <p className="muted">The page failed to load. If you just submitted a form, your changes may already have saved. Reload and review the latest details before submitting again.</p>
         <div className="row wrap">
           <button className="btn btn-primary" onClick={reset} type="button">Try again</button>
+          <button className="btn" onClick={() => window.location.reload()} type="button">Reload this page</button>
           <Link className="btn" href={home}>Back to overview</Link>
         </div>
         {error.digest ? <p className="small muted">Reference: {error.digest}</p> : null}

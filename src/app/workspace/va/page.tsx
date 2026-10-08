@@ -17,12 +17,24 @@ import { getVaDashboardSummary } from "@/lib/va-dashboard";
 import { getTrainingCredentialsForUser } from "@/lib/training-credentials";
 import { TrainingCredentials } from "@/components/training-credentials";
 
+async function VaDashboardCredentials({ userId }: { userId: string }) {
+  try {
+    const credentials = await getTrainingCredentialsForUser(userId);
+    return credentials.length
+      ? <section className="va-dashboard-training"><TrainingCredentials credentials={credentials} heading="Training completed" selfService/></section>
+      : null;
+  } catch {
+    return <p className="small muted" role="status">Training credentials could not be loaded right now. Open Training to review your courses.</p>;
+  }
+}
+
 type DashboardAction={title:string;copy:string;href:string;label:string;icon:typeof ArrowRight};
 
 export default async function VaDashboardPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){
   const params=await searchParams;
   const {userId}=await requireRoleFast("va");
-  const [{data:summary,error:summaryError},trainingCredentials]=await Promise.all([getVaDashboardSummary(userId),getTrainingCredentialsForUser(userId)]);
+  // Keep the main dashboard independent of slow training credential lookups.
+  const {data:summary,error:summaryError}=await getVaDashboardSummary(userId);
   const va=summary?.profile||{};
   const avatarUrl=summary?.avatar_url||null;
   const vetting=summary?.vetting||{};
@@ -116,7 +128,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
       <Suspense fallback={<div className="dash-panel" aria-busy="true"><div className="workspace-skeleton-line wide"/><div className="workspace-skeleton-card"/></div>}><VaDashboardMatches va={va} vetted={vetted}/></Suspense>
     </section>
 
-    {trainingCredentials.length?<section className="va-dashboard-training"><TrainingCredentials credentials={trainingCredentials} heading="Training completed" selfService/></section>:null}
+    <Suspense fallback={null}><VaDashboardCredentials userId={userId}/></Suspense>
 
     {unreadNotifications?<Link className="va-dashboard-notification-link" href="/workspace/va/notifications"><Bell size={16}/><span><strong>{unreadNotifications} unread update{unreadNotifications===1?"":"s"}</strong><small>Recruiter and hiring notifications</small></span><ArrowRight size={15}/></Link>:null}
   </div>;

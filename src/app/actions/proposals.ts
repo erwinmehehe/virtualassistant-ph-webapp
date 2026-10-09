@@ -703,6 +703,13 @@ export async function acceptLeadProposalAction(formData: FormData) {
   });
 
   if (acceptanceError) {
+    // Capture only the database error code/message, not the public token,
+    // client contact details, or application payload. This differentiates
+    // constraint and trigger failures without exposing employer PII.
+    console.error("[proposal] Atomic acceptance failed", {
+      code: acceptanceError.code,
+      message: acceptanceError.message,
+    });
     redirect(`/proposal/${token}?error=${encodeURIComponent("We could not complete the acceptance safely. No partial hiring state was saved. Please try again or contact your recruiter.")}`);
   }
 

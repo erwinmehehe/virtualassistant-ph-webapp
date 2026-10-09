@@ -109,6 +109,7 @@ test("workflow has no deployment or command injection through dispatch inputs",a
   assert.ok(source.includes("PREFLIGHT_PR_NUMBER: "+"${{ inputs.pr_number }}"));
   assert.ok(source.includes('--pr "$PREFLIGHT_PR_NUMBER"'));
   assert.ok(source.includes("exit 1"));
+  assert.doesNotMatch(source,/VERCEL_TOKEN|pull_request_target/);
   assert.match(source,/permissions:\s*\n\s*contents: read/);
   assert.doesNotMatch(source,/vercel deploy|vercel --prod|gh pr merge|git push|supabase db push/i);
 });

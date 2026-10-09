@@ -9,7 +9,7 @@ const source = await readFile(
 const js = ts.transpileModule(source, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
 }).outputText;
-const { buildTrainingAccountActivation } = await import(
+const { buildTrainingAccountActivation, chooseTrainingActivationOpportunity } = await import(
   "data:text/javascript;base64," + Buffer.from(js).toString("base64")
 );
 
@@ -141,6 +141,22 @@ test("pure report never returns learner IDs or contact details",()=>{
   assert.doesNotMatch(output,/u1|u2|u3|@|email|full_name|user_id|created_at/);
   assert.match(output,/"alsoVaProfile"/);
 });
+test("admin action prioritizes the largest observed learner activation gap",()=>{
+  const priority = chooseTrainingActivationOpportunity({
+    registered:529,startedCourse:425,completedLesson:136,completedCourse:29,
+    noStart72h:84,alsoVaProfile:76,graduatesAlsoVaProfile:13,
+  });
+  assert.equal(priority.stage,"first_lesson");
+  assert.equal(priority.count,289);
+  assert.match(priority.recommendation,/first lesson/);
+});
+test("opportunity selector guards against negative gaps from inconsistent legacy imports",()=>{
+  const priority=chooseTrainingActivationOpportunity({
+    registered:2,startedCourse:4,completedLesson:5,completedCourse:8,
+    noStart72h:0,alsoVaProfile:0,graduatesAlsoVaProfile:0,
+  });
+  assert.equal(priority.count,0);
+});
 test("server loader validates admin role and uses trusted app metadata, not editable claims",async()=>{
   const s=await readFile("src/lib/training-account-activation-server.ts","utf8");
   const auth=s.indexOf('await requireRoleFast("admin")');
@@ -163,6 +179,8 @@ test("admin activation page shows totals and next steps but no identifying data"
   assert.match(page,/From training signup to first completion/);
   assert.match(page,/No course start after 72h/);
   assert.match(page,/First-week course activation/);
+  assert.match(page,/Largest observed gap/);
+  assert.match(page,/chooseTrainingActivationOpportunity/);
   assert.match(page,/Also created a VA candidate profile/);
   assert.match(page,/not proof that training occurred before VA registration/);
   assert.doesNotMatch(page,/user_id|email_address|full_name/);

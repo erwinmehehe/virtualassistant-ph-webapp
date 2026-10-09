@@ -66,9 +66,9 @@ test("in-review final checks do not interrupt an actionable unfinished course", 
 });
 test("invalid activity timestamp falls back to enrollment time", () => {
   assert.equal(chooseTrainingResumeCourse([
-    course("older",{lastActivityAt:"not-a-date",startedAt:ago(5)}),
-    course("newer",{lastActivityAt:ago(1),startedAt:ago(5)}),
-  ])?.id,"newer");
+    course("fallback",{lastActivityAt:"not-a-date",startedAt:ago(0)}),
+    course("other",{lastActivityAt:ago(1),startedAt:ago(5)}),
+  ])?.id,"fallback");
 });
 test("priority evaluation never mutates the caller's active-course order", () => {
   const courses=[course("b",{lastActivityAt:ago(5)}),course("a",{lastActivityAt:ago(0)})];

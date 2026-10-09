@@ -51,8 +51,9 @@ async function readByAccountIds<T>(
         .select(config.fields)
         .in(config.filter, batch);
       for (const order of config.ordering) query = query.order(order);
-      const { data, error } = await query.range(offset, offset + DB_PAGE_SIZE - 1)
-        as QueryResult<T>;
+      const { data, error } = (await query.range(
+        offset, offset + DB_PAGE_SIZE - 1,
+      )) as QueryResult<T>;
       if (error || !data) throw new Error("Training activation source query unavailable: " + config.name);
       result.push(...data);
       if (result.length > MAX_GROUP_ROWS) throw new Error("Training activation data capacity exceeded");

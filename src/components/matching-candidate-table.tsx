@@ -96,13 +96,15 @@ export function MatchingCandidateTable({
   hideShortlistCandidateAction,
   saveClientRecommendationAction,
   canSendClient,
-  canInviteClient
+  canInviteClient,
+  sendBlockers
 }: {
   pool: Row[];
   hideShortlistCandidateAction: FormAction;
   saveClientRecommendationAction: FormAction;
   canSendClient: boolean;
   canInviteClient: boolean;
+  sendBlockers: string[];
 }) {
   const [query, setQuery] = useState("");
   const [trainingFilter, setTrainingFilter] = useState<"all" | "verified" | "path">("all");
@@ -187,9 +189,10 @@ export function MatchingCandidateTable({
           ? <button className="btn btn-primary" type="submit" name="mode" value="release" disabled={!selectedCount || selectedCount > 5}>Send {selectedCount || 0} to client</button>
           : canInviteClient
             ? <button className="btn btn-primary" type="submit" name="mode" value="invite" disabled={!selectedCount || selectedCount > 5}>Save {selectedCount || 0} + invite client</button>
-            : null}
+            : <button className="btn btn-primary" type="button" disabled title={sendBlockers.join("; ") || "Client delivery is not available for this role"} aria-describedby="shortlist-send-blockers">Send {selectedCount || 0} to client · unavailable</button>}
       </div>
     </div>
+    {!canSendClient && !canInviteClient && <div id="shortlist-send-blockers" className="alert" role="status" style={{marginBottom:12}}><strong>Cannot send the shortlist yet.</strong> Complete these requirements: {sendBlockers.join("; ") || "Link an eligible client role"}. Your selected candidates remain saved internally until you explicitly send them.</div>}
 
 
     {showClientPreview && selectedRows.length ? <section className="card" style={{margin:"0 0 16px",background:"#f8fafc"}} aria-label="Client shortlist preview">

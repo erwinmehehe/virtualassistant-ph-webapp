@@ -106,8 +106,13 @@ export function buildTrainingAccountActivation(input: TrainingActivationInput): 
     }
   }
 
+  // Keep the learning funnel anchored to a valid course-start record.
+  // Incomplete legacy imports must not manufacture a new enrolment.
   const lessonUsers = new Set(
-    input.lessonCompletions.map(row => row.user_id).filter(id => accountsById.has(id))
+    input.lessonCompletions.map(row => row.user_id).filter(id => firstCourseByUser.has(id))
+  );
+  const validGraduates = new Set(
+    [...completedUsers].filter(id => firstCourseByUser.has(id))
   );
   const verifiedVaUsers = new Set(
     input.verifiedVaProfileUserIds.filter(id => accountsById.has(id))
@@ -117,9 +122,9 @@ export function buildTrainingAccountActivation(input: TrainingActivationInput): 
   totals.registered = accountsById.size;
   totals.startedCourse = firstCourseByUser.size;
   totals.completedLesson = lessonUsers.size;
-  totals.completedCourse = completedUsers.size;
+  totals.completedCourse = validGraduates.size;
   totals.alsoVaProfile = verifiedVaUsers.size;
-  totals.graduatesAlsoVaProfile = [...completedUsers].filter(id => verifiedVaUsers.has(id)).length;
+  totals.graduatesAlsoVaProfile = [...validGraduates].filter(id => verifiedVaUsers.has(id)).length;
 
   let eligible = 0;
   let activated = 0;

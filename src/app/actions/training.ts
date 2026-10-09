@@ -39,16 +39,50 @@ export async function startTrainingCourseAction(formData: FormData) {
     throw new Error("Could not start this training course.");
   }
 
+  const courseOverview = `/workspace/training/courses/${course.slug}`;
+  let destination = courseOverview;
+
   if (!error) {
+    // A new learner explicitly clicked Start course; take them to the first
+    // published lesson instead of adding a second click on the overview.
+    // Failed curriculum lookups fall back to the course overview. Existing
+    // enrolments retain their normal route so past progress is not reset.
+    const { data: moduleRows, error: moduleError } = await supabase
+      .from("training_modules")
+      .select("id,position")
+      .eq("course_id", course.id)
+      .order("position", { ascending: true })
+      .order("id", { ascending: true });
+
+    if (!moduleError && moduleRows?.length) {
+      const { data: lessonRows, error: lessonError } = await supabase
+        .from("training_lessons")
+        .select("id,module_id,position")
+        .in("module_id", moduleRows.map((row) => row.id))
+        .eq("is_published", true);
+      if (!lessonError && lessonRows?.length) {
+        const moduleOrder = new Map(moduleRows.map((row, index) => [row.id, index]));
+        const firstLesson = [...lessonRows].sort((a, b) =>
+          (moduleOrder.get(a.module_id) ?? Number.MAX_SAFE_INTEGER) -
+            (moduleOrder.get(b.module_id) ?? Number.MAX_SAFE_INTEGER) ||
+          a.position - b.position ||
+          a.id.localeCompare(b.id),
+        )[0];
+        if (firstLesson) {
+          destination = `/workspace/training/courses/${course.slug}/lessons/${firstLesson.id}`;
+        }
+      }
+    }
+
     await recordProductEvent("training_course_start", {
       userId,
-      path: `/workspace/training/courses/${course.slug}`,
+      path: destination,
       metadata: { course_slug: course.slug },
     });
   }
 
   revalidatePath("/workspace/training");
-  redirect(`/workspace/training/courses/${course.slug}`);
+  redirect(destination);
 }
 
 export async function selectAustraliaSpecializationAction(formData: FormData) {

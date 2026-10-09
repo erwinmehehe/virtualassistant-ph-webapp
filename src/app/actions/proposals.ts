@@ -710,7 +710,12 @@ export async function acceptLeadProposalAction(formData: FormData) {
       code: acceptanceError.code,
       message: acceptanceError.message,
     });
-    redirect(`/proposal/${token}?error=${encodeURIComponent("We could not complete the acceptance safely. No partial hiring state was saved. Please try again or contact your recruiter.")}`);
+    const duplicateOpenRole = acceptanceError.code === "23505" &&
+      String(acceptanceError.message || "").includes("jobs_one_open_normalized_title_per_client_idx");
+    const customerMessage = duplicateOpenRole
+      ? "A hiring role with this title is already open in this client account. Ask your recruiter to continue the existing role or send a revised proposal with a different role title."
+      : "We could not complete the acceptance safely. No partial hiring state was saved. Please try again or contact your recruiter.";
+    redirect(`/proposal/${token}?error=${encodeURIComponent(customerMessage)}`);
   }
 
   const acceptance = (acceptanceData || {}) as AtomicAcceptanceResult;

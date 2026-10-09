@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Activity, BookOpenCheck, Clock3, FileCheck2, GraduationCap, Plus, RefreshCcw, ShieldCheck, TimerReset } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingAdminSummary } from "@/lib/training";
+import { getTrainingReminderOutcomes } from "@/lib/training-reminder-outcomes-server";
 import { setTrainingLearningPathStatusAction } from "@/app/actions/training-admin";
 
 function reviewState(value: string | null) {
@@ -13,7 +14,11 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, funnel, recovery, completionHealth, cohortConversion, lessonBottlenecks, integrity, error } = await getTrainingAdminSummary();
+  const [summary, reminderOutcomes] = await Promise.all([
+    getTrainingAdminSummary(),
+    getTrainingReminderOutcomes(),
+  ]);
+  const { courses, paths, totals, funnel, recovery, completionHealth, cohortConversion, lessonBottlenecks, integrity, error } = summary;
 
   return (
     <div className="dash-page role-overview">
@@ -81,15 +86,85 @@ export default async function AdminTrainingPage() {
               <small>Needs the one follow-up reminder</small>
             </div>
             <div className="status-summary-card">
-              <div className="row-between"><span>Reminders sent</span><Activity size={18}/></div>
+              <div className="row-between"><span>Reminder records</span><Activity size={18}/></div>
               <strong>{recovery.remindersSent}</strong>
-              <small>In-app + preference-aware low-priority email</small>
+              <small>Logged in-app reminders; email delivery is not guaranteed</small>
             </div>
           </div>
           <div className="notice">
             <strong>Conservative by design</strong>
             <p>Resume emails use the Product Emails preference, respect suppression lists and email quota, and never send more than two reminders for the same learner and course.</p>
           </div>
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-reminder-outcomes" aria-labelledby="training-reminder-outcomes-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="training-reminder-outcomes-title">What happens after a learning reminder?</h2>
+              <p>Track meaningful saved progress after a recorded reminder, not clicks or email opens. Seven-day lesson progress and fourteen-day course completion use only follow-ups old enough to observe the full period.</p>
+            </div>
+            <span className="badge"><Activity size={13}/> Observed outcomes</span>
+          </div>
+          {!reminderOutcomes.available ? (
+            <div className="notice" role="status">
+              <strong>Reminder outcomes unavailable</strong>
+              <p>{reminderOutcomes.reason} Incomplete results are not displayed.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Learners reminded</span><GraduationCap size={18}/></div>
+                  <strong>{reminderOutcomes.learnersNudged}</strong>
+                  <small>{reminderOutcomes.nudgedEnrollments} learner–course follow-ups</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Reminder events logged</span><RefreshCcw size={18}/></div>
+                  <strong>{reminderOutcomes.remindersLogged}</strong>
+                  <small>Recorded in-app reminders, not confirmed emails</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Progress within 7 days</span><BookOpenCheck size={18}/></div>
+                  <strong>{reminderOutcomes.sevenDay.rate === null ? "Not yet" : reminderOutcomes.sevenDay.rate + "%"}</strong>
+                  <small>{reminderOutcomes.sevenDay.reached} of {reminderOutcomes.sevenDay.eligible} mature follow-ups completed a lesson or course</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Course completed within 14 days</span><FileCheck2 size={18}/></div>
+                  <strong>{reminderOutcomes.fourteenDay.rate === null ? "Not yet" : reminderOutcomes.fourteenDay.rate + "%"}</strong>
+                  <small>{reminderOutcomes.fourteenDay.reached} of {reminderOutcomes.fourteenDay.eligible} follow-ups old enough to measure</small>
+                </div>
+              </div>
+              {reminderOutcomes.courses.length ? (
+                <>
+                  <div className="dashboard-section-head">
+                    <div>
+                      <h3>Observed course progress after reminders</h3>
+                      <p>Review courses with mature follow-ups first. Small cohorts may vary considerably.</p>
+                    </div>
+                  </div>
+                  <div className="compact-list">
+                    {reminderOutcomes.courses.slice(0, 8).map(course => (
+                      <div key={course.id}>
+                        <span>
+                          <strong>{course.title}</strong>
+                          <small>{course.nudged} course follow-ups · 7-day lesson/course progress: {course.sevenDay.reached}/{course.sevenDay.eligible} · 14-day course completions: {course.fourteenDay.reached}/{course.fourteenDay.eligible}</small>
+                        </span>
+                        <span className="badge">{course.sevenDay.rate === null ? "Collecting data" : course.sevenDay.rate + "% at 7d"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="dashboard-caught-up"><RefreshCcw size={22}/><div><strong>No follow-ups measured yet.</strong><p>Outcome windows begin when reminder records exist.</p></div></div>
+              )}
+              <div className="notice">
+                <strong>How to interpret these numbers</strong>
+                <p>Results use the most recent logged reminder for each learner and course. A seven-day result means a lesson or course was completed afterward; a fourteen-day result means the course was finished. These are time-associated outcomes, not evidence the reminder caused the improvement. The reminder record does not confirm email delivery.</p>
+              </div>
+            </>
+          )}
         </section>
       ) : null}
 

@@ -13,7 +13,7 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, funnel, recovery, completionHealth, cohortConversion, integrity, error } = await getTrainingAdminSummary();
+  const { courses, paths, totals, funnel, recovery, completionHealth, cohortConversion, lessonBottlenecks, integrity, error } = await getTrainingAdminSummary();
 
   return (
     <div className="dash-page role-overview">
@@ -162,6 +162,70 @@ export default async function AdminTrainingPage() {
                 </div>
               )}
               <p className="muted">Aggregated administrator-only data. Progress is measured against currently published lessons; curriculum changes can alter remaining-lesson counts. No learner names or email addresses appear in this report.</p>
+            </>
+          )}
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-lesson-bottlenecks" aria-labelledby="lesson-bottleneck-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="lesson-bottleneck-title">Next-lesson bottlenecks</h2>
+              <p>See the first unfinished published lesson holding up each incomplete course enrolment. Ranked by inactive learners, then total waiting. Use this to review lesson clarity and sequencing before increasing reminders.</p>
+            </div>
+            <span className="badge"><BookOpenCheck size={13}/> Lesson steps</span>
+          </div>
+          {!lessonBottlenecks.available ? (
+            <div className="notice" role="status">
+              <strong>Lesson bottleneck data temporarily unavailable</strong>
+              <p>{lessonBottlenecks.reason} Partial lesson counts are never shown.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Unfinished enrolments</span><BookOpenCheck size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.unfinishedEnrollments}</strong>
+                  <small>All published courses with an incomplete enrolment</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Waiting on a lesson</span><FileCheck2 size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.withNextLesson}</strong>
+                  <small>Other learners may be at their final assessment</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Inactive {lessonBottlenecks.inactivityDays}d+</span><TimerReset size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.stalled7d}</strong>
+                  <small>Waiting on a lesson without recent saved training activity</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>No active engagement recorded</span><Clock3 size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.noRecordedEngagement}</strong>
+                  <small>May include recent enrolments; not all are inactive</small>
+                </div>
+              </div>
+              {lessonBottlenecks.lessons.length ? (
+                <div className="compact-list training-lesson-bottleneck-list">
+                  {lessonBottlenecks.lessons.slice(0, 12).map((item) => (
+                    <div key={item.lessonId}>
+                      <span>
+                        <Link href={`/workspace/admin/training/${item.courseId}`}><strong>{item.lessonTitle}</strong></Link>
+                        <small>{item.courseTitle} · Lesson {item.lessonNumber} of {item.totalLessons}</small>
+                        <small>{item.waiting} waiting · {item.stalled7d} inactive {lessonBottlenecks.inactivityDays}d+ · {item.noRecordedEngagement} without recorded active engagement</small>
+                        {item.waiting < 5 ? <small>Small sample — inspect before making course-wide changes.</small> : null}
+                      </span>
+                      <span className="badge">{item.stalled7d} inactive</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="dashboard-caught-up">
+                  <BookOpenCheck size={22}/>
+                  <div><strong>No published lessons currently blocking progress</strong><p>Learners may be at final assessments or all active lessons may be complete.</p></div>
+                </div>
+              )}
+              <p className="muted">Aggregated administrator-only metrics. Each learner–course enrolment appears against only its next unfinished published lesson, never against every remaining lesson. Course revisions can change the ranking. No learner names, emails, or automatic outreach.</p>
             </>
           )}
         </section>

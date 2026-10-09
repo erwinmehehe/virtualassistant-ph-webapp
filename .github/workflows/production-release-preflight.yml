@@ -32,7 +32,6 @@ jobs:
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           PREFLIGHT_REPO: ${{ github.repository }}
           PREFLIGHT_PR_NUMBER: ${{ inputs.pr_number }}
         run: |

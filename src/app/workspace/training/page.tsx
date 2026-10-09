@@ -30,6 +30,7 @@ import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
 import { vaCategoryLabel } from "@/lib/constants";
 import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
+import { chooseOAuthRoleAction } from "@/app/actions/auth";
 import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES } from "@/lib/training-specializations";
 import {
   getSpecialtyTrainingPath,
@@ -277,7 +278,7 @@ export default async function TrainingDashboardPage({
   const params = await searchParams;
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
   const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
-  const { userId } = await requireAuthenticatedUserFast("/workspace/training");
+  const { userId, profile } = await requireAuthenticatedUserFast("/workspace/training");
   const { courses, learnerProfile, learnerPreferences, savedCourseIds, error } = await getTrainingDashboard(userId);
 
   const active = courses
@@ -778,6 +779,25 @@ export default async function TrainingDashboardPage({
           </div>
         )}
       </section>
+
+      {!profile && completed.length > 0 ? (
+        <section className="card dashboard-section-card" aria-labelledby="training-career-next-step">
+          <div className="training-section-heading">
+            <div>
+              <span className="small">Optional career step</span>
+              <h2 id="training-career-next-step">Ready to make a VA candidate profile?</h2>
+              <p>Create your candidate profile with this same account to share your skills and availability with our recruitment team. Your completed lessons and verified certificates stay attached to your account. Creating a profile does not guarantee recruiter approval, interviews, or employment.</p>
+            </div>
+          </div>
+          <form action={chooseOAuthRoleAction}>
+            <input type="hidden" name="role" value="va" />
+            <input type="hidden" name="next" value="/workspace/va/onboarding" />
+            <button className="btn btn-primary" type="submit" data-track="training_to_va_profile_opt_in">
+              Create my VA profile <ArrowRight size={15} />
+            </button>
+          </form>
+        </section>
+      ) : null}
     </div>
   );
 }

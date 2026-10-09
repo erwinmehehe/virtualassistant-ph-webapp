@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Activity, BookOpenCheck, Clock3, FileCheck2, GraduationCap, Plus, RefreshCcw, ShieldCheck, TimerReset } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingAdminSummary } from "@/lib/training";
+import { getTrainingReminderOutcomes } from "@/lib/training-reminder-outcomes-server";
 import { setTrainingLearningPathStatusAction } from "@/app/actions/training-admin";
 
 function reviewState(value: string | null) {
@@ -13,7 +14,11 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, funnel, recovery, integrity, error } = await getTrainingAdminSummary();
+  const [summary, reminderOutcomes] = await Promise.all([
+    getTrainingAdminSummary(),
+    getTrainingReminderOutcomes(),
+  ]);
+  const { courses, paths, totals, funnel, recovery, completionHealth, cohortConversion, lessonBottlenecks, integrity, error } = summary;
 
   return (
     <div className="dash-page role-overview">
@@ -21,7 +26,7 @@ export default async function AdminTrainingPage() {
         kicker="Learning system"
         title="Training"
         subtitle={<>Manage the free learning library separately from hiring. Published lessons are private to signed-in learners and remain out of search indexing.</>}
-        actions={<><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
+        actions={<><Link className="dash-btn" href="/workspace/admin/training/activation">Account activation</Link><Link className="dash-btn" href="/workspace/admin/training/new"><Plus size={15}/> New course</Link><Link className="dash-btn" href="/workspace/training">Open learner view</Link></>}
       />
 
       <div className="va-status-grid">
@@ -81,15 +86,283 @@ export default async function AdminTrainingPage() {
               <small>Needs the one follow-up reminder</small>
             </div>
             <div className="status-summary-card">
-              <div className="row-between"><span>Reminders sent</span><Activity size={18}/></div>
+              <div className="row-between"><span>Reminder records</span><Activity size={18}/></div>
               <strong>{recovery.remindersSent}</strong>
-              <small>In-app + preference-aware low-priority email</small>
+              <small>Logged in-app reminders; email delivery is not guaranteed</small>
             </div>
           </div>
           <div className="notice">
             <strong>Conservative by design</strong>
             <p>Resume emails use the Product Emails preference, respect suppression lists and email quota, and never send more than two reminders for the same learner and course.</p>
           </div>
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-reminder-outcomes" aria-labelledby="training-reminder-outcomes-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="training-reminder-outcomes-title">What happens after a learning reminder?</h2>
+              <p>Track meaningful saved progress after a recorded reminder, not clicks or email opens. Seven-day lesson progress and fourteen-day course completion use only follow-ups old enough to observe the full period.</p>
+            </div>
+            <span className="badge"><Activity size={13}/> Observed outcomes</span>
+          </div>
+          {!reminderOutcomes.available ? (
+            <div className="notice" role="status">
+              <strong>Reminder outcomes unavailable</strong>
+              <p>{reminderOutcomes.reason} Incomplete results are not displayed.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Learners reminded</span><GraduationCap size={18}/></div>
+                  <strong>{reminderOutcomes.learnersNudged}</strong>
+                  <small>{reminderOutcomes.nudgedEnrollments} learner–course follow-ups</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Reminder events logged</span><RefreshCcw size={18}/></div>
+                  <strong>{reminderOutcomes.remindersLogged}</strong>
+                  <small>Recorded in-app reminders, not confirmed emails</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Progress within 7 days</span><BookOpenCheck size={18}/></div>
+                  <strong>{reminderOutcomes.sevenDay.rate === null ? "Not yet" : reminderOutcomes.sevenDay.rate + "%"}</strong>
+                  <small>{reminderOutcomes.sevenDay.reached} of {reminderOutcomes.sevenDay.eligible} mature follow-ups completed a lesson or course</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Course completed within 14 days</span><FileCheck2 size={18}/></div>
+                  <strong>{reminderOutcomes.fourteenDay.rate === null ? "Not yet" : reminderOutcomes.fourteenDay.rate + "%"}</strong>
+                  <small>{reminderOutcomes.fourteenDay.reached} of {reminderOutcomes.fourteenDay.eligible} follow-ups old enough to measure</small>
+                </div>
+              </div>
+              {reminderOutcomes.courses.length ? (
+                <>
+                  <div className="dashboard-section-head">
+                    <div>
+                      <h3>Observed course progress after reminders</h3>
+                      <p>Review courses with mature follow-ups first. Small cohorts may vary considerably.</p>
+                    </div>
+                  </div>
+                  <div className="compact-list">
+                    {reminderOutcomes.courses.slice(0, 8).map(course => (
+                      <div key={course.id}>
+                        <span>
+                          <strong>{course.title}</strong>
+                          <small>{course.nudged} course follow-ups · 7-day lesson/course progress: {course.sevenDay.reached}/{course.sevenDay.eligible} · 14-day course completions: {course.fourteenDay.reached}/{course.fourteenDay.eligible}</small>
+                        </span>
+                        <span className="badge">{course.sevenDay.rate === null ? "Collecting data" : course.sevenDay.rate + "% at 7d"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="dashboard-caught-up"><RefreshCcw size={22}/><div><strong>No follow-ups measured yet.</strong><p>Outcome windows begin when reminder records exist.</p></div></div>
+              )}
+              <div className="notice">
+                <strong>How to interpret these numbers</strong>
+                <p>Results use the most recent logged reminder for each learner and course. A seven-day result means a lesson or course was completed afterward; a fourteen-day result means the course was finished. These are time-associated outcomes, not evidence the reminder caused the improvement. The reminder record does not confirm email delivery.</p>
+              </div>
+            </>
+          )}
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-completion-health" aria-labelledby="course-completion-health-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="course-completion-health-title">Where learners get stuck</h2>
+              <p>All-time learner–course enrolment snapshot from saved progress, activity and final checks. Each course counts once per learner. This is not a same-age conversion cohort, and newer enrolments have had less time to finish.</p>
+            </div>
+            <span className="badge"><BookOpenCheck size={13}/> Course health</span>
+          </div>
+          {!completionHealth.available ? (
+            <div className="notice" role="status">
+              <strong>Completion data temporarily unavailable</strong>
+              <p>{completionHealth.reason} No partial totals are shown.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Course enrolments</span><BookOpenCheck size={18}/></div>
+                  <strong>{completionHealth.totals.enrolled}</strong>
+                  <small>Unique learner–course combinations</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Completed</span><GraduationCap size={18}/></div>
+                  <strong>{completionHealth.totals.completed} <small>({completionHealth.totals.completionRate}%)</small></strong>
+                  <small>Courses marked completed, all time</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Inactive 7 days</span><TimerReset size={18}/></div>
+                  <strong>{completionHealth.totals.stalled7d}</strong>
+                  <small>{completionHealth.totals.notEngaged7d} without recorded lesson engagement</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>At final step</span><FileCheck2 size={18}/></div>
+                  <strong>{completionHealth.totals.finalStep}</strong>
+                  <small>All published lessons done; course still incomplete</small>
+                </div>
+              </div>
+              <div className="notice">
+                <strong>Final-check follow-through</strong>
+                <p>{completionHealth.totals.awaitingReview} incomplete enrolment{completionHealth.totals.awaitingReview === 1 ? "" : "s"} awaiting assessment review, {completionHealth.totals.needsRevision} needing revision, and {completionHealth.totals.oneLessonLeft} with one published lesson left. These groups can overlap with stalled or final-step counts.</p>
+              </div>
+              <div className="dashboard-section-head">
+                <div>
+                  <h3>Course-level completion bottlenecks</h3>
+                  <p>Ranked by inactive learners, then unfinished final steps. Inspect course content before changing reminder frequency.</p>
+                </div>
+              </div>
+              {completionHealth.courses.length ? (
+                <div className="compact-list training-health-course-list">
+                  {completionHealth.courses.slice(0, 10).map((item) => (
+                    <div key={item.id}>
+                      <span>
+                        <Link href={`/workspace/admin/training/${item.id}`}><strong>{item.title}</strong></Link>
+                        <small>{item.enrolled} enrolled · {item.engaged} engaged · {item.completed} completed · {item.stalled7d} inactive 7d+</small>
+                        <small>{item.notEngaged7d} without lesson engagement · {item.oneLessonLeft} one lesson left · {item.finalStep} at final step · {item.awaitingReview} awaiting review · {item.needsRevision} need revision</small>
+                        {item.enrolled < 5 ? <small>Small sample — avoid drawing course-wide conclusions.</small> : null}
+                      </span>
+                      <span className="badge">{item.completionRate}% completed</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="dashboard-caught-up">
+                  <GraduationCap size={22}/>
+                  <div><strong>No enrolments yet</strong><p>Course bottlenecks will appear once learners start published courses.</p></div>
+                </div>
+              )}
+              <p className="muted">Aggregated administrator-only data. Progress is measured against currently published lessons; curriculum changes can alter remaining-lesson counts. No learner names or email addresses appear in this report.</p>
+            </>
+          )}
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-lesson-bottlenecks" aria-labelledby="lesson-bottleneck-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="lesson-bottleneck-title">Next-lesson bottlenecks</h2>
+              <p>See the first unfinished published lesson holding up each incomplete course enrolment. Ranked by inactive learners, then total waiting. Use this to review lesson clarity and sequencing before increasing reminders.</p>
+            </div>
+            <span className="badge"><BookOpenCheck size={13}/> Lesson steps</span>
+          </div>
+          {!lessonBottlenecks.available ? (
+            <div className="notice" role="status">
+              <strong>Lesson bottleneck data temporarily unavailable</strong>
+              <p>{lessonBottlenecks.reason} Partial lesson counts are never shown.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Unfinished enrolments</span><BookOpenCheck size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.unfinishedEnrollments}</strong>
+                  <small>All published courses with an incomplete enrolment</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Waiting on a lesson</span><FileCheck2 size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.withNextLesson}</strong>
+                  <small>Other learners may be at their final assessment</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Inactive {lessonBottlenecks.inactivityDays}d+</span><TimerReset size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.stalled7d}</strong>
+                  <small>Waiting on a lesson without recent saved training activity</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>No active engagement recorded</span><Clock3 size={18}/></div>
+                  <strong>{lessonBottlenecks.totals.noRecordedEngagement}</strong>
+                  <small>May include recent enrolments; not all are inactive</small>
+                </div>
+              </div>
+              {lessonBottlenecks.lessons.length ? (
+                <div className="compact-list training-lesson-bottleneck-list">
+                  {lessonBottlenecks.lessons.slice(0, 12).map((item) => (
+                    <div key={item.lessonId}>
+                      <span>
+                        <Link href={`/workspace/admin/training/${item.courseId}`}><strong>{item.lessonTitle}</strong></Link>
+                        <small>{item.courseTitle} · Lesson {item.lessonNumber} of {item.totalLessons}</small>
+                        <small>{item.waiting} waiting · {item.stalled7d} inactive {lessonBottlenecks.inactivityDays}d+ · {item.noRecordedEngagement} without recorded active engagement</small>
+                        {item.waiting < 5 ? <small>Small sample — inspect before making course-wide changes.</small> : null}
+                      </span>
+                      <span className="badge">{item.stalled7d} inactive</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="dashboard-caught-up">
+                  <BookOpenCheck size={22}/>
+                  <div><strong>No published lessons currently blocking progress</strong><p>Learners may be at final assessments or all active lessons may be complete.</p></div>
+                </div>
+              )}
+              <p className="muted">Aggregated administrator-only metrics. Each learner–course enrolment appears against only its next unfinished published lesson, never against every remaining lesson. Course revisions can change the ranking. No learner names, emails, or automatic outreach.</p>
+            </>
+          )}
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-cohort-analytics" aria-labelledby="course-cohort-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="course-cohort-title">Completion within 7 and 14 days</h2>
+              <p>Starts from the last {cohortConversion.lookbackDays} days. Each rate includes only learners whose full 7- or 14-day window has elapsed. This avoids classifying new enrolments as failed completions.</p>
+            </div>
+            <span className="badge"><Clock3 size={13}/> Age-matched cohorts</span>
+          </div>
+          {!cohortConversion.available ? (
+            <div className="notice" role="status">
+              <strong>Cohort rates temporarily unavailable</strong>
+              <p>{cohortConversion.reason} Partial enrolments are not counted.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Completed within 7 days</span><GraduationCap size={18}/></div>
+                  <strong>{cohortConversion.totals.sevenDay.rate === null ? "No mature starts" : `${cohortConversion.totals.sevenDay.rate}%`}</strong>
+                  <small>{cohortConversion.totals.sevenDay.completed} of {cohortConversion.totals.sevenDay.eligible} eligible course starts</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Completed within 14 days</span><BookOpenCheck size={18}/></div>
+                  <strong>{cohortConversion.totals.fourteenDay.rate === null ? "No mature starts" : `${cohortConversion.totals.fourteenDay.rate}%`}</strong>
+                  <small>{cohortConversion.totals.fourteenDay.completed} of {cohortConversion.totals.fourteenDay.eligible} eligible course starts</small>
+                </div>
+              </div>
+              <div className="dashboard-section-head">
+                <div>
+                  <h3>Courses to review for completion</h3>
+                  <p>Courses with at least five mature 14-day starts are ordered by lowest 14-day completion rate. Open a course to review onboarding, lesson sequence or the final check before changing reminders.</p>
+                </div>
+              </div>
+              {cohortConversion.courses.length ? (
+                <div className="compact-list training-cohort-course-list">
+                  {cohortConversion.courses.slice(0, 10).map((item) => (
+                    <div key={item.id}>
+                      <span>
+                        <Link href={`/workspace/admin/training/${item.id}`}><strong>{item.title}</strong></Link>
+                        <small>7-day: {item.sevenDay.completed}/{item.sevenDay.eligible} completed ({item.sevenDay.rate === null ? "not yet measurable" : `${item.sevenDay.rate}%`})</small>
+                        <small>14-day: {item.fourteenDay.completed}/{item.fourteenDay.eligible} completed ({item.fourteenDay.rate === null ? "not yet measurable" : `${item.fourteenDay.rate}%`})</small>
+                        {item.fourteenDay.eligible < 5 ? <small>Small or immature 14-day sample — interpret cautiously.</small> : null}
+                      </span>
+                      <span className="badge">{item.fourteenDay.rate === null ? "No 14-day cohort" : `${item.fourteenDay.rate}% in 14d`}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="dashboard-caught-up">
+                  <Clock3 size={22}/>
+                  <div><strong>Not enough enrolment history</strong><p>Recent published courses will appear after the first full 7-day measurement window.</p></div>
+                </div>
+              )}
+              <p className="muted">Seven-day and 14-day rates have different eligible denominators. Completion after the window is excluded from that window but still counts in the all-time report above. One learner taking two courses counts as two course starts. Administrator-only aggregates; no learner identities.</p>
+            </>
+          )}
         </section>
       ) : null}
 

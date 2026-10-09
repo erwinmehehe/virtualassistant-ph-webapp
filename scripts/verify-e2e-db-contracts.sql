@@ -89,6 +89,43 @@ begin
 end
 $authenticated_profile_contract$;
 
+-- The employer's job detail reads jobs and job_commercials using their own
+-- session rather than the service-role client. A local DB without these
+-- production-equivalent SELECT grants produced a false 404 after proposal
+-- acceptance. Assert both the required grants and RLS ownership boundaries.
+do $client_job_access_contract$
+declare
+  table_name text;
+begin
+  foreach table_name in array array['jobs', 'job_commercials']
+  loop
+    if not has_table_privilege('authenticated', format('public.%I', table_name), 'SELECT')
+       or has_table_privilege('anon', format('public.%I', table_name), 'SELECT')
+       or has_table_privilege('authenticated', format('public.%I', table_name), 'INSERT')
+       or has_table_privilege('authenticated', format('public.%I', table_name), 'UPDATE')
+       or has_table_privilege('authenticated', format('public.%I', table_name), 'DELETE') then
+      raise exception 'Employer read grants are incorrect on public.%', table_name;
+    end if;
+    if not exists (
+      select 1 from pg_class c
+      where c.oid = format('public.%I', table_name)::regclass
+        and c.relrowsecurity
+    ) then
+      raise exception 'Employer table missing RLS: public.%', table_name;
+    end if;
+    if not exists (
+      select 1 from pg_policies p
+      where p.schemaname = 'public' and p.tablename = table_name
+        and p.cmd = 'SELECT'
+        and 'authenticated' = any(p.roles)
+        and p.qual like '%auth.uid()%'
+    ) then
+      raise exception 'Employer table missing authenticated owner RLS: public.%', table_name;
+    end if;
+  end loop;
+end
+$client_job_access_contract$;
+
 do $rpc_contract$
 begin
   if exists (

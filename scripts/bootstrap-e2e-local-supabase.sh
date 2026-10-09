@@ -45,14 +45,16 @@ grant select, insert, update, delete on all tables in schema public to service_r
 grant usage, select on all sequences in schema public to service_role;
 grant execute on all functions in schema public to service_role;
 
--- Production also retains legacy authenticated SELECT grants on these
--- role/profile tables. RLS still limits each user to their own rows, and no
--- browser write privilege is restored here.
+-- Mirror the production authenticated read grants needed for profile and
+-- client-owned hiring pages. RLS still limits each user to their own rows,
+-- and no browser write privilege is restored by this compatibility setup.
 grant select on table
   public.profiles,
   public.client_profiles,
   public.va_profiles,
-  public.va_vetting
+  public.va_vetting,
+  public.jobs,
+  public.job_commercials
 to authenticated;
 
 alter default privileges for role postgres in schema public

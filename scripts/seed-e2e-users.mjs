@@ -20,6 +20,7 @@ const accounts = [
   { email: "recruiter.e2e@example.test", role: "recruiter", fullName: "E2E Recruiter" },
   { email: "client.e2e@example.test", role: "client", fullName: "E2E Client" },
   { email: "va.e2e@example.test", role: "va", fullName: "E2E VA" },
+  { email: "admin.e2e@example.test", role: "admin", fullName: "E2E Admin" },
 ];
 
 const seededUserIds = {};

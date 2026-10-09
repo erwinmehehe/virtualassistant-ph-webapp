@@ -729,6 +729,11 @@ export async function respondPlacementOfferAction(formData: FormData) {
 export async function confirmPlacementOfferAction(formData: FormData) {
   const { user } = await requireRole("client");
   const offerId = String(formData.get("offer_id") || "");
+  // The browser checkbox alone is not an authorization/consent check.
+  // Require explicit acknowledgement on the server before the hire RPC.
+  if (formData.get("confirm_terms") !== "on") {
+    throw new Error("Confirm the final rate, schedule, hours, and start date before hiring.");
+  }
   const admin = createAdminClient();
   const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("client_id", user.id).maybeSingle();
   if (!offer || offer.status !== "pending_client") throw new Error("This placement is not waiting for client confirmation.");

@@ -93,6 +93,21 @@ for (const account of accounts) {
       approved_at: new Date().toISOString(),
     }, { onConflict: "va_id" });
     if (vettingError) throw new Error(`E2E VA approval guard failed: ${vettingError.message}`);
+
+    // A BEFORE UPDATE trigger correctly invalidates availability confirmation
+    // if the update changes availability, weekly hours, schedule, or rate.
+    // The bootstrap may already have created this profile. Confirm *after*
+    // the complete profile upsert so this test VA is genuinely client-ready.
+    const { data: confirmedVa, error: confirmError } = await admin
+      .from("va_profiles")
+      .update({ availability_confirmed_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .select("user_id,availability_status,availability_confirmed_at")
+      .single();
+    if (confirmError || confirmedVa?.availability_status !== "available" ||
+        !confirmedVa.availability_confirmed_at) {
+      throw new Error(`Local E2E VA availability confirmation failed: ${confirmError?.message || "missing fresh confirmation"}`);
+    }
   }
 
   seededUserIds[account.role] = user.id;
@@ -150,8 +165,10 @@ for (const scenario of ["approved", "changes", "pipeline"]) for (const attempt o
     service_model: "curated_placement",
     hours_per_week: 40,
     placement_fee: 1000,
-    va_rate_min: 5,
+    // The client shortlist release requires the public minimum $6/hr.
+    va_rate_min: 6,
     va_rate_max: 8,
+    start_timing: "Within two weeks",
     salary_min: 40000,
     salary_max: 50000,
     salary_currency: "PHP",

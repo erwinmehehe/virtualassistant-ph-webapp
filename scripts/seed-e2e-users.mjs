@@ -94,7 +94,7 @@ for (const account of accounts) {
 // a real customer or can be created on a non-loopback Supabase target.
 const now = new Date();
 const fixtures = {};
-for (const scenario of ["approved", "changes"]) {
+for (const scenario of ["approved", "changes"]) for (const attempt of [0, 1]) {
   const leadId = crypto.randomUUID();
   const proposalId = crypto.randomUUID();
   const token = crypto.randomUUID();
@@ -115,7 +115,7 @@ for (const scenario of ["approved", "changes"]) {
     client_id: seededUserIds.client,
     owner_id: seededUserIds.recruiter,
     lead_type: "client_hiring",
-    discovery_scheduled_at: new Date(now.getTime() - (scenario === "approved" ? 60 : 90) * 60 * 1000).toISOString(),
+    discovery_scheduled_at: new Date(now.getTime() - (60 + (scenario === "approved" ? 0 : 2) * 30 + attempt * 30) * 60 * 1000).toISOString(),
     discovery_completed_at: now.toISOString(),
     discovery_outcome: "qualified",
     acknowledgement_sent_at: now.toISOString(),
@@ -145,9 +145,9 @@ for (const scenario of ["approved", "changes"]) {
     send_count: 1,
   });
   if (proposalError) throw new Error(`Cannot seed ${scenario} proposal: ${proposalError.message}`);
-  fixtures[scenario] = { leadId, proposalId, token, company };
+  fixtures[`${scenario}${attempt}`] = { leadId, proposalId, token, company };
 }
 
 // Gitignored local-only fixture IDs, not credentials or production data.
 await writeFile(".e2e-hiring-fixtures.json", JSON.stringify(fixtures), { mode: 0o600 });
-console.log("seeded:local-hiring-proposals:2");
+console.log("seeded:local-hiring-proposals:4");

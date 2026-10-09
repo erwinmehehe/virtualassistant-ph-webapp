@@ -112,9 +112,15 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
 
     const approved = await single(await admin.from("va_vetting").select("stage").eq("va_id",vaId).single(),"VA vetting");
     expect(approved.stage).toBe("approved");
+    const availability = await single(await admin.from("va_profiles")
+      .select("availability_status,availability_confirmed_at")
+      .eq("user_id", vaId).single(),"VA availability");
+    expect(availability.availability_status).toBe("available");
+    expect(Date.parse(String(availability.availability_confirmed_at))).toBeGreaterThan(Date.now() - 30 * 86400_000);
     await recruiter.goto(jobPage);
     const candidateCheckbox = recruiter.locator(`input[name="va_id"][value="${vaId}"]`);
     await expect(candidateCheckbox).toBeVisible();
+    await expect(candidateCheckbox, "Approved VA must be client-ready; check fresh availability before shortlist").toBeEnabled();
     if (!await candidateCheckbox.isChecked()) await candidateCheckbox.check();
     await recruiter.getByRole("button", { name: "Send 1 to client" }).click();
     await expect(recruiter).toHaveURL(/shortlist_released=1/);
@@ -210,6 +216,8 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
     await expect(client.getByRole("button", { name: "Confirm placement" })).toHaveCount(0);
     await expect(client.getByText("Placement active.")).toBeVisible();
   } finally {
-    await Promise.all([recruiterContext.close(),clientContext.close(),vaContext.close()]);
+    // Preserve the original assertion failure if the browser closes at a
+    // timeout, rather than replacing it with a secondary context.close error.
+    await Promise.allSettled([recruiterContext.close(),clientContext.close(),vaContext.close()]);
   }
 });

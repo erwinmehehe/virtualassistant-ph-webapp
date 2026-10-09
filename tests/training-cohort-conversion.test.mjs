@@ -65,7 +65,9 @@ test("exact 7 and 14 day completion boundaries count",()=>{
   ]});
   assert.equal(r.totals.sevenDay.eligible,2);
   assert.equal(r.totals.sevenDay.completed,1);
-  assert.equal(r.totals.fourteenDay.completed,2);
+  // The seven-day starter has not yet reached the fourteen-day denominator.
+  assert.equal(r.totals.fourteenDay.eligible,1);
+  assert.equal(r.totals.fourteenDay.completed,1);
 });
 
 test("late completions remain excluded from early completion rates",()=>{

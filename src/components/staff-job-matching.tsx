@@ -69,6 +69,12 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
   const canInviteClient=!job.client_id&&Boolean(job.lead_id);
   const candidateAccessReady=candidateAccessUnlocked(candidateAccess?.access_status);
   const canSendClient=Boolean(job.client_id&&job.status==="published"&&commercial?.commercial_status==="accepted"&&candidateAccessReady);
+  const sendBlockers = [
+    !job.client_id ? "Link the client account to this role" : null,
+    job.status !== "published" ? "Publish the role" : null,
+    commercial?.commercial_status !== "accepted" ? "Obtain client approval of service terms" : null,
+    !candidateAccessReady ? "Activate candidate access" : null,
+  ].filter((item): item is string => Boolean(item));
 
   const missing:string[]=[];
   if(!job.title||String(job.title).trim().length<3)missing.push("role title");
@@ -98,6 +104,6 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
 
     {!canSendClient&&job.client_id?<div className="info-banner"><strong>Keep this shortlist internal for now.</strong> {!candidateAccessReady?"Candidate access is not active yet. Candidate access must be paid before sending the shortlist.":"The role must be published with client-approved service terms before anything can be marked as sent to the client."}</div>:!job.client_id?<div className="info-banner"><strong>Client account not linked yet.</strong> Build the internal shortlist, then invite the lead to claim the client workspace. Candidates stay recruiter-only until the account and service terms are active.</div>:null}
 
-    {pool.length?<form action={saveJobShortlistAction} className="staff-match-form"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><div className="row-between wrap shortlist-controls"><div><strong>Reviewed candidates</strong><div className="small muted">Select only the VAs you want in this shortlist. Automatic match suggestions stay unselected until you choose them. Client notes are saved with the shortlist and internal match percentages never appear to the client.</div></div></div><MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction} canSendClient={canSendClient} canInviteClient={canInviteClient}/></form>:<div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
+    {pool.length?<form action={saveJobShortlistAction} className="staff-match-form"><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><div className="row-between wrap shortlist-controls"><div><strong>Reviewed candidates</strong><div className="small muted">Select only the VAs you want in this shortlist. Automatic match suggestions stay unselected until you choose them. Client notes are saved with the shortlist and internal match percentages never appear to the client.</div></div></div><MatchingCandidateTable pool={pool} hideShortlistCandidateAction={hideShortlistCandidateAction} saveClientRecommendationAction={saveClientRecommendationAction} canSendClient={canSendClient} canInviteClient={canInviteClient} sendBlockers={sendBlockers}/></form>:<div className="empty"><UsersRound size={22}/><p>No approved or bench Virtual Assistants are available to assess yet.</p></div>}
   </section>;
 }

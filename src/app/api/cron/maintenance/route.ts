@@ -767,6 +767,52 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   const { data: proposalLeads } = leadIds.length ? await admin.from("lead_intake").select("id,name,email,company,owner_id").in("id", leadIds) : { data: [] as any[] };
   const proposalLeadMap = new Map((proposalLeads || []).map((row: any) => [row.id, row]));
 
+  // Materialize an actionable, durable recruiter task when an employer enquiry
+  // misses first-human-contact SLA. In-app notifications expire after a few
+  // reminders, whereas this task stays in the assigned recruiter's queue.
+  // Query ALL existing first-response tasks, including completed ones, so a
+  // scheduled sweep never recreates a duplicate for the same lead.
+  const firstContactLeadIds = (firstContactLeads || [])
+    .filter((lead: any) => lead.owner_id && staffIds.includes(lead.owner_id))
+    .map((lead: any) => String(lead.id));
+  let firstContactTasksCreated = 0;
+  if (firstContactLeadIds.length) {
+    const { data: existingFirstContactTasks, error: existingTaskError } = await admin
+      .from("recruiter_tasks")
+      .select("subject_id")
+      .eq("subject_type", "lead")
+      .in("subject_id", firstContactLeadIds)
+      .like("title", "First human response overdue:%");
+    if (existingTaskError) {
+      // Never create tasks blindly after a failed existence check.
+      console.error("[maintenance] First-contact task lookup failed", existingTaskError.message);
+    } else {
+      const alreadyAssigned = new Set((existingFirstContactTasks || []).map((task: any) => String(task.subject_id)));
+      const tasksToCreate = (firstContactLeads || [])
+        .filter((lead: any) => lead.owner_id && staffIds.includes(lead.owner_id) && !alreadyAssigned.has(String(lead.id)))
+        .map((lead: any) => ({
+          title: `First human response overdue: ${String(lead.company || lead.name || "Employer enquiry").slice(0, 80)}`,
+          description: "This hiring enquiry has no recorded human response after two hours. Contact the employer, record the result in CRM, and schedule a follow-up or discovery call. The task does not send a message.",
+          assignee_id: lead.owner_id,
+          subject_type: "lead",
+          subject_id: lead.id,
+          href: `/workspace/recruiter/crm/${lead.id}`,
+          priority: "urgent",
+          status: "todo",
+          due_at: now,
+        }));
+      if (tasksToCreate.length) {
+        const { data: createdTasks, error: taskInsertError } = await admin
+          .from("recruiter_tasks").insert(tasksToCreate).select("id");
+        if (taskInsertError) {
+          console.error("[maintenance] First-contact task creation failed", taskInsertError.message);
+        } else {
+          firstContactTasksCreated = (createdTasks || []).length;
+        }
+      }
+    }
+  }
+
   let proposalDueToday = 0;
   for (const lead of completedDiscoveries || []) {
     if (recentProposalLeadIds.has(String(lead.id))) continue;
@@ -853,7 +899,7 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
       }
     }
   }
-  return { firstContactReminders, leadReminders, proposalReminders, proposalDueToday, clientProposalFollowups };
+  return { firstContactReminders, firstContactTasksCreated, leadReminders, proposalReminders, proposalDueToday, clientProposalFollowups };
 }
 
 async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAdminClient>) {

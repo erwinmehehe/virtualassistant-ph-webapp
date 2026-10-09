@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpenCheck, Clock3, GraduationCap, ShieldCheck, UserRoundCheck, Users } from "lucide-react";
 import { DashHeader } from "@/components/dash-ui";
 import { getTrainingAccountActivation } from "@/lib/training-account-activation-server";
+import { chooseTrainingActivationOpportunity } from "@/lib/training-account-activation";
 
 export const metadata = { robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export default async function TrainingAccountActivationPage() {
   const data = await getTrainingAccountActivation();
   const totals = data.totals;
   const registered = totals.registered;
+  const opportunity = chooseTrainingActivationOpportunity(totals);
   const share = (value: number) => registered ? Math.round(100 * value / registered) + "%" : "—";
   const stages = [
     { label: "Registered for training", count: registered, detail: "Original training accounts, excluding deleted and anonymous users" },
@@ -109,9 +111,11 @@ export default async function TrainingAccountActivationPage() {
               </div>
             </div>
             <div className="notice">
-              <strong>First action to improve completion</strong>
-              <p>Review the signup welcome screen and the first Foundations lesson for learners who never begin. Do not increase reminder volume solely because the activation rate is low; the existing course-resume emails already respect preferences and suppression rules.</p>
-              <Link className="btn btn-sm" href="/workspace/training">Review learner onboarding <ArrowRight size={14}/></Link>
+              <strong>Largest observed gap: {opportunity.title}</strong>
+              <p>{opportunity.count} account{opportunity.count === 1 ? "" : "s"} currently match this gap. {opportunity.recommendation} These are all-time stages, not proof of why individual learners stopped. Do not increase reminder volume solely based on this count.</p>
+              <Link className="btn btn-sm" href={opportunity.stage === "course_start" ? "/workspace/training" : "/workspace/admin/training"}>
+                {opportunity.stage === "course_start" ? "Review learner onboarding" : "Review lesson and assessment bottlenecks"} <ArrowRight size={14}/>
+              </Link>
             </div>
           </section>
 

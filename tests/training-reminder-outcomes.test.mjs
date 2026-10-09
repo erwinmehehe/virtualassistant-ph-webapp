@@ -152,3 +152,22 @@ test("course rows contain only aggregates, no learner identifiers",() => {
   assert.equal(r.available,true);
   assert.doesNotMatch(JSON.stringify(r),/u1|u2|u3|u4|u5|@/);
 });
+
+test("admin-only loader paginates all sources and fails closed on partial data",async () => {
+  const source=await readFile(new URL("../src/lib/training-reminder-outcomes-server.ts",import.meta.url),"utf8");
+  assert.match(source,/await requireRoleFast\("admin"\)/);
+  assert.ok(source.indexOf('await requireRoleFast("admin")') < source.indexOf("const admin = createAdminClient()"));
+  assert.match(source,/\.like\("action", "resume_training_%"\)/);
+  assert.match(source,/\.range\(from,to\)/);
+  assert.match(source,/pagination incomplete/);
+  assert.match(source,/complete: false/);
+  assert.doesNotMatch(source,/console\.log\(.*recipient|console\.log\(.*user/i);
+});
+test("admin dashboard labels reminder outcomes as observational, without delivery claims",async () => {
+  const source=await readFile(new URL("../src/app/workspace/admin/training/page.tsx",import.meta.url),"utf8");
+  assert.match(source,/getTrainingReminderOutcomes/);
+  assert.match(source,/What happens after a learning reminder/);
+  assert.match(source,/not evidence the reminder caused the improvement/);
+  assert.match(source,/does not confirm email delivery/);
+  assert.match(source,/reminderOutcomes\.fourteenDay\.eligible/);
+});

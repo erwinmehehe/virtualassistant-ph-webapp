@@ -23,6 +23,10 @@ function validTime(value: string | null): number {
   return Number.isFinite(time) ? time : 0;
 }
 
+function recentTime(course: TrainingResumeCandidate): number {
+  return validTime(course.lastActivityAt) || validTime(course.startedAt);
+}
+
 function completionPriority(course: TrainingResumeCandidate): number {
   if (course.nextAssessment && course.assessmentStatus === "ready") return 4;
   if (course.nextAssessment && course.assessmentStatus === "needs_revision") return 3;
@@ -41,6 +45,6 @@ export function chooseTrainingResumeCourse<T extends TrainingResumeCandidate>(
   // Copy before sorting so the active-course list retains its recency order.
   return [...active].sort((a, b) =>
     completionPriority(b) - completionPriority(a) ||
-    validTime(b.lastActivityAt || b.startedAt) - validTime(a.lastActivityAt || a.startedAt)
+    recentTime(b) - recentTime(a)
   )[0] || null;
 }

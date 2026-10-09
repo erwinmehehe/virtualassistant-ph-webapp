@@ -29,9 +29,9 @@ async function login(page: Page, email: string, next: string) {
   await expect(page).toHaveURL(new RegExp(next.replace(/[.*+?^$()|[\]\\]/g, "\\$&")));
 }
 
-async function single<T>(result: { data: T | null; error: { message: string } | null }, what: string): Promise<T> {
+async function single<T>(result: { data: T | null; error: { message: string } | null }, what: string): Promise<NonNullable<T>> {
   if (result.error || !result.data) throw new Error(`${what}: ${result.error?.message || "not found"}`);
-  return result.data;
+  return result.data as NonNullable<T>;
 }
 
 test("isolated shortlisted VA moves through interview, two-sided offer, and one hired workroom", async ({ browser }, info) => {

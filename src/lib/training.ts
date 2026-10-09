@@ -257,6 +257,7 @@ export async function getTrainingDashboard(userId: string) {
   const [
     { data: enrollmentData },
     { data: progressData },
+    { data: engagementData },
     { data: certificateData },
     { data: assessmentData },
     { data: learnerProfileData },
@@ -272,6 +273,16 @@ export async function getTrainingDashboard(userId: string) {
       ? supabase
           .from("training_lesson_progress")
           .select("lesson_id,completed_at")
+          .eq("user_id", userId)
+          .in("lesson_id", lessonIds)
+      : Promise.resolve({ data: [] }),
+    // Engagement is deliberately server-only under RLS. Read only this
+    // authenticated learner's rows with the admin client; never widen the
+    // policy or use caller-provided user IDs without a verified auth match.
+    lessonIds.length && authUserData.user?.id === userId
+      ? createAdminClient()
+          .from("training_lesson_engagement")
+          .select("lesson_id,last_activity_at,updated_at")
           .eq("user_id", userId)
           .in("lesson_id", lessonIds)
       : Promise.resolve({ data: [] }),
@@ -309,6 +320,13 @@ export async function getTrainingDashboard(userId: string) {
   const progressRows = (progressData || []) as LessonProgressRow[];
   const completed = new Set(progressRows.map((row) => row.lesson_id));
   const progressByLesson = new Map(progressRows.map((row) => [row.lesson_id, row.completed_at]));
+  const engagementActivityByLesson = new Map(
+    ((engagementData || []) as Array<{
+      lesson_id: string;
+      last_activity_at: string | null;
+      updated_at: string;
+    }>).map((row) => [row.lesson_id, row.last_activity_at || row.updated_at]),
+  );
   const certificates = new Map(
     ((certificateData || []) as Array<Omit<CertificateRow, "publicVisible">>).map((row) => [
       row.course_id,
@@ -383,6 +401,9 @@ export async function getTrainingDashboard(userId: string) {
     const activityDates = [
       enrollment?.started_at || null,
       ...courseLessons.map((lesson) => progressByLesson.get(lesson.id) || null),
+      // Partial reading is meaningful activity even before a lesson is marked
+      // complete. Without this, multi-course learners resume the wrong course.
+      ...courseLessons.map((lesson) => engagementActivityByLesson.get(lesson.id) || null),
       ...courseAssessments.map(
         (assessment) => latestSubmissionByAssessment.get(assessment.id)?.submitted_at || null,
       ),

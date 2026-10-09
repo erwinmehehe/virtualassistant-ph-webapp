@@ -1,10 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
+import { writeFile } from "node:fs/promises";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const password = process.env.E2E_PASSWORD || "E2e-Only!Pass12345";
 
 if (!url || !serviceKey) throw new Error("Local Supabase URL and service-role key are required.");
+
+// This fixture runner writes hiring records and uses a service-role key.
+// Never allow a production or remote target, even if someone copies CI
+// environment variables into a local shell by mistake.
+const target = new URL(url);
+if (!["localhost", "127.0.0.1", "::1"].includes(target.hostname)) {
+  throw new Error("E2E seed requires a loopback-only Supabase URL. Production seeding is forbidden.");
+}
 
 const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 const accounts = [
@@ -13,6 +22,7 @@ const accounts = [
   { email: "va.e2e@example.test", role: "va", fullName: "E2E VA" },
 ];
 
+const seededUserIds = {};
 const { data: existingData, error: existingError } = await admin.auth.admin.listUsers({ page: 1, perPage: 100 });
 if (existingError) throw existingError;
 
@@ -73,5 +83,71 @@ for (const account of accounts) {
     if (error) throw error;
   }
 
+  seededUserIds[account.role] = user.id;
   console.log(`seeded:${account.role}:${user.id}`);
 }
+
+
+// These fictional employer and proposal fixtures exercise the real browser
+// approval / requested-changes actions against the isolated local database.
+// Neither scenario triggers an outbound proposal send. No fixture points to
+// a real customer or can be created on a non-loopback Supabase target.
+const now = new Date();
+const fixtures = {};
+for (const scenario of ["approved", "changes"]) {
+  const leadId = crypto.randomUUID();
+  const proposalId = crypto.randomUUID();
+  const token = crypto.randomUUID();
+  const company = scenario === "approved" ? "E2E Acceptance Company" : "E2E Revision Company";
+  const { error: leadError } = await admin.from("lead_intake").insert({
+    id: leadId,
+    name: "E2E Client",
+    email: "client.e2e@example.test",
+    service: "Administrative Virtual Assistant",
+    company,
+    hours: "40",
+    budget: "40000-50000 PHP",
+    timezone: "Asia/Manila",
+    message: "Local-only hiring exercise: inbox ownership, scheduling and client follow-up.",
+    source_page: "e2e_local_only",
+    status: "new",
+    crm_stage: "qualified",
+    client_id: seededUserIds.client,
+    owner_id: seededUserIds.recruiter,
+    lead_type: "client_hiring",
+    discovery_scheduled_at: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
+    discovery_completed_at: now.toISOString(),
+    discovery_outcome: "qualified",
+    acknowledgement_sent_at: now.toISOString(),
+  });
+  if (leadError) throw new Error(`Cannot seed ${scenario} hiring lead: ${leadError.message}`);
+
+  const { error: proposalError } = await admin.from("lead_proposals").insert({
+    id: proposalId,
+    lead_id: leadId,
+    public_token: token,
+    status: "sent",
+    role_title: "E2E Administrative Virtual Assistant",
+    summary: "Local-only sample proposal to test recruiter and client workflow handoff.",
+    service_model: "curated_placement",
+    hours_per_week: 40,
+    placement_fee: 1000,
+    va_rate_min: 5,
+    va_rate_max: 8,
+    salary_min: 40000,
+    salary_max: 50000,
+    salary_currency: "PHP",
+    responsibilities: ["Inbox ownership", "Scheduling"],
+    required_skills: ["Administrative support", "Written communication"],
+    required_tools: ["Google Workspace"],
+    sent_at: now.toISOString(),
+    expires_at: new Date(now.getTime() + 7 * 86400000).toISOString(),
+    send_count: 1,
+  });
+  if (proposalError) throw new Error(`Cannot seed ${scenario} proposal: ${proposalError.message}`);
+  fixtures[scenario] = { leadId, proposalId, token, company };
+}
+
+// Gitignored local-only fixture IDs, not credentials or production data.
+await writeFile(".e2e-hiring-fixtures.json", JSON.stringify(fixtures), { mode: 0o600 });
+console.log("seeded:local-hiring-proposals:2");

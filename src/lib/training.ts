@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { buildTrainingCompletionHealth } from "@/lib/training-completion-health";
+import { buildTrainingCohortConversion } from "@/lib/training-cohort-conversion";
 
 type CourseRow = {
   id: string;
@@ -723,6 +724,9 @@ export async function getTrainingAdminSummary() {
         courses: [], enrollments: [], progress: [], engagement: [],
         assessments: [], nowMs: Date.now(), complete: false,
       }),
+      cohortConversion: buildTrainingCohortConversion({
+        courses: [], enrollments: [], nowMs: Date.now(), complete: false,
+      }),
       integrity: {
         windowDays: 30,
         checkpointAttempts: 0,
@@ -1109,6 +1113,17 @@ export async function getTrainingAdminSummary() {
       && assessmentsForCourses.length < 1000,
   });
 
+  // An age-matched cohort is not the same as the all-time course health
+  // snapshot above. A start is only included after the entire measurement
+  // window has elapsed; this prevents immature starts from appearing as
+  // course drop-offs. Do not query learner identities into the page.
+  const cohortConversion = buildTrainingCohortConversion({
+    courses: courses.map(({ id, slug, title, status }) => ({ id, slug, title, status })),
+    enrollments: allEnrollments,
+    nowMs: Date.now(),
+    complete: enrollmentResult.complete,
+  });
+
   const lessonCourseId = new Map(
     lessons.map((lesson) => [lesson.id, moduleCourse.get(lesson.module_id) || ""]),
   );
@@ -1205,6 +1220,7 @@ export async function getTrainingAdminSummary() {
     funnel,
     recovery,
     completionHealth,
+    cohortConversion,
     integrity,
     error: null,
   };

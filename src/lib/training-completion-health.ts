@@ -220,7 +220,7 @@ export function buildTrainingCompletionHealth(input: CompletionHealthInput): Tra
       b.awaitingReview - a.awaitingReview ||
       b.enrolled - a.enrolled ||
       a.title.localeCompare(b.title),
-    ));
+    );
 
   return { available: true, reason: null, totals: summarize(rows), courses: rows };
 }

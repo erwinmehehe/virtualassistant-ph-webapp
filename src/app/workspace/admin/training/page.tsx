@@ -13,7 +13,7 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, funnel, recovery, completionHealth, integrity, error } = await getTrainingAdminSummary();
+  const { courses, paths, totals, funnel, recovery, completionHealth, cohortConversion, integrity, error } = await getTrainingAdminSummary();
 
   return (
     <div className="dash-page role-overview">
@@ -162,6 +162,66 @@ export default async function AdminTrainingPage() {
                 </div>
               )}
               <p className="muted">Aggregated administrator-only data. Progress is measured against currently published lessons; curriculum changes can alter remaining-lesson counts. No learner names or email addresses appear in this report.</p>
+            </>
+          )}
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-cohort-analytics" aria-labelledby="course-cohort-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="course-cohort-title">Completion within 7 and 14 days</h2>
+              <p>Starts from the last {cohortConversion.lookbackDays} days. Each rate includes only learners whose full 7- or 14-day window has elapsed. This avoids classifying new enrolments as failed completions.</p>
+            </div>
+            <span className="badge"><Clock3 size={13}/> Age-matched cohorts</span>
+          </div>
+          {!cohortConversion.available ? (
+            <div className="notice" role="status">
+              <strong>Cohort rates temporarily unavailable</strong>
+              <p>{cohortConversion.reason} Partial enrolments are not counted.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Completed within 7 days</span><GraduationCap size={18}/></div>
+                  <strong>{cohortConversion.totals.sevenDay.rate === null ? "No mature starts" : `${cohortConversion.totals.sevenDay.rate}%`}</strong>
+                  <small>{cohortConversion.totals.sevenDay.completed} of {cohortConversion.totals.sevenDay.eligible} eligible course starts</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Completed within 14 days</span><BookOpenCheck size={18}/></div>
+                  <strong>{cohortConversion.totals.fourteenDay.rate === null ? "No mature starts" : `${cohortConversion.totals.fourteenDay.rate}%`}</strong>
+                  <small>{cohortConversion.totals.fourteenDay.completed} of {cohortConversion.totals.fourteenDay.eligible} eligible course starts</small>
+                </div>
+              </div>
+              <div className="dashboard-section-head">
+                <div>
+                  <h3>Courses to review for completion</h3>
+                  <p>Courses with at least five mature 14-day starts are ordered by lowest 14-day completion rate. Open a course to review onboarding, lesson sequence or the final check before changing reminders.</p>
+                </div>
+              </div>
+              {cohortConversion.courses.length ? (
+                <div className="compact-list training-cohort-course-list">
+                  {cohortConversion.courses.slice(0, 10).map((item) => (
+                    <div key={item.id}>
+                      <span>
+                        <Link href={`/workspace/admin/training/${item.id}`}><strong>{item.title}</strong></Link>
+                        <small>7-day: {item.sevenDay.completed}/{item.sevenDay.eligible} completed ({item.sevenDay.rate === null ? "not yet measurable" : `${item.sevenDay.rate}%`})</small>
+                        <small>14-day: {item.fourteenDay.completed}/{item.fourteenDay.eligible} completed ({item.fourteenDay.rate === null ? "not yet measurable" : `${item.fourteenDay.rate}%`})</small>
+                        {item.fourteenDay.eligible < 5 ? <small>Small or immature 14-day sample — interpret cautiously.</small> : null}
+                      </span>
+                      <span className="badge">{item.fourteenDay.rate === null ? "No 14-day cohort" : `${item.fourteenDay.rate}% in 14d`}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="dashboard-caught-up">
+                  <Clock3 size={22}/>
+                  <div><strong>Not enough enrolment history</strong><p>Recent published courses will appear after the first full 7-day measurement window.</p></div>
+                </div>
+              )}
+              <p className="muted">Seven-day and 14-day rates have different eligible denominators. Completion after the window is excluded from that window but still counts in the all-time report above. One learner taking two courses counts as two course starts. Administrator-only aggregates; no learner identities.</p>
             </>
           )}
         </section>

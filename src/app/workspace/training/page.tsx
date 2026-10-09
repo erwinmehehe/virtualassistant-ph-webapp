@@ -100,6 +100,7 @@ function remainingLearningLabel(course: TrainingCourseSummary) {
 
 function nextCourseLabel(course: TrainingCourseSummary) {
   if (course.nextLesson && course.lessonCount - course.completedLessons === 1) return "Finish last lesson";
+  if (course.nextLesson && course.completedLessons === 0) return "Start first lesson";
   if (course.nextLesson) return "Continue lesson";
   if (course.nextAssessment && course.assessmentStatus === "in_review") return "View final check status";
   if (course.nextAssessment && course.assessmentStatus === "needs_revision") return "Review and retry final check";
@@ -352,6 +353,8 @@ export default async function TrainingDashboardPage({
               <p>
                 {resumeCourse.lessonCount - resumeCourse.completedLessons === 1 ? (
                   <>One lesson left: <strong>{resumeCourse.nextLesson.title}</strong></>
+                ) : resumeCourse.completedLessons === 0 ? (
+                  <>Start with <strong>{resumeCourse.nextLesson.title}</strong></>
                 ) : (
                   <>Next lesson: <strong>{resumeCourse.nextLesson.title}</strong></>
                 )}

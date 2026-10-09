@@ -17,6 +17,9 @@ test("admin can inspect course completion bottlenecks without exposing learner i
   await expect(page.getByRole("heading", { name: "Where learners get stuck" })).toBeVisible();
   await expect(page.getByText("Course enrolments", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Course-level completion bottlenecks" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Next-lesson bottlenecks" })).toBeVisible();
+  await expect(page.getByText("Lesson bottleneck data temporarily unavailable")).toHaveCount(0);
+  await expect(page.getByText("No learner names, emails, or automatic outreach", { exact: false })).toBeVisible();
   await expect(page.getByText("Completion data temporarily unavailable")).toHaveCount(0);
   await expect(page.getByText("No learner names or email addresses appear in this report.", { exact: false })).toBeVisible();
 });
@@ -26,4 +29,5 @@ test("client cannot open administrator training completion diagnostics", async (
   await page.goto("/workspace/admin/training");
   await expect(page).not.toHaveURL(/\/workspace\/admin\/training/);
   await expect(page.getByRole("heading", { name: "Where learners get stuck" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Next-lesson bottlenecks" })).toHaveCount(0);
 });

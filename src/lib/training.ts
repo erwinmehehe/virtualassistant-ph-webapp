@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { buildTrainingCompletionHealth } from "@/lib/training-completion-health";
 
 type CourseRow = {
   id: string;
@@ -718,6 +719,10 @@ export async function getTrainingAdminSummary() {
         stalled7d: 0,
         remindersSent: 0,
       },
+      completionHealth: buildTrainingCompletionHealth({
+        courses: [], enrollments: [], progress: [], engagement: [],
+        assessments: [], nowMs: Date.now(), complete: false,
+      }),
       integrity: {
         windowDays: 30,
         checkpointAttempts: 0,
@@ -1002,48 +1007,107 @@ export async function getTrainingAdminSummary() {
 
   const checkpointAttempts = checkpointRows.length;
   const checkpointFailures = checkpointRows.filter((row) => row.metadata?.correct !== true).length;
-  const { data: incompleteEnrollmentData } = courseIds.length
-    ? await admin
-        .from("training_enrollments")
-        .select("user_id,course_id,started_at")
-        .in("course_id", courseIds)
-        .is("completed_at", null)
-        .limit(5000)
-    : { data: [] };
-  const incompleteEnrollments = (incompleteEnrollmentData || []) as Array<{
-    user_id: string;
-    course_id: string;
-    started_at: string;
-  }>;
+  // The Data API may enforce a 1,000-row response ceiling regardless of
+  // .limit(). Page in stable order and chunk user IDs so completion rates never
+  // silently omit late rows or exceed a long REST query-string limit.
+  type HealthPage<T> = { data: T[] | null; error: { message: string } | null };
+  async function loadHealthRows<T>(
+    identifiers: string[],
+    query: (ids: string[], from: number, to: number) => PromiseLike<HealthPage<T>>,
+  ): Promise<{ rows: T[]; complete: boolean }> {
+    const rows: T[] = [];
+    const pageSize = 500;
+    const limit = 10000;
+    for (let i = 0; i < identifiers.length; i += 100) {
+      const batch = identifiers.slice(i, i + 100);
+      let exhausted = false;
+      for (let from = 0; from < limit; from += pageSize) {
+        const { data, error: pageError } = await query(batch, from, from + pageSize - 1);
+        if (pageError || !data) return { rows: [], complete: false };
+        rows.push(...data);
+        if (rows.length >= limit) return { rows: [], complete: false };
+        if (data.length < pageSize) {
+          exhausted = true;
+          break;
+        }
+      }
+      if (!exhausted) return { rows: [], complete: false };
+    }
+    return { rows, complete: true };
+  }
+
+  type HealthEnrollment = { user_id: string; course_id: string; started_at: string; completed_at: string | null };
+  type HealthProgress = { user_id: string; lesson_id: string; completed_at: string };
+  type HealthEngagement = {
+    user_id: string; lesson_id: string; last_activity_at: string | null;
+    updated_at: string; active_seconds: number | null;
+  };
+  type HealthAssessment = { user_id: string; assessment_id: string; submitted_at: string; status: string };
+  const [enrollmentResult, assessmentCatalogResult] = await Promise.all([
+    loadHealthRows<HealthEnrollment>(courseIds, (ids, from, to) =>
+      admin.from("training_enrollments")
+        .select("user_id,course_id,started_at,completed_at")
+        .in("course_id", ids).order("user_id").order("course_id").range(from, to)),
+    courseIds.length
+      ? admin.from("training_assessments").select("id,course_id").in("course_id", courseIds).limit(1000)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  const allEnrollments = enrollmentResult.rows;
+  const incompleteEnrollments = allEnrollments.filter((row) => !row.completed_at);
   const incompleteUserIds = [...new Set(incompleteEnrollments.map((row) => row.user_id))];
   const publishedLessonIds = lessons.filter((lesson) => lesson.is_published).map((lesson) => lesson.id);
-  const [{ data: recoveryProgressData }, { data: recoveryEngagementData }, { data: trainingReminderData }] =
-    await Promise.all([
-      incompleteUserIds.length && publishedLessonIds.length
-        ? admin
-            .from("training_lesson_progress")
+  const assessmentsForCourses = (assessmentCatalogResult.data || []) as Array<{ id: string; course_id: string }>;
+  const assessmentCourseId = new Map(assessmentsForCourses.map((row) => [row.id, row.course_id]));
+
+  const [progressResult, engagementResult, assessmentResult, trainingReminderResult] = await Promise.all([
+    publishedLessonIds.length
+      ? loadHealthRows<HealthProgress>(incompleteUserIds, (ids, from, to) =>
+          admin.from("training_lesson_progress")
             .select("user_id,lesson_id,completed_at")
-            .in("user_id", incompleteUserIds)
-            .in("lesson_id", publishedLessonIds)
-            .limit(10000)
-        : Promise.resolve({ data: [] }),
-      incompleteUserIds.length && publishedLessonIds.length
-        ? admin
-            .from("training_lesson_engagement")
-            .select("user_id,lesson_id,last_activity_at,updated_at")
-            .in("user_id", incompleteUserIds)
-            .in("lesson_id", publishedLessonIds)
-            .limit(10000)
-        : Promise.resolve({ data: [] }),
-      courseIds.length
-        ? admin
-            .from("workflow_reminders")
-            .select("subject_id,recipient_id,reminder_count,last_sent_at")
-            .eq("subject_type", "va")
-            .like("action", "resume_training_%")
-            .limit(5000)
-        : Promise.resolve({ data: [] }),
-    ]);
+            .in("user_id", ids).order("user_id").order("lesson_id").range(from, to))
+      : Promise.resolve({ rows: [] as HealthProgress[], complete: true }),
+    publishedLessonIds.length
+      ? loadHealthRows<HealthEngagement>(incompleteUserIds, (ids, from, to) =>
+          admin.from("training_lesson_engagement")
+            .select("user_id,lesson_id,last_activity_at,updated_at,active_seconds")
+            .in("user_id", ids).order("user_id").order("lesson_id").range(from, to))
+      : Promise.resolve({ rows: [] as HealthEngagement[], complete: true }),
+    incompleteUserIds.length && assessmentsForCourses.length
+      ? loadHealthRows<HealthAssessment>(incompleteUserIds, (ids, from, to) =>
+          admin.from("training_assessment_submissions")
+            .select("user_id,assessment_id,submitted_at,status")
+            .in("user_id", ids).order("user_id").order("submitted_at").order("assessment_id").range(from, to))
+      : Promise.resolve({ rows: [] as HealthAssessment[], complete: true }),
+    courseIds.length
+      ? admin.from("workflow_reminders")
+          .select("subject_id,recipient_id,reminder_count,last_sent_at")
+          .eq("subject_type", "va")
+          .like("action", "resume_training_%")
+          .limit(5000)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  const recoveryProgressData = progressResult.rows;
+  const recoveryEngagementData = engagementResult.rows;
+  const recoveryAssessmentData = assessmentResult.rows
+    .map((row) => ({ ...row, course_id: assessmentCourseId.get(row.assessment_id) || "" }))
+    .filter((row) => Boolean(row.course_id));
+  const trainingReminderData = trainingReminderResult.data || [];
+  const completionHealth = buildTrainingCompletionHealth({
+    courses: courses.map((course) => ({
+      id: course.id, title: course.title, slug: course.slug, status: course.status,
+      publishedLessonIds: lessons.filter((lesson) =>
+        lesson.is_published && moduleCourse.get(lesson.module_id) === course.id,
+      ).map((lesson) => lesson.id),
+    })),
+    enrollments: allEnrollments,
+    progress: recoveryProgressData,
+    engagement: recoveryEngagementData,
+    assessments: recoveryAssessmentData,
+    nowMs: Date.now(),
+    complete: enrollmentResult.complete && progressResult.complete && engagementResult.complete
+      && assessmentResult.complete && !assessmentCatalogResult.error
+      && assessmentsForCourses.length < 1000,
+  });
 
   const lessonCourseId = new Map(
     lessons.map((lesson) => [lesson.id, moduleCourse.get(lesson.module_id) || ""]),
@@ -1067,6 +1131,17 @@ export async function getTrainingAdminSummary() {
     recoveryActivityByEnrollment.set(
       key,
       Math.max(recoveryActivityByEnrollment.get(key) || 0, timestamp),
+    );
+  }
+
+  // Submitting a final check is learner activity. Do not count a learner as
+  // stalled while they are actively waiting for assessment review.
+  for (const row of recoveryAssessmentData) {
+    const key = `${row.user_id}:${row.course_id}`;
+    const time = new Date(row.submitted_at).getTime();
+    recoveryActivityByEnrollment.set(
+      key,
+      Math.max(recoveryActivityByEnrollment.get(key) || 0, Number.isFinite(time) ? time : 0),
     );
   }
 
@@ -1129,6 +1204,7 @@ export async function getTrainingAdminSummary() {
     },
     funnel,
     recovery,
+    completionHealth,
     integrity,
     error: null,
   };

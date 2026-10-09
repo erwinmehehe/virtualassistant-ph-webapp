@@ -4,20 +4,23 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("VA private profile preview is mobile friendly", async () => {
-  const [page, css] = await Promise.all([
+test("VA private portfolio preview is responsive and offers safe navigation", async () => {
+  const [page, component, css] = await Promise.all([
     read("src/app/workspace/va/profile/preview/page.tsx"),
-    read("src/app/workspace/va/va-workspace.css"),
+    read("src/components/va-portfolio-preview.tsx"),
+    read("src/components/va-portfolio-preview.module.css"),
   ]);
 
-  assert.match(page, /va-profile-preview-page/);
-  assert.match(page, /va-profile-preview-toolbar/);
-  assert.match(page, /va-profile-preview-card/);
-  assert.match(page, /Back to profile/);
-  assert.match(page, /Edit profile/);
-  assert.match(css, /VA mobile pass: private profile preview and fallback states/);
-  assert.match(css, /\.va-profile-preview-grid[\s\S]*grid-template-columns: 1fr/);
-  assert.match(css, /\.va-profile-preview-toolbar \.btn[\s\S]*min-height: 40px/);
+  assert.match(page, /<VaPortfolioPreview/);
+  assert.match(page, /requireRole\("va"\)/);
+  assert.match(page, /backHref="\/workspace\/va\/profile"/);
+  assert.match(component, /Back to my profile/);
+  assert.match(component, /Edit my portfolio/);
+  assert.match(component, /aria-label="Portfolio sections"/);
+  assert.match(css, /@media\(max-width:790px\)/);
+  assert.match(css, /@media\(max-width:560px\)/);
+  assert.match(css, /\.navigation\{display:flex/);
+  assert.match(css, /\.railAction\{display:flex/);
 });
 
 test("Account Center uses compact mobile tabs and iOS-safe form controls", async () => {

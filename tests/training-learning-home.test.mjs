@@ -236,3 +236,21 @@ test("enrolled learners with no completed lessons see a start action, not contin
   const last = page.indexOf('return "Finish last lesson"');
   assert.ok(first > 0 && first < last, "one-lesson courses also start with Start first lesson");
 });
+
+test("new enrolments open the first published lesson without a second overview click", async () => {
+  const action = await readFile(new URL("../src/app/actions/training.ts", import.meta.url), "utf8");
+  const start = action.slice(action.indexOf("export async function startTrainingCourseAction"),
+    action.indexOf("export async function selectAustraliaSpecializationAction"));
+  assert.match(start, /eq\("status", "published"\)/);
+  assert.match(start, /if \(error && error\.code !== "23505"\)/);
+  assert.match(start, /const courseOverview =/);
+  assert.match(start, /if \(!error\) \{/);
+  assert.match(start, /\.from\("training_modules"\)/);
+  assert.match(start, /\.from\("training_lessons"\)/);
+  assert.match(start, /\.eq\("is_published", true\)/);
+  assert.match(start, /moduleOrder\.get\(a\.module_id\)/);
+  assert.match(start, /destination = .+lessons\/\$\{firstLesson\.id\}/);
+  assert.match(start, /path: destination/);
+  assert.match(start, /redirect\(destination\)/);
+  assert.doesNotMatch(start, /update\(\{ completed_at/);
+});

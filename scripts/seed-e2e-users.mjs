@@ -115,7 +115,7 @@ for (const scenario of ["approved", "changes"]) {
     client_id: seededUserIds.client,
     owner_id: seededUserIds.recruiter,
     lead_type: "client_hiring",
-    discovery_scheduled_at: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
+    discovery_scheduled_at: new Date(now.getTime() - (scenario === "approved" ? 60 : 90) * 60 * 1000).toISOString(),
     discovery_completed_at: now.toISOString(),
     discovery_outcome: "qualified",
     acknowledgement_sent_at: now.toISOString(),

@@ -193,7 +193,7 @@ export async function recordTrainingLessonEngagementAction(input: {
   const activeSeconds = Number(existing?.active_seconds || 0) + earnedSeconds;
   const maxScrollPercent = Math.max(Number(existing?.max_scroll_percent || 0), scrollPercent);
 
-  await admin.from("training_lesson_engagement").upsert({
+  const { error: engagementError } = await admin.from("training_lesson_engagement").upsert({
     user_id: userId,
     lesson_id: lesson.id,
     active_seconds: activeSeconds,
@@ -202,6 +202,7 @@ export async function recordTrainingLessonEngagementAction(input: {
     updated_at: now.toISOString(),
   }, { onConflict: "user_id,lesson_id" });
 
+  if (engagementError) throw new Error("Training progress could not be saved. Please try again.");
   return { activeSeconds, maxScrollPercent };
 }
 

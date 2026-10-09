@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 
 type Fixture = { leadId: string; proposalId: string; token: string; company: string };
-type Fixtures = { approved: Fixture; changes: Fixture };
+type Fixtures = Record<"approved0" | "approved1" | "changes0" | "changes1", Fixture>;
 
 function localOnlyEnv() {
   const dbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -31,9 +31,9 @@ async function login(page: Page, email: string, next: string) {
   await expect(page).toHaveURL(new RegExp(next.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 }
 
-test("isolated employer proposal acceptance creates a linked recruiting role and client access", async ({ browser }: { browser: Browser }) => {
+test("isolated employer proposal acceptance creates a linked recruiting role and client access", async ({ browser }: { browser: Browser }, testInfo) => {
   const { dbUrl, key } = localOnlyEnv();
-  const fixture = (await fixtures()).approved;
+  const fixture = (await fixtures())[testInfo.retry > 0 ? "approved1" : "approved0"];
   const admin = createClient(dbUrl, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const recruiterContext = await browser.newContext();
   const clientContext = await browser.newContext();
@@ -80,6 +80,11 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
     expect(countError).toBeNull();
     expect(job?.status).toBe("published");
     expect(job?.client_id).toBe(lead?.client_id);
+    // The acceptance must attach to the existing E2E client identity, not
+    // create a duplicate client with the same email.
+    const { data: clientAuth, error: authLookupError } = await admin.auth.admin.listUsers({page:1,perPage:100});
+    expect(authLookupError).toBeNull();
+    expect(lead?.client_id).toBe(clientAuth.users.find(user => user.email === "client.e2e@example.test")?.id);
     expect(job?.lead_id).toBe(fixture.leadId);
     expect(commercials?.commercial_status).toBe("accepted");
     expect(count).toBe(1);
@@ -101,9 +106,9 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
   }
 });
 
-test("isolated client can request proposal changes without creating a recruiting role", async ({ page }) => {
+test("isolated client can request proposal changes without creating a recruiting role", async ({ page }, testInfo) => {
   const { dbUrl, key } = localOnlyEnv();
-  const fixture = (await fixtures()).changes;
+  const fixture = (await fixtures())[testInfo.retry > 0 ? "changes1" : "changes0"];
   const admin = createClient(dbUrl, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
   await page.goto(`/proposal/${fixture.token}`);

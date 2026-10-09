@@ -18,6 +18,25 @@ test("overdue first human response creates bounded staff-only reminders for hiri
   assert.doesNotMatch(block, /email: true|sendTransactionalEventEmail|sms|twilio/i);
 });
 
+test("first-contact SLA creates one recruiter task and closes it only after CRM contact", async () => {
+  const [maintenance, action] = await Promise.all([
+    read("src/app/api/cron/maintenance/route.ts"),
+    read("src/app/actions/recruiter.ts"),
+  ]);
+  assert.match(maintenance, /firstContactLeadIds/);
+  assert.match(maintenance, /\.like\("title", "First human response overdue:%"\)/);
+  assert.match(maintenance, /const alreadyAssigned = new Set/);
+  assert.match(maintenance, /\.from\("recruiter_tasks"\)\.insert\(tasksToCreate\)/);
+  assert.match(maintenance, /firstContactTasksCreated/);
+  assert.match(maintenance, /priority: "urgent"/);
+  assert.match(maintenance, /staffIds\.includes\(lead\.owner_id\)/);
+  assert.match(action, /if \(updateError\) throw updateError;/);
+  assert.match(action, /\.eq\("subject_id", leadId\)/);
+  assert.match(action, /\.in\("status", \["todo", "in_progress"\]\)/);
+  assert.match(action, /status: "done", completed_at: now\.toISOString\(\)/);
+  assert.match(action, /First human response overdue:%/);
+});
+
 test("training time and scroll progress never claim unsaved data was persisted", async () => {
   const [action, gate] = await Promise.all([
     read("src/app/actions/training.ts"),

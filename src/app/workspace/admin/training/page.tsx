@@ -13,7 +13,7 @@ function reviewState(value: string | null) {
 }
 
 export default async function AdminTrainingPage() {
-  const { courses, paths, totals, funnel, recovery, integrity, error } = await getTrainingAdminSummary();
+  const { courses, paths, totals, funnel, recovery, completionHealth, integrity, error } = await getTrainingAdminSummary();
 
   return (
     <div className="dash-page role-overview">
@@ -90,6 +90,80 @@ export default async function AdminTrainingPage() {
             <strong>Conservative by design</strong>
             <p>Resume emails use the Product Emails preference, respect suppression lists and email quota, and never send more than two reminders for the same learner and course.</p>
           </div>
+        </section>
+      ) : null}
+
+      {!error ? (
+        <section className="card dashboard-section-card training-completion-health" aria-labelledby="course-completion-health-title">
+          <div className="dashboard-section-head">
+            <div>
+              <h2 id="course-completion-health-title">Where learners get stuck</h2>
+              <p>All-time learner–course enrolment snapshot from saved progress, activity and final checks. Each course counts once per learner. This is not a same-age conversion cohort, and newer enrolments have had less time to finish.</p>
+            </div>
+            <span className="badge"><BookOpenCheck size={13}/> Course health</span>
+          </div>
+          {!completionHealth.available ? (
+            <div className="notice" role="status">
+              <strong>Completion data temporarily unavailable</strong>
+              <p>{completionHealth.reason} No partial totals are shown.</p>
+            </div>
+          ) : (
+            <>
+              <div className="va-status-grid">
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Course enrolments</span><BookOpenCheck size={18}/></div>
+                  <strong>{completionHealth.totals.enrolled}</strong>
+                  <small>Unique learner–course combinations</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Completed</span><GraduationCap size={18}/></div>
+                  <strong>{completionHealth.totals.completed} <small>({completionHealth.totals.completionRate}%)</small></strong>
+                  <small>Courses marked completed, all time</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>Inactive 7 days</span><TimerReset size={18}/></div>
+                  <strong>{completionHealth.totals.stalled7d}</strong>
+                  <small>{completionHealth.totals.notEngaged7d} without recorded lesson engagement</small>
+                </div>
+                <div className="status-summary-card">
+                  <div className="row-between"><span>At final step</span><FileCheck2 size={18}/></div>
+                  <strong>{completionHealth.totals.finalStep}</strong>
+                  <small>All published lessons done; course still incomplete</small>
+                </div>
+              </div>
+              <div className="notice">
+                <strong>Final-check follow-through</strong>
+                <p>{completionHealth.totals.awaitingReview} incomplete enrolment{completionHealth.totals.awaitingReview === 1 ? "" : "s"} awaiting assessment review, {completionHealth.totals.needsRevision} needing revision, and {completionHealth.totals.oneLessonLeft} with one published lesson left. These groups can overlap with stalled or final-step counts.</p>
+              </div>
+              <div className="dashboard-section-head">
+                <div>
+                  <h3>Course-level completion bottlenecks</h3>
+                  <p>Ranked by inactive learners, then unfinished final steps. Inspect course content before changing reminder frequency.</p>
+                </div>
+              </div>
+              {completionHealth.courses.length ? (
+                <div className="compact-list training-health-course-list">
+                  {completionHealth.courses.slice(0, 10).map((item) => (
+                    <div key={item.id}>
+                      <span>
+                        <Link href={`/workspace/admin/training/${item.id}`}><strong>{item.title}</strong></Link>
+                        <small>{item.enrolled} enrolled · {item.engaged} engaged · {item.completed} completed · {item.stalled7d} inactive 7d+</small>
+                        <small>{item.notEngaged7d} without lesson engagement · {item.oneLessonLeft} one lesson left · {item.finalStep} at final step · {item.awaitingReview} awaiting review · {item.needsRevision} need revision</small>
+                        {item.enrolled < 5 ? <small>Small sample — avoid drawing course-wide conclusions.</small> : null}
+                      </span>
+                      <span className="badge">{item.completionRate}% completed</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="dashboard-caught-up">
+                  <GraduationCap size={22}/>
+                  <div><strong>No enrolments yet</strong><p>Course bottlenecks will appear once learners start published courses.</p></div>
+                </div>
+              )}
+              <p className="muted">Aggregated administrator-only data. Progress is measured against currently published lessons; curriculum changes can alter remaining-lesson counts. No learner names or email addresses appear in this report.</p>
+            </>
+          )}
         </section>
       ) : null}
 

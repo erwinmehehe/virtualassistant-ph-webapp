@@ -194,8 +194,8 @@ test("training home makes the last lesson and ready final check explicit", async
   assert.match(page, /Your final check is ready now/);
   assert.match(page, /Finish last lesson/);
   assert.match(page, /Start final check/);
-  assert.match(page, /course\.nextAssessment \? "training_assessment_open" : "training_course_continue"/);
-  assert.match(page, /resumeCourse\.nextAssessment \? "training_assessment_open" : "training_resume_next"/);
+  assert.match(page, /!course\.nextLesson && course\.nextAssessment \? "training_assessment_open" : "training_course_continue"/);
+  assert.match(page, /!resumeCourse\.nextLesson && resumeCourse\.nextAssessment \? "training_assessment_open" : "training_resume_next"/);
 });
 
 

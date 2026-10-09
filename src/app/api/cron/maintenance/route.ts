@@ -750,8 +750,12 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   const now = new Date().toISOString();
   const proposalCutoff = daysAgo(2);
   const discoveryCutoff = daysAgo(1);
-  const [{ data: staff }, { data: leads }, { data: proposals }, { data: completedDiscoveries }, { data: recentProposalRefs }] = await Promise.all([
+  const firstContactCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+  const [{ data: staff }, { data: firstContactLeads }, { data: leads }, { data: proposals }, { data: completedDiscoveries }, { data: recentProposalRefs }] = await Promise.all([
     admin.from("profiles").select("id").in("role", ["recruiter", "admin"]).eq("account_status", "active"),
+    // Automated acknowledgement is not first human contact. Keep these
+    // notifications private to active staff; never email or call employers here.
+    admin.from("lead_intake").select("id,name,company,owner_id").eq("lead_type", "client_hiring").eq("crm_stage", "new").is("first_contact_at", null).lte("created_at", firstContactCutoff).gte("created_at", daysAgo(14)).limit(300),
     admin.from("lead_intake").select("id,name,company,crm_stage,owner_id,next_follow_up_at").in("crm_stage", ["new","contacted","discovery_booked","qualified","terms_sent","shortlist_sent","nurture"]).not("next_follow_up_at", "is", null).lte("next_follow_up_at", now).gte("next_follow_up_at", daysAgo(14)).limit(300),
     admin.from("lead_proposals").select("id,lead_id,role_title,status,sent_at,viewed_at,public_token").eq("status", "sent").not("sent_at", "is", null).lte("sent_at", proposalCutoff).gte("sent_at", daysAgo(30)).limit(300),
     admin.from("lead_intake").select("id,name,company,owner_id,discovery_completed_at").eq("lead_type","client_hiring").eq("crm_stage","qualified").not("discovery_completed_at","is",null).gte("discovery_completed_at", discoveryCutoff).lte("discovery_completed_at", now).limit(300),
@@ -780,6 +784,25 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
         maxReminders: 1,
         notificationType: "sales_follow_up"
       })) proposalDueToday++;
+    }
+  }
+
+  let firstContactReminders = 0;
+  for (const lead of firstContactLeads || []) {
+    const recipients = lead.owner_id ? [lead.owner_id] : staffIds;
+    for (const recipientId of recipients) {
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "lead",
+        subjectId: lead.id,
+        recipientId,
+        action: "sales_first_human_contact_due",
+        title: `First human response overdue: ${lead.company || lead.name || "employer enquiry"}`,
+        body: "The automatic acknowledgement only confirms receipt. Contact the employer personally, record the outcome, and set a next follow-up or discovery time.",
+        href: `/workspace/recruiter/crm/${lead.id}`,
+        repeatDays: 1,
+        maxReminders: 3,
+        notificationType: "sales_follow_up",
+      })) firstContactReminders++;
     }
   }
 
@@ -830,7 +853,7 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
       }
     }
   }
-  return { leadReminders, proposalReminders, proposalDueToday, clientProposalFollowups };
+  return { firstContactReminders, leadReminders, proposalReminders, proposalDueToday, clientProposalFollowups };
 }
 
 async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAdminClient>) {

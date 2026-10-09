@@ -47,6 +47,39 @@ export type TrainingAccountActivation = {
   recentThirtyDayRegistrations: number;
 };
 
+export type TrainingActivationOpportunity = {
+  stage: "course_start" | "first_lesson" | "course_completion";
+  count: number;
+  title: string;
+  recommendation: string;
+};
+
+export function chooseTrainingActivationOpportunity(
+  totals: TrainingAccountActivation["totals"],
+): TrainingActivationOpportunity {
+  const choices: TrainingActivationOpportunity[] = [
+    {
+      stage: "course_start",
+      count: Math.max(0, totals.registered - totals.startedCourse),
+      title: "Registered, but no course started",
+      recommendation: "Review the signup welcome and the first-course start experience.",
+    },
+    {
+      stage: "first_lesson",
+      count: Math.max(0, totals.startedCourse - totals.completedLesson),
+      title: "Started a course, but no lesson completed",
+      recommendation: "Inspect the first lesson, its reading-progress save behavior, and early checkpoints.",
+    },
+    {
+      stage: "course_completion",
+      count: Math.max(0, totals.completedLesson - totals.completedCourse),
+      title: "Completed a lesson, but no course completed",
+      recommendation: "Review next-lesson bottlenecks and final-check retry guidance.",
+    },
+  ];
+  return choices.sort((a, b) => b.count - a.count)[0];
+}
+
 const DAY_MS = 86_400_000;
 const LOOKBACK_DAYS = 90;
 const FIRST_COURSE_DAYS = 7;

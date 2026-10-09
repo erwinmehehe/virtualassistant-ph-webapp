@@ -27,10 +27,16 @@ only fictional snapshots and never call production APIs.
 
 ## One-time setup for a reviewed main branch
 
-- For the GitHub Actions **Production release preflight (read only)** workflow,
-  configure a least-privilege repository Actions secret VERCEL_TOKEN with
-  read access to the *correct* Vercel project. The built-in ephemeral
-  github.token provides GitHub metadata read permissions.
+- The built-in ephemeral github.token provides GitHub metadata read
+  permissions. **Do not add a VERCEL_TOKEN secret to any GitHub Actions
+  workflow.** This repository's security policy forbids long-lived Vercel
+  API tokens inside Actions workflows.
+- The manual GitHub workflow therefore reports the two Vercel variable names
+  as **unverified** and blocks release, even if its GitHub checks pass.
+  Verify Vercel metadata through a separately authorized operator session
+  or the connected Vercel management app. For a fuller CLI report, run the
+  script in that approved environment with a narrowly scoped ephemeral
+  API credential; never expose the credential to repository workflows.
 - The script defaults to Vercel project
   prj_eUS8RTfbvCxDGsjhi4qLSVgAffOO, but confirms only env **names and
   scopes**, not values. For team-owned projects, configure VERCEL_TEAM_ID
@@ -68,8 +74,10 @@ read-only tokens:
       --repo erwinmehehe/virtualassistant-ph-webapp \
       --pr 867 --output release-preflight-result.json
 
-Run with GITHUB_TOKEN and VERCEL_TOKEN in the process environment, **never**
-as CLI arguments. An unavailable API or missing token results in BLOCKED.
+Run with GITHUB_TOKEN and, only in a separately authorized operator environment,
+a short-lived read-only Vercel API credential in VERCEL_TOKEN. Never
+include this token in GitHub Actions workflow definitions or CLI arguments.
+An unavailable API or missing token results in BLOCKED.
 
 ## Exit codes and meanings
 

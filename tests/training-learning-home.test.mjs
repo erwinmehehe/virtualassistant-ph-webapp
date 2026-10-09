@@ -225,3 +225,14 @@ test("specialisation cards link to dedicated path pages", async () => {
   assert.match(page, /\/workspace\/training\/paths\/\$\{specialization\.slug\}/);
   assert.match(page, /View path/);
 });
+
+test("enrolled learners with no completed lessons see a start action, not continue", async () => {
+  const page = await readFile(new URL("../src/app/workspace/training/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /course\.nextLesson && course\.completedLessons === 0\) return "Start first lesson"/);
+  assert.match(page, /resumeCourse\.completedLessons === 0 \?/);
+  assert.match(page, /Start with <strong>\{resumeCourse\.nextLesson\.title\}/);
+  assert.match(page, /href=\{nextCourseHref\(resumeCourse\)\}/);
+  const first = page.indexOf('return "Start first lesson"');
+  const last = page.indexOf('return "Finish last lesson"');
+  assert.ok(first > 0 && first < last, "one-lesson courses also start with Start first lesson");
+});

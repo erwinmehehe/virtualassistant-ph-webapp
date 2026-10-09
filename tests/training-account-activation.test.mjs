@@ -108,6 +108,18 @@ test("nonmembers, future accounts, and impossible course starts do not inflate a
   assert.equal(r.firstCourseSevenDay.eligible,1);
   assert.equal(r.firstCourseSevenDay.activated,0);
 });
+test("legacy lesson or completed-course rows without a course start do not inflate activation",()=>{
+  const r=calc({
+    accounts:[account("orphan",20)],
+    enrollments:[{user_id:"orphan",started_at:ago(30),completed_at:ago(5)}],
+    lessonCompletions:[{user_id:"orphan"}],
+    verifiedVaProfileUserIds:[],
+  });
+  assert.equal(r.totals.startedCourse,0);
+  assert.equal(r.totals.completedLesson,0);
+  assert.equal(r.totals.completedCourse,0);
+});
+
 test("no mature cohort is not mislabeled as 0 percent",()=>{
   const r=calc({
     accounts:[account("new",1)],

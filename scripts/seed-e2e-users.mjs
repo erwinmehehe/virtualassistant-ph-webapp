@@ -143,7 +143,9 @@ for (const scenario of ["approved", "changes", "pipeline"]) for (const attempt o
     status: "sent",
     // One employer can hire for multiple roles, but cannot create two OPEN
     // roles with the same normalized title (database uniqueness guard).
-    role_title: scenario === "pipeline" ? "E2E Administrative Support Virtual Assistant" : "E2E Administrative Virtual Assistant",
+    role_title: scenario === "pipeline"
+      ? (attempt === 0 ? "E2E Administrative Support Virtual Assistant" : "E2E Administrative Coordinator Virtual Assistant")
+      : "E2E Administrative Virtual Assistant",
     summary: "Local-only sample proposal to test recruiter and client workflow handoff.",
     service_model: "curated_placement",
     hours_per_week: 40,

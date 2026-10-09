@@ -29,9 +29,13 @@ async function login(page: Page, email: string, next: string) {
   await expect(page).toHaveURL(new RegExp(next.replace(/[.*+?^$()|[\]\\]/g, "\\$&")));
 }
 
-async function single<T>(result: { data: T | null; error: { message: string } | null }, what: string): Promise<NonNullable<T>> {
-  if (result.error || !result.data) throw new Error(`${what}: ${result.error?.message || "not found"}`);
-  return result.data as NonNullable<T>;
+// Test fixture assertions use dynamic PostgREST rows (no generated schema types).
+// Normalize `.single()` failures before accessing row fields.
+async function single(result: { data: unknown; error: { message: string } | null }, what: string): Promise<Record<string, any>> {
+  if (result.error || !result.data || typeof result.data !== "object") {
+    throw new Error(`${what}: ${result.error?.message || "not found"}`);
+  }
+  return result.data as Record<string, any>;
 }
 
 test("isolated shortlisted VA moves through interview, two-sided offer, and one hired workroom", async ({ browser }, info) => {

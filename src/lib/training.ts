@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { buildTrainingCompletionHealth } from "@/lib/training-completion-health";
 import { buildTrainingCohortConversion } from "@/lib/training-cohort-conversion";
+import { buildTrainingLessonBottlenecks } from "@/lib/training-lesson-bottlenecks";
 
 type CourseRow = {
   id: string;
@@ -748,6 +749,10 @@ export async function getTrainingAdminSummary() {
       cohortConversion: buildTrainingCohortConversion({
         courses: [], enrollments: [], nowMs: Date.now(), complete: false,
       }),
+      lessonBottlenecks: buildTrainingLessonBottlenecks({
+        courses: [], modules: [], lessons: [], enrollments: [],
+        progress: [], engagement: [], nowMs: Date.now(), complete: false,
+      }),
       integrity: {
         windowDays: 30,
         checkpointAttempts: 0,
@@ -777,23 +782,24 @@ export async function getTrainingAdminSummary() {
 
   const courses = (courseData || []) as CourseRow[];
   const courseIds = courses.map((course) => course.id);
-  const { data: moduleData } = courseIds.length
-    ? await supabase.from("training_modules").select("id,course_id").in("course_id", courseIds)
-    : { data: [] };
-  const modules = (moduleData || []) as Array<{ id: string; course_id: string }>;
+  const { data: moduleData, error: modulesError } = courseIds.length
+    ? await supabase.from("training_modules").select("id,course_id,position").in("course_id", courseIds)
+    : { data: [], error: null };
+  const modules = (moduleData || []) as Array<{ id: string; course_id: string; position: number }>;
   const moduleIds = modules.map((module) => module.id);
-  const { data: lessonData } = moduleIds.length
+  const { data: lessonData, error: lessonsError } = moduleIds.length
     ? await supabase
         .from("training_lessons")
-        .select("id,module_id,title,estimated_minutes,is_published")
+        .select("id,module_id,title,estimated_minutes,is_published,position")
         .in("module_id", moduleIds)
-    : { data: [] };
+    : { data: [], error: null };
   const lessons = (lessonData || []) as Array<{
     id: string;
     module_id: string;
     title: string;
     estimated_minutes: number;
     is_published: boolean;
+    position: number;
   }>;
   const moduleCourse = new Map(modules.map((module) => [module.id, module.course_id]));
 
@@ -1145,6 +1151,20 @@ export async function getTrainingAdminSummary() {
     complete: enrollmentResult.complete,
   });
 
+  // Reuse paginated, admin-only training sources; never expose underlying
+  // learner IDs. A failed metadata/progress page means no partial ranking.
+  const lessonBottlenecks = buildTrainingLessonBottlenecks({
+    courses: courses.map(({ id, slug, title, status }) => ({ id, slug, title, status })),
+    modules,
+    lessons,
+    enrollments: allEnrollments,
+    progress: recoveryProgressData,
+    engagement: recoveryEngagementData,
+    nowMs: Date.now(),
+    complete: enrollmentResult.complete && progressResult.complete && engagementResult.complete
+      && !modulesError && !lessonsError && modules.length < 1000 && lessons.length < 1000,
+  });
+
   const lessonCourseId = new Map(
     lessons.map((lesson) => [lesson.id, moduleCourse.get(lesson.module_id) || ""]),
   );
@@ -1242,6 +1262,7 @@ export async function getTrainingAdminSummary() {
     recovery,
     completionHealth,
     cohortConversion,
+    lessonBottlenecks,
     integrity,
     error: null,
   };

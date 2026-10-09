@@ -86,17 +86,23 @@ function nextCourseHref(course: TrainingCourseSummary) {
 
 function remainingLearningLabel(course: TrainingCourseSummary) {
   if (course.completedAt) return "Completed";
-  if (course.nextAssessment) return "Lessons complete · final check ready";
   const remainingLessons = Math.max(0, course.lessonCount - course.completedLessons);
+  // Do not label a pending submission as "ready" or send learners back to
+  // restart a check while their existing work is being reviewed.
+  if (!course.nextLesson && course.assessmentStatus === "in_review") return "Final check submitted · review in progress";
+  if (!course.nextLesson && course.assessmentStatus === "needs_revision") return "Final check needs revision";
   if (remainingLessons === 1) return `1 lesson left · ${course.completedLessons} of ${course.lessonCount} complete`;
   if (remainingLessons > 1) return `${remainingLessons} lessons left · ${course.completedLessons} of ${course.lessonCount} complete`;
+  if (course.nextAssessment) return "Lessons complete · final check ready";
   return `${course.completedLessons} of ${course.lessonCount} lessons`;
 }
 
 function nextCourseLabel(course: TrainingCourseSummary) {
-  if (course.nextAssessment) return "Start final check";
   if (course.nextLesson && course.lessonCount - course.completedLessons === 1) return "Finish last lesson";
   if (course.nextLesson) return "Continue lesson";
+  if (course.nextAssessment && course.assessmentStatus === "in_review") return "View final check status";
+  if (course.nextAssessment && course.assessmentStatus === "needs_revision") return "Review and retry final check";
+  if (course.nextAssessment) return "Start final check";
   return "Open course";
 }
 
@@ -201,7 +207,7 @@ function CourseCard({
     <Link
       className="btn btn-sm btn-primary"
       href={nextCourseHref(course)}
-      data-track={course.nextAssessment ? "training_assessment_open" : "training_course_continue"}
+      data-track={!course.nextLesson && course.nextAssessment ? "training_assessment_open" : "training_course_continue"}
       data-course-slug={course.slug}
     >
       {nextCourseLabel(course)} <ArrowRight size={14} />
@@ -345,7 +351,13 @@ export default async function TrainingDashboardPage({
                 <span> · {resumeCourse.nextLesson.estimatedMinutes} min</span>
               </p>
             ) : resumeCourse.nextAssessment ? (
-              <p><strong>Lessons complete.</strong> Your final check is ready now.</p>
+              resumeCourse.assessmentStatus === "in_review" ? (
+                <p><strong>Your final check was submitted.</strong> Your result is being reviewed. You can view the submission status without starting over.</p>
+              ) : resumeCourse.assessmentStatus === "needs_revision" ? (
+                <p><strong>Review requested.</strong> Open your final check to read the feedback, make changes, and resubmit.</p>
+              ) : (
+                <p><strong>Lessons complete.</strong> Your final check is ready now.</p>
+              )
             ) : (
               <p>Your course is ready to reopen.</p>
             )}
@@ -353,7 +365,7 @@ export default async function TrainingDashboardPage({
           <Link
             className="btn btn-primary training-resume-action"
             href={nextCourseHref(resumeCourse)}
-            data-track={resumeCourse.nextAssessment ? "training_assessment_open" : "training_resume_next"}
+            data-track={!resumeCourse.nextLesson && resumeCourse.nextAssessment ? "training_assessment_open" : "training_resume_next"}
             data-course-slug={resumeCourse.slug}
           >
             {nextCourseLabel(resumeCourse)} <ArrowRight size={15} />

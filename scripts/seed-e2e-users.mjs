@@ -68,19 +68,31 @@ for (const account of accounts) {
   if (account.role === "va") {
     const { error } = await admin.from("va_profiles").upsert({
       user_id: user.id,
-      headline: "E2E Virtual Assistant",
+      headline: "E2E Administrative Virtual Assistant",
+      bio: "I manage administrative support, inboxes, client follow-ups, documentation, and appointments. I am comfortable using Google Workspace and coordinating schedules across teams.",
       primary_category: "Administrative Support",
       categories: ["Administrative Support"],
-      skills: ["Calendar Management", "Inbox Management"],
-      tools: ["Google Workspace"],
+      skills: ["Administrative support", "Written communication", "Inbox Management", "Calendar Management", "Scheduling"],
+      tools: ["Google Workspace", "Google Calendar", "Google Sheets"],
       languages: ["English"],
       years_experience: 3,
       weekly_hours: 40,
       hourly_rate: 8,
+      portfolio_url: "https://example.test/e2e-portfolio",
       availability_status: "available",
+      availability_confirmed_at: new Date().toISOString(),
       directory_visible: false,
     }, { onConflict: "user_id" });
     if (error) throw error;
+    // Full hiring tests require a genuinely approved, sufficiently complete
+    // local-only VA. The database enforces the 80% approval floor.
+    const { error: vettingError } = await admin.from("va_vetting").upsert({
+      va_id: user.id,
+      stage: "approved",
+      recruiter_id: seededUserIds.recruiter,
+      approved_at: new Date().toISOString(),
+    }, { onConflict: "va_id" });
+    if (vettingError) throw new Error(`E2E VA approval guard failed: ${vettingError.message}`);
   }
 
   seededUserIds[account.role] = user.id;
@@ -94,11 +106,13 @@ for (const account of accounts) {
 // a real customer or can be created on a non-loopback Supabase target.
 const now = new Date();
 const fixtures = {};
-for (const scenario of ["approved", "changes"]) for (const attempt of [0, 1]) {
+for (const scenario of ["approved", "changes", "pipeline"]) for (const attempt of [0, 1]) {
   const leadId = crypto.randomUUID();
   const proposalId = crypto.randomUUID();
   const token = crypto.randomUUID();
-  const company = scenario === "approved" ? "E2E Acceptance Company" : "E2E Revision Company";
+  const company = scenario === "approved" ? "E2E Acceptance Company"
+    : scenario === "changes" ? "E2E Revision Company"
+    : "E2E Hiring Pipeline Company";
   const { error: leadError } = await admin.from("lead_intake").insert({
     id: leadId,
     name: "E2E Client",
@@ -115,7 +129,7 @@ for (const scenario of ["approved", "changes"]) for (const attempt of [0, 1]) {
     client_id: seededUserIds.client,
     owner_id: seededUserIds.recruiter,
     lead_type: "client_hiring",
-    discovery_scheduled_at: new Date(now.getTime() - (60 + (scenario === "approved" ? 0 : 2) * 30 + attempt * 30) * 60 * 1000).toISOString(),
+    discovery_scheduled_at: new Date(now.getTime() - (60 + ({ approved: 0, changes: 2, pipeline: 4 }[scenario]) * 30 + attempt * 30) * 60 * 1000).toISOString(),
     discovery_completed_at: now.toISOString(),
     discovery_outcome: "qualified",
     acknowledgement_sent_at: now.toISOString(),
@@ -150,4 +164,4 @@ for (const scenario of ["approved", "changes"]) for (const attempt of [0, 1]) {
 
 // Gitignored local-only fixture IDs, not credentials or production data.
 await writeFile(".e2e-hiring-fixtures.json", JSON.stringify(fixtures), { mode: 0o600 });
-console.log("seeded:local-hiring-proposals:4");
+console.log("seeded:local-hiring-proposals:6");

@@ -28,6 +28,7 @@ import { TrainingNextSteps } from "@/components/training-next-steps";
 import { TrainingSaveCourseButton } from "@/components/training-save-course-button";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
+import { chooseTrainingResumeCourse } from "@/lib/training-learning-priority";
 import { vaCategoryLabel } from "@/lib/constants";
 import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
 import { chooseOAuthRoleAction } from "@/app/actions/auth";
@@ -308,7 +309,7 @@ export default async function TrainingDashboardPage({
         new Date(a.certificate?.issued_at || 0).getTime(),
     );
 
-  const resumeCourse = active[0] || null;
+  const resumeCourse = chooseTrainingResumeCourse(active);
   const isNewLearner = active.length === 0 && completed.length === 0;
   const foundationsCourse = courses.find((course) => course.slug === "virtual-assistant-foundations") || null;
   const specialty = learnerProfile?.primaryCategory || null;
@@ -339,7 +340,13 @@ export default async function TrainingDashboardPage({
         <section className="training-resume-card" aria-labelledby="continue-learning-title">
           <div className="training-resume-icon"><Sparkles size={20} /></div>
           <div className="training-resume-copy">
-            <span className="small">Continue where you left off</span>
+            <span className="small">
+              {resumeCourse.nextAssessment && resumeCourse.assessmentStatus === "ready"
+                ? "One step from completing this course"
+                : resumeCourse.nextAssessment && resumeCourse.assessmentStatus === "needs_revision"
+                  ? "Final check follow-through"
+                  : "Continue where you left off"}
+            </span>
             <h2 id="continue-learning-title">{resumeCourse.title}</h2>
             {resumeCourse.nextLesson ? (
               <p>

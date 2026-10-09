@@ -133,7 +133,10 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
     await login(client, "client.e2e@example.test", clientCandidates);
     await expect(client.getByRole("heading", { name: "Hiring Room" })).toBeVisible();
     await client.getByRole("button", { name: "Request interview" }).click();
-    await expect(client).toHaveURL(/decision_saved=1/);
+    // Interview requests intentionally navigate to the scheduling workspace.
+    // "decision_saved" is for keep/pass decisions, not interview requests.
+    await expect(client).toHaveURL(/\/workspace\/client\/interviews\?requested=1/);
+    await expect(client.getByText("Interview requested. Choose a time below to schedule it.", { exact: false })).toBeVisible();
     const request = await single(await admin.from("candidate_interviews")
       .select("id,status,client_id,shortlist_candidate_id").eq("job_id",jobId).eq("va_id",vaId).single(),"interview request");
     expect(request.status).toBe("requested");

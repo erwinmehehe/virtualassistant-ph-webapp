@@ -37,6 +37,14 @@ test("first-contact SLA creates one recruiter task and closes it only after CRM 
   assert.match(action, /First human response overdue:%/);
 });
 
+test("duplicate open employer role titles provide a clear recovery path without bypassing SQL uniqueness", async () => {
+  const source = await read("src/app/actions/proposals.ts");
+  assert.match(source, /jobs_one_open_normalized_title_per_client_idx/);
+  assert.match(source, /acceptanceError\.code === "23505"/);
+  assert.match(source, /Ask your recruiter to continue the existing role or send a revised proposal/);
+  assert.match(source, /No partial hiring state was saved/);
+});
+
 test("training time and scroll progress never claim unsaved data was persisted", async () => {
   const [action, gate] = await Promise.all([
     read("src/app/actions/training.ts"),

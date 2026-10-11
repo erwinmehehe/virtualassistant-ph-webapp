@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ReloadPageButton } from "@/components/reload-page-button";
 import { Suspense } from "react";
-import { Clock3, Eye, ShieldCheck } from "lucide-react";
+import { Clock3, Eye, Monitor, ShieldCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { updateVaProfileAction } from "@/app/actions/profile";
@@ -340,6 +340,18 @@ export default async function VaProfilePage({
               <button className="btn btn-primary" type="submit">Save changes</button>
             </div>
           </form>
+
+          <section className="profile-section profile-section-flat" id="work-setup-link">
+            <div className="profile-section-head profile-section-head-simple">
+              <div>
+                <h2>Work-from-home setup</h2>
+                <p>Update your computer, internet, backup power, headset, webcam, and quiet workspace details. These are private to recruiters, not part of your public profile.</p>
+              </div>
+            </div>
+            <Link className="btn btn-sm" href="/workspace/va/work-readiness">
+              <Monitor size={16} /> Edit work-from-home setup
+            </Link>
+          </section>
 
           <Suspense fallback={null}><VaProfileCredentials userId={userId}/></Suspense>
 

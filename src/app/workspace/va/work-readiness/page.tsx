@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { CheckCircle2, Headphones, Monitor, ShieldCheck, Video, Wifi, Zap } from "lucide-react";
 import { saveVaWorkSetupAction } from "@/app/actions/work-readiness";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { ReloadPageButton } from "@/components/reload-page-button";
 
 export default async function VaWorkReadinessPage({
   searchParams,
@@ -11,11 +13,19 @@ export default async function VaWorkReadinessPage({
   const params = await searchParams;
   const { user } = await requireRole("va");
   const supabase = await createClient();
-  const { data: va } = await supabase
+  const { data: va, error: profileError } = await supabase
     .from("va_profiles")
     .select("work_setup_computer,work_setup_os,work_setup_ram_gb,primary_internet,backup_internet,backup_power,headset_ready,webcam_ready,quiet_workspace,work_setup_submitted_at,work_setup_verified_at")
     .eq("user_id", user.id)
     .maybeSingle();
+
+  if (profileError || !va) {
+    return <section className="card stack" role="alert">
+      <h1>Work setup temporarily unavailable</h1>
+      <p>We could not load your saved setup. Nothing has been changed. Reload before editing to avoid replacing existing information.</p>
+      <div className="row wrap"><ReloadPageButton label="Reload work setup"/><Link className="btn" href="/workspace/va/profile">Back to profile</Link></div>
+    </section>;
+  }
 
   const complete = Boolean(
     va?.work_setup_computer &&
@@ -29,7 +39,7 @@ export default async function VaWorkReadinessPage({
     va?.quiet_workspace
   );
 
-  const status = va?.work_setup_verified_at
+  const status = va.work_setup_verified_at
     ? { label: "Verified", className: "is-verified", detail: "Recruiting has verified this setup." }
     : complete
       ? { label: "Awaiting verification", className: "is-pending", detail: "Your setup is complete and ready for recruiter review." }
@@ -48,6 +58,7 @@ export default async function VaWorkReadinessPage({
       </span>
     </div>
 
+    <Link className="text-link small" href="/workspace/va/profile">Back to my profile</Link>
     {params.saved ? <div className="success-banner" role="status">Work readiness saved. {complete ? "Your setup is ready for recruiter review." : "Finish the remaining checks when you can."}</div> : null}
     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
 

@@ -73,6 +73,12 @@ export default async function TrainingCredentialVerificationPage({
                 <div className="credential-certificate-body">
                   <div className="credential-course-mark" aria-hidden="true">{certificateMark(credential.courseTitle)}</div>
                   <span className="credential-status">Certificate of completion</span>
+                  {credential.recipientName ? (
+                    <div className="credential-recipient">
+                      <span>Awarded to</span>
+                      <strong>{credential.recipientName}</strong>
+                    </div>
+                  ) : null}
                   <h1>{credential.courseTitle}</h1>
                   <p>{credential.courseSummary || "This certificate confirms completion of a VirtualAssistant.com.ph training course."}</p>
 

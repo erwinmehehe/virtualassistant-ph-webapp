@@ -135,6 +135,7 @@ export function completedTrainingSpecializations(
 
 export type PublicTrainingCredential = {
   credentialCode: string;
+  recipientName: string | null;
   issuedAt: string;
   courseTitle: string;
   courseSlug: string;
@@ -149,7 +150,7 @@ export async function getPublicTrainingCredentialByCode(rawCode: string): Promis
   const admin = createAdminClient();
   const { data: certificate, error: certificateError } = await admin
     .from("training_certificates")
-    .select("credential_code,issued_at,course_id,revoked_at")
+    .select("credential_code,issued_at,course_id,revoked_at,metadata")
     .eq("credential_code", credentialCode)
     .is("revoked_at", null)
     .maybeSingle();
@@ -165,8 +166,20 @@ export async function getPublicTrainingCredentialByCode(rawCode: string): Promis
 
   if (courseError || !course) return null;
 
+  // Publish only the recipient explicitly stored on the certificate.
+  // Never look up private account or profile details during verification.
+  const storedName = certificate.metadata &&
+    typeof certificate.metadata === "object" &&
+    !Array.isArray(certificate.metadata)
+      ? (certificate.metadata as Record<string, unknown>).recipient_name
+      : null;
+  const normalizedName = typeof storedName === "string"
+    ? storedName.trim().replace(/\s+/g, " ").slice(0, 100)
+    : "";
+
   return {
     credentialCode: certificate.credential_code,
+    recipientName: normalizedName.length >= 2 ? normalizedName : null,
     issuedAt: certificate.issued_at,
     courseTitle: course.title,
     courseSlug: course.slug,

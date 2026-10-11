@@ -39,7 +39,7 @@ export async function saveVaWorkSetupAction(formData: FormData) {
   if (!Number.isInteger(ram) || ram < 4 || ram > 256) throw new Error("Enter RAM between 4 GB and 256 GB.");
 
   const now = new Date().toISOString();
-  const { error } = await admin.from("va_profiles").update({
+  const { data: updatedProfile, error } = await admin.from("va_profiles").update({
     work_setup_computer: computer,
     work_setup_os: os,
     work_setup_ram_gb: ram,
@@ -53,8 +53,9 @@ export async function saveVaWorkSetupAction(formData: FormData) {
     work_setup_verified_at: null,
     work_setup_verified_by: null,
     work_setup_verification_notes: null
-  }).eq("user_id", userId);
+  }).eq("user_id", userId).select("user_id").maybeSingle();
   if (error) throw error;
+  if (!updatedProfile) throw new Error("Your VA profile was not found. No work setup changes were saved.");
 
   await writeRecruiterActivity({
     subjectType: "va",

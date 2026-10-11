@@ -46,7 +46,7 @@
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.3.0",
-    "eslint": "9.39.5",
+    "eslint": "10.12.0",
     "eslint-config-next": "15.5.27",
     "playwright": "^1.63.0",
     "prettier": "3.9.7",

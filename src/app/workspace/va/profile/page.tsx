@@ -341,7 +341,7 @@ export default async function VaProfilePage({
             </div>
           </form>
 
-          <section className="profile-section profile-section-flat" id="work-readiness">
+          <section className="profile-section profile-section-flat" id="work-setup-link">
             <div className="profile-section-head profile-section-head-simple">
               <div>
                 <h2>Work-from-home setup</h2>

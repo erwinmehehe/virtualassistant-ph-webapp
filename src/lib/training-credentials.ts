@@ -166,8 +166,8 @@ export async function getPublicTrainingCredentialByCode(rawCode: string): Promis
 
   if (courseError || !course) return null;
 
-  // Only an explicitly saved certificate recipient is published. Never
-  // expose an account email or fetch private profile details at verify time.
+  // Publish only the recipient explicitly stored on the certificate.
+  // Never look up private account or profile details during verification.
   const storedName = certificate.metadata &&
     typeof certificate.metadata === "object" &&
     !Array.isArray(certificate.metadata)

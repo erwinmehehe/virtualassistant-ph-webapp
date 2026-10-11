@@ -109,6 +109,16 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
   let certificateIssued = false;
   let certificate = existingCertificate || null;
   if (!existingCertificate) {
+    // Freeze the learner's name in the issued credential. Later account name
+    // edits must not silently change previously verified certificates.
+    const { data: learner } = await admin.auth.admin.getUserById(userId);
+    const recipientName = [
+      learner?.user?.user_metadata?.full_name,
+      learner?.user?.user_metadata?.name,
+    ]
+      .map((value) => typeof value === "string" ? value.trim().replace(/\s+/g, " ") : "")
+      .find((value) => value.length >= 2 && value.length <= 100) || null;
+
     const credentialCode = completionCredentialCode();
     const { data: insertedCertificate, error } = await admin
       .from("training_certificates")
@@ -120,6 +130,7 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
         metadata: {
           credential_type: "certificate_of_completion",
           public_profile_visible: false,
+          ...(recipientName ? { recipient_name: recipientName } : {}),
         },
       })
       .select("id,credential_code")

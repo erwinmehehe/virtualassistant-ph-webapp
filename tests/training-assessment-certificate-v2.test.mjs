@@ -47,7 +47,8 @@ test("public verification page renders a real printable certificate with a separ
   assert.match(page, /credential-seal/);
   assert.match(page, /credential-side-panel/);
   assert.match(page, /TrainingCertificateActions/);
-  assert.doesNotMatch(page, /learner name|full_name|email|phone/i);
+  assert.match(page, /credential\.recipientName/);
+  assert.doesNotMatch(page, /email|phone/i);
 
   assert.match(css, /\/\* Certificate document v2 \*\//);
   assert.match(css, /\.credential-card\.credential-certificate/);

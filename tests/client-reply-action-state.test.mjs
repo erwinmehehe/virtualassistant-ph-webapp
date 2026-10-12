@@ -73,5 +73,7 @@ test("Recruiter Today prioritizes assigned client replies", async () => {
   assert.match(today, /summary\.client_replies/);
   assert.match(today, /clientReplies/);
   assert.match(today, /client_email_reply/);
-  assert.match(today, /Reply to clients/);
+  const focus = await read("src/lib/recruiter-today-focus.ts");
+  assert.match(focus, /title: "Reply to clients"/);
+  assert.match(today, /recruiterTodayFocus/);
 });

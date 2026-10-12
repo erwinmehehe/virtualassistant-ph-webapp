@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, MessageSquare, RefreshCw, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { DashHeader } from "@/components/dash-ui";
 import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
@@ -583,7 +583,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       <div className="recruiter-today-more-content">
         <RecruiterOperationsNav current="today" taskCount={openTasks} notificationCount={unreadNotifications}/>
         <p className="small muted">
-          {timezoneNeedsConfirmation} client timezones to confirm · {dueClientActions.length} client follow-ups due · {roleNoCandidates} roles without candidates
+          {timezoneNeedsConfirmation} client timezones to confirm · {dueClientActions.length} client follow-ups due · {roleNoCandidates} roles without candidates · {handoffBlockedRoles.length} roles need setup before candidates can be sent
         </p>
 
     <section id="sales-closing" className={styles.closingCommandCenter} aria-labelledby="sales-closing-heading">

@@ -8,8 +8,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
-import { clientCanSelfPublishJob, isPublishableCompanyName, publicationMissingDetails } from "@/lib/job-publication";
-import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
+import { clientCanSelfPublishJob, isPublishableCompanyName, publicJobReviewSignals, publicationMissingDetails } from "@/lib/job-publication";
+import { assertPublicHiringContentSafe, hiringCircumventionSignals } from "@/lib/hiring-circumvention";
 import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
 function csv(value: FormDataEntryValue | null) {
@@ -79,18 +79,22 @@ export async function createJobAction(formData: FormData) {
     ? "managed_service"
     : "curated_placement";
 
-  if (submitMode !== "draft") {
-    assertPublicHiringContentSafe([
-      title,
-      companyName,
-      summary,
-      description,
-      responsibilities,
-      requiredSkills,
-      requiredTools,
-      String(formData.get("schedule_notes") ?? ""),
-      String(formData.get("onboarding_plan") ?? ""),
-    ]);
+  const publicationRollout = process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true";
+  const contentParts = [
+    title, companyName, summary, description, responsibilities, requiredSkills,
+    requiredTools, String(formData.get("schedule_notes") ?? ""),
+    String(formData.get("onboarding_plan") ?? ""),
+  ];
+  const reviewSignals = [
+    ...hiringCircumventionSignals(contentParts),
+    ...publicJobReviewSignals(contentParts),
+  ];
+  // Under the rollout, suspicious posts are saved for staff review but never
+  // publicly indexed. With the rollout off, preserve the existing strict
+  // submit rejection for contact/payment circumvention.
+  const needsModeration = publicationRollout && submitMode !== "draft" && reviewSignals.length > 0;
+  if (submitMode !== "draft" && !needsModeration) {
+    assertPublicHiringContentSafe(contentParts);
   }
 
   const admin = createAdminClient();
@@ -108,7 +112,7 @@ export async function createJobAction(formData: FormData) {
     serviceModel,
     legacyApproved,
     emailVerified: Boolean(user.email_confirmed_at),
-    verifiedClientRollout: process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true",
+    verifiedClientRollout: publicationRollout,
   });
   if (canSelfPublish && submitMode !== "draft") {
     const selfPublishMissing = publicationMissingDetails({
@@ -127,7 +131,7 @@ export async function createJobAction(formData: FormData) {
     }
   }
 
-  const selfPublish = canSelfPublish && submitMode !== "draft";
+  const selfPublish = canSelfPublish && submitMode !== "draft" && !needsModeration;
   const payload = {
     client_id: user.id,
     requested_va_id: requestedVaId,
@@ -153,6 +157,8 @@ export async function createJobAction(formData: FormData) {
     start_timing: startTiming || null,
     service_model: serviceModel,
     status: submitMode === "draft" ? "draft" : selfPublish ? "published" : "pending",
+    moderation_status: needsModeration ? "review" : "clear",
+    ...(needsModeration ? { rejection_note: `Held for content review: ${reviewSignals.join(", ")}.` } : {}),
     ...(submitMode === "draft"
       ? {}
       : { published_at: selfPublish ? new Date().toISOString() : null })
@@ -163,14 +169,26 @@ export async function createJobAction(formData: FormData) {
   let previousStatus: string | null = null;
   let savedStatus = payload.status;
   if (jobId) {
-    const { data: ownedJob } = await supabase.from("jobs").select("id,status,slug,title,published_at").eq("id", jobId).eq("client_id", user.id).single();
+    const { data: ownedJob } = await supabase.from("jobs").select("id,status,slug,title,published_at,moderation_status,rejection_note").eq("id", jobId).eq("client_id", user.id).single();
     if (!ownedJob) throw new Error("Job not found.");
     previousStatus = ownedJob.status;
     const shouldRefreshSlug = ["draft", "pending"].includes(ownedJob.status) && ownedJob.title !== title;
-    const preservePublished = submitMode !== "draft" && ownedJob.status === "published";
-    const statusAwarePayload = preservePublished
-      ? { ...payload, status: "published", published_at: ownedJob.published_at || new Date().toISOString() }
-      : payload;
+    // Staff content holds cannot be removed by a client editing or resubmitting.
+    const needsStaffReview = needsModeration || ownedJob.moderation_status !== "clear";
+    const preservePublished = submitMode !== "draft" && ownedJob.status === "published" && !needsStaffReview;
+    const statusAwarePayload = needsStaffReview
+      ? {
+          ...payload,
+          status: submitMode === "draft" ? "draft" : "pending",
+          moderation_status: "review",
+          published_at: null,
+          rejection_note: needsModeration
+            ? `Held for content review: ${reviewSignals.join(", ")}.`
+            : (ownedJob.rejection_note || "Staff review required before publication."),
+        }
+      : preservePublished
+        ? { ...payload, status: "published", published_at: ownedJob.published_at || new Date().toISOString() }
+        : payload;
     savedStatus = statusAwarePayload.status;
     const updatePayload = shouldRefreshSlug ? { ...statusAwarePayload, slug: await uniqueJobSlug(admin, title, jobId) } : statusAwarePayload;
     const { data, error } = await admin.from("jobs").update(updatePayload).eq("id", jobId).eq("client_id", user.id).select("id").single();
@@ -238,6 +256,14 @@ export async function createJobAction(formData: FormData) {
     publicJobForIndexing = data;
     if (publicJobForIndexing) {
       await notifyGoogleIndexingBestEffort(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`, "URL_UPDATED");
+    }
+  }
+  else if (previousStatus === "published" && savedStatus !== "published") {
+    // Editing an unsafe live post withdraws it from public search immediately.
+    const { data: withdrawn } = await admin.from("jobs").select("id,slug").eq("id", savedId).maybeSingle();
+    if (withdrawn) {
+      await notifyGoogleIndexingBestEffort(`/jobs/${withdrawn.slug || withdrawn.id}`, "URL_DELETED");
+      revalidatePath(`/jobs/${withdrawn.slug || withdrawn.id}`);
     }
   }
 

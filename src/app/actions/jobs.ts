@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
-import { clientCanSelfPublishJob, isPublishableCompanyName, publicJobReviewSignals, publicationMissingDetails } from "@/lib/job-publication";
+import { clientCanSelfPublishJob, isPublishableCompanyName, publicJobReviewSignals, publicationMissingDetails, resolveClientJobSubmitStatus } from "@/lib/job-publication";
 import { assertPublicHiringContentSafe, hiringCircumventionSignals } from "@/lib/hiring-circumvention";
 import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
@@ -131,7 +131,10 @@ export async function createJobAction(formData: FormData) {
     }
   }
 
-  const selfPublish = canSelfPublish && submitMode !== "draft" && !needsModeration;
+  const initialStatus = resolveClientJobSubmitStatus({
+    submitMode, canSelfPublish, needsModeration,
+  });
+  const selfPublish = initialStatus === "published";
   const payload = {
     client_id: user.id,
     requested_va_id: requestedVaId,
@@ -156,7 +159,7 @@ export async function createJobAction(formData: FormData) {
     experience_level: ["entry","intermediate","senior","expert"].includes(String(formData.get("experience_level") ?? "")) ? String(formData.get("experience_level")) : "intermediate",
     start_timing: startTiming || null,
     service_model: serviceModel,
-    status: submitMode === "draft" ? "draft" : selfPublish ? "published" : "pending",
+    status: initialStatus,
     moderation_status: needsModeration ? "review" : "clear",
     ...(needsModeration ? { rejection_note: `Held for content review: ${reviewSignals.join(", ")}.` } : {}),
     ...(submitMode === "draft"
@@ -175,11 +178,16 @@ export async function createJobAction(formData: FormData) {
     const shouldRefreshSlug = ["draft", "pending"].includes(ownedJob.status) && ownedJob.title !== title;
     // Staff content holds cannot be removed by a client editing or resubmitting.
     const needsStaffReview = needsModeration || ownedJob.moderation_status !== "clear";
+    const statusAfterEdit = resolveClientJobSubmitStatus({
+      submitMode, canSelfPublish, needsModeration,
+      previousStatus: ownedJob.status,
+      staffHold: ownedJob.moderation_status !== "clear",
+    });
     const preservePublished = submitMode !== "draft" && ownedJob.status === "published" && !needsStaffReview;
     const statusAwarePayload = needsStaffReview
       ? {
           ...payload,
-          status: submitMode === "draft" ? "draft" : "pending",
+          status: statusAfterEdit,
           moderation_status: "review",
           published_at: null,
           rejection_note: needsModeration
@@ -187,7 +195,7 @@ export async function createJobAction(formData: FormData) {
             : (ownedJob.rejection_note || "Staff review required before publication."),
         }
       : preservePublished
-        ? { ...payload, status: "published", published_at: ownedJob.published_at || new Date().toISOString() }
+        ? { ...payload, status: statusAfterEdit, published_at: ownedJob.published_at || new Date().toISOString() }
         : payload;
     savedStatus = statusAwarePayload.status;
     const updatePayload = shouldRefreshSlug ? { ...statusAwarePayload, slug: await uniqueJobSlug(admin, title, jobId) } : statusAwarePayload;

@@ -33,7 +33,9 @@ test("My Day removes duplicate summary layers and keeps a single next-action hie
   const page=await read("src/app/workspace/recruiter/today/page.tsx");
   assert.ok(page.includes("Work the next action, then clear the queue"));
   assert.ok(page.includes("newHiringRoles.length"));
-  assert.ok(page.includes("cleanupQueue.length"));
+  assert.ok(page.includes("recruiterTodayFocus"));
+  assert.ok(page.includes("Needs you today"));
+  assert.ok(page.includes("recruiter-today-more"));
   assert.ok(!page.includes("priorityStrip"));
   assert.ok(!page.includes("Four places to look"));
 });

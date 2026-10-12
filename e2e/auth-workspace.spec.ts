@@ -20,7 +20,7 @@ test("recruiter can enter recruiter workspace and is blocked from client workspa
 
   await page.goto("/workspace/client/company");
   await expect(page).toHaveURL(/\/workspace\/recruiter\/today/);
-  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Today", exact: true })).toBeVisible();
 });
 
 test("client can enter client workspace and is blocked from recruiter workspace", async ({ page }) => {

@@ -18,7 +18,8 @@ export async function prepareStandardPlacementTermsAction(formData:FormData){
     admin.from("job_commercials").select("job_id,commercial_status").eq("job_id",jobId).maybeSingle()
   ]);
   if(!job)throw new Error("Role not found.");
-  if(job.status!=="pending")throw new Error("Only pending roles can receive standard terms.");
+  if(!["pending","published"].includes(job.status))throw new Error("Only open roles can receive standard terms.");
+  if(job.moderation_status !== "clear")throw new Error("A held role needs admin content review before terms can be prepared.");
   if(job.service_model==="managed_service")throw new Error("Managed-service pricing is an admin exception and must be reviewed by Admin.");
   if(!job.client_id)throw new Error("Link the client account before preparing service terms.");
   if(existing?.commercial_status)redirect(`/workspace/recruiter/roles/${jobId}`);

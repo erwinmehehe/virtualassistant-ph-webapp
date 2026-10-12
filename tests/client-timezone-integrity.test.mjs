@@ -28,8 +28,8 @@ test("Recruiter Today elevates invalid active client timezones from the single s
   ]);
 
   assert.match(page, /summary\.timezone_confirmation_count/);
-  assert.match(page, /title:"Confirm client timezones"/);
-  assert.match(page, /href:"\/workspace\/recruiter\/crm\?view=timezone"/);
+  assert.match(page, /timezoneNeedsConfirmation/);
+  assert.match(page, /recruiter-today-more/);
   assert.doesNotMatch(page, /from\("lead_intake"\)/);
   assert.match(migration, /timezone_confirmation as/);
   assert.match(migration, /pg_catalog\.pg_timezone_names/);

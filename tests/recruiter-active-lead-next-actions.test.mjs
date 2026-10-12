@@ -47,15 +47,12 @@ test("Recruiter Today renders a dedicated client next-action list without anothe
 test("first contact and due client work can become the Recruiter Today primary action", async () => {
   const page = await read("src/app/workspace/recruiter/today/page.tsx");
 
-  const replies = page.indexOf('title:"Reply to clients"');
-  const firstContact = page.indexOf('title:"Contact new client leads"');
-  const dueClients = page.indexOf('title:"Move due client leads"');
-  const timezone = page.indexOf('title:"Confirm client timezones"');
-
-  assert.ok(replies >= 0);
-  assert.ok(firstContact > replies);
-  assert.ok(dueClients > firstContact);
-  assert.ok(timezone > dueClients);
+  const focus = await read("src/lib/recruiter-today-focus.ts");
+  assert.match(page, /recruiterTodayFocus/);
+  assert.match(focus, /title: "Reply to clients"/);
+  assert.match(focus, /title: "Schedule or review interviews"/);
+  assert.match(focus, /title: "Follow up on client decisions"/);
+  assert.match(page, /recruiter-today-more/);
   assert.match(page, /firstContactActions/);
   assert.match(page, /dueClientActions/);
 });

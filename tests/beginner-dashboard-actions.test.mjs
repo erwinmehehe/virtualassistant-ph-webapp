@@ -52,6 +52,9 @@ test("fee waiver and paid entitlements are both unlocked, without unlocking a lo
   assert.equal(resolveClientHomeAction(client({ shortlists: shortlist, access: [{ job_id:"r1", access_status:"paid" }] })).tone, "decision");
   assert.equal(resolveClientHomeAction(client({ shortlists: shortlist, access: [{ job_id:"r1", access_status:"comped" }] })).label, "Review candidates");
   assert.equal(resolveClientHomeAction(client({ shortlists: shortlist, access: [{ job_id:"r1", access_status:"locked" }] })).tone, "waiting");
+  const held = [{ job_id: "r1", client_decision: "hold" }];
+  assert.equal(resolveClientHomeAction(client({ shortlists: held, access: [{ job_id:"r1", access_status:"comped" }] })).tone, "waiting");
+  assert.equal(resolveClientHomeAction(client({ shortlists: held, access: [{ job_id:"r1", access_status:"comped" }] })).label, "See hiring progress");
 });
 
 test("client work review and terms outrank routine hiring updates; setup never resets an active placement", () => {

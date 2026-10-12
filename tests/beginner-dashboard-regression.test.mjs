@@ -8,10 +8,10 @@ test("client and VA get four simple primary tabs and all other tools stay availa
   const nav = await read("src/components/app-nav-links.tsx");
   const client = nav.slice(nav.indexOf("  client: ["), nav.indexOf("  va: ["));
   const va = nav.slice(nav.indexOf("  va: ["), nav.indexOf("  recruiter: ["));
-  for (const label of ["Home", "Hiring", "Messages", "My Team"]) assert.match(client, new RegExp(`\["${label}",`));
-  for (const label of ["Home", "Jobs", "Applications", "Messages"]) assert.match(va, new RegExp(`\["${label}",`));
-  for (const label of ["Payments", "Proposals", "Support"]) assert.match(client, new RegExp(`\["${label}",`));
-  for (const label of ["My Work", "Profile", "Screening", "Payouts"]) assert.match(va, new RegExp(`\["${label}",`));
+  for (const label of ["Home", "Hiring", "Messages", "My Team"]) assert.match(client, new RegExp(`\\["${label}",`));
+  for (const label of ["Home", "Jobs", "Applications", "Messages"]) assert.match(va, new RegExp(`\\["${label}",`));
+  for (const label of ["Payments", "Proposals", "Support"]) assert.match(client, new RegExp(`\\["${label}",`));
+  for (const label of ["My Work", "Profile", "Screening", "Payouts"]) assert.match(va, new RegExp(`\\["${label}",`));
   assert.match(nav, /workspace-nav-more/);
   assert.match(nav, /va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/applications", "\/workspace\/va\/messages"\]/);
 });

@@ -271,7 +271,7 @@ export async function createJobAction(formData: FormData) {
       await notifyGoogleIndexingBestEffort(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`, "URL_UPDATED");
     }
   }
-  else if (previousStatus === "published" && savedStatus !== "published") {
+  else if (previousStatus === "published") {
     // Editing an unsafe live post withdraws it from public search immediately.
     const { data: withdrawn } = await admin.from("jobs").select("id,slug").eq("id", savedId).maybeSingle();
     if (withdrawn) {

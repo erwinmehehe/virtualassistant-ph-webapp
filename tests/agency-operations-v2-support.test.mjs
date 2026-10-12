@@ -65,6 +65,6 @@ test("work readiness is private VA evidence with recruiter verification",()=>{
   assert.match(recruiterReadiness,/Verify work setup/);
   assert.match(clientTeam,/Work setup verified/);
   assert.doesNotMatch(clientTeam,/primary_internet|backup_internet|work_setup_computer/);
-  assert.match(nav,/\["Work Readiness", "\/workspace\/va\/work-readiness"/);
+  assert.match(nav,/\["Work Setup", "\/workspace\/va\/work-readiness"/);
   assert.match(nav,/\["Work Readiness", "\/workspace\/recruiter\/work-readiness"/);
 });

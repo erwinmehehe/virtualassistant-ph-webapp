@@ -48,6 +48,27 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
   return missing;
 }
 
+/** A complete curated-placement role can be published without waiting for
+ * commercial approval. Candidate identity/access remains separately gated.
+ * The email-verified rollout is default-off; legacy admin permission still works. */
+export function clientCanSelfPublishJob({
+  serviceModel,
+  emailVerified,
+  legacyAdminGrant,
+  legacyClientVerified,
+  verifiedClientRollout,
+}: {
+  serviceModel: string;
+  emailVerified: boolean;
+  legacyAdminGrant: boolean;
+  legacyClientVerified: boolean;
+  verifiedClientRollout: boolean;
+}) {
+  if (serviceModel !== "curated_placement") return false;
+  return (legacyAdminGrant && legacyClientVerified) ||
+    (verifiedClientRollout && emailVerified);
+}
+
 export function publicationBlocker(job: PublicationJob, commercial?: PublicationCommercial): {
   key: PublicationBlocker;
   label: string;

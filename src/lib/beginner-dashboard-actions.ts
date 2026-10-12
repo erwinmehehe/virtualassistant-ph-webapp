@@ -122,7 +122,7 @@ export function resolveClientHomeAction(input: {
 
   const readyShortlist = shortlists.find((row) =>
     active.some((role) => role.id === row.job_id && role.status === "published" && role.moderation_status !== "review") &&
-    (!row.client_decision || row.client_decision === "hold") &&
+    !row.client_decision &&
     ["paid", "comped"].includes(access.find((item) => item.job_id === row.job_id)?.access_status || "")
   );
   if (readyShortlist) return {
@@ -134,7 +134,7 @@ export function resolveClientHomeAction(input: {
   };
 
   const lockedShortlist = shortlists.find((row) =>
-    activeIds.has(row.job_id) && (!row.client_decision || row.client_decision === "hold") &&
+    activeIds.has(row.job_id) && !row.client_decision &&
     !["paid", "comped"].includes(access.find((item) => item.job_id === row.job_id)?.access_status || "")
   );
   if (lockedShortlist) return {

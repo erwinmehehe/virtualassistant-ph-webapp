@@ -55,6 +55,7 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
         <Link className="text-link small" href="/workspace/client/jobs">← Hiring requests</Link>
         <div className="kicker" style={{marginTop:10}}>{fromPublicDraft ? "Final review" : "Post a Virtual Assistant job"}</div>
         <h1>{fromPublicDraft ? "Review and post your job" : "Tell us who you need"}</h1>
+        <p className="small muted">Public job listings display your company name. You can control which additional company details appear in <Link className="text-link" href="/workspace/client/company">Company profile</Link>.</p>
         <p>{fromPublicDraft
           ? "Check the role, schedule and budget below. You can edit anything before you submit."
           : canSelfPublishJobs

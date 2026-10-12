@@ -7,14 +7,14 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("recruiter navigation is centered on the hiring workflow", async () => {
   const nav = await read("src/components/app-nav-links.tsx");
 
-  for (const label of ["My Day", "Clients", "Discovery", "Client messages", "VA messages", "Roles", "Talent", "Performance", "Finance"]) {
+  for (const label of ["Today", "Roles", "Talent", "Inbox", "Clients", "Discovery", "VA messages", "Performance", "Finance"]) {
     assert.match(nav, new RegExp(`\\["${label}"`));
   }
   assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
   assert.doesNotMatch(nav, /\["Placements", "\/workspace\/recruiter\/placements"/);
   assert.doesNotMatch(nav, /\["Agency Funnel", "\/workspace\/recruiter\/funnel"/);
   assert.doesNotMatch(nav, /\["Recruiting Analytics", "\/workspace\/recruiter\/analytics"/);
-  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/crm", "\/workspace\/recruiter\/messages", "\/workspace\/recruiter\/roles"\]/);
+  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/roles", "\/workspace\/recruiter\/talent", "\/workspace\/recruiter\/messages"\]/);
 });
 
 test("Recruiter Today has one next-action layer and no duplicate talent dashboard", async () => {

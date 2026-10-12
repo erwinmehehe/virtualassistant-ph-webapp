@@ -77,7 +77,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
     ...(["needs_candidates","ready_to_send","shortlist_blocked","client_review","waiting_client","interviewing","intervention","stale","replacement","ready_offer"] as const).map((key)=>[key,open.filter((job)=>roleFlags(job)[key]).length] as [string,number])
   ]);
   const visibleJobs=focusStageParam
-    ? jobs.filter((job) => job.hiring_stage !== "closed" && focusStage(job) === focusStageParam)
+    ? jobs.filter((job) => job.status !== "closed" && job.hiring_stage !== "closed" && focusStage(job) === focusStageParam)
     : requestedView==="history"?[...history]:requestedView==="active"?[...open]:open.filter((job)=>(roleFlags(job) as Record<string,boolean>)[requestedView]);
   visibleJobs.sort((a,b)=>{
     const aTime=new Date(a.hiring_stage_entered_at||a.created_at).getTime();

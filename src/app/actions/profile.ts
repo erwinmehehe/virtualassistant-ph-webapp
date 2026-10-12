@@ -422,7 +422,7 @@ export async function completeClientOnboardingAction(formData: FormData) {
   const budgetMaxInput = String(formData.get("budget_max") ?? "").trim();
   const budgetMin = Number(budgetMinInput);
   const budgetMax = Number(budgetMaxInput);
-  if (fullName.length < 2 || companyName.length < 2 || timezone.length < 2 || hiringNeeds.length < 20) {
+  if (fullName.length < 2 || companyName.length < 2 || hiringNeeds.length < 20) {
     redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Complete the required onboarding details.")}`);
   }
   if (!timezone) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Choose a valid timezone, such as Asia/Manila or America/New_York.")}`);

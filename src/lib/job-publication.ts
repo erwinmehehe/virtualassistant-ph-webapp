@@ -11,6 +11,7 @@ export type PublicationBlocker =
 
 export type PublicationJob = {
   status?: string | null;
+  moderation_status?: string | null;
   client_id?: string | null;
   recruiter_managed_public?: boolean | null;
   title?: string | null;
@@ -102,7 +103,15 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
   label: string;
   detail: string;
 } {
-  if (job.status === "published" && job.recruiter_managed_public) {
+  if (job.moderation_status && job.moderation_status !== "clear") {
+    return {
+      key: "needs_role_review",
+      label: "Content review needed",
+      detail: "This role is held from public search while staff reviews its content.",
+    };
+  }
+
+  if (job.status === "published" && job.recruiter_managed_public && !job.client_id) {
     const missing = publicationMissingDetails(job);
     if (missing.length) {
       return {

@@ -69,8 +69,8 @@ export function focusRoleAction(role: FocusRole) {
 export function recruiterTodayFocus(roles: FocusRole[], signals: FocusSignals) {
   // The unit of attention is a role, not an event: never repeat a job ID.
   const uniqueRoles = [...new Map(roles.map((role) => [role.id, role])).values()];
-  const ongoing = uniqueRoles.filter((role) => !["filled", "closed"].includes(role.hiring_stage));
-  const pipelineRoles = uniqueRoles.filter((role) => role.hiring_stage !== "closed");
+  const ongoing = uniqueRoles.filter((role) => role.status !== "closed" && !["filled", "closed"].includes(role.hiring_stage));
+  const pipelineRoles = uniqueRoles.filter((role) => role.status !== "closed" && role.hiring_stage !== "closed");
   const stages = { new: 0, matching: 0, client: 0, interview: 0 };
   for (const role of pipelineRoles) stages[focusStage(role)] += 1;
 

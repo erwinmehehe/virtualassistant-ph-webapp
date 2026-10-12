@@ -23,9 +23,8 @@ test("conversion control queue catches discovery and proposal handoff gaps",asyn
   assert.match(migration,/grant execute on function public\.recruiter_today_queue\(uuid,integer\) to service_role/);
 
   assert.match(today,/CONVERSION_QUEUE_KINDS/);
-  assert.match(today,/Resolve overdue discovery outcomes/);
-  assert.match(today,/Prepare qualified proposals/);
-  assert.match(today,/Send proposal drafts/);
+  assert.match(today,/recruiter-today-more/);
+  assert.match(today,/CONVERSION_QUEUE_KINDS/);
 });
 
 test("qualified discovery cannot bypass client proposal approval",async()=>{

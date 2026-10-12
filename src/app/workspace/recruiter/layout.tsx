@@ -1,5 +1,6 @@
 export const metadata = { robots: { index: false, follow: false } };
 import "./recruiter-mobile.css";
+import "./recruiter-simplified.css";
 import { requireRoleFast } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 

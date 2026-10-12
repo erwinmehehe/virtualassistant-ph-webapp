@@ -298,8 +298,9 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const jobId = String(formData.get("job_id") ?? "");
   if (formData.get("fee_ack") !== "on") throw new Error("Please confirm that the service fee is separate from VA compensation.");
   const supabase = await createClient();
-  const { data: job } = await supabase.from("jobs").select("id,status,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan").eq("id",jobId).eq("client_id",user.id).single();
+  const { data: job } = await supabase.from("jobs").select("id,status,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan,moderation_status").eq("id",jobId).eq("client_id",user.id).single();
   if (!job) throw new Error("Job not found.");
+  if (job.moderation_status !== "clear") throw new Error("This job is held for content review. Contact your recruiter before proceeding.");
   if (job.min_hourly_rate == null || Number(job.min_hourly_rate) < MIN_HOURLY_RATE) throw new Error(`Raise the VA budget to at least USD ${MIN_HOURLY_RATE}/hour before publishing.`);
   assertPublicHiringContentSafe([job.title, job.company_name, job.summary, job.description, job.responsibilities, job.required_skills, job.required_tools, job.schedule_notes, job.onboarding_plan]);
   const missing = publicationMissingDetails(job);

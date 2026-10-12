@@ -7,7 +7,7 @@ import { BLOG_POSTS, blogHref, blogPostBySlug } from "@/lib/blog";
 import { canonicalPath } from "@/lib/seo-url";
 import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso, archiveUpdatedIso } from "@/lib/archive";
 import { ArchiveArticle } from "@/components/archive-article";
-import { organizationRef } from "@/lib/organization";
+import { organizationId, websiteId } from "@/lib/organization";
 import { socialMetadata } from "@/lib/og";
 
 export function generateStaticParams() {
@@ -79,26 +79,50 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post || post.legacyPath) {
     const archived = archivePostBySlug(slug);
     if (!archived || archived.legacyPath) notFound();
-    const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
+    const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
     const archiveUrl = `${base}/blog/${archived.slug}`;
+    const archiveArticleId = `${archiveUrl}#article`;
+    const archiveWebpageId = `${archiveUrl}#webpage`;
+    const archiveBreadcrumbId = `${archiveUrl}#breadcrumb`;
+    const orgId = organizationId(base);
+    const siteId = websiteId(base);
+    const editorialTeamId = `${base}/authors/editorial-team#organization`;
     const archiveSchema = {
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "WebPage",
+          "@id": archiveWebpageId,
+          url: archiveUrl,
+          name: archived.metaTitle || archived.title,
+          description: archived.metaDescription || archived.excerpt,
+          inLanguage: "en-PH",
+          isPartOf: { "@id": siteId },
+          about: { "@id": archiveArticleId },
+          mainEntity: { "@id": archiveArticleId },
+          breadcrumb: { "@id": archiveBreadcrumbId },
+          publisher: { "@id": orgId }
+        },
+        {
           "@type": "Article",
-          "@id": `${archiveUrl}#article`,
+          "@id": archiveArticleId,
           headline: archived.title,
           description: archived.excerpt,
           datePublished: archivePublishedIso(archived),
           ...(archiveUpdatedIso(archived) ? { dateModified: archiveUpdatedIso(archived) } : {}),
-          mainEntityOfPage: archiveUrl,
+          mainEntityOfPage: { "@id": archiveWebpageId },
           articleSection: archived.tag,
-          author: { "@type": "Organization", name: "VirtualAssistant.com.ph Editorial Team", url: `${base}/authors/editorial-team` },
-          publisher: organizationRef(base)
+          author: {
+            "@type": "Organization",
+            "@id": editorialTeamId,
+            name: "VirtualAssistant.com.ph Editorial Team",
+            url: `${base}/authors/editorial-team`
+          },
+          publisher: { "@id": orgId }
         },
         {
           "@type": "BreadcrumbList",
-          "@id": `${archiveUrl}#breadcrumb`,
+          "@id": archiveBreadcrumbId,
           itemListElement: [
             { "@type": "ListItem", position: 1, name: "Home", item: base },
             { "@type": "ListItem", position: 2, name: "Blog", item: `${base}/blog` },
@@ -109,21 +133,44 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     };
     return <><SiteHeader/><main id="main-content"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(archiveSchema).replace(/</g,"\\u003c") }}/><ArchiveArticle post={archived}/></main><SiteFooter/></>;
   }
-  const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const url = `${base}${blogHref(post)}`;
   const articleKeywords = [post.title, post.clusterLabel, `${post.clusterLabel} Philippines`, "Virtual Assistant Philippines", ...(post.industrySlugs || [])].join(", ");
+  const articleId = `${url}#article`;
+  const webpageId = `${url}#webpage`;
+  const breadcrumbId = `${url}#breadcrumb`;
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+  const editorialTeamId = `${base}/authors/editorial-team#organization`;
+  const authorId = post.author === "Christ Hemsworthy"
+    ? `${base}/authors/christ-hemsworthy#person`
+    : editorialTeamId;
+
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url,
+        name: post.title,
+        description: post.description,
+        inLanguage: "en-PH",
+        isPartOf: { "@id": siteId },
+        about: { "@id": articleId },
+        mainEntity: { "@id": articleId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId }
+      },
+      {
         "@type": "Article",
-        "@id": `${base}${blogHref(post)}#article`,
+        "@id": articleId,
         headline: post.title,
         description: post.description,
         keywords: articleKeywords,
         datePublished: post.publishedAt,
         ...(post.updatedAt !== post.publishedAt ? { dateModified: post.updatedAt } : {}),
-        mainEntityOfPage: url,
+        mainEntityOfPage: { "@id": webpageId },
         articleSection: post.clusterLabel,
         inLanguage: "en-PH",
         isAccessibleForFree: true,
@@ -138,19 +185,27 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         } : {}),
         author: {
           "@type": post.author.includes("Editorial") ? "Organization" : "Person",
+          "@id": authorId,
           name: post.author,
           url: `${base}${post.author === "Christ Hemsworthy" ? "/authors/christ-hemsworthy" : "/authors/editorial-team"}`
         },
-        ...(post.reviewedBy ? { reviewedBy: { "@type": "Organization", name: post.reviewedBy, url: `${base}/authors/editorial-team` } } : {}),
-        publisher: organizationRef(base)
+        ...(post.reviewedBy ? {
+          reviewedBy: {
+            "@type": "Organization",
+            "@id": editorialTeamId,
+            name: post.reviewedBy,
+            url: `${base}/authors/editorial-team`
+          }
+        } : {}),
+        publisher: { "@id": orgId }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": `${base}${blogHref(post)}#breadcrumb`,
+        "@id": breadcrumbId,
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: base },
           { "@type": "ListItem", position: 2, name: "Blog", item: `${base}/blog` },
-          { "@type": "ListItem", position: 3, name: post.title, item: `${base}${blogHref(post)}` }
+          { "@type": "ListItem", position: 3, name: post.title, item: url }
         ]
       }
     ]

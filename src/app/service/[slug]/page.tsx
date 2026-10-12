@@ -32,9 +32,9 @@ import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata, serviceOgCategory } from "@/lib/og";
+import { organizationId, websiteId } from "@/lib/organization";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
-import { organizationId } from "@/lib/organization";
 import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
 import { softwarePagesForTools } from "@/lib/software-pages";
@@ -622,34 +622,69 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       },
     }));
 
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "@id": `${pageUrl}#service`,
-      name: serviceMetaTitle(s),
-      serviceType: `${s.name} Services`,
-      url: pageUrl,
-      description: serviceMetaDescription(s),
-      provider: { "@id": organizationId(base) },
-      areaServed: serviceAreas,
-      hasOfferCatalog: {
-        "@type": "OfferCatalog",
-        name: `${roleName(s.name)} VA Capabilities`,
-        itemListElement: serviceCapabilities,
+  const serviceId = `${pageUrl}#service`;
+  const webpageId = `${pageUrl}#webpage`;
+  const breadcrumbId = `${pageUrl}#breadcrumb`;
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+  const serviceLanguage = s.locale || "en-US";
+
+  const serviceAreaNames: Record<string, string> = {
+    US: "United States",
+    AU: "Australia",
+    CA: "Canada",
+    GB: "United Kingdom",
+    NZ: "New Zealand",
+  };
+  const areaServed = serviceAreas.map((countryCode) => ({
+    "@type": "Country",
+    name: serviceAreaNames[countryCode] || countryCode,
+  }));
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url: pageUrl,
+        name: serviceMetaTitle(s),
+        description: serviceMetaDescription(s),
+        inLanguage: serviceLanguage,
+        isPartOf: { "@id": siteId },
+        about: { "@id": serviceId },
+        mainEntity: { "@id": serviceId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId },
       },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "@id": `${pageUrl}#breadcrumb`,
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: base },
-        { "@type": "ListItem", position: 2, name: "Virtual Assistant Services", item: `${base}/services` },
-        { "@type": "ListItem", position: 3, name: s.name, item: pageUrl }
-      ]
-    }
-  ];
+      {
+        "@type": "Service",
+        "@id": serviceId,
+        name: serviceMetaTitle(s),
+        serviceType: `${s.name} Services`,
+        url: pageUrl,
+        description: serviceMetaDescription(s),
+        mainEntityOfPage: { "@id": webpageId },
+        provider: { "@id": orgId },
+        areaServed,
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          "@id": `${serviceId}-offers`,
+          name: `${roleName(s.name)} VA Capabilities`,
+          itemListElement: serviceCapabilities,
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: base },
+          { "@type": "ListItem", position: 2, name: "Virtual Assistant Services", item: `${base}/services` },
+          { "@type": "ListItem", position: 3, name: s.name, item: pageUrl }
+        ]
+      }
+    ]
+  };
 
   return <>
     <SiteHeader />

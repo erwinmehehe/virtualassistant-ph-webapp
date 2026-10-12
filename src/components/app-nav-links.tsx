@@ -41,20 +41,20 @@ const nav: Record<Role, readonly NavGroup[]> = {
     {
       label: "Workspace",
       items: [
-        ["Overview", "/workspace/client", LayoutDashboard],
+        ["Home", "/workspace/client", LayoutDashboard],
         ["Hiring", "/workspace/client/jobs", BriefcaseBusiness],
         ["Messages", "/workspace/client/messages", MessageCircle],
         ["My Team", "/workspace/client/team", UsersRound],
-        ["Payments", "/workspace/client/payments", CircleDollarSign],
-        ["Account settings", "/workspace/account", Settings],
       ],
     },
     {
       label: "More",
       items: [
+        ["Payments", "/workspace/client/payments", CircleDollarSign],
         ["Proposals", "/workspace/client/proposals", FileText],
         ["Notifications", "/workspace/client/notifications", Bell],
         ["Support", "/workspace/client/support", LifeBuoy],
+        ["Account settings", "/workspace/account", Settings],
       ],
     },
   ],
@@ -63,22 +63,22 @@ const nav: Record<Role, readonly NavGroup[]> = {
       label: "Workspace",
       items: [
         ["Home", "/workspace/va", LayoutDashboard],
-        ["Find Jobs", "/workspace/va/jobs", Search],
+        ["Jobs", "/workspace/va/jobs", Search],
         ["Applications", "/workspace/va/applications", BriefcaseBusiness],
-        ["Profile", "/workspace/va/profile", CircleUserRound],
-        ["My Placement", "/workspace/va/workroom", Wrench],
-        ["Recruiter messages", "/workspace/va/messages", MessageCircle],
-        ["Account settings", "/workspace/account", Settings],
+        ["Messages", "/workspace/va/messages", MessageCircle],
       ],
     },
     {
-      label: "Growth & support",
+      label: "More",
       items: [
-        ["Vetting", "/workspace/va/vetting", ShieldCheck],
-        ["Work Readiness", "/workspace/va/work-readiness", ClipboardCheck],
+        ["My Work", "/workspace/va/workroom", Wrench],
+        ["Profile", "/workspace/va/profile", CircleUserRound],
+        ["Screening", "/workspace/va/vetting", ShieldCheck],
+        ["Work Setup", "/workspace/va/work-readiness", ClipboardCheck],
         ["Training", "/workspace/training", GraduationCap],
         ["Payouts", "/workspace/va/payments", CircleDollarSign],
         ["Support", "/workspace/va/support", LifeBuoy],
+        ["Account settings", "/workspace/account", Settings],
       ],
     },
   ],
@@ -136,7 +136,7 @@ const nav: Record<Role, readonly NavGroup[]> = {
 
 const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/messages", "/workspace/client/team"],
-  va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/workroom"],
+  va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/messages"],
   recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/roles", "/workspace/recruiter/talent", "/workspace/recruiter/messages"],
   admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
 };
@@ -236,9 +236,9 @@ export function AppNavLinks({ role, badges = {} }: { role: Role; badges?: Record
     <>
       <nav className="app-nav app-nav-desktop" aria-label="Workspace navigation">
         {desktopGroups.map((group) =>
-          role === "recruiter" && group.label === "More" ? (
-            <details className="recruiter-nav-more" key={group.label}>
-              <summary>More recruiter tools</summary>
+          ["recruiter", "client", "va"].includes(role) && group.label === "More" ? (
+            <details className={role === "recruiter" ? "recruiter-nav-more" : "workspace-nav-more"} key={group.label}>
+              <summary>{role === "recruiter" ? "More recruiter tools" : "More tools"}</summary>
               <div className="app-nav-group">
                 {group.items.map((item) => renderItem(item))}
               </div>

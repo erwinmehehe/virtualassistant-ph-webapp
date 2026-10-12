@@ -311,8 +311,9 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const jobId = String(formData.get("job_id") ?? "");
   if (formData.get("fee_ack") !== "on") throw new Error("Please confirm that the service fee is separate from VA compensation.");
   const supabase = await createClient();
-  const { data: job } = await supabase.from("jobs").select("id,status,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan,moderation_status").eq("id",jobId).eq("client_id",user.id).single();
+  const { data: job } = await supabase.from("jobs").select("id,status,published_at,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan,moderation_status").eq("id",jobId).eq("client_id",user.id).single();
   if (!job) throw new Error("Job not found.");
+  if (!["pending", "published"].includes(job.status)) throw new Error("Only an open role can accept service terms.");
   if (job.moderation_status !== "clear") throw new Error("This job is held for content review. Contact your recruiter before proceeding.");
   if (job.min_hourly_rate == null || Number(job.min_hourly_rate) < MIN_HOURLY_RATE) throw new Error(`Raise the VA budget to at least USD ${MIN_HOURLY_RATE}/hour before publishing.`);
   assertPublicHiringContentSafe([job.title, job.company_name, job.summary, job.description, job.responsibilities, job.required_skills, job.required_tools, job.schedule_notes, job.onboarding_plan]);
@@ -321,13 +322,16 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const { data: commercial } = await supabase.from("job_commercials").select("commercial_status").eq("job_id",jobId).single();
   if (!commercial || commercial.commercial_status !== "quoted") throw new Error("The service fee is not ready for acceptance.");
   const admin = createAdminClient();
-  // Publish first with a current-state condition; staff may have held the role
-  // after it was read. Do not mark terms accepted when publishing was blocked.
-  const publishedAt = new Date().toISOString();
+  // A job may already be public under verified self-publishing. Accepting
+  // commercial terms for it must not reset its publication date/expiry.
+  // Recheck the live moderation status so a staff hold always wins.
+  const acceptedAt = new Date().toISOString();
+  const alreadyPublished = job.status === "published";
+  const publishedAt = job.published_at || acceptedAt;
   const { data: publishedJob, error: publishError } = await admin.from("jobs")
-    .update({status:"published",published_at:publishedAt})
+    .update(alreadyPublished ? { updated_at: acceptedAt } : {status:"published",published_at:acceptedAt})
     .eq("id",jobId).eq("client_id",user.id)
-    .eq("status", "pending").eq("moderation_status", "clear")
+    .eq("status", job.status).eq("moderation_status", "clear")
     .select("id,client_id,title,slug,categories,required_skills,required_tools,hours_per_week,overlap_hours")
     .maybeSingle();
   if (publishError) throw publishError;
@@ -335,7 +339,10 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const { error: acceptanceError } = await admin.from("job_commercials")
     .update({commercial_status:"accepted"}).eq("job_id",jobId).eq("commercial_status","quoted");
   if (acceptanceError) throw acceptanceError;
-  if (publishedJob) {
+  // Keep existing first-placement access behavior only for the legacy
+  // pending→published route. An already-public job must not silently replace
+  // its separately priced candidate-access status with a free access record.
+  if (publishedJob && !alreadyPublished) {
     await admin.from("job_candidate_access").upsert({
       job_id: jobId,
       access_status: "comped",
@@ -346,8 +353,8 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   }
 
   if (publishedJob) {
-    await notifyGoogleIndexingBestEffort(`/jobs/${publishedJob.slug || publishedJob.id}`, "URL_UPDATED");
-    await recordProductEvent("job_published", { userId: user.id, path: `/workspace/client/jobs/${jobId}`, metadata: { job_id: jobId } });
+    if (!alreadyPublished) await notifyGoogleIndexingBestEffort(`/jobs/${publishedJob.slug || publishedJob.id}`, "URL_UPDATED");
+    if (!alreadyPublished) await recordProductEvent("job_published", { userId: user.id, path: `/workspace/client/jobs/${jobId}`, metadata: { job_id: jobId } });
     try {
       const { autoReleaseTopMatches } = await import("@/lib/auto-matching");
       await autoReleaseTopMatches(publishedJob);
@@ -358,6 +365,7 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   }
 
   revalidatePath(`/workspace/client/jobs/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/workspace/client");
   revalidatePath("/jobs");

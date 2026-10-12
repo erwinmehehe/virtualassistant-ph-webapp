@@ -32,14 +32,18 @@ test("services hub covers every service group, including UK expansion groups", a
   assert.match(hub, /Browse services by workflow/);
 });
 
-test("software hub exposes workflow category overview and every registry category", async () => {
-  const [hub, registry] = await Promise.all([
+test("software hub groups all registry categories through a searchable directory", async () => {
+  const [hub, directory, registry] = await Promise.all([
     readFile("src/app/software/page.tsx", "utf8"),
+    readFile("src/components/software-directory.tsx", "utf8"),
     readFile("src/lib/software-pages.ts", "utf8"),
   ]);
 
-  assert.match(hub, /Browse software by workflow/);
-  assert.match(hub, /\[\.\.\.groups\.entries\(\)\]/);
+  assert.match(hub, /softwarePages\.map\(\(\{ slug, software, category, focus, tasks \}\)/);
+  assert.match(hub, /<SoftwareDirectory guides=\{guidePreviews\}/);
+  assert.match(directory, /new Set\(guides\.map\(\(guide\) => guide\.category\)\)/);
+  assert.match(directory, /guide\.category === category/);
+  assert.match(directory, /searchableText\(guide\)/);
   for (const category of ["Lettings & Property", "Mortgage & Finance", "Accounting & Payroll"]) {
     assert.ok(registry.includes(`category: "${category}"`), `Missing UK software category: ${category}`);
   }

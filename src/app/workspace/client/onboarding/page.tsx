@@ -45,18 +45,18 @@ export default async function ClientOnboardingPage({ searchParams }: { searchPar
           <span>Admin & scheduling</span><span>Customer support</span><span>Sales / lead generation</span><span>Social media</span><span>Bookkeeping</span><span>E-commerce</span>
         </div>
         <div className="field client-onboarding-needs">
-          <label>What would you like this person to handle?</label>
-          <textarea name="hiring_needs" required minLength={20} maxLength={1200} defaultValue={company?.hiring_needs||company?.hiring_notes||""} placeholder="Example: Manage our Shopify inbox, keep product listings current, coordinate weekly promotions, and flag customer issues that need me."/>
+          <label htmlFor="client-onboarding-needs">What would you like this person to handle?</label>
+          <textarea id="client-onboarding-needs" name="hiring_needs" required minLength={20} maxLength={1200} defaultValue={company?.hiring_needs||company?.hiring_notes||""} placeholder="Example: Manage our Shopify inbox, keep product listings current, coordinate weekly promotions, and flag customer issues that need me."/>
           <span className="small muted">A few specific outcomes are better than a formal job description.</span>
         </div>
 
         <details className="client-onboarding-company-details" open={!company?.company_name||!company?.timezone}>
           <summary><Building2 size={16}/> Company details</summary>
           <div className="form-grid client-onboarding-company-grid">
-            <div className="field"><label>Your name</label><input name="full_name" required minLength={2} maxLength={100} defaultValue={profile.full_name||""}/></div>
-            <div className="field"><label>Company name</label><input name="company_name" required minLength={2} maxLength={140} defaultValue={company?.company_name||""}/><span className="small muted">If you publish a job, this company name will appear on the public listing. Personal contact details stay private.</span></div>
+            <div className="field"><label htmlFor="client-onboarding-name">Your name</label><input id="client-onboarding-name" name="full_name" required minLength={2} maxLength={100} defaultValue={profile.full_name||""}/></div>
+            <div className="field"><label htmlFor="client-onboarding-company">Company name</label><input id="client-onboarding-company" name="company_name" required minLength={2} maxLength={140} defaultValue={company?.company_name||""}/><span className="small muted">If you publish a job, this company name will appear on the public listing. Personal contact details stay private.</span></div>
             <div className="field"><label htmlFor="client-onboarding-timezone">Working timezone</label><input id="client-onboarding-timezone" name="timezone" list="client-timezone-options" required placeholder="Choose a timezone, e.g. Asia/Manila" defaultValue={company?.timezone||""}/><datalist id="client-timezone-options">{TIMEZONE_SUGGESTIONS.map((zone)=><option key={zone.value} value={zone.value} label={zone.label}/>)}</datalist><span className="small muted">Pick from the suggestions or enter another valid IANA timezone (City/Region).</span></div>
-            <div className="field"><label>Company or team location <span className="muted">(optional)</span></label><input name="location" defaultValue={company?.location||""} placeholder="Sydney, Australia"/></div>
+            <div className="field"><label htmlFor="client-onboarding-location">Company or team location <span className="muted">(optional)</span></label><input id="client-onboarding-location" name="location" defaultValue={company?.location||""} placeholder="Sydney, Australia"/></div>
           </div>
         </details>
       </section>

@@ -39,7 +39,9 @@ test("client dashboard exposes direct job-posting entry points", async () => {
   ]);
 
   assert.match(dashboard, /href="\/workspace\/client\/jobs\/new"><Plus size=\{17\}\/> Post a job/);
-  assert.match(dashboard, /Post your first VA job/);
+  assert.match(dashboard, /resolveClientHomeAction/);
+  const actions = await read("src/lib/beginner-dashboard-actions.ts");
+  assert.match(actions, /Post your first job/);
   assert.match(dashboard, /label:"Post a job"/);
   assert.match(jobs, /href="\/workspace\/client\/jobs\/new"/);
   assert.match(jobs, />Post a job<\/Link>/);

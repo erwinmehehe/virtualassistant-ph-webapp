@@ -39,8 +39,8 @@ const initial: JobDraft = {
   engagement_length: "Long-term preferred", start_timing: "", experience_level: "intermediate"
 };
 
-export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, initialStep = 0, canSelfPublishJobs = false, publicMode = false }: {
-  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string; initialStep?: number; canSelfPublishJobs?: boolean; publicMode?: boolean;
+export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, initialStep = 0, canSelfPublishJobs = false, publicMode = false, draftScope, importPublicDraft = false }: {
+  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string; initialStep?: number; canSelfPublishJobs?: boolean; publicMode?: boolean; draftScope?: string; importPublicDraft?: boolean;
 }) {
   const [step, setStep] = useState(Math.max(0, Math.min(steps.length - 1, initialStep)));
   const [data, setData] = useState<JobDraft>({ ...initial, ...initialData });
@@ -51,7 +51,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
     setData((prev) => ({ ...prev, ...template.values }));
     setErrors({});
   };
-  const storageKey = useMemo(() => `va_job_draft_${jobId || "new"}`, [jobId]);
+  const storageKey = useMemo(() => jobId ? `va_job_draft_${jobId}` : draftScope ? `va_job_draft_new_${draftScope}` : "va_job_draft_new", [jobId, draftScope]);
   const categoryOptions = new Set<string>(VA_CATEGORIES as readonly string[]);
   const rawCategories = data.categories.split(",").map((x) => x.trim()).filter(Boolean);
   const selectedCategories = rawCategories.filter((x) => categoryOptions.has(x));
@@ -69,12 +69,19 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
   useEffect(() => {
     if (jobId) return;
     try {
-      const raw = window.localStorage.getItem(storageKey);
+      const publicDraft = importPublicDraft ? window.localStorage.getItem("va_job_draft_new") : null;
+      const raw = publicDraft || window.localStorage.getItem(storageKey);
       if (raw) setData((current) => ({ ...current, ...(JSON.parse(raw) as Partial<JobDraft>) }));
+      // The user explicitly continued a public draft through signup. Move it to
+      // their account-scoped browser key so it is not shown to another client.
+      if (publicDraft && draftScope) window.localStorage.removeItem("va_job_draft_new");
     } catch { /* local draft is optional */ }
-  }, [jobId, storageKey]);
+  }, [jobId, storageKey, draftScope, importPublicDraft]);
 
   useEffect(() => {
+    // Editing an existing database role must never pretend it was saved just
+    // because localStorage changed. The server submit button is authoritative.
+    if (jobId) return;
     const timer = window.setTimeout(() => {
       try {
         window.localStorage.setItem(storageKey, JSON.stringify(data));
@@ -82,7 +89,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       } catch { /* local storage can be unavailable */ }
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [data, storageKey]);
+  }, [data, storageKey, jobId]);
 
   useEffect(() => {
     if (rawCategories.length !== selectedCategories.length) set("categories", selectedCategories.join(", "));
@@ -186,7 +193,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
           <p>{stepDescriptions[step]}</p>
           {requestedVaName ? <p className="small muted wizard-requested">Preferred VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}
         </div>
-        <div className="wizard-save"><span>{savedAt ? `Draft saved on this device at ${savedAt}` : "Your draft saves on this device as you type"}</span>{publicMode ? null : <button className="text-button" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
+        <div className="wizard-save"><span>{jobId ? "Changes save to your account when you submit" : savedAt ? `Draft saved on this device at ${savedAt}` : "Your draft saves on this device as you type"}</span>{publicMode ? null : <button className="text-button" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
 

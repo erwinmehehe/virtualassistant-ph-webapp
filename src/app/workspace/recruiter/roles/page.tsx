@@ -103,7 +103,16 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
     {params.error ? <div className="alert" role="alert">{params.error}</div> : null}
     <RecruiterViewPreference storageKey="recruiter-role-view-v1" view={params.view} sort={params.sort} />
     {params.categorized != null ? <div className="success-banner" role="status">Auto-categorized {Number(params.categorized) || 0} VA profile{Number(params.categorized) === 1 ? "" : "s"}.{Number(params.skipped) ? ` ${Number(params.skipped)} still need manual review.` : ""}</div> : null}
-    <div className="page-head recruiter-roles-head"><div><div className="kicker">Recruitment operations</div><h1>Roles</h1><p>Manage every hiring pipeline, then check whether your active roles have enough matching talent supply.</p></div><div className="row wrap"><Link className="btn" href="#talent-coverage"><Tags size={15}/> Talent coverage</Link></div></div>
+    <div className="page-head recruiter-roles-head"><div><div className="kicker">Hiring</div><h1>Roles</h1><p>See where each hire stands, what needs attention and who to follow up with.</p></div><div className="row wrap"><Link className="btn" href="#talent-coverage"><Tags size={15}/> Talent coverage</Link></div></div>
+    <details className="recruiter-roles-more">
+      <summary>More role tools</summary>
+      <div className="recruiter-roles-more-links">
+        <Link href="/workspace/recruiter/crm">Clients and enquiries</Link>
+        <Link href="/workspace/recruiter/talent?stage=recruiter_review">Candidate review queue</Link>
+        <Link href="/workspace/recruiter/roles?view=stale&sort=urgent">Roles that need a follow-up</Link>
+        <Link href="/workspace/recruiter/performance?tab=funnel">Hiring performance</Link>
+      </div>
+    </details>
     <div className="grid-4 recruiter-role-stats">
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent"><span className="small muted">Needs candidates</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("needs_candidates")||0}</strong><span className="small muted">Review suggestions and build the recruiter shortlist</span></Link>
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=ready_to_send&sort=urgent"><span className="small muted">Ready to send</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("ready_to_send")||0}</strong><span className="small muted">Every recruiter-selected VA is client-ready and role gates are clear</span></Link>

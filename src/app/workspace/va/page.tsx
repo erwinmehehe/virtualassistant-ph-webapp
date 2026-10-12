@@ -88,7 +88,7 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
     {
       label: "Build your screening-ready profile",
       description: "Add your work history, skills and availability.",
-      done: completion.score >= VETTING_PROFILE_MIN,
+      done: vetted || completion.score >= VETTING_PROFILE_MIN,
       href: "/workspace/va/profile",
     },
     {
@@ -115,19 +115,19 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
 
     <section className="card va-readiness-card">
       <div className="dashboard-section-head">
-        <div><h2>VA readiness</h2><p>Profile, vetting and recruiter visibility in one place.</p></div>
+        <div><h2>Your profile and screening</h2><p>See what is complete and what remains before client review.</p></div>
         {vetted?<span className="badge badge-success"><CheckCircle2 size={13}/> {vettingStatusLabel(vetting?.stage)}</span>:<span className="badge badge-warning">{vettingStatusLabel(vetting?.stage)}</span>}
       </div>
       <div className="va-readiness-grid">
         <Link href="/workspace/va/profile"><span>Profile</span><strong>{completion.score}%</strong><div className="progress" aria-label={`Profile ${completion.score}% complete`}><span style={{width:`${completion.score}%`}}/></div><small>{completion.next?`${completion.next.label} is still incomplete.`:"Profile complete"}</small></Link>
-        <Link href="/workspace/va/vetting"><span>Vetting</span><strong>{vettingReadiness.score}%</strong><div className="progress progress-green" aria-label={`Vetting ${vettingReadiness.score}% complete`}><span style={{width:`${vettingReadiness.score}%`}}/></div><small>{vetted?"Approved for recruiter matching":"Complete the remaining screening steps"}</small></Link>
-        <div className="va-readiness-visibility"><span>Recruiter visibility</span><strong>{directoryVisible?"Active":readyToPublish?"Ready":"Not ready"}</strong><small>{directoryVisible?"Recruiters can use your approved profile in managed searches.":readyToPublish?"Activate your approved profile for recruiter matching.":"Finish profile and vetting first."}</small>{readyToPublish?<form action={publishVaProfileAction}><button className="btn btn-sm btn-primary" type="submit"><Eye size={14}/> Activate profile</button></form>:<Link className="text-link small" href="/workspace/va/profile">Review profile</Link>}</div>
+        <Link href="/workspace/va/vetting"><span>Screening</span><strong>{vettingReadiness.score}%</strong><div className="progress progress-green" aria-label={`Vetting ${vettingReadiness.score}% complete`}><span style={{width:`${vettingReadiness.score}%`}}/></div><small>{vetted?"Approved for recruiter matching":"Complete the remaining screening steps"}</small></Link>
+        <div className="va-readiness-visibility"><span>Public directory</span><strong>{directoryVisible?"Listed":readyToPublish?"Ready to list":"Not listed"}</strong><small>{directoryVisible?"Your approved profile is publicly listed with your consent.":readyToPublish?"Choose whether to list your approved profile publicly.":"Public listing is optional. You can still be considered in recruiter-led searches."}</small>{readyToPublish?<form action={publishVaProfileAction}><button className="btn btn-sm btn-primary" type="submit"><Eye size={14}/> List public profile</button></form>:<Link className="text-link small" href="/workspace/va/profile">Review profile</Link>}</div>
       </div>
     </section>
 
     <section className="card va-dashboard-opportunities">
       <div className="dashboard-section-head"><div><h2>Your hiring activity</h2><p>Applications are the main hub. Interviews and offers are stages inside that journey.</p></div><Link className="btn btn-sm" href="/workspace/va/applications">Open applications</Link></div>
-      <div className="pipeline-summary" aria-label="Recruiting pipeline">{[["Applied",pipeline.applied],["Recruiter review",pipeline.shortlisted],["Interview",pipeline.interview],["Offer",pipeline.offered],["Placed",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>
+      <div className="pipeline-summary" aria-label="Recruiting pipeline">{[["Applied",pipeline.applied],["With client",pipeline.shortlisted],["Interview",pipeline.interview],["Offer",pipeline.offered],["Placed",pipeline.hired]].map(([label,count])=><div className="pipeline-step" key={String(label)}><span>{label}</span><strong>{count}</strong></div>)}</div>
       <div className="va-dashboard-activity-links">
         {pendingInvites?<Link href="/workspace/va/applications"><strong>{pendingInvites}</strong><span>opportunit{pendingInvites===1?"y":"ies"} waiting for your response</span><ArrowRight size={15}/></Link>:null}
         {pipeline.interview?<Link href="/workspace/va/interviews"><strong>{pipeline.interview}</strong><span>interview{pipeline.interview===1?"":"s"} in progress</span><ArrowRight size={15}/></Link>:null}

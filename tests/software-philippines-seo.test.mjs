@@ -72,11 +72,13 @@ test("software redirect registry covers every canonical software slug", async ()
 
 test("software pages remain discoverable from the hub, sitemap, static params, and canonical metadata", async () => {
   const hub = await readFile("src/app/software/page.tsx", "utf8");
+  const directory = await readFile("src/components/software-directory.tsx", "utf8");
   const route = await readFile(routePath, "utf8");
   const sitemap = await readFile("src/app/sitemap.ts", "utf8");
 
-  assert.match(hub, /softwarePages\.map|pages\.map/);
-  assert.match(hub, /href=\{\`\/software\/\$\{page\.slug\}\`\}/);
+  assert.match(hub, /softwarePages\.map/);
+  assert.match(hub, /<SoftwareDirectory guides=\{guidePreviews\}/);
+  assert.match(directory, /href=\{\`\/software\/\$\{guide\.slug\}\`\}/);
   assert.match(route, /generateStaticParams\(\)/);
   assert.match(route, /softwarePages\.map\(\(page\) => \(\{ slug: page\.slug \}\)\)/);
   assert.match(route, /canonicalPath\(\`\/software\/\$\{page\.slug\}\`\)/);

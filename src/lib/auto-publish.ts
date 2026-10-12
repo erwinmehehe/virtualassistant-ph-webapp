@@ -62,6 +62,7 @@ export async function autoQuoteStraightforwardJobs() {
       .update({ status: "published", published_at: publishedAt })
       .eq("id", job.id)
       .eq("status", "pending")
+      .eq("moderation_status", "clear")
       .select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours")
       .maybeSingle();
     if (error || !publishedJob) return false;

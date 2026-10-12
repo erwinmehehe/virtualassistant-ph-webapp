@@ -536,10 +536,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
       <div className="recruiter-focus-stages">
         {([
-          ["new", "New", "/workspace/recruiter/roles?view=active"],
-          ["matching", "Matching", "/workspace/recruiter/roles?view=needs_candidates"],
-          ["client", "With client", "/workspace/recruiter/roles?view=client_review"],
-          ["interview", "Interviewing / Hired", "/workspace/recruiter/roles?view=interviewing"],
+          ["new", "New", "/workspace/recruiter/roles?focus_stage=new"],
+          ["matching", "Matching", "/workspace/recruiter/roles?focus_stage=matching"],
+          ["client", "With client", "/workspace/recruiter/roles?focus_stage=client"],
+          ["interview", "Interviewing / Hired", "/workspace/recruiter/roles?focus_stage=interview"],
         ] as const).map(([key, label, href]) => (
           <Link key={key} href={href} className="recruiter-focus-stage">
             <strong>{focus.stages[key]}</strong><span>{label}</span><ArrowRight size={16} aria-hidden="true"/>

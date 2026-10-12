@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { completeClientOnboardingAction } from "@/app/actions/profile";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
+import { TIMEZONE_SUGGESTIONS } from "@/lib/timezones";
 
 export default async function ClientOnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string; budget_error?: string; budget_min?: string; budget_max?: string }> }){
   const params=await searchParams;
@@ -53,8 +54,8 @@ export default async function ClientOnboardingPage({ searchParams }: { searchPar
           <summary><Building2 size={16}/> Company details</summary>
           <div className="form-grid client-onboarding-company-grid">
             <div className="field"><label>Your name</label><input name="full_name" required minLength={2} maxLength={100} defaultValue={profile.full_name||""}/></div>
-            <div className="field"><label>Company name</label><input name="company_name" required minLength={2} maxLength={140} defaultValue={company?.company_name||""}/></div>
-            <div className="field"><label>Timezone / working region</label><input name="timezone" required placeholder="Australia/Sydney, US Eastern, GMT+8" defaultValue={company?.timezone||""}/></div>
+            <div className="field"><label>Company name</label><input name="company_name" required minLength={2} maxLength={140} defaultValue={company?.company_name||""}/><span className="small muted">If you publish a job, this company name will appear on the public listing. Personal contact details stay private.</span></div>
+            <div className="field"><label htmlFor="client-onboarding-timezone">Working timezone</label><input id="client-onboarding-timezone" name="timezone" list="client-timezone-options" required placeholder="Choose a timezone, e.g. Asia/Manila" defaultValue={company?.timezone||""}/><datalist id="client-timezone-options">{TIMEZONE_SUGGESTIONS.map((zone)=><option key={zone.value} value={zone.value} label={zone.label}/>)}</datalist><span className="small muted">Pick from the suggestions or enter another valid IANA timezone (City/Region).</span></div>
             <div className="field"><label>Company or team location <span className="muted">(optional)</span></label><input name="location" defaultValue={company?.location||""} placeholder="Sydney, Australia"/></div>
           </div>
         </details>

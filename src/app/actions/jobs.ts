@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
-import { isPublishableCompanyName, publicationMissingDetails } from "@/lib/job-publication";
+import { clientCanSelfPublishJob, isPublishableCompanyName, publicationMissingDetails } from "@/lib/job-publication";
 import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
 import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
@@ -100,7 +100,16 @@ export async function createJobAction(formData: FormData) {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const canSelfPublish = Boolean(clientProfile?.can_self_publish_jobs && clientProfile?.verified_at) && serviceModel === "curated_placement";
+  // Legacy approved publishers are unaffected. All other verified clients
+  // are eligible only when the explicitly default-off rollout switch is set.
+  // Keep commercial and candidate-access approvals separate from publication.
+  const legacyApproved = Boolean(clientProfile?.can_self_publish_jobs && clientProfile?.verified_at) && serviceModel === "curated_placement";
+  const canSelfPublish = clientCanSelfPublishJob({
+    serviceModel,
+    legacyApproved,
+    emailVerified: Boolean(user.email_confirmed_at),
+    verifiedClientRollout: process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true",
+  });
   if (canSelfPublish && submitMode !== "draft") {
     const selfPublishMissing = publicationMissingDetails({
       title,
@@ -199,8 +208,8 @@ export async function createJobAction(formData: FormData) {
   }
 
   // Notify only when a private brief is first submitted for team review.
-  // Admin-approved self-publishing clients skip this review notification for
-  // complete curated-placement roles because those roles are already public.
+  // Complete and eligible curated-placement roles may already be public;
+  // managed-service roles still enter the staffed review path.
   await recordProductEvent(jobId ? "job_updated" : "job_created", { userId: user.id, path: `/workspace/client/jobs/${savedId}`, metadata: { job_id: savedId, status: savedStatus, submit_mode: submitMode } });
 
   if (savedStatus === "pending" && previousStatus !== "pending") {

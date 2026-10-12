@@ -72,7 +72,7 @@ export function resolveClientHomeAction(input: {
   if (needsConfirmation) return {
     title: `Confirm the offer for ${titleFor(active, needsConfirmation.job_id)}`,
     copy: "The VA accepted the terms. Review the final rate, hours and start date before confirming the hire.",
-    href: "/workspace/client/offers",
+    href: `/workspace/client/offers#offer-${needsConfirmation.id}`,
     label: "Review final offer",
     tone: "decision",
   };
@@ -82,7 +82,7 @@ export function resolveClientHomeAction(input: {
   if (taskCount || timeCount) return {
     title: `Review ${taskCount + timeCount} work item${taskCount + timeCount === 1 ? "" : "s"}`,
     copy: "Your VA submitted work or time for your approval. Review it before it moves forward.",
-    href: "/workspace/client/workroom",
+    href: `/workspace/client/workroom#${taskCount ? `tasks-${tasksToReview[0].workroom_id}` : `time-${timeToReview[0].workroom_id}`}`,
     label: "Review submitted work",
     tone: "decision",
   };
@@ -93,7 +93,7 @@ export function resolveClientHomeAction(input: {
   if (toSchedule) return {
     title: `Schedule an interview for ${titleFor(active, toSchedule.job_id)}`,
     copy: "An interview was requested and needs a time. Choose a slot that works for you.",
-    href: "/workspace/client/interviews",
+    href: `/workspace/client/interviews#interview-${toSchedule.id}`,
     label: "Choose an interview time",
     tone: "decision",
   };
@@ -106,7 +106,7 @@ export function resolveClientHomeAction(input: {
   if (needsFeedback) return {
     title: `Share interview feedback for ${titleFor(active, needsFeedback.job_id)}`,
     copy: "The interview time has passed. Let your recruiter know whether to proceed, hold or pass.",
-    href: "/workspace/client/interviews",
+    href: `/workspace/client/interviews#interview-${needsFeedback.id}`,
     label: "Record your decision",
     tone: "decision",
   };
@@ -149,7 +149,7 @@ export function resolveClientHomeAction(input: {
   if (waitingVa) return {
     title: `Waiting for the VA to accept ${titleFor(active, waitingVa.job_id)}`,
     copy: "Your offer has been sent. The next decision belongs to the VA, not you.",
-    href: "/workspace/client/offers",
+    href: `/workspace/client/offers#offer-${waitingVa.id}`,
     label: "Check offer status",
     tone: "waiting",
   };
@@ -161,7 +161,7 @@ export function resolveClientHomeAction(input: {
   if (upcomingInterview) return {
     title: `Interview scheduled for ${titleFor(active, upcomingInterview.job_id)}`,
     copy: "Your interview is on the calendar. Check the time and meeting link.",
-    href: "/workspace/client/interviews",
+    href: `/workspace/client/interviews#interview-${upcomingInterview.id}`,
     label: "See interview details",
     tone: "waiting",
   };
@@ -217,7 +217,7 @@ export function resolveVaHomeAction(input: {
   if (offerToAccept) return {
     title: "You have a placement offer to review",
     copy: "Check the hourly rate, hours, schedule and start date before accepting or declining.",
-    href: "/workspace/va/offers",
+    href: `/workspace/va/offers#offer-${offerToAccept.id}`,
     label: "Review offer",
     tone: "decision",
   };
@@ -229,7 +229,7 @@ export function resolveVaHomeAction(input: {
   if (interview) return {
     title: "Your interview is scheduled",
     copy: "Check the interview time, meeting link and role details so you can prepare.",
-    href: "/workspace/va/interviews",
+    href: `/workspace/va/interviews#interview-${interview.id}`,
     label: "See interview details",
     tone: "decision",
   };
@@ -262,7 +262,7 @@ export function resolveVaHomeAction(input: {
   if (waitingClient) return {
     title: "Waiting for the client to confirm your offer",
     copy: "You've accepted the offer. The client needs to complete the final confirmation.",
-    href: "/workspace/va/offers",
+    href: `/workspace/va/offers#offer-${waitingClient.id}`,
     label: "Check offer status",
     tone: "waiting",
   };

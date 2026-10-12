@@ -68,6 +68,26 @@ export function clientCanSelfPublishJob({
 
 /** Low-noise signals for obvious promotional spam in a public role.
  * A review signal keeps the job private; it must not trigger indexing. */
+/** Shared, testable state decision. A staff hold always wins over auto-publishing. */
+export function resolveClientJobSubmitStatus({
+  submitMode,
+  canSelfPublish,
+  needsModeration,
+  previousStatus = null,
+  staffHold = false,
+}: {
+  submitMode: string;
+  canSelfPublish: boolean;
+  needsModeration: boolean;
+  previousStatus?: string | null;
+  staffHold?: boolean;
+}): "draft" | "pending" | "published" {
+  if (submitMode === "draft") return "draft";
+  if (staffHold || needsModeration) return "pending";
+  if (previousStatus === "published" || canSelfPublish) return "published";
+  return "pending";
+}
+
 export function publicJobReviewSignals(parts: Array<string | string[] | null | undefined>) {
   const text = parts.flatMap((part) => Array.isArray(part) ? part : [part])
     .map((part) => String(part || "")).join(" ");

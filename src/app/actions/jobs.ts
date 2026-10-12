@@ -199,7 +199,12 @@ export async function createJobAction(formData: FormData) {
         : payload;
     savedStatus = statusAwarePayload.status;
     const updatePayload = shouldRefreshSlug ? { ...statusAwarePayload, slug: await uniqueJobSlug(admin, title, jobId) } : statusAwarePayload;
-    const { data, error } = await admin.from("jobs").update(updatePayload).eq("id", jobId).eq("client_id", user.id).select("id").single();
+    const { data, error } = await admin.from("jobs").update(updatePayload)
+      .eq("id", jobId).eq("client_id", user.id)
+      // Staff can hold a role while a client is editing. Do not overwrite that
+      // hold with a stale, previously-clear read.
+      .eq("moderation_status", ownedJob.moderation_status)
+      .select("id").single();
     if (error) throw error;
     savedId = data.id;
   } else {
@@ -316,9 +321,20 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   const { data: commercial } = await supabase.from("job_commercials").select("commercial_status").eq("job_id",jobId).single();
   if (!commercial || commercial.commercial_status !== "quoted") throw new Error("The service fee is not ready for acceptance.");
   const admin = createAdminClient();
-  await admin.from("job_commercials").update({commercial_status:"accepted"}).eq("job_id",jobId);
+  // Publish first with a current-state condition; staff may have held the role
+  // after it was read. Do not mark terms accepted when publishing was blocked.
   const publishedAt = new Date().toISOString();
-  const { data: publishedJob } = await admin.from("jobs").update({status:"published",published_at:publishedAt}).eq("id",jobId).eq("client_id",user.id).select("id,client_id,title,slug,categories,required_skills,required_tools,hours_per_week,overlap_hours").single();
+  const { data: publishedJob, error: publishError } = await admin.from("jobs")
+    .update({status:"published",published_at:publishedAt})
+    .eq("id",jobId).eq("client_id",user.id)
+    .eq("status", "pending").eq("moderation_status", "clear")
+    .select("id,client_id,title,slug,categories,required_skills,required_tools,hours_per_week,overlap_hours")
+    .maybeSingle();
+  if (publishError) throw publishError;
+  if (!publishedJob) throw new Error("The role changed or was held for review. Refresh the page before continuing.");
+  const { error: acceptanceError } = await admin.from("job_commercials")
+    .update({commercial_status:"accepted"}).eq("job_id",jobId).eq("commercial_status","quoted");
+  if (acceptanceError) throw acceptanceError;
   if (publishedJob) {
     await admin.from("job_candidate_access").upsert({
       job_id: jobId,

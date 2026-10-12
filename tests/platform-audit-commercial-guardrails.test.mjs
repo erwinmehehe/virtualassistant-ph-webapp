@@ -4,10 +4,13 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("candidate identity access requires a paid state", async () => {
-  const access = await read("src/lib/candidate-access.ts");
-  assert.match(access, /return status === "paid";/);
-  assert.doesNotMatch(access, /status === "comped"/);
+test("candidate identity access requires a paid or explicitly fee-waived status", async () => {
+  const [access, migration] = await Promise.all([
+    read("src/lib/candidate-access.ts"),
+    read("supabase/migrations/20260909_v4143_include_candidate_access_with_accepted_roles.sql"),
+  ]);
+  assert.match(access, /return status === "paid" \|\| status === "comped";/);
+  assert.match(migration, /access_status not in \(\x27paid\x27, \x27comped\x27\)/);
 });
 
 test("experience alone can no longer bypass VA vetting", async () => {

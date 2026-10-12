@@ -15,7 +15,7 @@ test("recruiter navigation keeps the CRM inside the connected hiring workflow", 
   }
   assert.doesNotMatch(nav, /\["Client review", "\/workspace\/recruiter\/client-review"/);
   assert.doesNotMatch(nav, /\["Placements", "\/workspace\/recruiter\/placements"/);
-  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/crm", "\/workspace\/recruiter\/messages", "\/workspace\/recruiter\/roles"\]/);
+  assert.match(nav, /recruiter: \["\/workspace\/recruiter\/today", "\/workspace\/recruiter\/roles", "\/workspace\/recruiter\/talent", "\/workspace\/recruiter\/messages"\]/);
   assert.doesNotMatch(board, /kicker="Sales CRM"/);
   assert.match(board, /kicker="Hiring Pipeline"/);
   assert.match(board, /title="Employer pipeline"/);

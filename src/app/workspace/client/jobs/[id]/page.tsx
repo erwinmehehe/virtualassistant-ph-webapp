@@ -38,11 +38,11 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
   const progress = hired
     ? { title: "Your placement is active", copy: "Review tasks, time and onboarding in the workroom.", href: "/workspace/client/workroom", label: "Open workroom" }
     : pendingClientOffers.length
-      ? { title: "Confirm your VA offer", copy: "The VA accepted the final terms. Check the rate, hours and start date before confirming.", href: "/workspace/client/offers", label: "Review offer" }
+      ? { title: "Confirm your VA offer", copy: "The VA accepted the final terms. Check the rate, hours and start date before confirming.", href: `/workspace/client/offers#offer-${pendingClientOffers[0].id}`, label: "Review offer" }
       : interviewToSchedule
-        ? { title: "Choose an interview time", copy: "Your requested interview is waiting for a date and time.", href: "/workspace/client/interviews", label: "Schedule interview" }
+        ? { title: "Choose an interview time", copy: "Your requested interview is waiting for a date and time.", href: `/workspace/client/interviews#interview-${interviewToSchedule.id}`, label: "Schedule interview" }
         : interviewToReview
-          ? { title: "Share your interview decision", copy: "Tell the recruiter whether to proceed, hold or pass.", href: "/workspace/client/interviews", label: "Record decision" }
+          ? { title: "Share your interview decision", copy: "Tell the recruiter whether to proceed, hold or pass.", href: `/workspace/client/interviews#interview-${interviewToReview.id}`, label: "Record decision" }
           : commercial?.commercial_status === "quoted"
             ? { title: "Review the hiring service terms", copy: "Check the service fee and approve only if you agree. Job publication and candidate review are separate steps.", href: "#service-terms", label: "Review terms" }
             : released.length && accessReady
@@ -50,7 +50,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
               : job.moderation_status === "review"
                 ? { title: "Your job is waiting for review", copy: "Your recruiter needs to check this post before it can appear in public search.", href: "/workspace/client/messages", label: "Ask your recruiter" }
                 : pendingVaOffers.length
-                  ? { title: "Waiting for the VA to accept", copy: "The VA is reviewing the offer. You do not need to take any action yet.", href: "/workspace/client/offers", label: "See offer status" }
+                  ? { title: "Waiting for the VA to accept", copy: "The VA is reviewing the offer. You do not need to take any action yet.", href: `/workspace/client/offers#offer-${pendingVaOffers[0].id}`, label: "See offer status" }
                   : job.status === "published"
                     ? { title: roleApproved ? "Your recruiter is finding candidates" : "Your job is live", copy: roleApproved ? "Your recruiter is screening applicants and preparing a shortlist." : "The role is public. Your recruiter will coordinate the remaining service setup before candidates are released.", href: "/workspace/client/messages", label: "Message recruiter" }
                     : { title: "Your hiring request is being reviewed", copy: "The recruiter is checking the role before publication or shortlist release.", href: "/workspace/client/messages", label: "Message recruiter" };

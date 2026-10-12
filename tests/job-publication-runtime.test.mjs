@@ -103,3 +103,20 @@ test("publication validator rejects compensation below the product floor", async
   assert.equal(result.key, "brief_incomplete");
   assert.match(result.detail, /budget/i);
 });
+
+test("published jobs still need approved service terms before shortlist release", async () => {
+  const { publicationBlocker } = await import("../src/lib/job-publication.ts");
+  const job = {
+    status: "published", client_id: "client-1", title: "Executive Assistant",
+    company_name: "Acme Studio",
+    summary: "Executive support for scheduling, reporting and follow-through.",
+    responsibilities: ["Manage calendars"], min_hourly_rate: 8,
+  };
+  assert.equal(publicationBlocker(job).key, "needs_terms");
+  assert.equal(publicationBlocker(job, { commercial_status: "quoted" }).key, "waiting_client_approval");
+  assert.equal(publicationBlocker(job, { commercial_status: "accepted" }).key, "published");
+
+  // Linking a previously recruiter-managed public post must not skip terms.
+  assert.equal(publicationBlocker({ ...job, recruiter_managed_public: true }).key, "needs_terms");
+  assert.equal(publicationBlocker({ ...job, moderation_status: "review" }, { commercial_status: "accepted" }).key, "needs_role_review");
+});

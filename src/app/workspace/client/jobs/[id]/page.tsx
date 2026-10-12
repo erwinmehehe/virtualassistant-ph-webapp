@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { acceptCommercialTermsAction, closeJobAction } from "@/app/actions/jobs";
 import { dateShort, money } from "@/lib/format";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
-import { candidateAccessLabel } from "@/lib/candidate-access";
+import { candidateAccessLabel, candidateAccessUnlocked } from "@/lib/candidate-access";
 
 export default async function ClientJobDetail({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
   const {id}=await params;const query=await searchParams;const {userId}=await requireRoleFast("client");const supabase=await createClient();const {data:job}=await supabase.from("jobs").select("*").eq("id",id).eq("client_id",userId).single();if(!job)notFound();
@@ -20,9 +20,40 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
     admin.from("placement_offers").select("id,status").eq("job_id",id),
     admin.from("workrooms").select("id,status").eq("job_id",id)
   ]);
-  const released=releasedRows||[];const waitingDecisions=released.filter((row:any)=>!row.client_decision).length;const interested=released.filter((row:any)=>row.client_decision==="interested").length;const interviewCount=(interviews||[]).filter((row:any)=>["requested","scheduled","completed"].includes(row.status)).length;const activeOfferCount=(offers||[]).filter((row:any)=>["pending_va","pending_client"].includes(row.status)).length;const hired=(workrooms||[]).some((row:any)=>row.status==="active");
-  const roleApproved=job.status==="published"||commercial?.commercial_status==="accepted";
-  const progress=hired?{title:"Placement active",copy:"The confirmed VA is now in the workroom for onboarding, tasks, approved time, and ongoing support.",href:"/workspace/client/workroom",label:"Open workroom"}:activeOfferCount?{title:"Final terms are in progress",copy:"Your recruiter prepared the placement terms. The VA accepts first, then you confirm the placement.",href:"/workspace/client/offers",label:"Review offer"}:interviewCount?{title:"Interview stage",copy:"Manage interview times and record a simple Proceed, Hold, or Pass decision so the recruiter can act.",href:"/workspace/client/interviews",label:"Open interviews"}:released.length?{title:`${released.length} recruiter-selected candidate${released.length===1?"":"s"}`,copy:waitingDecisions?`${waitingDecisions} shortlist decision${waitingDecisions===1?"":"s"} waiting on you.`:interested?"Your recruiter has your interest feedback and will coordinate the next step.":"Your recruiter is reviewing your feedback and replacement needs.",href:`/workspace/client/candidates?role=${job.id}`,label:"Open recruiter shortlist"}:commercial?.commercial_status==="quoted"?{title:"Approve service terms",copy:"The role can recruit publicly, but candidates cannot be sent until you accept the service terms below.",href:"#service-terms",label:"Review service terms"}:roleApproved?{title:"Recruiting in progress",copy:"Your recruiter is screening the vetted pool against the approved brief before presenting anyone to you.",href:"/workspace/client/messages",label:"Message your recruiter"}:{title:"Hiring request under review",copy:"We are confirming the brief and service terms before client-facing recruiting begins.",href:"/workspace/client/messages",label:"Message your recruiter"};
+  const released = releasedRows || [];
+  const waitingDecisions = released.filter((row: any) => !row.client_decision).length;
+  const interested = released.filter((row: any) => row.client_decision === "interested").length;
+  const interviewCount = (interviews || []).filter((row: any) => ["requested", "scheduled", "completed"].includes(row.status)).length;
+  const pendingClientOffers = (offers || []).filter((row: any) => row.status === "pending_client");
+  const pendingVaOffers = (offers || []).filter((row: any) => row.status === "pending_va");
+  const activeOfferCount = pendingClientOffers.length + pendingVaOffers.length;
+  const hired = (workrooms || []).some((row: any) => row.status === "active");
+  const accessReady = candidateAccessUnlocked(access?.access_status);
+  const interviewToSchedule = (interviews || []).find((row: any) => row.status === "requested" && !row.client_decision);
+  const interviewToReview = (interviews || []).find((row: any) =>
+    row.status === "scheduled" && !row.client_decision && Boolean(row.scheduled_at) &&
+    Date.parse(row.scheduled_at) + Number(row.duration_minutes || 30) * 60_000 <= Date.now()
+  );
+  const roleApproved = commercial?.commercial_status === "accepted";
+  const progress = hired
+    ? { title: "Your placement is active", copy: "Review tasks, time and onboarding in the workroom.", href: "/workspace/client/workroom", label: "Open workroom" }
+    : pendingClientOffers.length
+      ? { title: "Confirm your VA offer", copy: "The VA accepted the final terms. Check the rate, hours and start date before confirming.", href: "/workspace/client/offers", label: "Review offer" }
+      : interviewToSchedule
+        ? { title: "Choose an interview time", copy: "Your requested interview is waiting for a date and time.", href: "/workspace/client/interviews", label: "Schedule interview" }
+        : interviewToReview
+          ? { title: "Share your interview decision", copy: "Tell the recruiter whether to proceed, hold or pass.", href: "/workspace/client/interviews", label: "Record decision" }
+          : commercial?.commercial_status === "quoted"
+            ? { title: "Review the hiring service terms", copy: "Check the service fee and approve only if you agree. Job publication and candidate review are separate steps.", href: "#service-terms", label: "Review terms" }
+            : released.length && accessReady
+              ? { title: waitingDecisions ? `Review ${waitingDecisions} candidate decision${waitingDecisions === 1 ? "" : "s"}` : "Your candidate feedback is saved", copy: waitingDecisions ? "Your recruiter has screened these VAs. Choose who to interview or ask for more options." : interested ? "Your recruiter is coordinating your preferred candidate's next step." : "Your recruiter is reviewing your feedback.", href: `/workspace/client/candidates?role=${job.id}`, label: waitingDecisions ? "Review candidates" : "View shortlist" }
+              : job.moderation_status === "review"
+                ? { title: "Your job is waiting for review", copy: "Your recruiter needs to check this post before it can appear in public search.", href: "/workspace/client/messages", label: "Ask your recruiter" }
+                : pendingVaOffers.length
+                  ? { title: "Waiting for the VA to accept", copy: "The VA is reviewing the offer. You do not need to take any action yet.", href: "/workspace/client/offers", label: "See offer status" }
+                  : job.status === "published"
+                    ? { title: roleApproved ? "Your recruiter is finding candidates" : "Your job is live", copy: roleApproved ? "Your recruiter is screening applicants and preparing a shortlist." : "The role is public. Your recruiter will coordinate the remaining service setup before candidates are released.", href: "/workspace/client/messages", label: "Message recruiter" }
+                    : { title: "Your hiring request is being reviewed", copy: "The recruiter is checking the role before publication or shortlist release.", href: "/workspace/client/messages", label: "Message recruiter" };
 
   const stageIndex=hired?4:activeOfferCount?3:interviewCount?2:released.length?1:0;
   const stageLabels=["Brief","Shortlist","Interview","Offer","Start"];
@@ -33,7 +64,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
     <header className="client-role-detail-hero">
       <div>
         <Link className="text-link small" href="/workspace/client/jobs">← Hiring requests</Link>
-        <div className="row wrap client-role-detail-status"><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{job.status==="published"?"Recruiting":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</span><span className="small muted">Created {dateShort(job.created_at)}</span></div>
+        <div className="row wrap client-role-detail-status"><span className={`badge ${job.status==="published"?"badge-success":job.status==="pending"?"badge-warning":""}`}>{job.status==="published"?"Job live":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</span><span className="small muted">Created {dateShort(job.created_at)}</span></div>
         <h1>{job.title}</h1>
         <p>{job.company_name||"Your company"} · {job.hours_per_week?`${job.hours_per_week} hrs/week`:"Flexible hours"} · VA compensation from {money(job.min_hourly_rate)}/hr</p>
       </div>
@@ -83,7 +114,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
         <div className="client-role-stats">
           <div className="card"><div className="small muted">Shortlisted</div><strong>{released.length}</strong><div className="small muted">{waitingDecisions?"Waiting on your review":"Recruiter-selected VAs"}</div></div>
           <div className="card"><div className="small muted">Interviews</div><strong>{interviewCount}</strong><div className="small muted">{interviewCount?"In the interview stage":"None scheduled yet"}</div></div>
-          <div className="card"><div className="small muted">Role status</div><strong className="client-role-stat-status">{job.status==="published"?"Recruiting":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</strong><div className="small muted">{candidateAccessLabel(access?.access_status)}</div></div>
+          <div className="card"><div className="small muted">Role status</div><strong className="client-role-stat-status">{job.status==="published"?"Job live":job.status==="pending"?"In review":String(job.status).replaceAll("_"," ")}</strong><div className="small muted">{candidateAccessLabel(access?.access_status)}</div></div>
         </div>
 
         <div id="service-terms" className="card commercial-card client-role-commercial">

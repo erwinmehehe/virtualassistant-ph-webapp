@@ -54,19 +54,16 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
 export function clientCanSelfPublishJob({
   serviceModel,
   emailVerified,
-  legacyAdminGrant,
-  legacyClientVerified,
+  legacyApproved,
   verifiedClientRollout,
 }: {
   serviceModel: string;
   emailVerified: boolean;
-  legacyAdminGrant: boolean;
-  legacyClientVerified: boolean;
+  legacyApproved: boolean;
   verifiedClientRollout: boolean;
 }) {
   if (serviceModel !== "curated_placement") return false;
-  return (legacyAdminGrant && legacyClientVerified) ||
-    (verifiedClientRollout && emailVerified);
+  return legacyApproved || (verifiedClientRollout && emailVerified);
 }
 
 export function publicationBlocker(job: PublicationJob, commercial?: PublicationCommercial): {

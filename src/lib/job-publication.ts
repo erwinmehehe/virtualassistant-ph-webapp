@@ -66,6 +66,18 @@ export function clientCanSelfPublishJob({
   return legacyApproved || (verifiedClientRollout && emailVerified);
 }
 
+/** Low-noise signals for obvious promotional spam in a public role.
+ * A review signal keeps the job private; it must not trigger indexing. */
+export function publicJobReviewSignals(parts: Array<string | string[] | null | undefined>) {
+  const text = parts.flatMap((part) => Array.isArray(part) ? part : [part])
+    .map((part) => String(part || "")).join(" ");
+  const signals: string[] = [];
+  if (/https?:\/\/|\bwww\.[a-z0-9-]+\./i.test(text)) signals.push("external_link");
+  if (/\b(?:earn money fast|guaranteed income|limited time offer|click here to apply)\b/i.test(text))
+    signals.push("promotional_language");
+  return signals;
+}
+
 export function publicationBlocker(job: PublicationJob, commercial?: PublicationCommercial): {
   key: PublicationBlocker;
   label: string;

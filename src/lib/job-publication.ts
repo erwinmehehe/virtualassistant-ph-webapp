@@ -66,8 +66,6 @@ export function clientCanSelfPublishJob({
   return legacyApproved || (verifiedClientRollout && emailVerified);
 }
 
-/** Low-noise signals for obvious promotional spam in a public role.
- * A review signal keeps the job private; it must not trigger indexing. */
 /** Shared, testable state decision. A staff hold always wins over auto-publishing. */
 export function resolveClientJobSubmitStatus({
   submitMode,
@@ -88,6 +86,7 @@ export function resolveClientJobSubmitStatus({
   return "pending";
 }
 
+/** Low-noise signals for public job content. A match requires private review. */
 export function publicJobReviewSignals(parts: Array<string | string[] | null | undefined>) {
   const text = parts.flatMap((part) => Array.isArray(part) ? part : [part])
     .map((part) => String(part || "")).join(" ");
@@ -147,7 +146,21 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
   }
 
   if (job.status === "published") {
-    return { key: "published", label: "Published", detail: "This role is live on the public jobs page." };
+    // Public visibility and permission to release identified candidates are
+    // separate. A live job can still need the client's terms acceptance.
+    if (!commercial?.commercial_status) {
+      return { key: "needs_terms", label: "Published · terms needed",
+        detail: "The job is live. Prepare service terms before candidates can be sent to the client." };
+    }
+    if (commercial.commercial_status === "quoted") {
+      return { key: "waiting_client_approval", label: "Published · client approval needed",
+        detail: "The job is live. The client must accept the service terms before candidates can be sent." };
+    }
+    if (commercial.commercial_status === "accepted") {
+      return { key: "published", label: "Published", detail: "This role is live on the public jobs page." };
+    }
+    return { key: "needs_terms", label: "Published · terms to review",
+      detail: "The job is live, but commercial terms need attention before client shortlist release." };
   }
 
   if (!commercial?.commercial_status) {

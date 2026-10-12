@@ -70,3 +70,44 @@
     scroll-behavior: auto;
   }
 }
+
+/* Keep recommended roles as a single section, not a card inside a card. */
+.va-dashboard-matches-section .va-recommended-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8faff;
+}
+.va-dashboard-matches-section .va-recommended-state p {
+  margin: 0;
+  flex: 1 1 230px;
+  color: #475569;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.va-dashboard-matches-section .va-recommended-state .btn {
+  min-height: 42px;
+}
+.client-role-detail-page [id="service-terms"],
+.client-workroom-page [id^="time-"],
+.client-workroom-page [id^="tasks-"],
+.client-interviews-page [id^="interview-"],
+.va-interviews-page [id^="interview-"],
+.client-offers-page [id^="offer-"],
+.va-offers-page [id^="offer-"] {
+  scroll-margin-top: 95px;
+}
+@media (max-width: 640px) {
+  .va-dashboard-matches-section .va-recommended-state {
+    padding: 14px;
+  }
+  .va-dashboard-matches-section .va-recommended-state .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

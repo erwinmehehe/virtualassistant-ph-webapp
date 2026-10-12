@@ -43,8 +43,7 @@ test("Recruiter Today keeps only the formal handoff and excludes post-start Clie
   assert.doesNotMatch(page, /if\(item\.kind==="placement_checkin"\) return "Complete check-in"/);
   assert.doesNotMatch(page, /if\(item\.kind==="placement_risk"\) return "Open placement"/);
   assert.match(page, /summary\.placement_handoffs/);
-  assert.match(page, /title:"Complete recruiter handoffs"/);
-  assert.match(page, /This is the recruiter's final post-hire action/);
+  assert.match(page, /recruiter-today-more/);
 });
 
 test("Client Success UI gates post-start controls to the assigned owner", async () => {

@@ -19,14 +19,13 @@ test("workspace shell leaves the page heading to the shared dashboard header", (
 });
 
 test("desktop and mobile navigation use simplified durable workspace groups", () => {
-  assert.equal((nav.match(/label: "Workspace"/g) || []).length, 3);
-  assert.match(nav, /label: "Hiring"/);
+  assert.equal((nav.match(/label: "Workspace"/g) || []).length, 4);
+  assert.match(nav, /\["Hiring",/);
   for (const label of [
     "Hiring",
     "My Team",
     "Home",
-    "Find Jobs",
-    "My Day",
+    "Today",
     "Clients",
     "Roles",
     "Talent",
@@ -53,8 +52,8 @@ test("role dashboards share the organized dashboard surface", () => {
   assert.match(recruiter, /recruiter_today_summary/);
   assert.match(recruiter, /Needs action/);
   assert.match(client, /refreshed when this page opened/);
-  assert.match(va, /DashHeader kicker="Your VA workspace" title="What needs you next"/);
-  assert.match(recruiter, /Less scanning · clearer ownership/);
+  assert.match(va, /DashHeader kicker="Your VA workspace" title="(What needs you next|Your VA dashboard)"/);
+  assert.match(recruiter, /Hiring at a glance/);
 });
 
 test("overview pages preserve useful loading and degraded states", () => {

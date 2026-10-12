@@ -60,6 +60,7 @@ export function resolveClientHomeAction(input: {
   access: HomeAccess[];
   timeToReview: HomeWorkItem[];
   tasksToReview: HomeWorkItem[];
+  activePlacements: number;
   now?: number;
 }): BeginnerAction {
   const { roles, offers, interviews, shortlists, terms, access, timeToReview, tasksToReview } = input;
@@ -110,7 +111,7 @@ export function resolveClientHomeAction(input: {
     tone: "decision",
   };
 
-  const quoted = terms.find((term) => activeIds.has(term.job_id) && term.commercial_status === "quoted");
+  const quoted = terms.find((term) => active.some((role) => role.id === term.job_id && role.moderation_status !== "review") && term.commercial_status === "quoted");
   if (quoted) return {
     title: `Review hiring terms for ${titleFor(active, quoted.job_id)}`,
     copy: "Your recruiter has prepared the service terms. Check any fee and approve only if you agree.",
@@ -165,6 +166,15 @@ export function resolveClientHomeAction(input: {
     tone: "waiting",
   };
 
+  const underReview = active.find((role) => role.moderation_status === "review");
+  if (underReview) return {
+    title: `Your role is waiting for a content review`,
+    copy: "The job is not public while the hiring team checks its content. They'll let you know what to change.",
+    href: `/workspace/client/jobs/${underReview.id}`,
+    label: "View review status",
+    tone: "waiting",
+  };
+
   if (active.length) return {
     title: "Your recruiter is working on your hiring request",
     copy: "Nothing needs your decision right now. Open your role to see progress or message your recruiter.",
@@ -172,6 +182,14 @@ export function resolveClientHomeAction(input: {
     label: "See hiring progress",
     tone: "waiting",
   };
+  if (input.activePlacements > 0) return {
+    title: "Your VA placement is active",
+    copy: "Your team is working. Open the workroom to view tasks, hours, and updates.",
+    href: "/workspace/client/workroom",
+    label: "Open My Team",
+    tone: "waiting",
+  };
+
   return {
     title: "Tell us about the VA you need",
     copy: "Describe the work you want help with. We'll guide you through the role and budget.",

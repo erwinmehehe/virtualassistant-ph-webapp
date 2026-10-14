@@ -41,7 +41,6 @@ export default async function VaDashboardPage({searchParams}:{searchParams:Promi
   const testScore=summary?.test_score??null;
   const scorecardTotal=summary?.scorecard_total??null;
   const pipeline=summary?.pipeline||{applied:0,shortlisted:0,interview:0,offered:0,hired:0,rejected:0};
-  const applicationCount=Number(summary?.application_count||0);
   const pendingInvites=Number(summary?.pending_invites||0);
   const workroomCount=Number(summary?.workroom_count||0);
   const unreadNotifications=Number(summary?.unread_notifications||0);

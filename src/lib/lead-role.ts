@@ -1,4 +1,6 @@
 import "server-only";
+import { revalidatePath } from "next/cache";
+import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
@@ -180,5 +182,22 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
   }
 
   await updateLeadLink(args, job.id as string);
+  if (publishNow) {
+    revalidatePath("/jobs");
+    // Public visibility is already committed; indexing must not roll it back.
+    try {
+      const { data: publicJob } = await args.admin
+        .from("jobs")
+        .select("id,slug")
+        .eq("id", job.id)
+        .maybeSingle();
+      if (publicJob) {
+        await notifyGoogleIndexingBestEffort(`/jobs/${publicJob.slug || publicJob.id}`, "URL_UPDATED");
+        revalidatePath(`/jobs/${publicJob.slug || publicJob.id}`);
+      }
+    } catch (indexError) {
+      console.error("[jobs] Public role indexing notification failed", indexError);
+    }
+  }
   return job.id as string;
 }

@@ -3,6 +3,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import JSZip from "jszip";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { scanWithEndpoint } from "@/lib/malware-scan-client";
 
 export type UploadPurpose = "resume" | "lead-attachment" | "avatar" | "company-logo";
 
@@ -199,57 +200,22 @@ async function scanForMalware(upload: ValidatedUpload) {
   if (localMalwareSignatureDetected(upload.buffer)) {
     throw new Error("The uploaded file was rejected by the security scanner.");
   }
-
   const endpoint = process.env.MALWARE_SCAN_ENDPOINT?.trim() || "";
   const token = process.env.MALWARE_SCAN_TOKEN?.trim() || "";
-  const required = process.env.NODE_ENV === "production" || process.env.MALWARE_SCAN_REQUIRED === "1";
-
+  const production = process.env.NODE_ENV === "production";
+  const required = production || process.env.MALWARE_SCAN_REQUIRED === "1";
   if (!endpoint) {
     if (required) throw new Error("File scanning is temporarily unavailable. Please try again later.");
     return;
   }
-
-  let parsed: URL;
-  try {
-    parsed = new URL(endpoint);
-  } catch {
-    throw new Error("File scanning is temporarily unavailable. Please try again later.");
-  }
-  if (parsed.protocol !== "https:" && parsed.hostname !== "127.0.0.1" && parsed.hostname !== "localhost") {
-    throw new Error("File scanning is temporarily unavailable. Please try again later.");
-  }
-
-  const form = new FormData();
-  form.append(
-    "file",
-    new Blob([new Uint8Array(upload.buffer)], { type: upload.contentType }),
-    `upload.${upload.extension}`
-  );
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
-  timeout.unref?.();
-
-  try {
-    const response = await fetch(parsed, {
-      method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      body: form,
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error("scanner unavailable");
-
-    const result = await response.json().catch(() => null) as { clean?: boolean } | null;
-    if (result?.clean !== true) {
-      throw new Error("The uploaded file was rejected by the security scanner.");
-    }
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("rejected by the security scanner")) throw error;
-    throw new Error("File scanning is temporarily unavailable. Please try again later.");
-  } finally {
-    clearTimeout(timeout);
-  }
+  await scanWithEndpoint({
+    endpoint,
+    token,
+    buffer: upload.buffer,
+    extension: upload.extension,
+    contentType: upload.contentType,
+    production,
+  });
 }
 
 export async function validateUpload(

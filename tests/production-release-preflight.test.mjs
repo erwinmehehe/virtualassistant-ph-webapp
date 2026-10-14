@@ -93,13 +93,24 @@ test("audit never emits environment variable values",() => {
 });
 test("missing read-only tokens fail closed and preserve a JSON report",async () => {
   const dir=await mkdtemp(join(tmpdir(),"release-gate-"));
-  const output=join(dir,"result.json");
+  const output=join(dir,"release-preflight-result.json");
   try {
     await assert.rejects(run("node",[new URL("../scripts/production-release-preflight.mjs",import.meta.url).pathname,
-      "--output",output],{env:{...process.env,GITHUB_TOKEN:"",GH_TOKEN:"",VERCEL_TOKEN:""}}));
+      "--output","release-preflight-result.json"],{cwd:dir,env:{...process.env,GITHUB_TOKEN:"",GH_TOKEN:"",VERCEL_TOKEN:""}}));
     const data=JSON.parse(await readFile(output,"utf8"));
     assert.equal(data.decision,"BLOCKED");
     assert.equal(data.readyForProduction,false);
+  } finally {
+    await rm(dir,{recursive:true,force:true});
+  }
+});
+test("preflight refuses caller-selected report paths",async () => {
+  const dir=await mkdtemp(join(tmpdir(),"release-gate-path-"));
+  const unsafe=join(dir,"arbitrary-report.json");
+  try {
+    await assert.rejects(run("node",[new URL("../scripts/production-release-preflight.mjs",import.meta.url).pathname,
+      "--output",unsafe],{cwd:dir,env:{...process.env,GITHUB_TOKEN:"",GH_TOKEN:"",VERCEL_TOKEN:""}}));
+    await assert.rejects(readFile(unsafe,"utf8"),{code:"ENOENT"});
   } finally {
     await rm(dir,{recursive:true,force:true});
   }

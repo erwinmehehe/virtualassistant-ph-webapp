@@ -54,6 +54,9 @@ test("the anonymous job workflow requires consent and enforces moderation", asyn
   const card = await read("src/components/job-card.tsx");
   assert.match(card, /Open position/);
   assert.doesNotMatch(card, /Reviewed role/);
+  const jobs = await read("src/app/jobs/page.tsx");
+  assert.doesNotMatch(jobs, /recruiter-reviewed/i);
+  assert.match(jobs, /Recruiter support throughout hiring/);
   const hire = await read("src/app/hire/page.tsx");
   assert.match(hire, /stays private unless you choose the optional public listing/);
   assert.match(leads, /publicListingConsent: formData.get\("public_listing_consent"\) === "yes"/);

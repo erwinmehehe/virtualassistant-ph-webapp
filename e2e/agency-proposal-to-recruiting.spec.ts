@@ -100,7 +100,7 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
     const client = await clientContext.newPage();
     await login(client, "client.e2e@example.test", `/workspace/client/jobs/${jobId}`);
     await expect(client.getByRole("heading", { name: "E2E Administrative Virtual Assistant" })).toBeVisible();
-    await expect(client.getByText("Recruiting", { exact: true }).first()).toBeVisible();
+    await expect(client.getByRole("region", { name: "Hiring progress" })).toBeVisible();
   } finally {
     await Promise.all([recruiterContext.close(), clientContext.close()]);
   }

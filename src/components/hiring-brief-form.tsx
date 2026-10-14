@@ -225,7 +225,7 @@ function Head({ title, sub }: { title: string; sub: string }) {
 }
 
 function Foot() {
-  return <p className="hb-foot"><LockKeyhole size={13} />Private request · No obligation · About 30 seconds</p>;
+  return <p className="hb-foot"><LockKeyhole size={13} />Private by default · Public listing only if you opt in · No obligation</p>;
 }
 
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {

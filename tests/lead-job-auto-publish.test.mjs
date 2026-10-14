@@ -50,6 +50,9 @@ test("the anonymous job workflow requires consent and enforces moderation", asyn
   ]);
   assert.match(form, /name="public_listing_consent"/);
   assert.match(form, /Leave unchecked for a private matching request/);
+  assert.match(form, /Private by default/);
+  const hire = await read("src/app/hire/page.tsx");
+  assert.match(hire, /stays private unless you choose the optional public listing/);
   assert.match(leads, /publicListingConsent: formData.get\("public_listing_consent"\) === "yes"/);
   assert.match(role, /canAutoPublishLeadJob/);
   assert.match(role, /hiringCircumventionSignals\(publicContent\)/);

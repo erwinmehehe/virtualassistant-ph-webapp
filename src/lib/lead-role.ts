@@ -116,8 +116,11 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
   const fallbackSummary = `Virtual Assistant support requested for ${args.service || "business operations"}.`;
   const description = cleanJobDescription(args.message);
   const publicBrief = cleanJobDescription(args.publicBrief);
+  // Screen the ORIGINAL employer text, not a redacted/cleaned derivative.
+  // Redaction is for display only; contact information must still hold the
+  // entire public listing for recruiter review.
   const publicContent = [
-    args.title, args.company, publicBrief, args.tools || [],
+    args.title, args.company, args.publicBrief, args.tools || [],
   ];
   const safeContent = hiringCircumventionSignals(publicContent).length === 0
     && publicJobReviewSignals(publicContent).length === 0;

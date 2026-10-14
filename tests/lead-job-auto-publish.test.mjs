@@ -23,6 +23,15 @@ test("only opted-in complete roles publish without an account", () => {
   assert.equal(canAutoPublishLeadJob({ ...complete, companyName: "N/A" }), false);
   assert.equal(canAutoPublishLeadJob({ ...complete, companyName: "https://example.com" }), false);
   assert.equal(canAutoPublishLeadJob({ ...complete, budget: "Not sure yet" }), false);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "PHP 40000/month", minHourlyRate: 40000 }), false);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "PHP 8/hour", minHourlyRate: 8 }), false);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "USD 40000/month", minHourlyRate: 40000 }), false);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "8/hour" }), false);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "USD 8 to 12/week" }), false);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "USD 12 to 8/hour", minHourlyRate: 12 }), false);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "USD 25+/hour", minHourlyRate: 25 }), true);
+  assert.equal(canAutoPublishLeadJob({ ...complete, budget: "USD 8 to 12/hour", minHourlyRate: 6 }), false);
+
   assert.equal(canAutoPublishLeadJob({ ...complete, budget: "USD 5 to 8/hour", minHourlyRate: 6 }), false);
   assert.equal(canAutoPublishLeadJob({ ...complete, budget: null }), false);
   assert.equal(canAutoPublishLeadJob({ ...complete, hoursPerWeek: null }), false);
@@ -44,6 +53,9 @@ test("the anonymous job workflow requires consent and enforces moderation", asyn
   assert.match(leads, /publicListingConsent: formData.get\("public_listing_consent"\) === "yes"/);
   assert.match(role, /canAutoPublishLeadJob/);
   assert.match(role, /hiringCircumventionSignals\(publicContent\)/);
+  assert.match(role, /args\.publicBrief, args\.tools/);
+  // PII detection must run against the raw brief, before display redaction.
+  assert.doesNotMatch(role, /args\.title, args\.company, publicBrief, args\.tools/);
   assert.match(role, /publicJobReviewSignals\(publicContent\)/);
   assert.match(role, /recruiter_managed_public: true/);
   assert.match(role, /status: publishNow \? "published" : "pending"/);

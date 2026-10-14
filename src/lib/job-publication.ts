@@ -72,14 +72,18 @@ export function canAutoPublishLeadJob({
 }): boolean {
   const description = String(publicBrief || "").trim();
   const statedBudget = String(budget || "").trim();
-  const statedAmounts = statedBudget.match(/\d+(?:\.\d+)?/g)?.map(Number) || [];
+  // The intake form specifies USD hourly ranges. Never turn a PHP monthly
+  // budget, a bare number, or an unknown unit into a public USD/hour claim.
+  const hourlyRate = statedBudget.match(/^USD\s+(\d+(?:\.\d+)?)(?:\s*(?:to|-)\s*(\d+(?:\.\d+)?)|\s*\+)?\s*\/\s*(?:hour|hr)$/i);
+  const low = hourlyRate ? Number(hourlyRate[1]) : Number.NaN;
+  const high = hourlyRate?.[2] ? Number(hourlyRate[2]) : null;
 
   // Never infer consent, a real wage, or an actual opening from a generic
   // match enquiry. Do not expose personally selected talent requests.
   if (!optedIn || clientId || requestedVaId || description.length < 80) return false;
-  if (!hoursPerWeek || hoursPerWeek <= 0 || !statedAmounts.length) return false;
-  if (/not\s+sure|to\s+be\s+confirmed|negotiable/i.test(statedBudget)) return false;
-  if (statedAmounts[0] < MIN_HOURLY_RATE) return false;
+  if (!hoursPerWeek || hoursPerWeek <= 0 || !Number.isFinite(low)) return false;
+  if (low < MIN_HOURLY_RATE || (high !== null && high < low)) return false;
+  if (minHourlyRate == null || Number(minHourlyRate) !== low) return false;
   if (/requested\s+talent\s+profile:|client-selected\s+shortlist:/i.test(description)) return false;
   return publicationMissingDetails({
     title,

@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { inferCategories, inferHours } from "@/lib/category-inference";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
+import { canAutoPublishLeadJob, publicJobReviewSignals } from "@/lib/job-publication";
+import { hiringCircumventionSignals } from "@/lib/hiring-circumvention";
 
 export type EnsurePendingRoleForLeadArgs = {
   admin: ReturnType<typeof createAdminClient>;
@@ -21,6 +23,8 @@ export type EnsurePendingRoleForLeadArgs = {
   clientId?: string | null;
   recruiterId?: string | null;
   ownerId?: string | null;
+  publicListingConsent?: boolean;
+  publicBrief?: string | null;
 };
 
 export function rateRangeFromBudget(value?: string | null) {
@@ -109,6 +113,23 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
   const rates = rateRangeFromBudget(args.budget);
   const fallbackSummary = `Virtual Assistant support requested for ${args.service || "business operations"}.`;
   const description = cleanJobDescription(args.message);
+  const publicBrief = cleanJobDescription(args.publicBrief);
+  const publicContent = [
+    args.title, args.company, publicBrief, args.tools || [],
+  ];
+  const safeContent = hiringCircumventionSignals(publicContent).length === 0
+    && publicJobReviewSignals(publicContent).length === 0;
+  const publishNow = safeContent && canAutoPublishLeadJob({
+    optedIn: args.publicListingConsent === true,
+    clientId: args.clientId,
+    requestedVaId: args.requestedVaId,
+    title: args.title,
+    companyName: args.company,
+    publicBrief,
+    hoursPerWeek: inferHours(args.hours),
+    budget: args.budget,
+    minHourlyRate: rates.min,
+  });
 
   const payload: Record<string, unknown> = {
     client_id: args.clientId || null,
@@ -116,9 +137,9 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
     requested_va_id: args.requestedVaId || null,
     title: args.title,
     company_name: args.company || null,
-    summary: cleanJobSummary(args.message, fallbackSummary),
-    description,
-    responsibilities: description ? [description] : [],
+    summary: publishNow ? cleanJobSummary(publicBrief, fallbackSummary) : cleanJobSummary(args.message, fallbackSummary),
+    description: publishNow ? publicBrief : description,
+    responsibilities: publishNow ? [publicBrief] : description ? [description] : [],
     required_tools: args.tools || [],
     categories,
     hours_per_week: inferHours(args.hours),
@@ -131,7 +152,8 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
     direct_feedback: true,
     engagement_length: "Long-term preferred",
     start_timing: args.startTime || null,
-    status: "pending",
+    status: publishNow ? "published" : "pending",
+    ...(publishNow ? { recruiter_managed_public: true, moderation_status: "clear", published_at: new Date().toISOString() } : {}),
   };
   if (args.recruiterId) payload.recruiter_id = args.recruiterId;
 

@@ -205,6 +205,10 @@ function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget 
         <textarea id={`${id}-message`} name="message" rows={3} required minLength={messageMin} maxLength={3000} placeholder={placeholder} />
         {messageMin >= 40 ? <small className="hb-field-hint">Minimum 40 characters.</small> : null}
       </div>
+      <label className="hb-public-consent">
+        <input type="checkbox" name="public_listing_consent" value="yes" />
+        <span>Also publish this opening on the VAPH jobs page when the public brief, actual pay, and safety checks are complete. My company name and job description may be shown publicly. Leave unchecked for a private matching request.</span>
+      </label>
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     </>
   );

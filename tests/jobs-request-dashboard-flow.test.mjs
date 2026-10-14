@@ -78,4 +78,6 @@ test("public job search still reads only the filtered public view", async () => 
   assert.doesNotMatch(source, /\.from\("jobs"\)/);
   assert.match(source, /href=\{VA_JOIN_HREF\}/);
   assert.match(source, /href=\{EMPLOYER_POST_HREF\}/);
+  assert.match(source, /href="\/hire"/);
+  assert.match(source, /Send a hiring request without creating an account/);
 });

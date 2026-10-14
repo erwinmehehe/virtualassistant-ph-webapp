@@ -208,6 +208,7 @@ export default async function PublicJobsPage({
               <Link className="btn btn-primary btn-lg jobs-employer-button" href={EMPLOYER_POST_HREF}>
                 Post a VA job <ArrowRight size={16} />
               </Link>
+              <Link className="jobs-employer-help" href="/hire">Prefer recruiter assistance? Send a hiring request without creating an account.</Link>
               <Link className="jobs-employer-note" href={EMPLOYER_LOGIN_HREF}>Already have a client account? Sign in.</Link>
             </aside>
           </div>

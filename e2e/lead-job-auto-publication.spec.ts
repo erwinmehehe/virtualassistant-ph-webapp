@@ -19,7 +19,7 @@ test("opted-in public hiring request publishes; private request stays out of /jo
     await page.getByLabel("Type of help").selectOption({ label: "Administrative Support" });
     await page.getByLabel("First name").fill("E2E Employer");
     await page.getByLabel("Work email").fill(`job-release-${code}@example.test`);
-    await page.getByLabel("Company name").fill(company);
+    await page.getByRole("textbox", { name: "Company name", exact: true }).fill(company);
     await page.getByLabel("Hours per week").selectOption({ label: "20 to 30 hours/week" });
     await page.getByLabel("Hourly budget").selectOption({ label: "USD 8 to 12/hour" });
     await page.getByLabel("What should your VA handle?").fill(

@@ -43,6 +43,7 @@ for (const workspace of workspaces) {
       await page.setViewportSize({ width: size.width, height: size.height });
       await signIn(page, workspace.email, workspace.home);
       await expect(page.getByRole("heading", { name: workspace.heading, exact: true })).toBeVisible();
+      await expect(page.locator("main#main-content")).toBeVisible();
       await expect(page.locator(`a[href="${workspace.nextHref}"]`).first()).toBeVisible();
 
       const nav = page.getByRole("navigation", {

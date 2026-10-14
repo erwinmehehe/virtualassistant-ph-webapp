@@ -22,6 +22,12 @@ Configure these in the repository Actions secrets:
 
 Never commit either value. The workflow fails closed if either secret is missing.
 
+## Automatic backup health alert
+
+The separate **Production backup health alert** workflow runs when a production backup completes and also once daily. It checks GitHub Actions metadata, not database contents or secret values. If the latest completed backup failed or the most recent successful backup/restore is older than **36 hours**, it creates or updates a single GitHub issue titled **Production database backup needs attention**. After a fresh successful backup and isolated restore, it closes that issue.
+
+A green monitoring workflow does **not** mean a backup exists. Only a recent successful **Encrypted production database backup** workflow run with a verified encrypted artifact and restore completes the recovery gate. See [PRODUCTION_SECURITY_CONFIGURATION.md](PRODUCTION_SECURITY_CONFIGURATION.md) for the exact operator setup steps.
+
 ## Backup verification
 
 A successful workflow run proves all of the following for that backup:

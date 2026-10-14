@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, permanentRedirect, redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, BriefcaseBusiness, CheckCircle2, Clock3, Globe2, ShieldCheck, WalletCards } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionProfile } from "@/lib/auth";
 import { applyToJobAction, saveJobAction } from "@/app/actions/applications";
 import { money, dateShort } from "@/lib/format";
@@ -14,7 +13,7 @@ import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
 import { isPublishableCompanyName } from "@/lib/job-publication";
-import { organizationRef } from "@/lib/organization";
+import { organizationId, websiteId } from "@/lib/organization";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import "./job-detail.css";
 
@@ -27,23 +26,6 @@ async function getPublishedJob(key: string) {
   } catch (err) {
     if (process.env.NODE_ENV !== "production") console.warn("[jobs/[id]] Supabase unavailable:", (err as Error).message);
     return null;
-  }
-}
-
-
-async function wasPreviouslyPublicJob(key: string) {
-  try {
-    const admin = createAdminClient();
-    let query = admin.from("jobs").select("id,slug,status,published_at,expires_at");
-    query = isUuid(key) ? query.eq("id", key) : query.eq("slug", key);
-    const { data } = await query.maybeSingle();
-    if (!data?.published_at) return false;
-
-    const expired = Boolean(data.expires_at && new Date(data.expires_at).getTime() <= Date.now());
-    return data.status === "closed" || expired;
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") console.warn("[jobs/[id]] retired job lookup unavailable:", (err as Error).message);
-    return false;
   }
 }
 
@@ -98,10 +80,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   const { id } = await params;
   const query = await searchParams;
   const job = await getPublishedJob(id);
-  if (!job) {
-    if (await wasPreviouslyPublicJob(id)) permanentRedirect("/jobs?closed=1");
-    notFound();
-  }
+  if (!job) notFound();
   const canonicalHref = jobPublicHref(job);
   if (isUuid(id) && job.slug) redirect(canonicalHref);
 
@@ -143,39 +122,71 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   ].filter(Boolean).join("\n");
 
   const base=(process.env.NEXT_PUBLIC_APP_URL||"https://virtualassistant.com.ph").replace(/\/$/,"");
-  const jobSchemaId = `${base}${canonicalHref}#job`;
+  const pageUrl = `${base}${canonicalHref}`;
+  const jobSchemaId = `${pageUrl}#job`;
+  const webpageId = `${pageUrl}#webpage`;
+  const breadcrumbId = `${pageUrl}#breadcrumb`;
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": `${base}${canonicalHref}`,
-        publisher: organizationRef(base),
+        "@id": webpageId,
+        url: pageUrl,
+        name: job.title,
+        description: structuredDescription,
+        inLanguage: "en-PH",
+        isPartOf: { "@id": siteId },
+        about: { "@id": jobSchemaId },
         mainEntity: { "@id": jobSchemaId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId },
       },
       {
         "@type": "JobPosting",
         "@id": jobSchemaId,
         title: job.title,
-    description: structuredDescription,
-    identifier: { "@type": "PropertyValue", name: "VirtualAssistant.com.ph", value: job.id },
-    datePosted: job.published_at || job.created_at,
-    validThrough: job.expires_at || undefined,
-    url: `${base}${canonicalHref}`,
-    employmentType: job.hours_per_week ? (job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME") : undefined,
-    jobLocationType: "TELECOMMUTE",
-    applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
-    hiringOrganization: {
-      "@type": "Organization",
-      name: companyName,
-      ...(companyWebsite ? { sameAs: companyWebsite } : {}),
-      ...(company?.logo_url ? { logo: company.logo_url } : {}),
-    },
-    responsibilities: uniqueStrings(job.responsibilities).length ? uniqueStrings(job.responsibilities).join("; ") : undefined,
-    skills: mergeUniqueStrings(job.required_skills, job.required_tools).length ? mergeUniqueStrings(job.required_skills, job.required_tools).join(", ") : undefined,
-    workHours: job.hours_per_week ? `${job.hours_per_week} hours per week` : undefined,
-    experienceRequirements: job.experience_level ? `Experience level: ${job.experience_level}` : undefined,
-        baseSalary: job.min_hourly_rate ? { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: job.min_hourly_rate, ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}), unitText: "HOUR" } } : undefined
+        description: structuredDescription,
+        identifier: { "@type": "PropertyValue", name: "VirtualAssistant.com.ph", value: job.id },
+        datePosted: job.published_at || job.created_at,
+        validThrough: job.expires_at || undefined,
+        url: pageUrl,
+        mainEntityOfPage: { "@id": webpageId },
+        employmentType: job.hours_per_week ? (job.hours_per_week >= 35 ? "FULL_TIME" : "PART_TIME") : undefined,
+        jobLocationType: "TELECOMMUTE",
+        applicantLocationRequirements: { "@type": "Country", name: "Philippines" },
+        hiringOrganization: {
+          "@type": "Organization",
+          name: companyName,
+          ...(companyWebsite ? { url: companyWebsite, sameAs: companyWebsite } : {}),
+          ...(company?.logo_url ? { logo: company.logo_url } : {}),
+        },
+        responsibilities: uniqueStrings(job.responsibilities).length ? uniqueStrings(job.responsibilities).join("; ") : undefined,
+        skills: mergeUniqueStrings(job.required_skills, job.required_tools).length ? mergeUniqueStrings(job.required_skills, job.required_tools).join(", ") : undefined,
+        workHours: job.hours_per_week ? `${job.hours_per_week} hours per week` : undefined,
+        experienceRequirements: job.experience_level ? `Experience level: ${job.experience_level}` : undefined,
+        baseSalary: job.min_hourly_rate ? {
+          "@type": "MonetaryAmount",
+          currency: "USD",
+          value: {
+            "@type": "QuantitativeValue",
+            minValue: job.min_hourly_rate,
+            ...(job.max_hourly_rate ? { maxValue: job.max_hourly_rate } : {}),
+            unitText: "HOUR"
+          }
+        } : undefined
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: base },
+          { "@type": "ListItem", position: 2, name: "Virtual Assistant Jobs", item: `${base}/jobs` },
+          { "@type": "ListItem", position: 3, name: job.title, item: pageUrl }
+        ]
       }
     ]
   };

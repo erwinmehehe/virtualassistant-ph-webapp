@@ -67,15 +67,6 @@ export default async function LegacyArticlePage({ params }: { params: Promise<{ 
         publisher: { "@type": "Organization", name: "VirtualAssistant.com.ph", url: base }
       },
       {
-        "@type": "FAQPage",
-        "@id": `${base}${blogHref(post)}#faq`,
-        mainEntity: post.faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer }
-        }))
-      },
-      {
         "@type": "BreadcrumbList",
         "@id": `${base}${blogHref(post)}#breadcrumb`,
         itemListElement: [

@@ -19,6 +19,13 @@ test("public talent directory behaves like managed recruiting, not a marketplace
   assert.match(directory, /recruiter confirms current fit and availability/i);
 });
 
+test("homepage talent examples do not anchor prospects to a candidate hourly rate", () => {
+  const homepageSections = source("src/components/homepage-sections.tsx");
+
+  assert.doesNotMatch(homepageSections, /\/hr preferred|Number\(va\.hourly_rate\)/);
+  assert.match(homepageSections, /Compensation and service fees quoted separately/);
+});
+
 test("public talent profile route redirects to the managed directory and exposes no internal recruiting signals", () => {
   const profile = source("src/app/va/[slug]/page.tsx");
 

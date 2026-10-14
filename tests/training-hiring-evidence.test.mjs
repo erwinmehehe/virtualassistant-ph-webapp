@@ -23,8 +23,11 @@ test("VA workspace and private preview show verified training automatically", as
   assert.match(profile, /getTrainingCredentialsForUser\(userId\)/);
   assert.match(profile, /heading="Training & certificates"/);
   assert.match(profile, /audience="self"/);
+  const portfolio = await source("src/components/va-portfolio-preview.tsx");
   assert.match(preview, /getTrainingCredentialsForUser\(user\.id\)/);
-  assert.match(preview, /heading="Training completed"/);
+  assert.match(preview, /trainingCredentials=\{trainingCredentials\}/);
+  assert.match(portfolio, /heading="Completed training"/);
+  assert.match(portfolio, /<TrainingCredentials/);
   assert.match(dashboard, /getTrainingCredentialsForUser\(userId\)/);
 });
 

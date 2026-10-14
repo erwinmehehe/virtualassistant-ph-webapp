@@ -50,23 +50,12 @@ test("closing signals are deduped behind higher-priority replies and proposal ac
   assert.match(page, /!higherPriorityClosingLeadIds\.has\(row\.id\)/);
 });
 
-test("conversion blockers outrank routine sourcing work in the Next up hierarchy", async () => {
-  const page = await read("src/app/workspace/recruiter/today/page.tsx");
-
-  const replies = page.indexOf('title:"Reply to clients"');
-  const overdueDiscovery = page.indexOf('title:"Resolve overdue discovery outcomes"');
-  const missingProposal = page.indexOf('title:"Prepare qualified proposals"');
-  const draftProposal = page.indexOf('title:"Send proposal drafts"');
-  const proposals = page.indexOf('title:"Move open proposals"');
-  const overdue = page.indexOf('title:"Recover overdue follow-ups"');
-  const stalled = page.indexOf('title:"Recover stalled client leads"');
-  const discovery = page.indexOf('title:"Prepare upcoming discovery calls"');
-  const sourcing = page.indexOf('title:"Build the first shortlist"');
-
-  assert.ok(replies >= 0 && overdueDiscovery > replies && missingProposal > overdueDiscovery && draftProposal > missingProposal);
-  assert.ok(proposals > draftProposal && overdue > proposals && stalled > overdue);
-  assert.ok(discovery > stalled);
-  assert.ok(sourcing > discovery);
+test("Today prioritizes client replies, interviews and waiting decisions before routine sourcing", async () => {
+  const { recruiterTodayFocus } = await import("../src/lib/recruiter-today-focus.ts");
+  const signals = { clientReplies: 2, firstContacts: 1, interviewsRequested: 3, clientDecisionsWaiting: 4, approvalReady: 0 };
+  assert.equal(recruiterTodayFocus([], signals).next.title, "Reply to clients");
+  assert.equal(recruiterTodayFocus([], { ...signals, clientReplies: 0, firstContacts: 0 }).next.title, "Schedule or review interviews");
+  assert.equal(recruiterTodayFocus([], { ...signals, clientReplies: 0, firstContacts: 0, interviewsRequested: 0 }).next.title, "Follow up on client decisions");
 });
 
 test("Recruiter Today closing command center stays responsive", async () => {

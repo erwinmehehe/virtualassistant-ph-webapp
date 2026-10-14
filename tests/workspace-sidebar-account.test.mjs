@@ -119,7 +119,7 @@ test("client and VA navigation expose the primary journeys without duplicating e
   assert.doesNotMatch(nav, /\["Hiring Room", "\/workspace\/client\/candidates"/);
   assert.doesNotMatch(nav, /\["Offers", "\/workspace\/client\/offers"/);
   assert.match(nav, /\["Applications", "\/workspace\/va\/applications"/);
-  assert.match(nav, /\["Find Jobs", "\/workspace\/va\/jobs"/);
+  assert.match(nav, /\["Jobs", "\/workspace\/va\/jobs"/);
   assert.match(nav, /client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/messages", "\/workspace\/client\/team"\]/);
-  assert.match(nav, /va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/applications", "\/workspace\/va\/workroom"\]/);
+  assert.match(nav, /va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/applications", "\/workspace\/va\/messages"\]/);
 });

@@ -11,6 +11,7 @@ export type PublicationBlocker =
 
 export type PublicationJob = {
   status?: string | null;
+  moderation_status?: string | null;
   client_id?: string | null;
   recruiter_managed_public?: boolean | null;
   title?: string | null;
@@ -48,12 +49,69 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
   return missing;
 }
 
+/** A complete curated-placement role can be published without waiting for
+ * commercial approval. Candidate identity/access remains separately gated.
+ * The email-verified rollout is default-off; legacy admin permission still works. */
+export function clientCanSelfPublishJob({
+  serviceModel,
+  emailVerified,
+  legacyApproved,
+  verifiedClientRollout,
+}: {
+  serviceModel: string;
+  emailVerified: boolean;
+  legacyApproved: boolean;
+  verifiedClientRollout: boolean;
+}) {
+  if (serviceModel !== "curated_placement") return false;
+  return legacyApproved || (verifiedClientRollout && emailVerified);
+}
+
+/** Shared, testable state decision. A staff hold always wins over auto-publishing. */
+export function resolveClientJobSubmitStatus({
+  submitMode,
+  canSelfPublish,
+  needsModeration,
+  previousStatus = null,
+  staffHold = false,
+}: {
+  submitMode: string;
+  canSelfPublish: boolean;
+  needsModeration: boolean;
+  previousStatus?: string | null;
+  staffHold?: boolean;
+}): "draft" | "pending" | "published" {
+  if (submitMode === "draft") return "draft";
+  if (staffHold || needsModeration) return "pending";
+  if (previousStatus === "published" || canSelfPublish) return "published";
+  return "pending";
+}
+
+/** Low-noise signals for public job content. A match requires private review. */
+export function publicJobReviewSignals(parts: Array<string | string[] | null | undefined>) {
+  const text = parts.flatMap((part) => Array.isArray(part) ? part : [part])
+    .map((part) => String(part || "")).join(" ");
+  const signals: string[] = [];
+  if (/https?:\/\/|\bwww\.[a-z0-9-]+\./i.test(text)) signals.push("external_link");
+  if (/\b(?:earn money fast|guaranteed income|limited time offer|click here to apply)\b/i.test(text))
+    signals.push("promotional_language");
+  return signals;
+}
+
 export function publicationBlocker(job: PublicationJob, commercial?: PublicationCommercial): {
   key: PublicationBlocker;
   label: string;
   detail: string;
 } {
-  if (job.status === "published" && job.recruiter_managed_public) {
+  if (job.moderation_status && job.moderation_status !== "clear") {
+    return {
+      key: "needs_role_review",
+      label: "Content review needed",
+      detail: "This role is held from public search while staff reviews its content.",
+    };
+  }
+
+  if (job.status === "published" && job.recruiter_managed_public && !job.client_id) {
     const missing = publicationMissingDetails(job);
     if (missing.length) {
       return {
@@ -97,7 +155,21 @@ export function publicationBlocker(job: PublicationJob, commercial?: Publication
   }
 
   if (job.status === "published") {
-    return { key: "published", label: "Published", detail: "This role is live on the public jobs page." };
+    // Public visibility and permission to release identified candidates are
+    // separate. A live job can still need the client's terms acceptance.
+    if (!commercial?.commercial_status) {
+      return { key: "needs_terms", label: "Published · terms needed",
+        detail: "The job is live. Prepare service terms before candidates can be sent to the client." };
+    }
+    if (commercial.commercial_status === "quoted") {
+      return { key: "waiting_client_approval", label: "Published · client approval needed",
+        detail: "The job is live. The client must accept the service terms before candidates can be sent." };
+    }
+    if (commercial.commercial_status === "accepted") {
+      return { key: "published", label: "Published", detail: "This role is live on the public jobs page." };
+    }
+    return { key: "needs_terms", label: "Published · terms to review",
+      detail: "The job is live, but commercial terms need attention before client shortlist release." };
   }
 
   if (!commercial?.commercial_status) {

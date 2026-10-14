@@ -255,7 +255,11 @@ export async function joinAction(formData: FormData) {
     redirect(joinErrorPath(role, "Please use a permanent email address. Temporary inbox providers cannot receive account or hiring notifications.", { talent, lead, next }));
   }
 
-  if (await isKnownCompromisedPassword(parsed.data.password)) {
+  const signupBreachCheck = await isKnownCompromisedPassword(parsed.data.password);
+  if (signupBreachCheck === null) {
+    redirect(joinErrorPath(role, "Password security verification is temporarily unavailable. Please try again.", { talent, lead, next }));
+  }
+  if (signupBreachCheck) {
     redirect(joinErrorPath(role, "That password appears in known data breaches. Choose a different password.", { talent, lead, next }));
   }
 
@@ -469,7 +473,11 @@ export async function updatePasswordAction(formData: FormData) {
   if (!newPasswordSchema.safeParse(password).success) {
     redirect("/auth/update-password?error=Use%2012%2B%20characters%20with%20uppercase%2C%20lowercase%2C%20a%20number%2C%20and%20a%20symbol.%20Avoid%20common%20password%20phrases.");
   }
-  if (await isKnownCompromisedPassword(password)) {
+  const resetBreachCheck = await isKnownCompromisedPassword(password);
+  if (resetBreachCheck === null) {
+    redirect("/auth/update-password?error=Password%20security%20verification%20is%20temporarily%20unavailable.%20Please%20try%20again.");
+  }
+  if (resetBreachCheck) {
     redirect("/auth/update-password?error=That%20password%20appears%20in%20known%20data%20breaches.%20Choose%20a%20different%20password.");
   }
   const supabase = await createClient();

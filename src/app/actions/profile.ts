@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
+import { normalizeTimeZone } from "@/lib/timezones";
 import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/lib/category-inference";
 import { getClassificationEvidenceReadiness } from "@/lib/classification-readiness";
 import { isPubliclyEligible } from "@/lib/public-visibility";
@@ -331,6 +332,9 @@ export async function updateClientProfileAction(formData: FormData) {
   const website = cleanUrl(formData.get("website"));
   const logoUrl = cleanUrl(formData.get("logo_url"));
   const logoUpload = await validateUpload(formData.get("logo"), "company-logo");
+  const rawTimeZone = String(formData.get("timezone") ?? "").trim();
+  const clientTimeZone = normalizeTimeZone(rawTimeZone);
+  if (!clientTimeZone) redirect("/workspace/client/company?timezone_error=1");
 
   const { error: nameError } = await admin.from("profiles").update({ full_name: fullName || null }).eq("id", user.id);
   if (nameError) throw nameError;
@@ -338,7 +342,7 @@ export async function updateClientProfileAction(formData: FormData) {
     company_name: String(formData.get("company_name") ?? "").trim() || null,
     website,
     industry: String(formData.get("industry") ?? "").trim() || null,
-    timezone: String(formData.get("timezone") ?? "").trim() || null,
+    timezone: clientTimeZone,
     team_size: String(formData.get("team_size") ?? "").trim() || null,
     company_description: String(formData.get("company_description") ?? "").trim() || null,
     logo_url: logoUrl,
@@ -366,16 +370,17 @@ export async function completeClientOnboardingAction(formData: FormData) {
   const { user } = await requireRole("client");
   const fullName = String(formData.get("full_name") ?? "").trim();
   const companyName = String(formData.get("company_name") ?? "").trim();
-  const timezone = String(formData.get("timezone") ?? "").trim();
+  const timezone = normalizeTimeZone(String(formData.get("timezone") ?? "").trim());
   const hiringNeeds = String(formData.get("hiring_needs") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
   const budgetMinInput = String(formData.get("budget_min") ?? "").trim();
   const budgetMaxInput = String(formData.get("budget_max") ?? "").trim();
   const budgetMin = Number(budgetMinInput);
   const budgetMax = Number(budgetMaxInput);
-  if (fullName.length < 2 || companyName.length < 2 || timezone.length < 2 || hiringNeeds.length < 20) {
+  if (fullName.length < 2 || companyName.length < 2 || hiringNeeds.length < 20) {
     redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Complete the required onboarding details.")}`);
   }
+  if (!timezone) redirect(`/workspace/client/onboarding?error=${encodeURIComponent("Choose a valid timezone, such as Asia/Manila or America/New_York.")}`);
   if (!Number.isFinite(budgetMin) || budgetMin < MIN_HOURLY_RATE || !Number.isFinite(budgetMax) || budgetMax < budgetMin) {
     redirect(`/workspace/client/onboarding?budget_error=invalid_range&budget_min=${encodeURIComponent(budgetMinInput)}&budget_max=${encodeURIComponent(budgetMaxInput)}`);
   }

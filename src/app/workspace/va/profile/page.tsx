@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Clock3, Eye, ShieldCheck } from "lucide-react";
+import { ReloadPageButton } from "@/components/reload-page-button";
+import { Suspense } from "react";
+import { Clock3, Eye, Monitor, ShieldCheck } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { updateVaProfileAction } from "@/app/actions/profile";
@@ -21,6 +23,15 @@ function availabilityAge(value?: string | null) {
   };
 }
 
+async function VaProfileCredentials({ userId }: { userId: string }) {
+  try {
+    const credentials = await getTrainingCredentialsForUser(userId);
+    return <TrainingCredentials credentials={credentials} heading="Training & certificates" showEmpty selfService audience="self" />;
+  } catch {
+    return <section className="profile-section profile-section-flat" role="status"><h2>Training & certificates</h2><p className="muted">Training records are temporarily unavailable. Your profile edits are not affected.</p></section>;
+  }
+}
+
 export default async function VaProfilePage({
   searchParams,
 }: {
@@ -33,10 +44,12 @@ export default async function VaProfilePage({
   ]);
 
   const supabase = await createClient();
-  const [{ data: va }, trainingCredentials] = await Promise.all([
-    supabase.from("va_profiles").select("*").eq("user_id", userId).single(),
-    getTrainingCredentialsForUser(userId),
-  ]);
+  const { data: va, error: profileError } = await supabase.from("va_profiles").select("*").eq("user_id", userId).single();
+  if (profileError) {
+    // Never show an empty editable form when a profile read failed: submitting it
+    // could replace real data with default/blank values.
+    return <main className="dash-page"><section className="card stack" role="alert"><h1>Profile temporarily unavailable</h1><p>We couldn't load your saved profile. Nothing on this page has been changed. Reload before editing so you can review your existing details.</p><div className="row wrap"><ReloadPageButton label="Reload profile"/><Link className="btn" href="/workspace/va">Back to workspace</Link></div></section></main>;
+  }
 
   const savedResumeName = va?.resume_path?.split("/").pop()?.replace(/^\d+-/, "") || null;
   const consentGranted = Boolean(va?.public_profile_consent);
@@ -328,13 +341,19 @@ export default async function VaProfilePage({
             </div>
           </form>
 
-          <TrainingCredentials
-            credentials={trainingCredentials}
-            heading="Training & certificates"
-            showEmpty
-            selfService
-            audience="self"
-          />
+          <section className="profile-section profile-section-flat" id="work-setup-link">
+            <div className="profile-section-head profile-section-head-simple">
+              <div>
+                <h2>Work-from-home setup</h2>
+                <p>Update your computer, internet, backup power, headset, webcam, and quiet workspace details. These are private to recruiters, not part of your public profile.</p>
+              </div>
+            </div>
+            <Link className="btn btn-sm" href="/workspace/va/work-readiness">
+              <Monitor size={16} /> Edit work-from-home setup
+            </Link>
+          </section>
+
+          <Suspense fallback={null}><VaProfileCredentials userId={userId}/></Suspense>
 
           <section className="profile-section profile-section-flat" id="visibility">
             <div className="profile-section-head profile-section-head-simple">

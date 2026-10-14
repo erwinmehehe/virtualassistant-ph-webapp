@@ -232,16 +232,6 @@ export default async function TrainingPage() {
   const foundationDuration = foundation ? duration(foundation.estimated_minutes) : "3h 40m";
 
   const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "@id": `${canonicalUrl("/training")}#faq`,
-      mainEntity: FAQS.map(([question, answer]) => ({
-        "@type": "Question",
-        name: question,
-        acceptedAnswer: { "@type": "Answer", text: answer }
-      }))
-    },
     ...(foundation ? [{
       "@context": "https://schema.org",
       "@type": "Course",

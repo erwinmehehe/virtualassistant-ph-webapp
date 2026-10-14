@@ -3,6 +3,7 @@ import { JobWizard } from "@/components/job-wizard";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { suggestJobDraft } from "@/lib/job-draft-suggestions";
+import { clientCanSelfPublishJob } from "@/lib/job-publication";
 
 function starterBrief(needs: string) {
   const suggested = suggestJobDraft(needs);
@@ -22,13 +23,19 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
   const supabase=await createClient();
   const {data:company}=await supabase
     .from("client_profiles")
-    .select("company_name,timezone,hiring_needs,budget_min,budget_max,can_self_publish_jobs")
+    .select("company_name,timezone,hiring_needs,budget_min,budget_max,can_self_publish_jobs,verified_at")
     .eq("user_id",user.id)
     .maybeSingle();
   const {data:requested}=params.talent
     ? await supabase.from("public_va_directory").select("user_id,slug,full_name,primary_category").eq("slug",params.talent).maybeSingle()
     : {data:null};
 
+  const canSelfPublishJobs = clientCanSelfPublishJob({
+    serviceModel: "curated_placement",
+    legacyApproved: Boolean(company?.can_self_publish_jobs && company?.verified_at),
+    emailVerified: Boolean(user.email_confirmed_at),
+    verifiedClientRollout: process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true",
+  });
   const needs=String(company?.hiring_needs||"").trim();
   const starter=needs?starterBrief(needs):{};
   const initialData={
@@ -48,9 +55,10 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
         <Link className="text-link small" href="/workspace/client/jobs">← Hiring requests</Link>
         <div className="kicker" style={{marginTop:10}}>{fromPublicDraft ? "Final review" : "Post a Virtual Assistant job"}</div>
         <h1>{fromPublicDraft ? "Review and post your job" : "Tell us who you need"}</h1>
+        <p className="small muted">Public job listings display your company name. You can control which additional company details appear in <Link className="text-link" href="/workspace/client/company">Company profile</Link>.</p>
         <p>{fromPublicDraft
           ? "Check the role, schedule and budget below. You can edit anything before you submit."
-          : company?.can_self_publish_jobs
+          : canSelfPublishJobs
             ? "Describe the work, set the schedule and budget, then review the public job before it goes live."
             : fromOnboarding
               ? "We used your onboarding answers to prepare a starter brief. Review it, adjust anything you want, then send it to your recruiter."
@@ -58,11 +66,11 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
       </div>
       <div className="client-role-editor-meta" aria-label="Hiring request form details">
         <span><strong>3</strong> short steps</span>
-        <span><strong>Auto</strong> saved</span>
+        <span><strong>Device</strong> draft</span>
         <span><strong>Recruiter</strong> supported</span>
       </div>
     </div>
     {requested?<div className="success-banner client-role-requested-banner"><strong>{requested.full_name}</strong> is attached as your preferred VA. Your recruiter will keep that preference with this role.</div>:null}
-    <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={Boolean(company?.can_self_publish_jobs)}/></div>
+    <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={canSelfPublishJobs} draftScope={user.id} importPublicDraft={fromPublicDraft}/></div>
   </div>;
 }

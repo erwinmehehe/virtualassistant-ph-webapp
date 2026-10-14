@@ -32,9 +32,9 @@ import { INDUSTRIES } from "@/lib/industries";
 import { uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata, serviceOgCategory } from "@/lib/og";
+import { organizationId, websiteId } from "@/lib/organization";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
-import { organizationRef } from "@/lib/organization";
 import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
 import { seoPriorityLinksForService } from "@/lib/seo-priority-links";
 import { softwarePagesForTools } from "@/lib/software-pages";
@@ -606,35 +606,85 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
     { q: "Can this role be part-time?", a: "Often, yes. Define the workload, response-time expectations, and required schedule overlap first so candidates can tell you whether the hours are realistic." }
   ], s.locale);
 
-  const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "@id": `${pageUrl}#service`,
-      name: serviceMetaTitle(s),
-      serviceType: s.name,
-      url: pageUrl,
-      description: serviceMetaDescription(s),
-      provider: organizationRef(base),
-      areaServed: market || "Worldwide"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "@id": `${pageUrl}#faq`,
-      mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } }))
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "@id": `${pageUrl}#breadcrumb`,
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: base },
-        { "@type": "ListItem", position: 2, name: "Virtual Assistant Services", item: `${base}/services` },
-        { "@type": "ListItem", position: 3, name: s.name, item: pageUrl }
-      ]
-    }
-  ];
+  const serviceAreas = market === "Australia"
+    ? ["AU"]
+    : market === "United Kingdom"
+      ? ["GB"]
+      : ["US", "AU", "CA", "GB", "NZ"];
+
+  const serviceCapabilities = uniqueStrings(s.tasks)
+    .slice(0, 6)
+    .map((task) => ({
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: toTitle(task),
+      },
+    }));
+
+  const serviceId = `${pageUrl}#service`;
+  const webpageId = `${pageUrl}#webpage`;
+  const breadcrumbId = `${pageUrl}#breadcrumb`;
+  const orgId = organizationId(base);
+  const siteId = websiteId(base);
+  const serviceLanguage = s.locale || "en-US";
+
+  const serviceAreaNames: Record<string, string> = {
+    US: "United States",
+    AU: "Australia",
+    CA: "Canada",
+    GB: "United Kingdom",
+    NZ: "New Zealand",
+  };
+  const areaServed = serviceAreas.map((countryCode) => ({
+    "@type": "Country",
+    name: serviceAreaNames[countryCode] || countryCode,
+  }));
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url: pageUrl,
+        name: serviceMetaTitle(s),
+        description: serviceMetaDescription(s),
+        inLanguage: serviceLanguage,
+        isPartOf: { "@id": siteId },
+        about: { "@id": serviceId },
+        mainEntity: { "@id": serviceId },
+        breadcrumb: { "@id": breadcrumbId },
+        publisher: { "@id": orgId },
+      },
+      {
+        "@type": "Service",
+        "@id": serviceId,
+        name: serviceMetaTitle(s),
+        serviceType: `${s.name} Services`,
+        url: pageUrl,
+        description: serviceMetaDescription(s),
+        mainEntityOfPage: { "@id": webpageId },
+        provider: { "@id": orgId },
+        areaServed,
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          "@id": `${serviceId}-offers`,
+          name: `${roleName(s.name)} VA Capabilities`,
+          itemListElement: serviceCapabilities,
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: base },
+          { "@type": "ListItem", position: 2, name: "Virtual Assistant Services", item: `${base}/services` },
+          { "@type": "ListItem", position: 3, name: s.name, item: pageUrl }
+        ]
+      }
+    ]
+  };
 
   return <>
     <SiteHeader />

@@ -32,10 +32,10 @@ import "./homepage-seo-evidence.css";
 import "./homepage-growth.css";
 import "./homepage-sections.css";
 import "./homepage-reference-polish.css";
-import { ORGANIZATION_ALTERNATE_NAME, ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId } from "@/lib/organization";
+import { ORGANIZATION_ALTERNATE_NAME, ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId, websiteId } from "@/lib/organization";
 
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Philippines | VirtualAssistant.com.ph" },
+  title: { absolute: "VirtualAssistant.com.ph | Virtual Assistant Philippines" },
   description:
     "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.",
   keywords: [
@@ -136,10 +136,10 @@ export default async function HomePage() {
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
     .slice(0, 6);
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
-  const homeTitle = "Virtual Assistant Philippines | VirtualAssistant.com.ph";
+  const homeTitle = "VirtualAssistant.com.ph | Virtual Assistant Philippines";
   const homeDescription =
     "Hire vetted Filipino virtual assistants with Virtual Assistant Philippines. Get matched by role, tools, schedule, and budget with recruiter support today.";
-  const websiteId = `${base}/#website`;
+  const siteId = websiteId(base);
   const webpageId = `${base}/#webpage`;
   const logoId = `${base}/#logo`;
   const primaryImageId = `${base}/#primaryimage`;
@@ -155,7 +155,7 @@ export default async function HomePage() {
         name: homeTitle,
         description: homeDescription,
         inLanguage: "en-US",
-        isPartOf: { "@id": websiteId },
+        isPartOf: { "@id": siteId },
         about: { "@id": organizationId(base) },
         primaryImageOfPage: { "@id": primaryImageId },
         breadcrumb: { "@id": breadcrumbId },
@@ -168,7 +168,7 @@ export default async function HomePage() {
       },
       {
         "@type": "WebSite",
-        "@id": websiteId,
+        "@id": siteId,
         url: `${base}/`,
         name: "Virtual Assistant Philippines",
         alternateName: ORGANIZATION_ALTERNATE_NAME,
@@ -178,7 +178,7 @@ export default async function HomePage() {
         publisher: { "@id": organizationId(base) },
       },
       {
-        "@type": "Organization",
+        "@type": ["Organization", "EmploymentAgency"],
         "@id": organizationId(base),
         name: ORGANIZATION_NAME,
         alternateName: ORGANIZATION_ALTERNATE_NAME,
@@ -187,21 +187,19 @@ export default async function HomePage() {
         image: { "@id": logoId },
         sameAs: ORGANIZATION_SAME_AS,
         description:
-          "Philippines-focused recruiting and managed hiring for businesses looking for vetted Filipino Virtual Assistants.",
-        areaServed: [
-          { "@type": "Country", name: "Australia" },
-          { "@type": "Country", name: "United States" },
-          { "@type": "Country", name: "United Kingdom" },
-        ],
+          "Managed Virtual Assistant recruitment, screening, and ongoing client success matching for businesses worldwide.",
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "PH",
+        },
+        areaServed: ["US", "AU", "CA", "GB", "NZ"],
         knowsAbout: [
-          "Virtual Assistant Philippines",
+          "Virtual Assistance",
+          "Remote Staffing",
+          "BPO Philippines",
+          "Offshore Delegation",
           "Filipino Virtual Assistants",
           "Virtual Assistant recruitment",
-          "Administrative support",
-          "Executive assistance",
-          "Customer service",
-          "Lead generation",
-          "Ecommerce support",
         ],
         contactPoint: [
           {
@@ -209,22 +207,18 @@ export default async function HomePage() {
             contactType: "sales",
             url: `${base}/contact`,
             availableLanguage: ["English"],
-            areaServed: ["AU", "US", "GB"],
+            areaServed: ["US", "AU", "CA", "GB", "NZ"],
           },
-        ],
-        member: [
-          { "@type": "Person", name: "Jervis Accad" },
-          { "@type": "Person", name: "Bryan Batarina" },
         ],
       },
       {
         "@type": "ImageObject",
         "@id": logoId,
         inLanguage: "en-US",
-        url: `${base}/favicon.png`,
-        contentUrl: `${base}/favicon.png`,
-        width: 96,
-        height: 96,
+        url: `${base}/icon.svg`,
+        contentUrl: `${base}/icon.svg`,
+        width: 512,
+        height: 512,
         caption: "Virtual Assistant Philippines",
       },
       {
@@ -249,16 +243,6 @@ export default async function HomePage() {
           },
         ],
       },
-      {
-        "@type": "FAQPage",
-        "@id": `${base}/#faq`,
-        isPartOf: { "@id": webpageId },
-        mainEntity: faqs.map(([question, answer]) => ({
-          "@type": "Question",
-          name: question,
-          acceptedAnswer: { "@type": "Answer", text: answer },
-        })),
-      },
     ],
   };
 
@@ -278,9 +262,7 @@ export default async function HomePage() {
                 <span><ShieldCheck size={14} /> Vetted &amp; managed</span>
                 <strong>Vetted Filipino VAs for growing teams worldwide</strong>
               </div>
-              <h1>
-                Hire a Vetted Virtual Assistant <em>in the Philippines</em>
-              </h1>
+              <h1>Virtual Assistant Philippines</h1>
               <p className="pva-hero-lede">
                 Get matched with a Filipino virtual assistant who fits your role, tools, schedule, and way of working.
               </p>

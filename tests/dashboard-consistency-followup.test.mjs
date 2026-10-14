@@ -24,9 +24,9 @@ test("admin workspace has one canonical home", async()=>{
 });
 
 test("VA interview copy does not promise Zoom specifically", async()=>{
-  const page=await read("src/app/workspace/va/page.tsx");
+  const [page, actions] = await Promise.all([read("src/app/workspace/va/page.tsx"), read("src/lib/beginner-dashboard-actions.ts")]);
   assert.doesNotMatch(page,/Zoom link/);
-  assert.match(page,/schedule, meeting link, and role details/);
+  assert.match(actions,/Check the interview time, meeting link and role details/);
 });
 
 
@@ -35,5 +35,5 @@ test("client mobile primary follows the hiring decision flow while support remai
   assert.match(nav,/\["Support", "\/workspace\/client\/support", LifeBuoy\]/);
   assert.match(nav,/\["Support", "\/workspace\/va\/support", LifeBuoy\]/);
   assert.match(nav,/client: \["\/workspace\/client", "\/workspace\/client\/jobs", "\/workspace\/client\/messages", "\/workspace\/client\/team"\]/);
-  assert.match(nav,/va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/applications", "\/workspace\/va\/workroom"\]/);
+  assert.match(nav,/va: \["\/workspace\/va", "\/workspace\/va\/jobs", "\/workspace\/va\/applications", "\/workspace\/va\/messages"\]/);
 });

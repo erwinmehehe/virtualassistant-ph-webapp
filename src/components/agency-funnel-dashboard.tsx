@@ -236,6 +236,16 @@ export async function AgencyFunnelDashboard({ recruiterId, days, basePath, scope
         <OpsMetric label="Time to decision" value={hourMetric(proposal.median_hours_to_decision,proposalDecisions>0)} note="Median proposal sent → accept or decline"/>
         <OpsMetric label="Open decision gap" value={Math.max(0,proposal.sent-proposal.accepted-proposal.declined)} note="Sent proposals without a final accept / decline decision"/>
       </div>
+      {journey.qualified > 0 && proposal.sent === 0 ? (
+        <div className="agency-funnel-explainer" role="status">
+          <AlertTriangle size={18}/>
+          <div>
+            <strong>Qualified hiring enquiries are not reaching proposals yet.</strong>
+            <span>This cohort has qualified-stage evidence, but no recorded proposal sends. Review discovery outcomes and create the next client-ready proposal before focusing on more traffic.</span>
+            <Link className="text-link" prefetch={false} href={leadsPath}>Open client leads and proposal follow-ups →</Link>
+          </div>
+        </div>
+      ) : null}
     </section>
 
     <section className="agency-funnel-section">

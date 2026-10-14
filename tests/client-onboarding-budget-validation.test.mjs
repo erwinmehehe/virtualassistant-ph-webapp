@@ -20,6 +20,7 @@ async function runInvalidBudgetSubmission(values) {
   let redirectedTo = null;
   const context = {
     MIN_HOURLY_RATE: 6,
+    normalizeTimeZone: (value) => value === "Australia/Sydney" ? value : null,
     requireRole: async () => ({ user: { id: "client-1" } }),
     redirect: (url) => {
       redirectedTo = url;
@@ -68,4 +69,16 @@ test("onboarding budget inputs expose the server error as an accessible inline f
   assert.match(page, /aria-describedby={budgetError \? "client-onboarding-budget-error" : undefined}/);
   assert.match(page, /aria-invalid={Boolean\(budgetError\)}/);
   assert.match(page, /The minimum is \$\{MIN_HOURLY_RATE\}\/hr, and the maximum cannot be lower than the minimum\./);
+});
+
+test("invalid onboarding timezone is rejected before persistence", async () => {
+  const redirect = await runInvalidBudgetSubmission({
+    full_name: "Test Client",
+    company_name: "Test Company",
+    timezone: "not-real-timezone",
+    hiring_needs: "I need a VA for scheduling, email, and customer support.",
+    budget_min: "8",
+    budget_max: "12",
+  });
+  assert.match(redirect, /Choose%20a%20valid%20timezone/);
 });

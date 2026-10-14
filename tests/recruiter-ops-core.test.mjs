@@ -6,7 +6,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("recruiter navigation exposes focused daily operations without a command palette", async () => {
   const nav = await read("src/components/app-nav-links.tsx");
-  assert.ok(nav.includes('["My Day", "/workspace/recruiter/today"'));
+  assert.ok(nav.includes('["Today", "/workspace/recruiter/today"'));
   // Agenda, Tasks and Notifications live inside My Day and the badge counts for
   // recruiters; other roles (e.g. client Notifications) may still link them.
   const recruiterNav = nav.slice(nav.indexOf("  recruiter: ["), nav.indexOf("  admin: ["));

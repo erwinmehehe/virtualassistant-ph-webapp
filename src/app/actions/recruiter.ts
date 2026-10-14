@@ -947,7 +947,7 @@ export async function completeDiscoveryAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["recruiter", "admin"]);
   const leadId = String(formData.get("lead_id") || "").trim();
   const returnTo = safePath(formData.get("return_to"), profile.role === "admin" ? "/workspace/admin/leads" : "/workspace/recruiter/crm");
-  const outcome = String(formData.get("outcome") || "qualified");
+  const outcome = String(formData.get("outcome") || "").trim();
   const notes = String(formData.get("discovery_notes") || "").trim().slice(0, 5000);
   const lostReason = String(formData.get("lost_reason") || "").trim().slice(0, 1000);
   const rawLostReasonCode = String(formData.get("lost_reason_code") || "").trim();
@@ -955,7 +955,8 @@ export async function completeDiscoveryAction(formData: FormData) {
   const lostCompetitor = String(formData.get("lost_competitor") || "").trim().slice(0, 200);
   const fail = (message: string) => redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}discovery_error=${encodeURIComponent(message)}`);
 
-  if (!leadId || !["qualified", "attended", "no_show", "cancelled", "rescheduled", "nurture", "lost"].includes(outcome)) return fail("Choose a valid discovery outcome.");
+  if (!leadId || !["qualified", "attended", "no_show", "cancelled", "rescheduled", "nurture", "lost"].includes(outcome)) return fail("Choose what actually happened on the discovery call.");
+  if (outcome === "rescheduled") return fail("Use Reschedule discovery to save a new client-local date and time. This outcome form does not update the calendar.");
   if (outcome === "lost" && !lostReasonCode) return fail("Choose why this opportunity was lost.");
   if (notes.length < 3) return fail("Add a short discovery note so the next recruiter knows what was agreed.");
 
@@ -1055,6 +1056,11 @@ export async function completeDiscoveryAction(formData: FormData) {
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/admin/leads");
   if (lead.job_id) revalidatePath(`/workspace/recruiter/matching/${lead.job_id}`);
+  if (outcome === "qualified" && profile.role === "recruiter") {
+    // An actual qualified conversation must be turned into a reviewed proposal,
+    // rather than leaving the recruiter on a closed-out CRM action form.
+    redirect(`/workspace/recruiter/crm/${encodeURIComponent(leadId)}/discovery?discovery_completed=1`);
+  }
   const suffix = outcome === "no_show" ? `discovery_completed=1&rebook_prompt=${encodeURIComponent(leadId)}` : "discovery_completed=1";
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}${suffix}`);
 }

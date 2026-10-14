@@ -1,0 +1,113 @@
+/* One consistent beginner-friendly secondary navigation for clients and VAs. */
+.workspace-role-client .app-nav-desktop .workspace-nav-more,
+.workspace-role-va .app-nav-desktop .workspace-nav-more {
+  margin-top: 12px;
+  border-top: 1px solid var(--border, #e7e9f0);
+  padding-top: 10px;
+}
+.workspace-role-client .app-nav-desktop .workspace-nav-more > summary,
+.workspace-role-va .app-nav-desktop .workspace-nav-more > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 13px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--text-muted, #667085);
+  border-radius: 10px;
+  list-style: none;
+}
+.workspace-role-client .app-nav-desktop .workspace-nav-more > summary::-webkit-details-marker,
+.workspace-role-va .app-nav-desktop .workspace-nav-more > summary::-webkit-details-marker {
+  display: none;
+}
+.workspace-role-client .app-nav-desktop .workspace-nav-more > summary::after,
+.workspace-role-va .app-nav-desktop .workspace-nav-more > summary::after {
+  content: "▾";
+  font-size: 13px;
+}
+.workspace-role-client .app-nav-desktop .workspace-nav-more[open] > summary,
+.workspace-role-va .app-nav-desktop .workspace-nav-more[open] > summary {
+  background: #f5f7fc;
+  color: #334155;
+}
+.workspace-role-client .app-nav-desktop .workspace-nav-more summary:focus-visible,
+.workspace-role-va .app-nav-desktop .workspace-nav-more summary:focus-visible {
+  outline: 3px solid #a5b4fc;
+  outline-offset: 2px;
+}
+.client-dashboard-next.waiting .btn,
+.va-dashboard-next .btn {
+  min-height: 44px;
+}
+.client-dashboard-next.waiting .btn {
+  background: #fff;
+  color: #344054;
+  border: 1px solid #ccd3e1;
+}
+.client-dashboard-next.waiting .btn:hover {
+  background: #f8f9fd;
+}
+@media(max-width: 640px) {
+  .client-dashboard-next,
+  .va-dashboard-next {
+    gap: 14px;
+  }
+  .client-dashboard-next > .btn,
+  .va-dashboard-next > .btn {
+    min-height: 44px;
+    text-align: center;
+    justify-content: center;
+  }
+  .va-dashboard-head .row.wrap {
+    justify-content: flex-start;
+  }
+}
+@media(prefers-reduced-motion: reduce) {
+  .workspace-role-client .workspace-nav-more,
+  .workspace-role-va .workspace-nav-more {
+    scroll-behavior: auto;
+  }
+}
+
+/* Keep recommended roles as a single section, not a card inside a card. */
+.va-dashboard-matches-section .va-recommended-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8faff;
+}
+.va-dashboard-matches-section .va-recommended-state p {
+  margin: 0;
+  flex: 1 1 230px;
+  color: #475569;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.va-dashboard-matches-section .va-recommended-state .btn {
+  min-height: 42px;
+}
+.client-role-detail-page [id="service-terms"],
+.client-workroom-page [id^="time-"],
+.client-workroom-page [id^="tasks-"],
+.client-interviews-page [id^="interview-"],
+.va-interviews-page [id^="interview-"],
+.client-offers-page [id^="offer-"],
+.va-offers-page [id^="offer-"] {
+  scroll-margin-top: 95px;
+}
+@media (max-width: 640px) {
+  .va-dashboard-matches-section .va-recommended-state {
+    padding: 14px;
+  }
+  .va-dashboard-matches-section .va-recommended-state .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

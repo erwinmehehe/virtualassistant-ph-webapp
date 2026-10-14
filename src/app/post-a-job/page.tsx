@@ -51,7 +51,7 @@ export default async function PostAJobPage() {
               </p>
               <div className="post-job-proof" aria-label="Posting benefits">
                 <span><CheckCircle2 size={16} /> No signup to start</span>
-                <span><CheckCircle2 size={16} /> Draft autosaves</span>
+                <span><CheckCircle2 size={16} /> Draft saved on this device</span>
                 <span><ShieldCheck size={16} /> Contact details stay private</span>
               </div>
             </div>

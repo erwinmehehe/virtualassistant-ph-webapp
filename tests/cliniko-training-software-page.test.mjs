@@ -37,14 +37,14 @@ test("Cliniko software page targets non-clinical front-desk workflows", async ()
   assert.match(software, /clinical decisions/i);
 });
 
-test("Cliniko software page inherits static route, sitemap, canonical, and FAQ schema", async () => {
+test("Cliniko software page inherits static route and canonical without FAQPage schema", async () => {
   const route = await readFile("src/app/software/[slug]/page.tsx", "utf8");
   const sitemap = await readFile("src/app/sitemap.ts", "utf8");
 
   assert.match(route, /generateStaticParams/);
   assert.match(route, /softwarePages\.map/);
   assert.match(route, /canonicalPath\(\`\/software\/\$\{page\.slug\}\`\)/);
-  assert.match(route, /FAQPage/);
+  assert.doesNotMatch(route, /FAQPage/);
   assert.match(route, /BreadcrumbList/);
   assert.match(sitemap, /softwarePages\.map/);
 });

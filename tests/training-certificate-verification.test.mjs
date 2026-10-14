@@ -12,13 +12,18 @@ test("public credential verification exposes only valid published-course credent
   assert.match(credentials, /\.eq\("credential_code", credentialCode\)/);
   assert.match(credentials, /\.is\("revoked_at", null\)/);
   assert.match(credentials, /\.eq\("status", "published"\)/);
-  assert.doesNotMatch(credentials, /full_name|email|phone/);
+  assert.match(credentials, /recipient_name/);
+  assert.match(credentials, /recipientName/);
+  assert.doesNotMatch(credentials, /\.from\("profiles"\)|\.from\("auth.users"\)/);
+  assert.doesNotMatch(credentials, /email|phone/);
 
   assert.match(page, /Certificate of completion/);
   assert.match(page, /Verified/);
   assert.match(page, /Not verified/);
   assert.match(page, /robots:\s*\{ index: false, follow: false \}/);
-  assert.doesNotMatch(page, /learner name|full_name|email|phone/i);
+  assert.match(page, /credential\.recipientName/);
+  assert.match(page, /Awarded to/);
+  assert.doesNotMatch(page, /email|phone/i);
 });
 
 test("training evidence links to credential verification", async () => {
@@ -38,4 +43,11 @@ test("admin analytics calculates training conversion stages and largest drop-off
   assert.match(analytics, /Largest measured drop-off/);
   assert.match(analytics, /% of previous stage/);
   assert.match(analytics, /Lesson completions remain an activity count/);
+});
+
+test("newly issued certificates snapshot recipient name without mutating existing awards", async () => {
+  const completion = await source("src/lib/training-completion.ts");
+  assert.match(completion, /getUserById\(userId\)/);
+  assert.match(completion, /recipient_name: recipientName/);
+  assert.match(completion, /if \(!existingCertificate\)/);
 });

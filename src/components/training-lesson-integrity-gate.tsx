@@ -174,17 +174,34 @@ export function TrainingLessonIntegrityGate({
   function checkAnswer() {
     if (!checkpoint || !selectedOption) return;
     startChecking(async () => {
-      const result = await checkTrainingLessonCheckpointAction({
-        lessonId,
-        courseSlug,
-        optionId: selectedOption,
-      });
-      if (result.correct) {
-        setCheckpointPassed(true);
-        setCheckpointMessage("Correct. Your quick check is saved.");
-      } else {
-        setCheckpointPassed(false);
-        setCheckpointMessage("Not quite. Review the relevant part of the lesson, then try again.");
+      try {
+        const result = await checkTrainingLessonCheckpointAction({
+          lessonId,
+          courseSlug,
+          optionId: selectedOption,
+        });
+        if (result.correct) {
+          setCheckpointPassed(true);
+          setCheckpointMessage("Correct. Your quick check is saved.");
+        } else {
+          setCheckpointPassed(false);
+          setCheckpointMessage("Not quite. Review the relevant part of the lesson, then try again.");
+        }
+      } catch {
+        // A stale tab or interrupted server action must be visible in internal
+        // error telemetry, even when the learner can safely retry the lesson.
+        // The payload is intentionally static and contains no answer or PII.
+        void fetch("/api/errors", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            name: "TrainingCheckpointActionError",
+            message: "Training checkpoint answer was not saved",
+            source: "training_checkpoint_recoverable",
+            path: window.location.pathname,
+          }),
+        }).catch(() => {});
+        setCheckpointMessage("We couldn't save that answer. Check your connection or reload this lesson, then try again.");
       }
     });
   }
@@ -252,6 +269,9 @@ export function TrainingLessonIntegrityGate({
               {isChecking ? "Checking…" : "Check answer"}
             </button>
             {checkpointMessage ? <span className="training-checkpoint-message" role="status">{checkpointMessage}</span> : null}
+            {checkpointMessage.startsWith("We couldn't save") ? (
+              <button className="btn btn-sm" type="button" onClick={() => window.location.reload()}>Reload lesson</button>
+            ) : null}
           </div>
         </div>
       ) : checkpointMessage ? (

@@ -60,7 +60,7 @@ test("desktop navigation does not duplicate the account card while mobile keeps 
   const nav=await read("src/components/app-nav-links.tsx");
   assert.match(nav,/const desktopGroups = groups\.map/);
   assert.match(nav,/href !== "\/workspace\/account"/);
-  assert.match(nav,/\{desktopGroups\.map\(\(group\) => \(/);
+  assert.match(nav,/\{desktopGroups\.map\(\(group\) =>/);
   assert.match(nav,/const secondaryGroups = groups/);
   assert.match(nav,/\["Account settings", "\/workspace\/account", Settings\]/);
 });

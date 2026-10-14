@@ -94,7 +94,7 @@ test("availability freshness is VA self-service and blocks stale client presenta
 test("published jobs show company names while richer company profile details remain opt-in",()=>{
   assert.match(core,/public_company_visible boolean not null default false/);
   assert.match(automation,/where c\.public_company_visible=true/);
-  assert.match(company,/Public company identity/);
+  assert.match(company,/Additional public company details/);
   assert.match(companyVisibility,/public_company_visible:visible/);
   assert.match(jobCard,/company\?\.company_name\|\|job\.company_name/);
   assert.doesNotMatch(jobCard,/Confidential Client/);

@@ -2,23 +2,22 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("previously public closed or expired jobs permanently redirect to the live marketplace", async () => {
+test("closed or expired public job URLs return 404 for clean deindexing", async () => {
   const detail = await readFile("src/app/jobs/[id]/page.tsx", "utf8");
 
-  assert.match(detail, /createAdminClient/);
-  assert.match(detail, /published_at/);
-  assert.match(detail, /data\.status === "closed" \|\| expired/);
-  assert.match(detail, /permanentRedirect\("\/jobs\?closed=1"\)/);
+  assert.doesNotMatch(detail, /createAdminClient/);
+  assert.doesNotMatch(detail, /permanentRedirect\("\/jobs\?closed=1"\)/);
+  assert.match(detail, /if \(!job\) notFound\(\)/);
 });
 
 test("private never-published job URLs remain inaccessible", async () => {
   const detail = await readFile("src/app/jobs/[id]/page.tsx", "utf8");
 
-  assert.match(detail, /if \(!data\?\.published_at\) return false/);
-  assert.match(detail, /notFound\(\)/);
+  assert.match(detail, /if \(!job\) notFound\(\)/);
+  assert.match(detail, /robots: \{ index: false, follow: false \}/);
 });
 
-test("jobs marketplace explains why a retired listing redirected", async () => {
+test("jobs marketplace can still explain a retired listing when linked with the closed flag", async () => {
   const jobs = await readFile("src/app/jobs/page.tsx", "utf8");
 
   assert.match(jobs, /params\.closed === "1"/);

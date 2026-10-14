@@ -10,6 +10,12 @@ function homepageSource() {
   return `${source("src/app/page.tsx")}\n${source("src/components/homepage-sections.tsx")}`;
 }
 
+test("homepage H1 is exactly Virtual Assistant Philippines", () => {
+  const home = source("src/app/page.tsx");
+  assert.match(home, /<h1>Virtual Assistant Philippines<\/h1>/);
+  assert.doesNotMatch(home, /Hire a Vetted Virtual Assistant <em>in the Philippines<\/em>/);
+});
+
 test("homepage does not render the removed live talent statistics block or its extra query", () => {
   const home = source("src/app/page.tsx");
   assert.doesNotMatch(home, /Live approved talent data/);
@@ -55,25 +61,24 @@ test("homepage service section uses explicit Virtual Assistant service entities"
   assert.match(home, /Social Media Management/);
 });
 
-test("homepage visible FAQ covers commercial hiring questions and emits matching FAQ schema", () => {
+test("homepage keeps useful visible FAQs without FAQPage structured data", () => {
   const home = source("src/app/page.tsx");
   assert.match(home, /What does it cost to get started\?/);
   assert.match(home, /How fast can my virtual assistant start\?/);
   assert.match(home, /What if my virtual assistant is not the right fit\?/);
   assert.match(home, /What hours do Filipino virtual assistants work\?/);
   assert.match(home, /How do you screen and vet candidates\?/);
-  assert.match(home, /\"@type\": \"FAQPage\"/);
-  assert.match(home, /mainEntity: faqs\.map/);
+  assert.doesNotMatch(home, /\"@type\": \"FAQPage\"/);
 });
 
 test("homepage Organization schema carries useful entity context and removes obsolete search action markup", () => {
   const home = source("src/app/page.tsx");
-  assert.match(home, /\"@type\": \"Organization\"/);
-  assert.match(home, /areaServed/);
+  assert.match(home, /\"@type\": \[\"Organization\", \"EmploymentAgency\"\]/);
+  assert.match(home, /addressCountry: "PH"/);
+  assert.match(home, /areaServed: \["US", "AU", "CA", "GB", "NZ"\]/);
   assert.match(home, /knowsAbout/);
   assert.match(home, /contactPoint/);
   assert.match(home, /availableLanguage/);
-  assert.match(home, /member:/);
   assert.doesNotMatch(home, /SearchAction/);
 });
 
@@ -89,12 +94,12 @@ test("homepage comparison presents marketplace, direct hire, and recruiter-suppo
   assert.match(css, /\.hs-managed/);
 });
 
-test("homepage restores the previous title and uses Virtual Assistant Philippines as the site entity", () => {
+test("homepage uses the approved brand-first title and Virtual Assistant Philippines as the site entity", () => {
   const home = source("src/app/page.tsx");
   const layout = source("src/app/layout.tsx");
   const organization = source("src/lib/organization.ts");
 
-  assert.match(home, /Virtual Assistant Philippines \| VirtualAssistant\.com\.ph/);
+  assert.match(home, /VirtualAssistant\.com\.ph \| Virtual Assistant Philippines/);
   assert.match(layout, /applicationName: "Virtual Assistant Philippines"/);
   assert.match(layout, /siteName: "Virtual Assistant Philippines"/);
   assert.match(organization, /ORGANIZATION_NAME = "Virtual Assistant Philippines"/);
@@ -107,12 +112,15 @@ test("homepage schema exposes a connected WebPage, WebSite, Organization, image 
   assert.match(home, /"@graph"/);
   assert.match(home, /"@type": "WebPage"/);
   assert.match(home, /"@type": "WebSite"/);
-  assert.match(home, /"@type": "Organization"/);
+  assert.match(home, /"@type": \["Organization", "EmploymentAgency"\]/);
   assert.match(home, /"@type": "ImageObject"/);
   assert.match(home, /"@type": "BreadcrumbList"/);
   assert.match(home, /name: "Virtual Assistant Philippines"/);
   assert.match(home, /alternateName: ORGANIZATION_ALTERNATE_NAME/);
   assert.match(home, /primaryImageOfPage/);
+  assert.match(home, /contentUrl: \`\$\{base\}\/icon\.svg\`/);
+  assert.match(home, /width: 512/);
+  assert.match(home, /height: 512/);
   assert.match(home, /breadcrumb:/);
   assert.match(home, /isPartOf:/);
   assert.match(home, /about:/);

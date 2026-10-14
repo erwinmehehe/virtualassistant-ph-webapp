@@ -19,7 +19,9 @@ test("Recruiter My Day surfaces fresh untouched hiring roles from the compact su
   ]);
   assert.match(today,/id="new-hiring-enquiries"/);
   assert.match(today,/New hiring enquiries/);
-  assert.match(today,/newHiringRoles\.length,title:"Build the first shortlist"/);
+  const focus = await read("src/lib/recruiter-today-focus.ts");
+  assert.match(today, /recruiterTodayFocus/);
+  assert.match(focus, /Pick candidates for a role/);
   assert.match(today,/summary\.new_hiring_roles/);
   assert.doesNotMatch(today,/\.from\("/);
   assert.match(today,/Prepare top matches/);

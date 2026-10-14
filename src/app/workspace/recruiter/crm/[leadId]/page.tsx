@@ -804,7 +804,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
             </form>
           </details>
 
-          <details className={styles.actionCard} open={stage === "contacted" && !lead.discovery_scheduled_at}>
+          <details id="discovery-booking" className={styles.actionCard} open={(stage === "contacted" && !lead.discovery_scheduled_at) || Boolean(lead.discovery_scheduled_at && !lead.discovery_completed_at && !lead.discovery_cancelled_at && new Date(lead.discovery_scheduled_at).getTime() < nowMs)}>
             <summary><span className={styles.actionIcon}><CalendarPlus size={16}/></span><span><strong>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? "Reschedule discovery" : "Book discovery"}</strong><small>{lead.discovery_scheduled_at && !lead.discovery_completed_at ? formatDateTimeInTimeZone(lead.discovery_scheduled_at, clientTimeZone) : "Create the meeting only when a call is actually needed."}</small></span><ArrowRight size={15}/></summary>
             <div className={styles.actionFormStack}>
               <form action={scheduleDiscoveryAction} className={styles.actionForm}>
@@ -835,7 +835,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
                 <form action={completeDiscoveryAction} className={styles.actionForm}>
                   <input type="hidden" name="lead_id" value={lead.id}/>
                   <input type="hidden" name="return_to" value={returnTo}/>
-                  <label>Outcome<select name="outcome" defaultValue="qualified"><option value="qualified">Attended and qualified</option><option value="attended">Attended, follow-up needed</option><option value="no_show">No-show</option><option value="rescheduled">Rescheduled</option><option value="nurture">Nurture</option><option value="lost">Lost</option></select></label>
+                  <label>Outcome<select name="outcome" defaultValue="" required><option value="" disabled>Choose what actually happened</option><option value="qualified">Attended and qualified</option><option value="attended">Attended, follow-up needed</option><option value="no_show">No-show</option><option value="nurture">Nurture</option><option value="lost">Lost</option></select></label>
                   <label>Discovery notes<textarea name="discovery_notes" required minLength={3} maxLength={5000} defaultValue={lead.discovery_notes || ""} placeholder="Priorities, tools, schedule, budget, decision process, next step…"/></label>
                   <label>Lost reason category <span className={styles.muted}>(only if lost)</span><select name="lost_reason_code" defaultValue=""><option value="">Choose a reason</option>{LEAD_LOSS_REASONS.map((reason)=><option key={reason.code} value={reason.code}>{reason.label}{reason.recoverable ? " · win-back" : ""}</option>)}</select></label>
                   <label>Competitor <span className={styles.muted}>(if applicable)</span><input name="lost_competitor" maxLength={200} placeholder="Company or alternative chosen"/></label>
@@ -954,7 +954,7 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
         </div>
 
         <aside className="stack">
-          <details className={styles.panelDetails}>
+          <details id="crm-settings" className={styles.panelDetails} open={Boolean(!lead.next_follow_up_at && ["contacted", "qualified", "terms_sent", "shortlist_sent"].includes(stage))}>
             <summary><span><strong>Record settings</strong><small>Owner, CRM stage, follow-up date</small></span><ArrowRight size={15}/></summary>
             <div className={styles.panelBody}>
               <form action={updateLeadCrmAction} className={styles.form}>

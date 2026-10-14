@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, MessageSquare, RefreshCw, UserRound, UserRoundCheck } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, ExternalLink, FileText, MessageSquare, RefreshCw, UserRound } from "lucide-react";
 import { requireRoleFast } from "@/lib/auth";
 import { DashHeader } from "@/components/dash-ui";
 import { RecruiterOperationsNav } from "@/components/recruiter-operations-nav";
@@ -9,6 +9,7 @@ import { completeRecruiterTaskAction, snoozeRecruiterTaskAction } from "@/app/ac
 import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlist";
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import { getRecruiterRolesSummary } from "@/lib/recruiter-roles-summary";
+import { recruiterTodayFocus } from "@/lib/recruiter-today-focus";
 import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 import { formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import styles from "./today.module.css";
@@ -318,8 +319,11 @@ function actionLabel(item:any) {
 export default async function RecruiterTodayPage({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}) {
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
-  const { data: summaryData, error: summaryError } = await withServerTiming("recruiter.today_summary", () => createAdminClient().rpc("recruiter_today_summary", { p_user_id:userId }));
-  const roleSummary = await getRecruiterRolesSummary(userId);
+  // These independent queries previously ran serially and delayed the Today screen.
+  const [{ data: summaryData, error: summaryError }, roleSummary] = await Promise.all([
+    withServerTiming("recruiter.today_summary", () => createAdminClient().rpc("recruiter_today_summary", { p_user_id:userId })),
+    getRecruiterRolesSummary(userId),
+  ]);
   if (summaryError) throw summaryError;
   if (roleSummary.error) throw roleSummary.error;
 
@@ -483,43 +487,19 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const roleNoCandidates = Number(summary.role_no_candidates || 0);
   const interviewsDue = Number(summary.interviews_due || 0);
 
-  const nextActionCandidates = [
-    {count:clientReplies.length,title:"Reply to clients",copy:"A client has replied and is waiting on the recruiter. Open the CRM record, respond, or record the action taken.",href:"#sales-closing",cta:"Open client replies",icon:<MessageSquare size={20}/>},
-    {count:clientWaits.length,title:`${clientWaits.length} client shortlist decision${clientWaits.length===1?" is":"s are"} waiting`,copy:clientWait72.length?`${clientWait72.length} reached 72h+ without a decision. Escalate these first.`:clientWait48.length?`${clientWait48.length} reached 48h+. Follow up today before the role stalls.`:clientWait24.length?`${clientWait24.length} reached the first 24h follow-up point.`:"Clients are inside the initial review window.",href:"#role-follow-through",cta:"Open client decisions",icon:<Clock3 size={20}/>},
-    {count:firstContactActions.length,title:"Contact new client leads",copy:`${firstContactActions.length} assigned enquir${firstContactActions.length===1?"y has":"ies have"} not had a first human contact yet. Work these before matching or routine sourcing.`,href:"#client-next-actions",cta:"Open first contacts",icon:<MessageSquare size={20}/>},
-    {count:dueClientActions.length,title:"Move due client leads",copy:`${dueClientActions.length} assigned client${dueClientActions.length===1?" has":"s have"} a due discovery, proposal, follow-up, or nurture action.`,href:"#client-next-actions",cta:"Open client actions",icon:<Clock3 size={20}/>},
-    {count:placementHandoffs.length,title:"Complete recruiter handoffs",copy:`${placementHandoffs.length} placement${placementHandoffs.length===1?" is":"s are"} waiting for the formal recruiter → Client Success transfer. This is the recruiter's final post-hire action.`,href:"#needs-action",cta:"Complete handoff",icon:<UserRoundCheck size={20}/>},
-    {count:timezoneNeedsConfirmation,title:"Confirm client timezones",copy:`${timezoneNeedsConfirmation} active client${timezoneNeedsConfirmation===1?" has":"s have"} no valid scheduling timezone. Confirm it before discovery or local-time follow-up.`,href:"/workspace/recruiter/crm?view=timezone",cta:"Review timezones",icon:<Clock3 size={20}/>},
-    {count:overdueDiscoveryActions.length,title:"Resolve overdue discovery outcomes",copy:`${overdueDiscoveryActions.length} discovery call${overdueDiscoveryActions.length===1?" is":"s are"} past the scheduled time with no saved outcome. Record the result before the sales trail goes stale.`,href:"#needs-action",cta:"Resolve discoveries",icon:<CalendarDays size={20}/>},
-    {count:proposalMissingActions.length,title:"Prepare qualified proposals",copy:`${proposalMissingActions.length} qualified discover${proposalMissingActions.length===1?"y has":"ies have"} not entered the proposal workflow. Prepare the recommendation before matching.`,href:"#needs-action",cta:"Prepare proposals",icon:<FileText size={20}/>},
-    {count:proposalDraftActions.length,title:"Send proposal drafts",copy:`${proposalDraftActions.length} proposal draft${proposalDraftActions.length===1?" has":"s have"} been sitting unsent for at least two hours.`,href:"#needs-action",cta:"Finish proposals",icon:<FileText size={20}/>},
-    {count:proposalActions.length,title:"Move open proposals",copy:proposalChangesRequested
-      ? `${proposalChangesRequested} client change request${proposalChangesRequested===1?"":"s"} need revision now.`
-      : proposalViewedWaiting
-        ? `${proposalViewedWaiting} viewed proposal${proposalViewedWaiting===1?" is":"s are"} waiting for a decision.`
-        : `${proposalUnopened} proposal${proposalUnopened===1?" has":"s have"} not been opened after 48 hours.`,href:"#sales-closing",cta:"Open proposal queue",icon:<FileText size={20}/>},
-    {count:overdueClosingLeads.length,title:"Recover overdue follow-ups",copy:`${overdueClosingLeads.length} client follow-up${overdueClosingLeads.length===1?" is":"s are"} past the CRM due date. Re-engage before the opportunity goes cold.`,href:"#sales-closing",cta:"Open overdue follow-ups",icon:<Clock3 size={20}/>},
-    {count:stalledClosingLeads.length,title:"Recover stalled client leads",copy:`${stalledClosingLeads.length} lead${stalledClosingLeads.length===1?" has":"s have"} had no meaningful movement for at least 72 hours. Follow up, nurture, or close the loop.`,href:"#sales-closing",cta:"Open stalled leads",icon:<RefreshCw size={20}/>},
-    {count:noNextStepLeads.length,title:"Set missing next steps",copy:`${noNextStepLeads.length} active client lead${noNextStepLeads.length===1?" has":"s have"} no scheduled follow-up. Give each one a clear next decision point.`,href:"#sales-closing",cta:"Set next steps",icon:<Clock3 size={20}/>},
-    {count:upcomingDiscoveryCalls.length,title:"Prepare upcoming discovery calls",copy:"Review the client pain, role, and known context before the call starts.",href:"#upcoming-discovery-calls",cta:"Open call prep",icon:<CalendarDays size={20}/>},
-    {count:newHiringRoles.length,title:"Build the first shortlist",copy:"Fresh hiring enquiries already have linked roles. Claim one, prepare the strongest internal matches, and review them before anything reaches the client.",href:"#new-hiring-enquiries",cta:"Open new enquiries",icon:<BriefcaseBusiness size={20}/>},
-    {count:cleanupQueue.length,title:"Review client follow-ups",copy:"Client leads need a decision, follow-up, or close action.",href:"/workspace/recruiter/crm?view=attention",cta:"Open needs action",icon:<MessageSquare size={20}/>},
-    {count:noShows.length,title:"Review discovery no-shows",copy:"Keep missed calls visible without sending automatic client email. Resume when the client returns.",href:"/workspace/recruiter/today#role-follow-through",cta:"Open no-shows",icon:<RefreshCw size={20}/>},
-    {count:interviewRequests.length,title:"Schedule requested interviews",copy:"Clients have explicitly requested interviews. Lock in the time from the role so the request cannot get lost.",href:interviewRequests[0]?.subject_id?`/workspace/recruiter/roles/${interviewRequests[0].subject_id}#interviews`:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Schedule interview",icon:<CalendarDays size={20}/>},
-    {count:readyToSendRoles.length,title:"Send client-ready shortlists",copy:"Recruiter-selected candidates are ready and all release gates are clear. Preview the client view and send them now.",href:"/workspace/recruiter/roles?view=ready_to_send&sort=urgent",cta:"Send shortlists",icon:<UserRoundCheck size={20}/>},
-    {count:blockedShortlistRoles.length,title:"Clear shortlist readiness blockers",copy:"Recruiter-selected candidates are waiting on talent-pool, availability, or verified work-setup readiness.",href:"/workspace/recruiter/roles?view=shortlist_blocked&sort=urgent",cta:"Clear blockers",icon:<RefreshCw size={20}/>},
-    {count:handoffBlockedRoles.length,title:"Clear client handoff gates",copy:"The shortlist itself is ready, but the client link, role publication, service terms, or candidate access still blocks release.",href:"/workspace/recruiter/roles?view=client_review&sort=urgent",cta:"Open blocked handoffs",icon:<BriefcaseBusiness size={20}/>},
-    {count:roleNoCandidates,title:"Fill roles without candidates",copy:"These active roles do not have a usable shortlist yet.",href:"/workspace/recruiter/roles?view=needs_candidates&sort=urgent",cta:"Open roles",icon:<BriefcaseBusiness size={20}/>},
-    {count:approvalReadyCount,title:"Review approval-ready VAs",copy:"These profiles have reached the readiness threshold and are waiting for a recruiter decision.",href:"/workspace/recruiter/talent?view=approval_ready&sort=completion",cta:"Review talent",icon:<UserRoundCheck size={20}/>},
-    {count:interviewsDue,title:"Handle interview actions",copy:"Interviews or interview feedback need attention today.",href:"/workspace/recruiter/roles?view=interviewing&sort=urgent",cta:"Open interviews",icon:<CalendarDays size={20}/>}
-  ];
-  const primaryAction = nextActionCandidates.find((item)=>item.count>0) || {
-    count:0,
-    title:"You are caught up",
-    copy:"No urgent recruiter action needs attention right now. Open Roles or Talent for routine review.",
-    href:"/workspace/recruiter/roles",
-    cta:"Review roles",
-    icon:<CheckCircle2 size={20}/>
+  const focus = recruiterTodayFocus(roleSummary.data.jobs, {
+    clientReplies: clientReplies.length,
+    firstContacts: firstContactActions.length,
+    interviewsRequested: interviewRequests.length + interviewsDue,
+    clientDecisionsWaiting: clientWaits.length,
+    approvalReady: approvalReadyCount,
+  });
+  // Five navigation priorities, not fourteen competing action cards.
+  const primaryAction = {
+    ...focus.next,
+    copy: focus.next.detail,
+    cta: focus.next.label,
+    icon: focus.next.count ? <ArrowRight size={20}/> : <CheckCircle2 size={20}/>,
   };
 
   return <div className="dash-page recruiter-today-page">
@@ -536,9 +516,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
     <DashHeader
       kicker="Recruiter workspace"
       title="Today"
-      subtitle={<>Work the next action, then clear the queue. Roles and talent stay in their dedicated workspaces. <span className="dash-freshness">Less scanning · clearer ownership</span></>}
+      subtitle={<>Work the next action, then clear the queue. Open a role to see its full hiring history.</>}
     />
-    <RecruiterOperationsNav current="today" taskCount={openTasks} notificationCount={unreadNotifications}/>
 
     <section className={`${styles.nextAction} ${primaryAction.count ? styles.nextActionOpen : styles.nextActionClear}`} aria-labelledby="recruiter-next-action">
       <span className={styles.nextActionIcon}>{primaryAction.icon}</span>
@@ -549,6 +528,63 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       </div>
       <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
     </section>
+
+    <section className="recruiter-focus-pipeline" aria-labelledby="recruiter-focus-pipeline-title">
+      <div className="recruiter-focus-section-top">
+        <div><h2 id="recruiter-focus-pipeline-title">Hiring at a glance</h2><p>Open a stage to see those roles.</p></div>
+        <Link prefetch={false} href="/workspace/recruiter/roles">All roles <ArrowRight size={14}/></Link>
+      </div>
+      <div className="recruiter-focus-stages">
+        {([
+          ["new", "New", "/workspace/recruiter/roles?focus_stage=new"],
+          ["matching", "Matching", "/workspace/recruiter/roles?focus_stage=matching"],
+          ["client", "With client", "/workspace/recruiter/roles?focus_stage=client"],
+          ["interview", "Interviewing / Hired", "/workspace/recruiter/roles?focus_stage=interview"],
+        ] as const).map(([key, label, href]) => (
+          <Link key={key} href={href} className="recruiter-focus-stage">
+            <strong>{focus.stages[key]}</strong><span>{label}</span><ArrowRight size={16} aria-hidden="true"/>
+          </Link>
+        ))}
+      </div>
+    </section>
+
+    <section className="recruiter-focus-work" aria-labelledby="recruiter-focus-needs-title">
+      <div className="recruiter-focus-section-top">
+        <div><h2 id="recruiter-focus-needs-title">Needs you today</h2><p>One next step per role, starting with the most urgent.</p></div>
+        <span className="recruiter-focus-count">{focus.needsToday.length} active roles</span>
+      </div>
+      {focus.needsToday.length ? <>
+        <div className="recruiter-focus-rows">
+          {focus.needsToday.slice(0,8).map((role) => (
+            <article key={role.id} className="recruiter-focus-row">
+              <div><strong>{role.title}</strong><p>{role.client} · {role.stage === "new" ? "New" : role.stage === "matching" ? "Matching" : role.stage === "client" ? "With client" : "Interviewing"}</p></div>
+              <Link className="btn btn-sm" href={role.href}>{role.label} <ArrowRight size={14}/></Link>
+            </article>
+          ))}
+        </div>
+        {focus.needsToday.length > 8 ? (
+          <details className="recruiter-focus-extra">
+            <summary>Show {focus.needsToday.length - 8} more roles</summary>
+            <div className="recruiter-focus-rows">
+              {focus.needsToday.slice(8).map((role) => (
+                <article key={role.id} className="recruiter-focus-row">
+                  <div><strong>{role.title}</strong><p>{role.client}</p></div>
+                  <Link className="btn btn-sm" href={role.href}>{role.label} <ArrowRight size={14}/></Link>
+                </article>
+              ))}
+            </div>
+          </details>
+        ) : null}
+      </> : <div className="dashboard-caught-up"><CheckCircle2 size={20}/><span>No active roles need review.</span></div>}
+    </section>
+
+    <details className="recruiter-today-more">
+      <summary><span><strong>More</strong><small>Sales, discovery, tasks, follow-through and detailed queues</small></span><span>Show details</span></summary>
+      <div className="recruiter-today-more-content">
+        <RecruiterOperationsNav current="today" taskCount={openTasks} notificationCount={unreadNotifications}/>
+        <p className="small muted">
+          {timezoneNeedsConfirmation} client timezones to confirm · {dueClientActions.length} client follow-ups due · {roleNoCandidates} roles without candidates · {handoffBlockedRoles.length} roles need setup before candidates can be sent
+        </p>
 
     <section id="sales-closing" className={styles.closingCommandCenter} aria-labelledby="sales-closing-heading">
       <div className={styles.closingCommandHead}>
@@ -829,5 +865,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       {!noShows.length && !clientWaits.length && !staleRolePreview.length ? <div className="dashboard-caught-up"><CheckCircle2 size={22}/><div><strong>Role follow-through is clear.</strong><p>No client decisions are overdue and no owned role has been sitting in the same stage for 72+ hours.</p></div></div> : null}
     </section>
     </div>
+      </div>
+    </details>
   </div>;
 }

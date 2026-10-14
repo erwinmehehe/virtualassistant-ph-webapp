@@ -51,7 +51,8 @@ test("Recruiter Today exposes 24, 48, and 72 hour shortlist decision SLA signals
   assert.match(page, /24h\+/);
   assert.match(page, /48h\+/);
   assert.match(page, /72h\+/);
-  assert.match(page, /client shortlist decision/);
+  assert.match(page, /clientWaits/);
+  assert.match(page, /recruiter-today-more/);
   assert.match(page, /Send client follow-up|Follow up/);
 });
 

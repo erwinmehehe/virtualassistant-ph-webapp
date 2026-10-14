@@ -61,6 +61,10 @@ test("the anonymous job workflow requires consent and enforces moderation", asyn
   assert.match(hire, /stays private unless you choose the optional public listing/);
   assert.match(leads, /publicListingConsent: formData.get\("public_listing_consent"\) === "yes"/);
   assert.match(role, /canAutoPublishLeadJob/);
+  assert.match(role, /publicListingChallengeConfigured = process\.env\.NODE_ENV !== "production"/);
+  assert.match(role, /NEXT_PUBLIC_TURNSTILE_SITE_KEY/);
+  assert.match(role, /TURNSTILE_SECRET_KEY/);
+  assert.match(role, /publicListingChallengeConfigured && safeContent && canAutoPublishLeadJob/);
   assert.match(role, /hiringCircumventionSignals\(publicContent\)/);
   assert.match(role, /args\.publicBrief, args\.tools/);
   // PII detection must run against the raw brief, before display redaction.

@@ -63,7 +63,8 @@ test("admin training shows stalled learner recovery health without learner ident
   assert.match(page, /Stalled learner recovery/);
   assert.match(page, /Stalled 72h\+/);
   assert.match(page, /Stalled 7d\+/);
-  assert.match(page, /Reminders sent/);
+  assert.match(page, /Reminder records/);
+  assert.doesNotMatch(page, /Reminders sent/);
   assert.match(page, /Product Emails preference/);
   assert.doesNotMatch(page, /recipientEmail|fullName|user_id/);
 });

@@ -47,6 +47,7 @@ export function TrainingLessonIntegrityGate({
 }) {
   const [activeSeconds, setActiveSeconds] = useState(initialActiveSeconds);
   const [maxScrollPercent, setMaxScrollPercent] = useState(initialScrollPercent);
+  const [readingSyncError, setReadingSyncError] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [checkpointPassed, setCheckpointPassed] = useState(checkpointAlreadyPassed || !checkpoint);
   const [checkpointMessage, setCheckpointMessage] = useState(
@@ -91,9 +92,12 @@ export function TrainingLessonIntegrityGate({
         if (!cancelled) {
           setActiveSeconds(Number(result.activeSeconds || 0));
           setMaxScrollPercent((current) => Math.max(current, Number(result.maxScrollPercent || 0)));
+          setReadingSyncError(false);
         }
       } catch {
-        // Keep the learner on the lesson; the server-side completion gate remains authoritative.
+        // Never imply progress was saved when the server couldn't persist it.
+        // Keep the lesson open, and retry automatically on the next active heartbeat.
+        if (!cancelled) setReadingSyncError(true);
       }
     }
 
@@ -214,7 +218,8 @@ export function TrainingLessonIntegrityGate({
           <h3>Ready to complete this lesson?</h3>
           <p>
             A few quick checks confirm you reached the lesson end, understood the key point,
-            and completed the practical work.
+            and completed the practical work. Active reading time and lesson-end progress
+            are saved as you work; you can return later without starting over.
           </p>
         </div>
       </div>
@@ -235,6 +240,14 @@ export function TrainingLessonIntegrityGate({
           );
         })}
       </div>
+
+      {readingSyncError ? (
+        <div className="notice" role="status" aria-live="polite">
+          <strong>Reading progress is not syncing.</strong>{" "}
+          Check your connection and interact with the lesson to retry. Keep this page open until the saved progress updates.
+          Your previous saved progress will still be here when you return.
+        </div>
+      ) : null}
 
       {checkpoint && !checkpointPassed ? (
         <div className="training-inline-checkpoint">

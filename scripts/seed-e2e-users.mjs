@@ -21,6 +21,7 @@ const accounts = [
   { email: "client.e2e@example.test", role: "client", fullName: "E2E Client" },
   { email: "va.e2e@example.test", role: "va", fullName: "E2E VA" },
   { email: "admin.e2e@example.test", role: "admin", fullName: "E2E Admin" },
+  { email: "recruiter.training-e2e@example.test", role: "recruiter", fullName: "E2E Training Access Probe", seedKey: "training_probe" },
 ];
 
 const seededUserIds = {};
@@ -111,7 +112,7 @@ for (const account of accounts) {
     }
   }
 
-  seededUserIds[account.role] = user.id;
+  seededUserIds[account.seedKey || account.role] = user.id;
   console.log(`seeded:${account.role}:${user.id}`);
 }
 

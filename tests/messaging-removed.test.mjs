@@ -85,7 +85,7 @@ test("client recruiter chat stays scoped to the selected hiring role", () => {
 
 test("recruiter and client messaging stay first-class beside recruiter VA chat", () => {
   const nav = source("src/components/app-nav-links.tsx");
-  assert.match(nav, /\["Client messages", "\/workspace\/recruiter\/messages", MessageCircle\]/);
+  assert.match(nav, /\["Inbox", "\/workspace\/recruiter\/messages", MessageCircle\]/);
   assert.match(nav, /\["VA messages", "\/workspace\/recruiter\/va-messages", MessageCircle\]/);
   assert.match(nav, /\["Messages", "\/workspace\/client\/messages", MessageCircle\]/);
 

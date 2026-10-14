@@ -66,7 +66,8 @@ test("Recruiter My Day exposes unscheduled interview requests as a first-class q
   ]);
   assert.match(today,/interviewRequests/);
   assert.match(today,/id="interview-requests"/);
-  assert.match(today,/Schedule requested interviews/);
+  const focus = await read("src/lib/recruiter-today-focus.ts");
+  assert.match(focus,/Schedule or review interviews/);
   assert.match(today,/Schedule interview/);
   assert.match(migration,/'interview_requested'/);
   assert.match(migration,/ci\.status='requested'/);

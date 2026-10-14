@@ -252,7 +252,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
 
       <div className="wizard-actions">
         <button className="btn" type="button" disabled={step === 0} onClick={() => { setErrors({}); setStep((current) => Math.max(0, current - 1)); }}>Back</button>
-        <div className="wizard-actions-context">{step < 2 ? <span>{step === 0 ? "Next: schedule and budget" : "Next: final review"}</span> : <span>{canSelfPublishJobs ? "You can edit this role after publishing." : "Your recruiter will review this before recruiting starts."}</span>}</div>
+        <div className="wizard-actions-context">{step < 2 ? <span>{step === 0 ? "Next: schedule and budget" : "Next: final review"}</span> : <span>{canSelfPublishJobs && data.service_model === "curated_placement" ? "You can edit this role after publishing." : "Your recruiter will review this before recruiting starts."}</span>}</div>
         <div className="row wrap wizard-actions-right">{step < steps.length - 1 ? <button className="btn btn-primary" type="button" onClick={nextStep}>{step === 0 ? "Continue" : "Review request"}</button> : <button className="btn btn-primary" name="submit_mode" value="submit" type="submit">{publicMode ? "Create free account to post" : jobId ? "Save changes" : canSelfPublishJobs && data.service_model === "curated_placement" ? "Publish job" : "Send to recruiter"}</button>}</div>
       </div>
     </div>

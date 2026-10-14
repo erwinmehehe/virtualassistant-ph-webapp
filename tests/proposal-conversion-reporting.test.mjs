@@ -52,7 +52,7 @@ test("Recruiter Today surfaces only proposal states that need human action",asyn
   assert.match(migration,/row_number\(\) over\(partition by lp\.lead_id/);
 
   assert.match(page,/summary\.proposal_actions/);
-  assert.match(page,/Move open proposals/);
+  assert.match(page,/recruiter-today-more/);
   assert.match(page,/Changes requested:/);
   assert.match(page,/Viewed proposal needs follow-up:/);
   assert.match(page,/Proposal not opened:/);

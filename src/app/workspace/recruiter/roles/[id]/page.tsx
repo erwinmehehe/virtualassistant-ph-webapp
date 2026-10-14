@@ -282,6 +282,38 @@ export default async function RoleControlCenter({
         </div>
       </div>
 
+      <section className="recruiter-role-journey" aria-labelledby="recruiter-role-journey-title">
+        <div className="recruiter-role-journey-heading">
+          <div><h2 id="recruiter-role-journey-title">This role's hiring journey</h2><p>Client request, candidates, interviews and placement stay linked to this role.</p></div>
+          <span className="badge">{job.company_name || lead?.company || "Client"}</span>
+        </div>
+        <div className="recruiter-role-journey-steps">
+          {lead ? (
+            <Link href={`/workspace/recruiter/crm/${lead.id}`} className="recruiter-role-journey-step">
+              <span>01 · Client</span><strong>{leadStageLabel(lead.crm_stage)}</strong><small>Open client request →</small>
+            </Link>
+          ) : (
+            <div className="recruiter-role-journey-step"><span>01 · Client</span><strong>Direct client role</strong><small>Linked to this job</small></div>
+          )}
+          <a href="#overview" className="recruiter-role-journey-step">
+            <span>02 · Role</span><strong>{job.status === "published" ? "Live job" : job.status === "pending" ? "In review" : String(job.status)}</strong><small>View role brief →</small>
+          </a>
+          <a href="#matching" className="recruiter-role-journey-step">
+            <span>03 · Candidates</span><strong>{proposed.length} selected · {released.length} sent</strong><small>Open candidates →</small>
+          </a>
+          <a href="#interviews" className="recruiter-role-journey-step">
+            <span>04 · Interview</span><strong>{activeInterviews.length} interview{activeInterviews.length === 1 ? "" : "s"}</strong><small>{activeOffers.length} offer{activeOffers.length === 1 ? "" : "s"} · View details →</small>
+          </a>
+          {room ? (
+            <Link href={`/workspace/client-success/${room.id}`} className="recruiter-role-journey-step">
+              <span>05 · Placement</span><strong>{room.placement_stage?.replaceAll("_", " ") || "In progress"}</strong><small>Open placement →</small>
+            </Link>
+          ) : (
+            <div className="recruiter-role-journey-step"><span>05 · Placement</span><strong>Not placed yet</strong><small>After client and VA approval</small></div>
+          )}
+        </div>
+      </section>
+
       <nav className="role-workflow-nav" aria-label="Role workflow">
         <a href="#overview">1. Role overview</a>
         <a href="#matching">2. Match & shortlist</a>

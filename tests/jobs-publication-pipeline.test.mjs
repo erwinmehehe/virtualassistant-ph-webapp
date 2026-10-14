@@ -71,7 +71,8 @@ test("selected clients can self-publish complete curated-placement jobs only", a
   assert.match(jobs, /select\("can_self_publish_jobs,verified_at"\)/);
   assert.match(jobs, /clientProfile\?\.can_self_publish_jobs && clientProfile\?\.verified_at/);
   assert.match(jobs, /serviceModel === "curated_placement"/);
-  assert.match(jobs, /status: submitMode === "draft" \? "draft" : selfPublish \? "published" : "pending"/);
+  assert.match(jobs, /status: initialStatus/);
+  assert.match(jobs, /resolveClientJobSubmitStatus/);
   assert.match(jobs, /published_at: selfPublish \? new Date\(\)\.toISOString\(\) : null/);
   assert.match(jobs, /Complete the public job before publishing/);
   assert.match(admin, /setClientJobSelfPublishAction/);
@@ -120,9 +121,9 @@ test("all publication write paths use the same required-role validator", async (
 
 test("client commercial acceptance fetches every publication-required job field before publishing", async () => {
   const jobs = await read("src/app/actions/jobs.ts");
-  assert.match(jobs, /select\("id,status,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan"\)/);
+  assert.match(jobs, /select\("id,status,published_at,client_id,title,company_name,summary,description,responsibilities,required_skills,required_tools,hours_per_week,timezone,min_hourly_rate,start_timing,schedule_notes,onboarding_plan,moderation_status"\)/);
   const validationIndex = jobs.indexOf("const missing = publicationMissingDetails(job)");
-  const publishIndex = jobs.indexOf('update({status:"published",published_at:publishedAt})');
+  const publishIndex = jobs.indexOf('alreadyPublished ? { updated_at: acceptedAt } : {status:"published",published_at:acceptedAt}');
   assert.ok(validationIndex >= 0 && publishIndex > validationIndex, "publication validation must happen before the published update");
 });
 

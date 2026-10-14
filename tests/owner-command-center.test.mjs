@@ -56,7 +56,7 @@ test("recruiter My Day and owner Today are the canonical workspace homes",async(
     read("src/components/app-shell.tsx")
   ]);
   assert.doesNotMatch(nav,/\["Overview", "\/workspace\/recruiter"/);
-  assert.match(nav,/\["My Day", "\/workspace\/recruiter\/today", ListTodo\]/);
+  assert.match(nav,/\["Today", "\/workspace\/recruiter\/today", ListTodo\]/);
   assert.match(nav,/\["Today", "\/workspace\/admin\/today", ListTodo\]/);
   assert.match(recruiterRoot,/redirect\("\/workspace\/recruiter\/today"\)/);
   assert.match(shell,/recruiter:\s*"\/workspace\/recruiter\/today"/);

@@ -41,8 +41,19 @@ test("Recruiter Today promotes human shortlist conversion into the command cente
 
   assert.match(page, /getRecruiterRolesSummary/);
   assert.match(page, /shortlistConversionRoles/);
-  assert.match(page, /Send client-ready shortlists/);
-  assert.match(page, /Clear shortlist readiness blockers/);
+  const { focusRoleAction } = await import("../src/lib/recruiter-today-focus.ts");
+  const example = {
+    id: "role-1", title: "VA", company_name: "Acme", status: "published",
+    hiring_stage: "internal_review", created_at: "2026-10-01T00:00:00Z",
+    proposed_count: 2, blocked_proposed_count: 1, client_ready_proposed_count: 1,
+    released_count: 0, unanswered_released_count: 0,
+    active_interview_count: 0, interview_overdue: false,
+    active_offer_count: 0, offer_overdue: false, placement_created: false,
+    client_id: "client-1", commercial_status: "accepted",
+    candidate_access_status: "paid",
+  };
+  assert.equal(focusRoleAction(example).label, "Check candidate readiness");
+  assert.equal(focusRoleAction({ ...example, blocked_proposed_count: 0, client_ready_proposed_count: 2 }).label, "Send candidates to client");
   assert.match(page, /Shortlists to move/);
   assert.match(page, /not automatic match suggestions/);
 });

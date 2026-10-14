@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
-import { publicationMissingDetails } from "@/lib/job-publication";
+import { publicationMissingDetails, publicJobReviewSignals } from "@/lib/job-publication";
+import { assertPublicHiringContentSafe } from "@/lib/hiring-circumvention";
+import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
 export async function reviewJobAction(formData: FormData) {
   const { user } = await requireRole("admin");
@@ -13,8 +15,9 @@ export async function reviewJobAction(formData: FormData) {
   const decision = String(formData.get("decision"));
   const admin = createAdminClient();
   if (decision === "approve") {
-    const { data: job } = await admin.from("jobs").select("client_id,service_model,title,company_name,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
+    const { data: job } = await admin.from("jobs").select("client_id,service_model,moderation_status,title,company_name,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
     if (!job?.client_id) throw new Error("Link this lead-created job to a client account before publishing it.");
+    if (job.moderation_status !== "clear") throw new Error("Review and clear the content hold before approving this job.");
     const missing = publicationMissingDetails(job);
     if (missing.length) throw new Error(`This brief is missing required public content: ${missing.join(", ")}.`);
     const { data: settings } = await admin.from("admin_settings").select("default_placement_fee,default_managed_markup_percent").eq("id",1).single();
@@ -236,4 +239,66 @@ export async function setClientCompanyVerificationAction(formData: FormData) {
   await writeAdminAudit({ actorId: user.id, action: verified ? "client_company_verified" : "client_company_unverified", targetType: "client", targetId: clientId });
   revalidatePath("/workspace/admin/users");
   revalidatePath("/jobs");
+}
+
+/** Immediate, audited removal from public listings without deleting applicants. */
+export async function unpublishJobForReviewAction(formData: FormData) {
+  const { user } = await requireRole("admin");
+  const jobId = String(formData.get("job_id") || "").trim();
+  if (!jobId) throw new Error("Missing job.");
+  const admin = createAdminClient();
+  const { data: job, error: readError } = await admin.from("jobs")
+    .select("id,status,slug").eq("id", jobId).maybeSingle();
+  if (readError) throw readError;
+  if (!job || job.status !== "published") throw new Error("Only a published role can be unpublished.");
+
+  const { data: held, error } = await admin.from("jobs").update({
+    status: "pending",
+    moderation_status: "review",
+    published_at: null,
+    rejection_note: "Unpublished for staff content review.",
+  }).eq("id", jobId).eq("status", "published").select("id,slug").maybeSingle();
+  if (error) throw error;
+  if (!held) throw new Error("The role changed while it was being unpublished. Refresh and try again.");
+
+  const { writeAdminAudit } = await import("@/lib/admin-audit");
+  await writeAdminAudit({ actorId: user.id, action: "job_unpublished_for_review", targetType: "job", targetId: jobId });
+  await notifyGoogleIndexingBestEffort(`/jobs/${held.slug || held.id}`, "URL_DELETED");
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${held.slug || held.id}`);
+  revalidatePath("/workspace/admin/jobs");
+  revalidatePath(`/workspace/admin/jobs/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
+}
+
+/** An admin clears the content hold only after reviewing the actual job. */
+export async function clearJobContentReviewAction(formData: FormData) {
+  const { user } = await requireRole("admin");
+  const jobId = String(formData.get("job_id") || "").trim();
+  if (!jobId) throw new Error("Missing job.");
+  const admin = createAdminClient();
+  const { data: job, error: readError } = await admin.from("jobs")
+    .select("id,updated_at,moderation_status,title,company_name,summary,description,responsibilities,required_skills,required_tools,min_hourly_rate,schedule_notes,onboarding_plan")
+    .eq("id", jobId).maybeSingle();
+  if (readError) throw readError;
+  if (!job || job.moderation_status !== "review") throw new Error("This job is not awaiting content review.");
+  const missing = publicationMissingDetails(job);
+  if (missing.length) throw new Error(`Complete the role before clearing the hold: ${missing.join(", ")}.`);
+  const parts = [job.title,job.company_name,job.summary,job.description,job.responsibilities,job.required_skills,job.required_tools,job.schedule_notes,job.onboarding_plan];
+  assertPublicHiringContentSafe(parts);
+  if (publicJobReviewSignals(parts).length) throw new Error("Remove promotional language and external links before clearing the hold.");
+  const { data: cleared, error } = await admin.from("jobs").update({
+    moderation_status: "clear",
+    rejection_note: null,
+  }).eq("id", jobId).eq("moderation_status", "review")
+    .eq("updated_at", job.updated_at).select("id").maybeSingle();
+  if (error) throw error;
+  if (!cleared) throw new Error("The job changed during review. Reload and review the current content.");
+  const { writeAdminAudit } = await import("@/lib/admin-audit");
+  await writeAdminAudit({ actorId: user.id, action: "job_content_review_cleared", targetType: "job", targetId: jobId });
+  revalidatePath("/workspace/admin/jobs");
+  revalidatePath(`/workspace/admin/jobs/${jobId}`);
+  revalidatePath(`/workspace/recruiter/roles/${jobId}`);
+  revalidatePath(`/workspace/client/jobs/${jobId}`);
 }

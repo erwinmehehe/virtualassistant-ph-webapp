@@ -16,7 +16,7 @@ export async function autoQuoteStraightforwardJobs() {
 
   const [{ data: settings }, { data: pendingJobs }, { data: commercials }] = await Promise.all([
     admin.from("admin_settings").select("default_placement_fee").eq("id", 1).maybeSingle(),
-    admin.from("jobs").select("id,client_id,title,company_name,service_model,min_hourly_rate").eq("status", "pending"),
+    admin.from("jobs").select("id,client_id,title,company_name,service_model,min_hourly_rate,moderation_status").eq("status", "pending"),
     admin.from("job_commercials").select("job_id,commercial_status,placement_fee,service_model")
   ]);
   const fee = Number(settings?.default_placement_fee || 0);
@@ -26,6 +26,7 @@ export async function autoQuoteStraightforwardJobs() {
   const needsQuote = (row: any | undefined) => !row?.commercial_status;
   const eligible = (pendingJobs || []).filter((job: any) =>
     job.service_model !== "managed_service" &&
+    job.moderation_status === "clear" &&
     job.client_id &&
     isPublishableCompanyName(job.company_name) &&
     needsQuote(commercialMap.get(job.id)) &&
@@ -61,6 +62,7 @@ export async function autoQuoteStraightforwardJobs() {
       .update({ status: "published", published_at: publishedAt })
       .eq("id", job.id)
       .eq("status", "pending")
+      .eq("moderation_status", "clear")
       .select("id,client_id,title,categories,required_skills,required_tools,hours_per_week,overlap_hours")
       .maybeSingle();
     if (error || !publishedJob) return false;
@@ -96,6 +98,7 @@ export async function autoQuoteStraightforwardJobs() {
     const commercial = commercialMap.get(job.id);
     if (
       job.client_id &&
+      job.moderation_status === "clear" &&
       isPublishableCompanyName(job.company_name) &&
       job.service_model !== "managed_service" &&
       commercial?.commercial_status === "quoted" &&

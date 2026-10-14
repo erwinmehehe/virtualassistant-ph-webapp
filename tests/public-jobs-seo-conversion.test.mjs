@@ -11,12 +11,15 @@ const jobWizard = readFileSync("src/components/job-wizard.tsx", "utf8");
 const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
 
-test("jobs page is client-first without keyword stuffing", () => {
+test("jobs landing provides distinct employer posting and candidate browsing paths", () => {
   assert.match(page, /title: \{ absolute: "Virtual Assistant Jobs Philippines" \}/);
   assert.match(page, /<h1>Virtual Assistant Jobs Philippines<\/h1>/);
   assert.match(page, /Hire vetted Filipino Virtual Assistants/);
-  assert.doesNotMatch(page, /Browse open VA jobs/);
-  assert.doesNotMatch(page, /Create free VA profile/);
+  assert.match(page, /Browse open jobs/);
+  assert.match(page, /Create free VA profile/);
+  assert.match(page, /const VA_JOIN_HREF = "\/auth\/join\/va"/);
+  assert.match(page, /Only published roles appear here/);
+  assert.match(page, /pending|awaiting review/i);
   assert.doesNotMatch(page, /keywords:\s*\[/);
 });
 

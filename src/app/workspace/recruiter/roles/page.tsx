@@ -8,10 +8,12 @@ import { focusStage } from "@/lib/recruiter-today-focus";
 import { VA_CATEGORIES, vaCategoryLabel } from "@/lib/constants";
 import { autoCategorizeUncategorizedVasAction } from "@/app/actions/va-categories";
 import { getRecruiterRolesSummary, type RecruiterRoleSummaryJob } from "@/lib/recruiter-roles-summary";
+import { pendingJobRequests, jobRequestOwnerLabel, jobRequestAccountLabel } from "@/lib/recruiter-job-requests";
 
 type RoleListRow = RecruiterRoleSummaryJob;
 
 const ROLE_VIEWS = [
+  ["requests", "Job requests"],
   ["active", "All active"],
   ["needs_candidates", "Needs candidates"],
   ["ready_to_send", "Ready to send"],
@@ -39,6 +41,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
   const jobs=data.jobs;
   const talent=data.talent;
   const open=jobs.filter((j)=>!["filled","closed"].includes(j.hiring_stage));
+  const requests=pendingJobRequests(open);
   const history=jobs.filter((j)=>["filled","closed"].includes(j.hiring_stage));
   const requestedView=ROLE_VIEWS.some(([value])=>value===String(params.view||"active"))?String(params.view||"active"):"active";
   const sort=["urgent","oldest","newest","start","stage"].includes(String(params.sort||"urgent"))?String(params.sort||"urgent"):"urgent";
@@ -73,12 +76,13 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
   };
   const viewCounts=new Map<string,number>([
     ["active",open.length],
+    ["requests",requests.length],
     ["history",history.length],
     ...(["needs_candidates","ready_to_send","shortlist_blocked","client_review","waiting_client","interviewing","intervention","stale","replacement","ready_offer"] as const).map((key)=>[key,open.filter((job)=>roleFlags(job)[key]).length] as [string,number])
   ]);
   const visibleJobs=focusStageParam
     ? jobs.filter((job) => job.status !== "closed" && job.hiring_stage !== "closed" && focusStage(job) === focusStageParam)
-    : requestedView==="history"?[...history]:requestedView==="active"?[...open]:open.filter((job)=>(roleFlags(job) as Record<string,boolean>)[requestedView]);
+    : requestedView==="requests"?[...requests]:requestedView==="history"?[...history]:requestedView==="active"?[...open]:open.filter((job)=>(roleFlags(job) as Record<string,boolean>)[requestedView]);
   visibleJobs.sort((a,b)=>{
     const aTime=new Date(a.hiring_stage_entered_at||a.created_at).getTime();
     const bTime=new Date(b.hiring_stage_entered_at||b.created_at).getTime();
@@ -120,6 +124,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
       </div>
     </details>
     <div className="grid-4 recruiter-role-stats">
+      <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=requests&sort=oldest"><span className="small muted">Job requests</span><strong style={{display:"block",fontSize:28}}>{requests.length}</strong><span className="small muted">Submitted briefs waiting for recruiter review</span></Link>
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=needs_candidates&sort=urgent"><span className="small muted">Needs candidates</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("needs_candidates")||0}</strong><span className="small muted">Review suggestions and build the recruiter shortlist</span></Link>
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=ready_to_send&sort=urgent"><span className="small muted">Ready to send</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("ready_to_send")||0}</strong><span className="small muted">Every recruiter-selected VA is client-ready and role gates are clear</span></Link>
       <Link prefetch={false} className="card" href="/workspace/recruiter/roles?view=shortlist_blocked&sort=urgent"><span className="small muted">Shortlist blocked</span><strong style={{display:"block",fontSize:28}}>{viewCounts.get("shortlist_blocked")||0}</strong><span className="small muted">Selected VAs still need talent readiness before release</span></Link>
@@ -141,7 +146,7 @@ export default async function RecruiterRolesPage({searchParams}:{searchParams:Pr
         </form>
       </div>
       {focusStageParam ? <div className="info-banner" style={{marginTop:12}}>Showing roles in: {focusStageParam === "new" ? "New" : focusStageParam === "matching" ? "Matching" : focusStageParam === "client" ? "With client" : "Interviewing / Hired"} · {visibleJobs.length} roles <Link className="text-link" href="/workspace/recruiter/roles">Clear filter</Link></div> : null}
-      {visibleJobs.length?<div className="stack" style={{marginTop:14}}>{visibleJobs.map((job)=>{const sla=slaState(job.hiring_stage,job.hiring_stage_entered_at);const publication=publicationBlocker(job,{commercial_status:job.commercial_status});return <Link prefetch={false} href={`/workspace/recruiter/roles/${job.id}`} className="card recruiter-role-card" key={job.id}><div className="row-between wrap"><div><div className="row wrap"><span className="badge">{STAGES[job.hiring_stage]||job.hiring_stage}</span><span className={`badge ${publication.key==="published"?"badge-success":publication.key==="waiting_client_approval"?"badge-warning":""}`}>{publication.label}</span><span className="badge">{job.recruiter_id===userId?"My role":job.recruiter_id?"Team role":"Unassigned"}</span>{sla?<span className={`badge ${sla.late?"badge-danger":""}`}><Clock3 size={12}/>{sla.label}</span>:null}</div><h3 style={{margin:"8px 0 3px"}}>{job.title}</h3><p className="small muted" style={{margin:0}}>{job.company_name||"Client"} · {age(job.hiring_stage_entered_at)}</p></div><strong>Open control center →</strong></div><div className="row wrap" style={{marginTop:12}}><span className="small muted">{job.suggested_count} suggestions</span><span className="small muted">{job.client_ready_proposed_count}/{job.proposed_count} shortlisted client-ready</span>{job.blocked_proposed_count>0?<span className="badge badge-warning">{job.blocked_proposed_count} blocked</span>:null}<span className="small muted">{job.released_count} client-visible</span><span className="small muted">{job.active_interview_count} interviews</span><span className="small muted">{job.active_offer_count} offers</span>{job.placement_created?<span className="badge badge-success">Placement created</span>:null}</div></Link>})}</div>:<div className="empty">{requestedView==="history"?"No filled or closed roles yet.":"No roles match this saved view."}</div>}
+      {visibleJobs.length?<div className="stack" style={{marginTop:14}}>{visibleJobs.map((job)=>{const sla=slaState(job.hiring_stage,job.hiring_stage_entered_at);const publication=publicationBlocker(job,{commercial_status:job.commercial_status});return <Link prefetch={false} href={`/workspace/recruiter/roles/${job.id}`} className="card recruiter-role-card" key={job.id}><div className="row-between wrap"><div><div className="row wrap">{job.status==="pending"?<span className="badge badge-warning">Job request · Pending</span>:null}<span className="badge">{STAGES[job.hiring_stage]||job.hiring_stage}</span><span className={`badge ${publication.key==="published"?"badge-success":publication.key==="waiting_client_approval"?"badge-warning":""}`}>{publication.label}</span><span className="badge">{job.status==="pending"?jobRequestOwnerLabel(job,userId):job.recruiter_id===userId?"My role":job.recruiter_id?"Team role":"Unassigned"}</span>{sla?<span className={`badge ${sla.late?"badge-danger":""}`}><Clock3 size={12}/>{sla.label}</span>:null}</div><h3 style={{margin:"8px 0 3px"}}>{job.title}</h3><p className="small muted" style={{margin:0}}>{job.company_name||"Client"} · {job.status==="pending"?jobRequestAccountLabel(job):age(job.hiring_stage_entered_at)}</p></div><strong>{job.status==="pending"?"Review request →":"Open control center →"}</strong></div><div className="row wrap" style={{marginTop:12}}><span className="small muted">{job.suggested_count} suggestions</span><span className="small muted">{job.client_ready_proposed_count}/{job.proposed_count} shortlisted client-ready</span>{job.blocked_proposed_count>0?<span className="badge badge-warning">{job.blocked_proposed_count} blocked</span>:null}<span className="small muted">{job.released_count} client-visible</span><span className="small muted">{job.active_interview_count} interviews</span><span className="small muted">{job.active_offer_count} offers</span>{job.placement_created?<span className="badge badge-success">Placement created</span>:null}</div></Link>})}</div>:<div className="empty">{requestedView==="history"?"No filled or closed roles yet.":"No roles match this saved view."}</div>}
     </section>
 
     <section className="role-talent-coverage recruiter-role-coverage" id="talent-coverage">

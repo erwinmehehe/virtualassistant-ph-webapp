@@ -249,16 +249,26 @@ export async function createJobAction(formData: FormData) {
   if (savedStatus === "pending" && previousStatus !== "pending") {
     try {
       const { data: clientProfile } = await admin.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
-      const admins = await admin.from("profiles").select("id").eq("role", "admin");
+      const [admins, assignedJobResult] = await Promise.all([
+        admin.from("profiles").select("id").eq("role", "admin").eq("account_status", "active"),
+        admin.from("jobs").select("recruiter_id").eq("id", savedId).maybeSingle(),
+      ]);
       const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
       const { sendJobSubmittedForReviewEmail } = await import("@/lib/email");
       await sendJobSubmittedForReviewEmail({ jobId: savedId, jobTitle: title, clientName: clientProfile?.full_name, appUrl });
-      if (admins.data?.length) {
-        await admin.from("notifications").insert(admins.data.map((a) => ({
-          user_id: a.id,
-          title: "New hiring brief submitted",
-          body: `${clientProfile?.full_name || "A client"} submitted "${title}" for review. Confirm the brief and commercial terms before it goes live.`,
-          href: `/workspace/admin/jobs/${savedId}`
+      // The database assigns a recruiter on insert. Notify that owner as well
+      // as active admins; a submission must not be visible only to admins.
+      const assignedRecruiterId = assignedJobResult.data?.recruiter_id || null;
+      const recipients = new Set((admins.data || []).map((item) => item.id));
+      if (assignedRecruiterId) recipients.add(assignedRecruiterId);
+      if (recipients.size) {
+        await admin.from("notifications").insert([...recipients].map((recipientId) => ({
+          user_id: recipientId,
+          title: "New job request awaiting review",
+          body: `${clientProfile?.full_name || "A client"} submitted "${title}". Review the brief before any public posting or candidate handoff.`,
+          href: recipientId === assignedRecruiterId
+            ? `/workspace/recruiter/roles/${savedId}#overview`
+            : `/workspace/admin/jobs/${savedId}`,
         })));
       }
     } catch {
@@ -285,6 +295,8 @@ export async function createJobAction(formData: FormData) {
 
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
+  revalidatePath("/workspace/recruiter/today");
+  revalidatePath("/workspace/recruiter/roles");
   revalidatePath("/jobs");
   if (publicJobForIndexing) revalidatePath(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`);
   redirect(`/workspace/client/jobs/${savedId}?saved=1`);

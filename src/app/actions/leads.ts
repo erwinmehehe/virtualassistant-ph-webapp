@@ -794,7 +794,7 @@ export async function submitRoleBriefAction(formData: FormData) {
       budget: parsed.data.budget,
       tools,
       requestedVaId,
-      publicListingConsent: formData.get("public_listing_consent") === "yes",
+      publicListingConsent: formData.get("public_listing_consent") === "yes" && !parsed.data.talent && !parsed.data.shortlist,
       publicBrief: parsed.data.message
     });
   } catch {

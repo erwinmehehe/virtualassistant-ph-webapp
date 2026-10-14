@@ -1,3 +1,4 @@
+import { mkdir } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 
 const password = process.env.E2E_PASSWORD || "E2e-Only!Pass12345";
@@ -59,6 +60,12 @@ for (const workspace of workspaces) {
       );
       expect(overflow, `${workspace.role} ${size.name} page must not scroll horizontally`)
         .toBeLessThanOrEqual(2);
+
+      await mkdir("test-results/workspace-screenshots", { recursive: true });
+      await page.screenshot({
+        path: `test-results/workspace-screenshots/${workspace.role}-${size.name}.png`,
+        fullPage: true,
+      });
     });
   }
 }

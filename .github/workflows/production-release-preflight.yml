@@ -37,16 +37,7 @@ jobs:
         run: |
           node scripts/production-release-preflight.mjs \
             --repo "$PREFLIGHT_REPO" \
-            --pr "$PREFLIGHT_PR_NUMBER" \
-            --output release-preflight-result.json
-      - name: Upload metadata-only report
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: release-preflight-result
-          path: release-preflight-result.json
-          if-no-files-found: warn
-          retention-days: 14
+            --pr "$PREFLIGHT_PR_NUMBER"
       - name: Enforce release hold on missing evidence or approval
         if: steps.preflight.outcome != 'success'
         run: |

@@ -28,8 +28,10 @@ import { TrainingNextSteps } from "@/components/training-next-steps";
 import { TrainingSaveCourseButton } from "@/components/training-save-course-button";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
+import { chooseTrainingResumeCourse } from "@/lib/training-learning-priority";
 import { vaCategoryLabel } from "@/lib/constants";
 import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
+import { chooseOAuthRoleAction } from "@/app/actions/auth";
 import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES } from "@/lib/training-specializations";
 import {
   getSpecialtyTrainingPath,
@@ -85,17 +87,24 @@ function nextCourseHref(course: TrainingCourseSummary) {
 
 function remainingLearningLabel(course: TrainingCourseSummary) {
   if (course.completedAt) return "Completed";
-  if (course.nextAssessment) return "Lessons complete · final check ready";
   const remainingLessons = Math.max(0, course.lessonCount - course.completedLessons);
+  // Do not label a pending submission as "ready" or send learners back to
+  // restart a check while their existing work is being reviewed.
+  if (!course.nextLesson && course.assessmentStatus === "in_review") return "Final check submitted · review in progress";
+  if (!course.nextLesson && course.assessmentStatus === "needs_revision") return "Final check needs revision";
   if (remainingLessons === 1) return `1 lesson left · ${course.completedLessons} of ${course.lessonCount} complete`;
   if (remainingLessons > 1) return `${remainingLessons} lessons left · ${course.completedLessons} of ${course.lessonCount} complete`;
+  if (course.nextAssessment) return "Lessons complete · final check ready";
   return `${course.completedLessons} of ${course.lessonCount} lessons`;
 }
 
 function nextCourseLabel(course: TrainingCourseSummary) {
-  if (course.nextAssessment) return "Start final check";
+  if (course.nextLesson && course.completedLessons === 0) return "Start first lesson";
   if (course.nextLesson && course.lessonCount - course.completedLessons === 1) return "Finish last lesson";
   if (course.nextLesson) return "Continue lesson";
+  if (course.nextAssessment && course.assessmentStatus === "in_review") return "View final check status";
+  if (course.nextAssessment && course.assessmentStatus === "needs_revision") return "Review and retry final check";
+  if (course.nextAssessment) return "Start final check";
   return "Open course";
 }
 
@@ -200,7 +209,7 @@ function CourseCard({
     <Link
       className="btn btn-sm btn-primary"
       href={nextCourseHref(course)}
-      data-track={course.nextAssessment ? "training_assessment_open" : "training_course_continue"}
+      data-track={!course.nextLesson && course.nextAssessment ? "training_assessment_open" : "training_course_continue"}
       data-course-slug={course.slug}
     >
       {nextCourseLabel(course)} <ArrowRight size={14} />
@@ -277,7 +286,7 @@ export default async function TrainingDashboardPage({
   const params = await searchParams;
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
   const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
-  const { userId } = await requireAuthenticatedUserFast("/workspace/training");
+  const { userId, profile } = await requireAuthenticatedUserFast("/workspace/training");
   const { courses, learnerProfile, learnerPreferences, savedCourseIds, error } = await getTrainingDashboard(userId);
 
   const active = courses
@@ -301,7 +310,7 @@ export default async function TrainingDashboardPage({
         new Date(a.certificate?.issued_at || 0).getTime(),
     );
 
-  const resumeCourse = active[0] || null;
+  const resumeCourse = chooseTrainingResumeCourse(active);
   const isNewLearner = active.length === 0 && completed.length === 0;
   const foundationsCourse = courses.find((course) => course.slug === "virtual-assistant-foundations") || null;
   const specialty = learnerProfile?.primaryCategory || null;
@@ -332,19 +341,33 @@ export default async function TrainingDashboardPage({
         <section className="training-resume-card" aria-labelledby="continue-learning-title">
           <div className="training-resume-icon"><Sparkles size={20} /></div>
           <div className="training-resume-copy">
-            <span className="small">Continue where you left off</span>
+            <span className="small">
+              {resumeCourse.nextAssessment && resumeCourse.assessmentStatus === "ready"
+                ? "One step from completing this course"
+                : resumeCourse.nextAssessment && resumeCourse.assessmentStatus === "needs_revision"
+                  ? "Final check follow-through"
+                  : "Continue where you left off"}
+            </span>
             <h2 id="continue-learning-title">{resumeCourse.title}</h2>
             {resumeCourse.nextLesson ? (
               <p>
                 {resumeCourse.lessonCount - resumeCourse.completedLessons === 1 ? (
                   <>One lesson left: <strong>{resumeCourse.nextLesson.title}</strong></>
+                ) : resumeCourse.completedLessons === 0 ? (
+                  <>Start with <strong>{resumeCourse.nextLesson.title}</strong></>
                 ) : (
                   <>Next lesson: <strong>{resumeCourse.nextLesson.title}</strong></>
                 )}
                 <span> · {resumeCourse.nextLesson.estimatedMinutes} min</span>
               </p>
             ) : resumeCourse.nextAssessment ? (
-              <p><strong>Lessons complete.</strong> Your final check is ready now.</p>
+              resumeCourse.assessmentStatus === "in_review" ? (
+                <p><strong>Your final check was submitted.</strong> Your result is being reviewed. You can view the submission status without starting over.</p>
+              ) : resumeCourse.assessmentStatus === "needs_revision" ? (
+                <p><strong>Review requested.</strong> Open your final check to read the feedback, make changes, and resubmit.</p>
+              ) : (
+                <p><strong>Lessons complete.</strong> Your final check is ready now.</p>
+              )
             ) : (
               <p>Your course is ready to reopen.</p>
             )}
@@ -352,7 +375,7 @@ export default async function TrainingDashboardPage({
           <Link
             className="btn btn-primary training-resume-action"
             href={nextCourseHref(resumeCourse)}
-            data-track={resumeCourse.nextAssessment ? "training_assessment_open" : "training_resume_next"}
+            data-track={!resumeCourse.nextLesson && resumeCourse.nextAssessment ? "training_assessment_open" : "training_resume_next"}
             data-course-slug={resumeCourse.slug}
           >
             {nextCourseLabel(resumeCourse)} <ArrowRight size={15} />
@@ -778,6 +801,25 @@ export default async function TrainingDashboardPage({
           </div>
         )}
       </section>
+
+      {!profile && completed.length > 0 ? (
+        <section className="card dashboard-section-card" aria-labelledby="training-career-next-step">
+          <div className="training-section-heading">
+            <div>
+              <span className="small">Optional career step</span>
+              <h2 id="training-career-next-step">Ready to make a VA candidate profile?</h2>
+              <p>Create your candidate profile with this same account to share your skills and availability with our recruitment team. Your completed lessons and verified certificates stay attached to your account. Creating a profile does not guarantee recruiter approval, interviews, or employment.</p>
+            </div>
+          </div>
+          <form action={chooseOAuthRoleAction}>
+            <input type="hidden" name="role" value="va" />
+            <input type="hidden" name="next" value="/workspace/va/onboarding" />
+            <button className="btn btn-primary" type="submit" data-track="training_to_va_profile_opt_in">
+              Create my VA profile <ArrowRight size={15} />
+            </button>
+          </form>
+        </section>
+      ) : null}
     </div>
   );
 }

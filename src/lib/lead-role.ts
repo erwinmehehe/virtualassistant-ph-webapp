@@ -124,7 +124,12 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
   ];
   const safeContent = hiringCircumventionSignals(publicContent).length === 0
     && publicJobReviewSignals(publicContent).length === 0;
-  const publishNow = safeContent && canAutoPublishLeadJob({
+  // An anonymous public listing must never bypass bot protection merely
+  // because the host omitted both Turnstile keys. Private intake is separate.
+  const publicListingChallengeConfigured = process.env.NODE_ENV !== "production"
+    || Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim()
+      && process.env.TURNSTILE_SECRET_KEY?.trim());
+  const publishNow = publicListingChallengeConfigured && safeContent && canAutoPublishLeadJob({
     optedIn: args.publicListingConsent === true,
     clientId: args.clientId,
     requestedVaId: args.requestedVaId,

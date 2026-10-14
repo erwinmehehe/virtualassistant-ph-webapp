@@ -1892,3 +1892,16 @@
     flex-direction: column;
   }
 }
+
+/* Australia paths: surface supported specialisations without another public SEO page. */
+.tr-australia-paths { margin: 0 0 22px; padding: 19px; border: 1px solid #e2e6f2; border-radius: 18px; background: #f8faff; }
+.tr-australia-paths h4 { margin: 0 0 7px; font-size: 17px; font-weight: 750; color: #17254f; }
+.tr-australia-paths > p { margin: 0 0 14px; max-width: 85ch; font-size: 13px; line-height: 1.6; color: #475467; }
+.tr-australia-path-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.tr-australia-path-card { display: grid; gap: 8px; align-content: start; padding: 15px; border: 1px solid #e3e8f2; border-radius: 13px; background: #fff; }
+.tr-australia-path-card strong { color: #17254f; font-size: 14px; }
+.tr-australia-path-card p { margin: 0; color: #475467; font-size: 12px; line-height: 1.55; }
+.tr-australia-path-card a { display: inline-flex; align-items: center; gap: 5px; align-self: end; width: fit-content; margin-top: 3px; color: #3538cd; font-size: 12.5px; font-weight: 700; text-decoration: none; }
+.tr-australia-path-card a:hover { text-decoration: underline; }
+.tr-australia-path-card a:focus-visible { outline: 2px solid #444ce7; outline-offset: 3px; }
+@media (max-width: 640px) { .tr-australia-paths { padding: 14px; } .tr-australia-path-grid { grid-template-columns: 1fr; } }

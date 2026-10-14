@@ -74,10 +74,16 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
     const jobPage = `/workspace/recruiter/roles/${jobId}`;
     const clientCandidates = `/workspace/client/candidates?role=${jobId}`;
 
-    // The paid candidate-access gate must reject arbitrary paid flags.
+    // Candidate release requires selected VAs and an authorized access record. Arbitrary paid flags must fail.
     await recruiter.goto(jobPage);
     await expect(recruiter.getByRole("heading", { name: "Publication status" })).toBeVisible();
-    await expect(recruiter.getByRole("button", { name: /^Send \d+ to client$/ })).toHaveCount(0);
+    const { data: initialAccess, error: initialAccessError } = await admin.from("job_candidate_access")
+      .select("access_status").eq("job_id", jobId).maybeSingle();
+    expect(initialAccessError).toBeNull();
+    // Proposal acceptance may explicitly waive candidate access. Never infer
+    // an active payment or bypass from the mere presence of a Send button.
+    expect(["paid", "comped"]).toContain(initialAccess?.access_status);
+    await expect(recruiter.getByRole("button", { name: "Send 0 to client", exact: true })).toBeDisabled();
     const { error: fakePaidError } = await admin.from("job_candidate_access").upsert({
       job_id: jobId, access_status: "paid", access_fee: 25, payment_reference: crypto.randomUUID(),
     }, { onConflict: "job_id" });

@@ -10,6 +10,7 @@ import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlis
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import { getRecruiterRolesSummary } from "@/lib/recruiter-roles-summary";
 import { recruiterTodayFocus } from "@/lib/recruiter-today-focus";
+import { pendingJobRequests, jobRequestOwnerLabel, jobRequestAccountLabel } from "@/lib/recruiter-job-requests";
 import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 import { formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import styles from "./today.module.css";
@@ -334,6 +335,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const dueClientActions = activeLeadActions.filter((item) => ["urgent", "high"].includes(item.priority) && item.action_key !== "first_contact");
   const placementHandoffs = (Array.isArray(summary.placement_handoffs) ? summary.placement_handoffs : []) as PlacementHandoffRow[];
   const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
+  const pendingRequests = pendingJobRequests(roleSummary.data.jobs);
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
   const readyToSendRoles = shortlistConversionRoles.filter((job) => {
@@ -527,6 +529,37 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
         <p>{primaryAction.copy}</p>
       </div>
       <Link prefetch={false} className="btn btn-primary" href={primaryAction.href}>{primaryAction.cta}<ArrowRight size={15}/></Link>
+    </section>
+
+    <section className="recruiter-focus-work recruiter-job-requests" aria-labelledby="recruiter-job-requests-heading">
+      <div className="recruiter-focus-section-top">
+        <div>
+          <h2 id="recruiter-job-requests-heading">Job requests awaiting review</h2>
+          <p>Employer requests stay private until the publication checks are complete. Review the brief and next client step first.</p>
+        </div>
+        <Link prefetch={false} href="/workspace/recruiter/roles?view=requests&sort=oldest">
+          View all requests ({pendingRequests.length}) <ArrowRight size={14} aria-hidden="true"/>
+        </Link>
+      </div>
+      {pendingRequests.length ? <div className="recruiter-focus-rows">
+        {pendingRequests.slice(0,5).map((request) => (
+          <article key={request.id} className="recruiter-focus-row">
+            <div>
+              <strong>{request.title || "Virtual Assistant request"}</strong>
+              <p>{request.company_name || "Client enquiry"} · {jobRequestOwnerLabel(request, userId)} · {jobRequestAccountLabel(request)}</p>
+              <small className="muted">{ageLabel((Date.now() - Date.parse(request.created_at)) / 3600000)} since submission · Not public</small>
+            </div>
+            <Link prefetch={false} className="btn btn-sm btn-primary" href={`/workspace/recruiter/roles/${request.id}#overview`}>
+              Review request <ArrowRight size={14}/>
+            </Link>
+          </article>
+        ))}
+        {pendingRequests.length > 5 ? <Link className="text-link" href="/workspace/recruiter/roles?view=requests&sort=oldest">
+          See {pendingRequests.length - 5} more pending requests
+        </Link> : null}
+      </div> : <div className="dashboard-caught-up">
+        <CheckCircle2 size={20}/><span>No submitted job requests are waiting for recruiter review.</span>
+      </div>}
     </section>
 
     <section className="recruiter-focus-pipeline" aria-labelledby="recruiter-focus-pipeline-title">

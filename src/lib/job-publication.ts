@@ -33,7 +33,11 @@ const INVALID_PUBLIC_COMPANY_NAMES = new Set(["n/a", "na", "none", "test", "priv
 
 export function isPublishableCompanyName(value: unknown): boolean {
   const normalized = String(value ?? "").trim().toLowerCase();
-  return normalized.length >= 2 && !INVALID_PUBLIC_COMPANY_NAMES.has(normalized);
+  // A contact address or URL is not a public employer name.
+  return normalized.length >= 2
+    && !INVALID_PUBLIC_COMPANY_NAMES.has(normalized)
+    && !/@|https?:\/\/|www\./i.test(normalized)
+    && !/^[a-z0-9.-]+\.[a-z]{2,}(?:\/|$)/i.test(normalized);
 }
 
 export function publicationMissingDetails(job: PublicationJob): string[] {
@@ -47,6 +51,43 @@ export function publicationMissingDetails(job: PublicationJob): string[] {
   // refined during recruiter discovery and matching.
   if (job.min_hourly_rate == null || Number(job.min_hourly_rate) < MIN_HOURLY_RATE) missing.push("budget");
   return missing;
+}
+
+/** Anonymous match requests remain private unless the sender explicitly opts in to
+ * a PUBLIC listing and supplies enough independently usable role details.
+ * This does not grant candidate access or bypass content moderation. */
+export function canAutoPublishLeadJob({
+  optedIn, clientId, requestedVaId, title, companyName, publicBrief,
+  hoursPerWeek, budget, minHourlyRate,
+}: {
+  optedIn: boolean;
+  clientId?: string | null;
+  requestedVaId?: string | null;
+  title?: string | null;
+  companyName?: string | null;
+  publicBrief?: string | null;
+  hoursPerWeek?: number | null;
+  budget?: string | null;
+  minHourlyRate?: number | null;
+}): boolean {
+  const description = String(publicBrief || "").trim();
+  const statedBudget = String(budget || "").trim();
+  const statedAmounts = statedBudget.match(/\d+(?:\.\d+)?/g)?.map(Number) || [];
+
+  // Never infer consent, a real wage, or an actual opening from a generic
+  // match enquiry. Do not expose personally selected talent requests.
+  if (!optedIn || clientId || requestedVaId || description.length < 80) return false;
+  if (!hoursPerWeek || hoursPerWeek <= 0 || !statedAmounts.length) return false;
+  if (/not\s+sure|to\s+be\s+confirmed|negotiable/i.test(statedBudget)) return false;
+  if (statedAmounts[0] < MIN_HOURLY_RATE) return false;
+  if (/requested\s+talent\s+profile:|client-selected\s+shortlist:/i.test(description)) return false;
+  return publicationMissingDetails({
+    title,
+    company_name: companyName,
+    summary: description,
+    responsibilities: [description],
+    min_hourly_rate: minHourlyRate,
+  }).length === 0;
 }
 
 /** A complete curated-placement role can be published without waiting for

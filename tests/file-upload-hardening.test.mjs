@@ -33,8 +33,9 @@ test("uploaded bytes are content-sniffed and DOCX packages are structurally veri
 });
 
 test("stored uploads use randomized paths and quarantine before malware-gated release", async()=>{
-  const [security,profile,accountSecurity,leads,autofill,env]=await Promise.all([
+  const [security,scanner,profile,accountSecurity,leads,autofill,env]=await Promise.all([
     read("src/lib/file-security.ts"),
+    read("src/lib/malware-scan-client.ts"),
     read("src/app/actions/profile.ts"),
     read("src/app/actions/account-security.ts"),
     read("src/app/actions/leads.ts"),
@@ -46,7 +47,10 @@ test("stored uploads use randomized paths and quarantine before malware-gated re
   assert.match(security,/_quarantine\//);
   assert.match(security,/process\.env\.NODE_ENV === "production"/);
   assert.match(security,/MALWARE_SCAN_ENDPOINT/);
-  assert.match(security,/result\?\.clean !== true/);
+  assert.match(scanner,/result\?\.clean !== true/);
+  assert.match(scanner,/redirect: "error"/);
+  assert.match(scanner,/!args\.production/);
+  assert.match(security,/await scanWithEndpoint/);
   assert.ok(security.indexOf("await scanForMalware(args.upload)") < security.indexOf("from(args.targetBucket).upload"));
 
   for (const source of [profile,accountSecurity,leads]) {

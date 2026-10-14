@@ -137,7 +137,7 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
 
     // Real client decision action creates the interview request once.
     await login(client, "client.e2e@example.test", clientCandidates);
-    await expect(client.getByRole("heading", { name: "Hiring Room" })).toBeVisible();
+    await expect(client.getByRole("heading", { name: "Review candidates", exact: true })).toBeVisible();
     await client.getByRole("button", { name: "Request interview" }).click();
     // Interview requests intentionally navigate to the scheduling workspace.
     // "decision_saved" is for keep/pass decisions, not interview requests.

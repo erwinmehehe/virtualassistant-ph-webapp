@@ -1,3 +1,4 @@
+import { mkdir } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 
 const password = process.env.E2E_PASSWORD || "E2e-Only!Pass12345";
@@ -28,6 +29,11 @@ test("recruiter Today desktop remains readable and CRM is reachable from More", 
   await nav.locator("details.recruiter-nav-more > summary").click();
   await expect(nav.locator('a[href="/workspace/recruiter/crm"]')).toBeVisible();
   await expectNoHorizontalPageOverflow(page);
+  await mkdir("test-results/workspace-screenshots", { recursive: true });
+  await page.screenshot({
+    path: "test-results/workspace-screenshots/recruiter-" + (page.viewportSize()?.width === 390 ? "mobile" : "desktop") + ".png",
+    fullPage: true,
+  });
 });
 
 test("recruiter Today mobile keeps actions, primary nav and More usable", async ({ page }) => {
@@ -41,4 +47,9 @@ test("recruiter Today mobile keeps actions, primary nav and More usable", async 
   await nav.locator("details.mobile-more > summary").click();
   await expect(nav.locator('a[href="/workspace/recruiter/crm"]')).toBeVisible();
   await expectNoHorizontalPageOverflow(page);
+  await mkdir("test-results/workspace-screenshots", { recursive: true });
+  await page.screenshot({
+    path: "test-results/workspace-screenshots/recruiter-" + (page.viewportSize()?.width === 390 ? "mobile" : "desktop") + ".png",
+    fullPage: true,
+  });
 });

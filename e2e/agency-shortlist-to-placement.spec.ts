@@ -76,7 +76,7 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
 
     // The paid candidate-access gate must reject arbitrary paid flags.
     await recruiter.goto(jobPage);
-    await expect(recruiter.getByText("Keep this shortlist internal for now.")).toBeVisible();
+    await expect(recruiter.getByRole("heading", { name: "Publication status" })).toBeVisible();
     await expect(recruiter.getByRole("button", { name: /^Send \d+ to client$/ })).toHaveCount(0);
     const { error: fakePaidError } = await admin.from("job_candidate_access").upsert({
       job_id: jobId, access_status: "paid", access_fee: 25, payment_reference: crypto.randomUUID(),

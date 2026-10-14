@@ -55,6 +55,7 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
         <Link className="text-link small" href="/workspace/client/jobs">← Hiring requests</Link>
         <div className="kicker" style={{marginTop:10}}>{fromPublicDraft ? "Final review" : "Post a Virtual Assistant job"}</div>
         <h1>{fromPublicDraft ? "Review and post your job" : "Tell us who you need"}</h1>
+        <p className="small muted">Public job listings display your company name. You can control which additional company details appear in <Link className="text-link" href="/workspace/client/company">Company profile</Link>.</p>
         <p>{fromPublicDraft
           ? "Check the role, schedule and budget below. You can edit anything before you submit."
           : canSelfPublishJobs
@@ -65,11 +66,11 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
       </div>
       <div className="client-role-editor-meta" aria-label="Hiring request form details">
         <span><strong>3</strong> short steps</span>
-        <span><strong>Auto</strong> saved</span>
+        <span><strong>Device</strong> draft</span>
         <span><strong>Recruiter</strong> supported</span>
       </div>
     </div>
     {requested?<div className="success-banner client-role-requested-banner"><strong>{requested.full_name}</strong> is attached as your preferred VA. Your recruiter will keep that preference with this role.</div>:null}
-    <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={canSelfPublishJobs}/></div>
+    <div className="client-role-wizard-shell"><JobWizard initialData={initialData} initialStep={fromPublicDraft?2:fromOnboarding?2:0} requestedVaId={requested?.user_id} requestedVaName={requested?.full_name} canSelfPublishJobs={canSelfPublishJobs} draftScope={user.id} importPublicDraft={fromPublicDraft}/></div>
   </div>;
 }

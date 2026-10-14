@@ -9,7 +9,7 @@ test("VA profile links directly to the work-from-home setup editor", async () =>
   const nav = await source("src/components/app-nav-links.tsx");
   assert.match(profile, /href="\/workspace\/va\/work-readiness"/);
   assert.match(profile, /Edit work-from-home setup/);
-  assert.match(nav, /\["Work Readiness", "\/workspace\/va\/work-readiness"/);
+  assert.match(nav, /\["Work Setup", "\/workspace\/va\/work-readiness"/);
 });
 
 test("work readiness reads existing details before showing an editable form", async () => {

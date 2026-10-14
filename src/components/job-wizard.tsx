@@ -8,6 +8,7 @@ import { mergeUniqueStrings } from "@/lib/collections";
 import { ROLE_TEMPLATES, type RoleTemplate } from "@/lib/role-templates";
 import { suggestJobDraft } from "@/lib/job-draft-suggestions";
 import { isPublishableCompanyName } from "@/lib/job-publication";
+import { normalizeTimeZone, TIMEZONE_SUGGESTIONS } from "@/lib/timezones";
 
 const steps = ["Role", "Schedule & budget", "Review"] as const;
 const stepDescriptions = ["Tell us what this person should own. We will help shape the brief.","Set hours, working timezone, budget and start timing.","Check exactly what will be sent before you submit."] as const;
@@ -38,8 +39,8 @@ const initial: JobDraft = {
   engagement_length: "Long-term preferred", start_timing: "", experience_level: "intermediate"
 };
 
-export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, initialStep = 0, canSelfPublishJobs = false, publicMode = false }: {
-  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string; initialStep?: number; canSelfPublishJobs?: boolean; publicMode?: boolean;
+export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, initialStep = 0, canSelfPublishJobs = false, publicMode = false, draftScope, importPublicDraft = false }: {
+  initialData?: Partial<JobDraft>; jobId?: string; requestedVaId?: string; requestedVaName?: string; initialStep?: number; canSelfPublishJobs?: boolean; publicMode?: boolean; draftScope?: string; importPublicDraft?: boolean;
 }) {
   const [step, setStep] = useState(Math.max(0, Math.min(steps.length - 1, initialStep)));
   const [data, setData] = useState<JobDraft>({ ...initial, ...initialData });
@@ -50,7 +51,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
     setData((prev) => ({ ...prev, ...template.values }));
     setErrors({});
   };
-  const storageKey = useMemo(() => `va_job_draft_${jobId || "new"}`, [jobId]);
+  const storageKey = useMemo(() => jobId ? `va_job_draft_${jobId}` : draftScope ? `va_job_draft_new_${draftScope}` : "va_job_draft_new", [jobId, draftScope]);
   const categoryOptions = new Set<string>(VA_CATEGORIES as readonly string[]);
   const rawCategories = data.categories.split(",").map((x) => x.trim()).filter(Boolean);
   const selectedCategories = rawCategories.filter((x) => categoryOptions.has(x));
@@ -68,12 +69,19 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
   useEffect(() => {
     if (jobId) return;
     try {
-      const raw = window.localStorage.getItem(storageKey);
+      const publicDraft = importPublicDraft ? window.localStorage.getItem("va_job_draft_new") : null;
+      const raw = publicDraft || window.localStorage.getItem(storageKey);
       if (raw) setData((current) => ({ ...current, ...(JSON.parse(raw) as Partial<JobDraft>) }));
+      // The user explicitly continued a public draft through signup. Move it to
+      // their account-scoped browser key so it is not shown to another client.
+      if (publicDraft && draftScope) window.localStorage.removeItem("va_job_draft_new");
     } catch { /* local draft is optional */ }
-  }, [jobId, storageKey]);
+  }, [jobId, storageKey, draftScope, importPublicDraft]);
 
   useEffect(() => {
+    // Editing an existing database role must never pretend it was saved just
+    // because localStorage changed. The server submit button is authoritative.
+    if (jobId) return;
     const timer = window.setTimeout(() => {
       try {
         window.localStorage.setItem(storageKey, JSON.stringify(data));
@@ -81,7 +89,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
       } catch { /* local storage can be unavailable */ }
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [data, storageKey]);
+  }, [data, storageKey, jobId]);
 
   useEffect(() => {
     if (rawCategories.length !== selectedCategories.length) set("categories", selectedCategories.join(", "));
@@ -129,7 +137,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
     }
     if (targetStep >= 1) {
       if (!Number.isFinite(candidateHours) || candidateHours < 1 || candidateHours > 80) next.hours_per_week = "Enter weekly hours between 1 and 80.";
-      if (candidate.timezone.trim().length < 2) next.timezone = "Add your timezone or working region.";
+      if (!normalizeTimeZone(candidate.timezone)) next.timezone = "Choose a valid timezone, such as Asia/Manila or America/New_York.";
       if (!Number.isFinite(candidateMinRate) || candidateMinRate < MIN_HOURLY_RATE) next.min_hourly_rate = `Minimum rate must be at least USD ${MIN_HOURLY_RATE}/hour.`;
       if (candidate.max_hourly_rate && (!Number.isFinite(candidateMaxRate) || candidateMaxRate < candidateMinRate)) next.max_hourly_rate = "Maximum rate must be at least the minimum rate.";
       if (!Number.isFinite(overlap) || overlap < 0 || overlap > 12) next.overlap_hours = "Live overlap must be between 0 and 12 hours.";
@@ -185,13 +193,13 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
           <p>{stepDescriptions[step]}</p>
           {requestedVaName ? <p className="small muted wizard-requested">Preferred VA: <strong>{requestedVaName}</strong>. We will keep this preference attached to the role.</p> : null}
         </div>
-        <div className="wizard-save"><span>{savedAt ? `Saved at ${savedAt}` : "Autosave on"}</span>{publicMode ? null : <button className="text-button" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
+        <div className="wizard-save"><span>{jobId ? "Changes save to your account when you submit" : savedAt ? `Draft saved on this device at ${savedAt}` : "Your draft saves on this device as you type"}</span>{publicMode ? null : <button className="text-button" name="submit_mode" value="draft" type="submit">Save & exit</button>}</div>
       </div>
       {Object.keys(errors).length ? <div className="alert" role="alert" style={{marginBottom:18}}>Please fix the highlighted fields before continuing.</div> : null}
 
       {step === 0 ? <div className="form-grid">
-        <div className="field span-2 wizard-primary-card"><label>What should your VA handle?</label><textarea className="textarea-compact post-job-primary-input" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." autoFocus aria-invalid={Boolean(errors.summary)}/><span className="small muted">Write the work in your own words. We’ll suggest the title, specialty, skills, and responsibilities when you continue.</span>{error("summary")}</div>
-        <div className="field span-2"><label>Company name</label><input value={data.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Acme Studio" aria-invalid={Boolean(errors.company_name)}/><span className="small muted">{publicMode ? "This company name will be shown publicly on the job post." : "Prefilled from your client profile when available. Published job posts always show the company name."}</span>{error("company_name")}</div>
+        <div className="field span-2 wizard-primary-card"><label htmlFor="job-summary">What should your VA handle?</label><textarea id="job-summary" className="textarea-compact post-job-primary-input" value={data.summary} onChange={(e) => set("summary", e.target.value)} placeholder="Manage my inbox and calendar, coordinate weekly meetings, prepare follow-ups, and keep action items moving." autoFocus aria-invalid={Boolean(errors.summary)}/><span className="small muted">Write the work in your own words. We’ll suggest the title, specialty, skills, and responsibilities when you continue.</span>{error("summary")}</div>
+        <div className="field span-2"><label htmlFor="job-company">Company name</label><input id="job-company" value={data.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Acme Studio" aria-invalid={Boolean(errors.company_name)}/><span className="small muted">{publicMode ? "This company name will be shown publicly on the job post." : "Prefilled from your client profile when available. Published job posts always show the company name."}</span>{error("company_name")}</div>
         {isBlankDraft ? <details className="wizard-optional span-2 role-template-picker">
           <summary>Or start from a common role</summary>
           <div className="role-template-grid wizard-optional-grid">{ROLE_TEMPLATES.map((template) => <button type="button" key={template.id} className="role-template-card" onClick={() => applyTemplate(template)}><strong>{template.label}</strong><small>{template.blurb}</small></button>)}</div>
@@ -199,21 +207,21 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
         <details className="wizard-optional span-2">
           <summary>I want to add more details now</summary>
           <div className="form-grid wizard-optional-grid">
-            <div className="field span-2"><label>Job title <span className="muted">(optional)</span></label><input value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder"/></div>
+            <div className="field span-2"><label htmlFor="job-title">Job title <span className="muted">(optional)</span></label><input id="job-title" value={data.title} onChange={(e) => set("title", e.target.value)} placeholder="Executive Assistant to Founder"/></div>
             <div className="field span-2"><label>Specialty <span className="muted">(optional, choose up to 3)</span></label><div className="category-picker category-picker-tight">{VA_CATEGORIES.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip ${selectedCategories.includes(item) ? "selected" : ""}`} onClick={() => toggleCategory(item)} disabled={!selectedCategories.includes(item) && selectedCategories.length >= 3}>{selectedCategories.includes(item) ? <Check size={13}/> : null}{item}</button>)}</div></div>
-            <div className="field span-2"><label>Required skills <span className="muted">(optional)</span></label><input value={data.required_skills} onChange={(e) => set("required_skills", e.target.value)} placeholder="Calendar management, inbox management"/><div className="suggestion-chips">{COMMON_SKILLS.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip compact ${hasCsvItem("required_skills", item) ? "selected" : ""}`} onClick={() => toggleCsvItem("required_skills", item)}>{item}</button>)}</div></div>
-            <div className="field"><label>Tools <span className="muted">(optional)</span></label><input value={data.required_tools} onChange={(e) => set("required_tools", e.target.value)} placeholder="Google Workspace, Slack, Notion"/></div>
-            <div className="field span-2"><label>Detailed responsibilities <span className="muted">(optional)</span></label><textarea className="textarea-mini" value={data.responsibilities} onChange={(e) => set("responsibilities", e.target.value)} placeholder={'Manage calendar and meeting requests\nTriage inbox and draft replies\nTrack follow-ups and weekly priorities'}/></div>
+            <div className="field span-2"><label htmlFor="job-skills">Required skills <span className="muted">(optional)</span></label><input id="job-skills" value={data.required_skills} onChange={(e) => set("required_skills", e.target.value)} placeholder="Calendar management, inbox management"/><div className="suggestion-chips">{COMMON_SKILLS.map((item, index) => <button type="button" key={`${String(item)}-${index}`} className={`category-chip compact ${hasCsvItem("required_skills", item) ? "selected" : ""}`} onClick={() => toggleCsvItem("required_skills", item)}>{item}</button>)}</div></div>
+            <div className="field"><label htmlFor="job-tools">Tools <span className="muted">(optional)</span></label><input id="job-tools" value={data.required_tools} onChange={(e) => set("required_tools", e.target.value)} placeholder="Google Workspace, Slack, Notion"/></div>
+            <div className="field span-2"><label htmlFor="job-responsibilities">Detailed responsibilities <span className="muted">(optional)</span></label><textarea id="job-responsibilities" className="textarea-mini" value={data.responsibilities} onChange={(e) => set("responsibilities", e.target.value)} placeholder={'Manage calendar and meeting requests\nTriage inbox and draft replies\nTrack follow-ups and weekly priorities'}/></div>
           </div>
         </details>
       </div> : null}
 
             {step === 1 ? <div className="stack wizard-budget-step">
         <div className="form-grid wizard-schedule-grid">
-          <div className="field"><label>Hours per week</label><input type="number" min="1" max="80" value={data.hours_per_week} onChange={(e) => set("hours_per_week", e.target.value)} aria-invalid={Boolean(errors.hours_per_week)}/><div className="wizard-choice-row" aria-label="Common weekly hours">{HOURS_PRESETS.map((value)=><button type="button" key={value} className={`wizard-choice ${data.hours_per_week===value?"selected":""}`} onClick={()=>set("hours_per_week",value)}>{value} hrs</button>)}</div>{error("hours_per_week")}</div>
-          <div className="field"><label>Timezone / working region</label><input list="job-timezones" value={data.timezone} onChange={(e) => set("timezone", e.target.value)} placeholder="Australia/Sydney or US Eastern" aria-invalid={Boolean(errors.timezone)}/><datalist id="job-timezones"><option value="Australia/Sydney"/><option value="Australia/Melbourne"/><option value="Australia/Brisbane"/><option value="Europe/London"/><option value="America/New_York"/><option value="America/Chicago"/><option value="America/Los_Angeles"/></datalist><span className="small muted">Use the timezone the VA should work around.</span>{error("timezone")}</div>
-          <div className="field"><label>Minimum hourly rate, USD</label><div className="wizard-money-input"><span>$</span><input type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.min_hourly_rate} onChange={(e) => set("min_hourly_rate", e.target.value)} aria-invalid={Boolean(errors.min_hourly_rate)}/></div>{error("min_hourly_rate")}</div>
-          <div className="field"><label>Maximum hourly rate, USD <span className="muted">(optional)</span></label><div className="wizard-money-input"><span>$</span><input type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.max_hourly_rate} onChange={(e) => set("max_hourly_rate", e.target.value)} placeholder="12" aria-invalid={Boolean(errors.max_hourly_rate)}/></div>{error("max_hourly_rate")}</div>
+          <div className="field"><label htmlFor="job-hours">Hours per week</label><input id="job-hours" type="number" min="1" max="80" value={data.hours_per_week} onChange={(e) => set("hours_per_week", e.target.value)} aria-invalid={Boolean(errors.hours_per_week)}/><div className="wizard-choice-row" aria-label="Common weekly hours">{HOURS_PRESETS.map((value)=><button type="button" key={value} className={`wizard-choice ${data.hours_per_week===value?"selected":""}`} onClick={()=>set("hours_per_week",value)}>{value} hrs</button>)}</div>{error("hours_per_week")}</div>
+          <div className="field"><label htmlFor="job-working-timezone">Working timezone</label><input id="job-working-timezone" list="job-timezones" value={data.timezone} onChange={(e) => set("timezone", e.target.value)} placeholder="Choose a timezone, e.g. America/New_York" aria-invalid={Boolean(errors.timezone)}/><datalist id="job-timezones">{TIMEZONE_SUGGESTIONS.map((zone)=><option key={zone.value} value={zone.value} label={zone.label}/>)}</datalist><span className="small muted">Pick a suggestion or enter a valid City/Region timezone. We use it to schedule interviews correctly.</span>{error("timezone")}</div>
+          <div className="field"><label htmlFor="job-min-rate">Minimum hourly rate, USD</label><div className="wizard-money-input"><span>$</span><input id="job-min-rate" type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.min_hourly_rate} onChange={(e) => set("min_hourly_rate", e.target.value)} aria-invalid={Boolean(errors.min_hourly_rate)}/></div>{error("min_hourly_rate")}</div>
+          <div className="field"><label htmlFor="job-max-rate">Maximum hourly rate, USD <span className="muted">(optional)</span></label><div className="wizard-money-input"><span>$</span><input id="job-max-rate" type="number" min={MIN_HOURLY_RATE} step="0.01" value={data.max_hourly_rate} onChange={(e) => set("max_hourly_rate", e.target.value)} placeholder="12" aria-invalid={Boolean(errors.max_hourly_rate)}/></div>{error("max_hourly_rate")}</div>
           <div className="field span-2"><label>When would you like them to start? <span className="muted">(optional)</span></label><input value={data.start_timing} onChange={(e) => set("start_timing", e.target.value)} placeholder="Within 2 weeks"/><div className="wizard-choice-row">{START_PRESETS.map((value)=><button type="button" key={value} className={`wizard-choice ${data.start_timing===value?"selected":""}`} onClick={()=>set("start_timing",value)}>{value}</button>)}</div></div>
         </div>
         {monthlyLow ? <div className="estimate-strip"><span>Estimated VA compensation</span><strong>${monthlyLow.toLocaleString()}{monthlyHigh > monthlyLow ? `–$${monthlyHigh.toLocaleString()}` : "+"}/month</strong><small>Based on {hours} hrs/week × 4.33 weeks. Any VAPH service fee is separate and confirmed before recruiting begins.</small></div> : null}
@@ -247,7 +255,7 @@ export function JobWizard({ initialData, jobId, requestedVaId, requestedVaName, 
           <div><span>Start timing</span><strong>{data.start_timing || "Flexible"}</strong></div>
         </div>
         <div className="review-edit-row"><button className="text-button" type="button" onClick={() => setStep(0)}>Edit role</button><button className="text-button" type="button" onClick={() => setStep(1)}>Edit schedule & budget</button></div>
-        <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div>{publicMode ? <ul className="check-list compact"><li>Your draft stays saved on this device.</li><li>Create or sign in to a client account to attach the draft to your workspace.</li><li>Review the final posting, then send it for publication or recruiting review.</li><li>Your contact details stay private from applicants.</li></ul> : canSelfPublishJobs && data.service_model === "curated_placement" ? <ul className="check-list compact"><li>Your complete role publishes to the public Virtual Assistant jobs directory immediately.</li><li>Only vetted VAs can enter the recruiter-managed candidate flow.</li><li>Your company name is public on the job post; your personal contact details remain private.</li><li>You can edit or close the role from your client workspace.</li></ul> : <ul className="check-list compact"><li>Your role is saved immediately.</li><li>Our recruiting team checks the brief and confirms any service terms separately.</li><li>You approve commercial terms before recruiting begins.</li><li>Once approved, we shortlist vetted VAs against this exact role.</li></ul>}</div>
+        <div className="card review-section"><div className="row-between"><h3>What happens next</h3><Sparkles size={18}/></div>{publicMode ? <ul className="check-list compact"><li>Your draft stays saved on this device.</li><li>Create or sign in to a client account to attach the draft to your workspace.</li><li>Review the final posting, then send it for publication or recruiting review.</li><li>Your contact details stay private from applicants.</li></ul> : canSelfPublishJobs && data.service_model === "curated_placement" ? <ul className="check-list compact"><li>Your complete role publishes to the public Virtual Assistant jobs directory immediately.</li><li>Only vetted VAs can enter the recruiter-managed candidate flow.</li><li>The public job shows your company name. Extra company details are optional; personal contact details stay private.</li><li>You can edit or close the role from your client workspace.</li></ul> : <ul className="check-list compact"><li>Your role is saved immediately.</li><li>Our recruiting team checks the brief and confirms any service terms separately.</li><li>You approve commercial terms before recruiting begins.</li><li>Once approved, we shortlist vetted VAs against this exact role.</li></ul>}</div>
       </div> : null}
 
       <div className="wizard-actions">

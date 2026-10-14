@@ -51,6 +51,7 @@ for (const account of accounts) {
       user_id: user.id,
       company_name: "E2E Test Company",
       timezone: "Asia/Manila",
+      onboarding_completed_at: new Date().toISOString(),
     }, { onConflict: "user_id" });
     if (error) throw error;
   }

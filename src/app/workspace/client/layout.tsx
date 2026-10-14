@@ -1,3 +1,4 @@
+import "../beginner-navigation.css";
 export const metadata = { robots: { index: false, follow: false } };
 import "./client-mobile.css";
 import { requireRoleFast } from "@/lib/auth";

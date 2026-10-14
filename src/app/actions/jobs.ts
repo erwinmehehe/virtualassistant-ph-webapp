@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
+import { normalizeTimeZone } from "@/lib/timezones";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
 import { clientCanSelfPublishJob, isPublishableCompanyName, publicJobReviewSignals, publicationMissingDetails, resolveClientJobSubmitStatus } from "@/lib/job-publication";
@@ -73,7 +74,9 @@ export async function createJobAction(formData: FormData) {
   const requiredTools = csv(formData.get("required_tools"));
   const categories = csv(formData.get("categories")).slice(0, 3);
   const hoursPerWeek = n(formData.get("hours_per_week"));
-  const timezone = String(formData.get("timezone") ?? "").trim();
+  const submittedTimeZone = String(formData.get("timezone") ?? "").trim();
+  const timezone = normalizeTimeZone(submittedTimeZone) || (submitMode === "draft" ? submittedTimeZone : "");
+  if (submitMode !== "draft" && !timezone) throw new Error("Choose a valid working timezone (City/Region) before publishing.");
   const startTiming = String(formData.get("start_timing") ?? "").trim();
   const serviceModel = String(formData.get("service_model") ?? "curated_placement") === "managed_service"
     ? "managed_service"

@@ -43,7 +43,7 @@ export default async function ClientCandidatesPage({
     return <div className="client-hiring-room client-hiring-room-empty">
       <div className="page-head client-hiring-room-head">
         <div>
-          <h1>Hiring Room</h1>
+          <h1>Review candidates</h1>
           <p>Review recruiter-selected candidates and keep every hiring decision in one place.</p>
         </div>
       </div>
@@ -59,7 +59,7 @@ export default async function ClientCandidatesPage({
     return <div className="client-hiring-room client-hiring-room-empty">
       <div className="page-head client-hiring-room-head">
         <div>
-          <h1>Hiring Room</h1>
+          <h1>Review candidates</h1>
           <p>Your previous hiring roles are closed. Start a new request whenever you are ready to hire again.</p>
         </div>
       </div>
@@ -134,7 +134,7 @@ export default async function ClientCandidatesPage({
             href: selectedJob
               ? `/workspace/client/candidates?role=${encodeURIComponent(selectedJob.id)}#recruiter-shortlist`
               : "/workspace/client/candidates",
-            label: "Review Hiring Room",
+            label: "Review candidates",
             waiting: "Waiting on you",
           }
         : shortlisted
@@ -166,8 +166,8 @@ export default async function ClientCandidatesPage({
     {query.more_options_requested?<div className="success-banner" role="status">Your recruiter has been asked for more candidate options.</div>:null}
     <div className="page-head client-hiring-room-head">
       <div>
-        <h1>Hiring Room</h1>
-        <p>Only recruiter-selected candidates appear here. Review the evidence, request an interview, keep a VA shortlisted, or pass and tell your recruiter why.</p>
+        <h1>Review candidates</h1>
+        <p>Your recruiter has screened these VAs for the role. Review their experience, request interviews or ask for different options.</p>
       </div>
     </div>
 

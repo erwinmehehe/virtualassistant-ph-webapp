@@ -39,7 +39,8 @@ test("jobs directory uses its dedicated marketplace hero and SEO content", () =>
 
   assert.match(page, /jobs-market-hero/);
   assert.match(page, /Post a VA job/);
-  assert.match(page, /Latest virtual assistant jobs in the Philippines/);
+  assert.match(page, /Browse current Virtual Assistant jobs/);
+  assert.match(page, /jobs-candidate-guide/);
   assert.doesNotMatch(page, /FAQPage/);
   assert.match(page, /jobs-bottom-cta/);
   assert.match(css, /\.jobs-market-hero/);

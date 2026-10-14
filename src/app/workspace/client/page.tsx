@@ -32,8 +32,6 @@ export default async function ClientDashboardPage({searchParams}:{searchParams:P
 
   const issues=collectQueryIssues({"your hiring workspace":dashboardResult.error,"your requested Virtual Assistant":params.talent?requestedError:null});
   const hires=Number(dashboard?.hire_count||0);
-  const shortlistCount=Number(dashboard?.application_count||0);
-  const pipeline=dashboard?.pipeline||{applied:0,shortlisted:0,interview:0,offered:0,hired:0,rejected:0};
 
   const attention = await getClientHomeSignals(userId);
   const steps = [

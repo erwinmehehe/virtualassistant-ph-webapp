@@ -142,6 +142,10 @@ export async function main(args = process.argv.slice(2)) {
   const teamId = getArg(args, "--vercel-team-id", process.env.VERCEL_TEAM_ID || "");
   const workflow = getArg(args, "--backup-workflow", "database-backup.yml");
   const output = getArg(args, "--output", "");
+  // Keep reporting local to the workspace. Never write fetched API metadata
+  // into an arbitrary path or follow an existing symlink on rerun.
+  const REPORT_FILE = "release-preflight-result.json";
+  if (output && output !== REPORT_FILE) throw new Error("Unsupported report path");
   const fixture = getArg(args, "--fixture", "");
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo) || !/^\d+$/.test(prNumber) ||
       !/^prj_[a-zA-Z0-9]+$/.test(projectId) ||
@@ -160,7 +164,7 @@ export async function main(args = process.argv.slice(2)) {
         detail:error instanceof Error ? error.message : "Metadata unavailable"}],
       manualReleaseRequirements:["Supply read-only credentials and retry; do not deploy"]};
   }
-  if (output) await writeFile(output, JSON.stringify(report,null,2) + "\n",{mode:0o600});
+  if (output) await writeFile(REPORT_FILE, JSON.stringify(report,null,2) + "\n", {flag:"wx",mode:0o600});
   for (const check of report.checks) console.log(check.status.toUpperCase() + " " + check.name + ": " + check.detail);
   console.log("Release decision: " + report.decision + "; production approval not issued");
   // Exit code 2 denotes successful machine evaluation but unmet human approval.

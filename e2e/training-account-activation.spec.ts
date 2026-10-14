@@ -12,7 +12,13 @@ async function login(page: Page, email: string, next: string) {
 
 test("only admins can view private training signup activation metrics", async ({ browser }) => {
   const adminContext = await browser.newContext();
-  const recruiterContext = await browser.newContext();
+  // This suite runs only on a loopback test server. Isolate the negative-role
+  // login from unrelated synthetic recruiter tests without altering real rate limits.
+  const origin = new URL(process.env.E2E_BASE_URL || "http://127.0.0.1:3000");
+  if (!["localhost", "127.0.0.1", "::1"].includes(origin.hostname)) {
+    throw new Error("Training access E2E must use a loopback server.");
+  }
+  const recruiterContext = await browser.newContext({ extraHTTPHeaders: { "x-forwarded-for": "198.51.100.217" } });
   try {
     const admin = await adminContext.newPage();
     const path = "/workspace/admin/training/activation";
@@ -25,7 +31,7 @@ test("only admins can view private training signup activation metrics", async ({
     await expect(admin.getByText("Activation metrics unavailable")).toHaveCount(0);
 
     const recruiter = await recruiterContext.newPage();
-    await login(recruiter, "recruiter.e2e@example.test", "/workspace/recruiter/today");
+    await login(recruiter, "recruiter.training-e2e@example.test", "/workspace/recruiter/today");
     await recruiter.goto(path);
     await expect(recruiter).toHaveURL(/\/workspace\/recruiter(?:\/|$)/);
     await expect(recruiter.getByRole("heading", { name: "From training signup to first completion" })).toHaveCount(0);

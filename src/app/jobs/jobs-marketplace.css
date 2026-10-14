@@ -148,6 +148,24 @@
   justify-content: center;
 }
 
+.jobs-employer-help {
+  display: block;
+  padding: 9px 11px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 9px;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.5;
+}
+.jobs-employer-help:hover,
+.jobs-employer-help:focus-visible {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+
 .jobs-employer-note {
   color: #98a2b3;
   font-size: 10.5px;

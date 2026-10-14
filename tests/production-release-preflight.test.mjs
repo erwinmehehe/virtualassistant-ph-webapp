@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { tmpdir } from "node:os";
@@ -91,26 +91,26 @@ test("audit never emits environment variable values",() => {
   const s=fixture();s.vercelEnvs[0].value="sentinel-private-value";
   assert.doesNotMatch(JSON.stringify(evaluate(s)),/sentinel-private-value/);
 });
-test("missing read-only tokens fail closed and preserve a JSON report",async () => {
+test("missing read-only tokens fail closed without writing network data to a report",async () => {
   const dir=await mkdtemp(join(tmpdir(),"release-gate-"));
-  const output=join(dir,"release-preflight-result.json");
   try {
-    await assert.rejects(run("node",[new URL("../scripts/production-release-preflight.mjs",import.meta.url).pathname,
-      "--output","release-preflight-result.json"],{cwd:dir,env:{...process.env,GITHUB_TOKEN:"",GH_TOKEN:"",VERCEL_TOKEN:""}}));
-    const data=JSON.parse(await readFile(output,"utf8"));
-    assert.equal(data.decision,"BLOCKED");
-    assert.equal(data.readyForProduction,false);
+    await assert.rejects(run("node",[new URL("../scripts/production-release-preflight.mjs",import.meta.url).pathname],
+      {cwd:dir,env:{...process.env,GITHUB_TOKEN:"",GH_TOKEN:"",VERCEL_TOKEN:""}}), error => {
+        assert.match(error.stdout || "", /Release decision: BLOCKED/);
+        return true;
+      });
+    assert.deepEqual(await readdir(dir), []);
   } finally {
     await rm(dir,{recursive:true,force:true});
   }
 });
-test("preflight refuses caller-selected report paths",async () => {
+test("preflight refuses deprecated report output paths",async () => {
   const dir=await mkdtemp(join(tmpdir(),"release-gate-path-"));
   const unsafe=join(dir,"arbitrary-report.json");
   try {
     await assert.rejects(run("node",[new URL("../scripts/production-release-preflight.mjs",import.meta.url).pathname,
       "--output",unsafe],{cwd:dir,env:{...process.env,GITHUB_TOKEN:"",GH_TOKEN:"",VERCEL_TOKEN:""}}));
-    await assert.rejects(readFile(unsafe,"utf8"),{code:"ENOENT"});
+    assert.deepEqual(await readdir(dir), []);
   } finally {
     await rm(dir,{recursive:true,force:true});
   }

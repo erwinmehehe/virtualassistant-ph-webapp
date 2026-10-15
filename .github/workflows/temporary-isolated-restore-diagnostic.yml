@@ -145,3 +145,4 @@ jobs:
 # Classify missing schema column and statement without emitting raw SQL.
 # Classify unresolved schema-column reference using only sanitized identifier names.
 # Verify read-only Auth schema preflight and target-only field compatibility.
+# Validate target-only Auth audit compatibility against the retained archive.

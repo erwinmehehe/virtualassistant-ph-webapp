@@ -1,5 +1,25 @@
 import "server-only";
 
+
+/** Fail closed: an enabled coach is still restricted to explicit pilot user IDs. */
+export function isTrainingCoachPilotLearner(userId: string) {
+  if (!userId) return false;
+  const allowedIds = (process.env.AI_TRAINING_COACH_PILOT_USER_IDS || "")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+  if (allowedIds.includes(userId.toLowerCase())) return true;
+
+  // Local Playwright must use a disposable loopback DB; no real VAPH account IDs.
+  if (process.env.NODE_ENV !== "development" || process.env.AI_TRAINING_COACH_E2E_MOCK !== "true") return false;
+  try {
+    const url = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "");
+    return url.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 export type TrainingCoachMode = "explain" | "practice" | "review";
 export type TrainingCoachMessage = { role: "user" | "assistant"; content: string };
 

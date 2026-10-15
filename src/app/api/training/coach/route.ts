@@ -5,6 +5,7 @@ import { getTrainingLesson } from "@/lib/training";
 import {
   buildTrainingCoachMessages,
   extractTrainingCoachReply,
+  isTrainingCoachPilotLearner,
   parseTrainingCoachRequest,
   trainingCoachRequestsExamAnswers,
 } from "@/lib/training-coach";
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
 
   const session = await getFastRoleProfile();
   if (!session.userId) return failure("Sign in to use your training coach.", 401);
+  if (!isTrainingCoachPilotLearner(session.userId)) return failure("The coach is currently limited to pilot learners.", 403);
 
   if (!request.headers.get("content-type")?.toLowerCase().includes("application/json")) {
     return failure("Use a JSON request.", 415);

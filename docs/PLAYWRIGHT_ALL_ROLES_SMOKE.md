@@ -24,7 +24,7 @@ No real jobs, payments, emails, messages, candidate data, approvals, grades, or 
 ## Failures detected
 
 - Unexpected HTTP response or redirect, failed login, blank page or missing/duplicate visible H1.
-- JavaScript exceptions, browser console errors, local HTTP 5xx responses, error overlays and crash text.
+- JavaScript exceptions, browser console errors, local HTTP 5xx responses, failed local network requests, error overlays and crash text.
 - Mobile/desktop horizontal overflow or primary heading clipped outside the viewport.
 - Visible broken images, missing image alt text, and unlabeled visible form controls.
 - A primary navigation link that cannot be clicked or does not reach its expected destination.

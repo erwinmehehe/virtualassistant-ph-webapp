@@ -164,7 +164,7 @@ async function signIn(page: Page, email: string, next: string) {
 
 async function auditRoute(page: Page, route: Route, screenshotPath: string): Promise<Audit> {
   const findings: string[] = [];
-  const errors = { page: [] as string[], console: [] as string[], server: [] as string[] };
+  const errors = { page: [] as string[], console: [] as string[], server: [] as string[], network: [] as string[] };
   let status: number | null = null;
   let resolvedPath: string | null = null;
 
@@ -181,9 +181,18 @@ async function auditRoute(page: Page, route: Route, screenshotPath: string): Pro
       }
     }
   };
+  const onRequestFailed = (request: import("@playwright/test").Request) => {
+    const url = new URL(request.url());
+    if (!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) return;
+    const reason = request.failure()?.errorText || "unknown network failure";
+    // Client-side navigation deliberately aborts stale prefetches; ignore only those cancellations.
+    if (/ERR_ABORTED|NS_BINDING_ABORTED/i.test(reason)) return;
+    errors.network.push(url.pathname + " " + safeMessage(reason));
+  };
   page.on("pageerror", onPageError);
   page.on("console", onConsole);
   page.on("response", onResponse);
+  page.on("requestfailed", onRequestFailed);
 
   try {
     const response = await page.goto(route.path, { waitUntil: "domcontentloaded", timeout: 35_000 });
@@ -274,11 +283,13 @@ async function auditRoute(page: Page, route: Route, screenshotPath: string): Pro
     page.off("pageerror", onPageError);
     page.off("console", onConsole);
     page.off("response", onResponse);
+    page.off("requestfailed", onRequestFailed);
   }
 
   if (errors.page.length) findings.push("JavaScript exceptions: " + errors.page.slice(0, 3).join(" | "));
   if (errors.console.length) findings.push("Console errors: " + errors.console.slice(0, 3).join(" | "));
   if (errors.server.length) findings.push("Server 5xx responses: " + errors.server.slice(0, 3).join(" | "));
+  if (errors.network.length) findings.push("Failed local network requests: " + errors.network.slice(0, 3).join(" | "));
   return { route: route.path, status, resolvedPath, findings, image: path.basename(screenshotPath) };
 }
 

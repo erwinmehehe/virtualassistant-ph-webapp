@@ -36,6 +36,7 @@ test("role smoke checks JS failures, browser console, server responses, overflow
     'page.on("pageerror"',
     'page.on("console"',
     'page.on("response"',
+    'page.on("requestfailed"',
     "horizontalOverflowPx",
     "primaryHeadingClipped",
     "brokenImages",

@@ -77,6 +77,10 @@ jobs:
             if [[ "$missing_name" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
               echo "Conflicting schema identifier: $missing_name"
             fi
+            absent_schema="$(sed -nE 's/.*ERROR:[[:space:]]*schema "([A-Za-z_][A-Za-z0-9_]*)" does not exist.*/\1/p' "$stage/restore.log" | head -n 1 || true)"
+            if [[ "$absent_schema" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+              echo "Required missing schema identifier: $absent_schema"
+            fi
             for schema in auth storage realtime public extensions cron net vault graphql_public; do
               if grep -Fq "schema \"$schema\" already exists" "$stage/restore.log"; then
                 echo "Conflicting disposable restore schema: $schema"

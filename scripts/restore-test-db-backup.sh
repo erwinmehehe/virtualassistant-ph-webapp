@@ -51,7 +51,7 @@ docker exec "$container_name" pg_isready -U postgres -d postgres >/dev/null
 # Capture logs locally; SQL diagnostics may include sensitive row contents.
 if ! docker exec "$container_name" psql \
   --no-psqlrc --username=postgres --dbname=postgres --single-transaction \
-  --set=ON_ERROR_STOP=1 --set=VERBOSITY=sqlstate \
+  --set=ON_ERROR_STOP=1 --set=VERBOSITY=verbose \
   --file=/backup/roles.sql \
   --file=/backup/schema.sql \
   --command='SET session_replication_role = replica' \
@@ -60,6 +60,23 @@ if ! docker exec "$container_name" psql \
   # Output only standardized five-character SQLSTATE codes, never SQL, row values or credentials.
   sqlstates="$(grep -Eo 'ERROR:[[:space:]]*[A-Z0-9]{5}' "$stage/restore.log" | sed -E 's/^ERROR:[[:space:]]*//' | LC_ALL=C sort -u | tr '\\n' ' ' || true)"
   if [[ -n "$sqlstates" ]]; then echo "PostgreSQL restore SQLSTATE codes: $sqlstates" >&2; fi
+  # SQLSTATE and file/line are safe operational diagnostics. Do not echo SQL text.
+  failure_point="$(sed -nE 's@.*psql:/backup/(roles|schema|data)\.sql:([0-9]+):.*@\1.sql line \2@p' "$stage/restore.log" | head -n 1 || true)"
+  if [[ -n "$failure_point" ]]; then echo "First failing SQL location: $failure_point" >&2; fi
+  if grep -Eq 'role "[^"]+" does not exist|role [^[:space:]]+ does not exist' "$stage/restore.log"; then
+    echo "The recovery container is missing a referenced PostgreSQL role." >&2
+    # Known managed Supabase role names are non-secret. Never print arbitrary values.
+    for role in anon authenticated authenticator dashboard_user service_role supabase_admin supabase_auth_admin supabase_etl_admin supabase_functions_admin supabase_privileged_role supabase_read_only_user supabase_realtime_admin supabase_replication_admin supabase_storage_admin; do
+      if grep -Fq "role \"$role\" does not exist" "$stage/restore.log"; then
+        echo "Missing managed role: $role" >&2
+        break
+      fi
+    done
+  elif grep -Eqi 'unrecognized configuration parameter|configuration parameter .* does not exist' "$stage/restore.log"; then
+    echo "The target Postgres lacks a referenced database configuration parameter." >&2
+  elif grep -Eqi 'database .* does not exist' "$stage/restore.log"; then
+    echo "The target Postgres lacks a referenced database." >&2
+  fi
   # Report only the known backup file and the kind of missing object. Never echo SQL text.
   if grep -q '/backup/roles.sql:' "$stage/restore.log"; then
     echo "Restore stopped in roles.sql." >&2

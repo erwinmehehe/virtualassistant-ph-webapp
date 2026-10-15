@@ -68,7 +68,7 @@ jobs:
           echo "Disposable-only database schemas reset. Beginning complete encrypted-archive restore."
           if ! docker exec -e PGPASSWORD=postgres "$container" \
             pg_restore --host=127.0.0.1 --username=supabase_admin --dbname=postgres \
-              --no-owner --no-privileges --single-transaction --exit-on-error \
+              --no-owner --no-privileges --clean --if-exists --single-transaction --exit-on-error \
               /backup/source.dump > "$stage/restore.log" 2>&1; then
             echo "Full raw-archive restore failed in disposable target. No production changes."
             safe_error="$(sed -n '/ERROR:/{s/.*ERROR:[[:space:]]*//;p;q;}' "$stage/restore.log" | sed -E 's/"[^"]*"/[identifier]/g' | cut -c 1-160)"

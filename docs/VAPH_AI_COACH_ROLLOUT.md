@@ -52,3 +52,23 @@ No schema migration was made for the coach. Existing course records and certific
 - Chat history is not persisted; the AI uses only the recent messages supplied by the learner's current browser session.
 - The coach provides non-graded feedback, not a certification decision.
 - Daily rate limits are enforced by the existing Supabase rate-limiting RPC; failures fail closed.
+
+## Isolated coach API and browser pilot
+
+The GitHub Actions training-coach-pilot workflow runs Chromium against a
+fresh local Supabase environment without model credentials or migrations.
+It tests anonymous 401, unenrolled 403, invalid 400, authentic learner
+enrollment, all three coaching modes, desktop/mobile screenshots,
+assessment-answer refusal and the 429 daily request quota.
+
+AI_TRAINING_COACH_E2E_MOCK=true returns explicitly labeled LOCAL TEST COACH
+replies, and works only with NODE_ENV=development and loopback Supabase.
+The normal broad browser suite skips this dedicated test when unset.
+No actual AI responses are evaluated in this workflow.
+
+Before enabling on production, connect the real VAPH Vercel team and create
+a preview. Configure server-side AI_GATEWAY_API_KEY and set
+AI_TRAINING_COACH_ENABLED=true for preview only. Test real answer quality,
+prompt-injection refusals, model costs and error behavior before release.
+Keep production disabled and preserve the backup branch
+backup/pre-vaph-coach-pilot-e2e-2026-10-15.

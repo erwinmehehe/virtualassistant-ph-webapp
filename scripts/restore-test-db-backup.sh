@@ -66,6 +66,14 @@ docker exec "$container_name" sh -eu -c \
   'export PGPASSWORD="$POSTGRES_PASSWORD"; exec psql -X -h 127.0.0.1 -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c "ALTER TABLE auth.users ADD COLUMN IF NOT EXISTS email_confirmed_at timestamp with time zone;"' >/dev/null
 echo "Aligned the disposable Auth users table with the nullable timestamp field."
 
+# VAPH's hosted Auth audit table also has a non-null varchar(64) ip_address
+# with an empty-string default, missing from some standalone Postgres images.
+# This is a target-only compatibility correction, never a production migration.
+docker exec -e PGPASSWORD=postgres "$container_name" psql -X -h 127.0.0.1 \
+  -U supabase_admin -d postgres -v ON_ERROR_STOP=1 \
+  -c "ALTER TABLE auth.audit_log_entries ADD COLUMN IF NOT EXISTS ip_address varchar(64) NOT NULL DEFAULT '';" >/dev/null
+echo "Aligned the disposable Auth audit table with its hosted schema field."
+
 # Supabase's documented sequence: filtered roles/schema, then managed data.
 # A single transaction and ON_ERROR_STOP ensure restore failures are fatal.
 # Capture logs locally; SQL diagnostics may include sensitive row contents.

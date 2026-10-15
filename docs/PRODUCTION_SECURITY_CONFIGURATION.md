@@ -4,7 +4,7 @@ Project: VirtualAssistant.com.ph. This runbook describes the checks that require
 
 ## Backups: required operator configuration
 
-The database is on Supabase Free. Both required GitHub Actions secrets have been configured and database authentication was verified. The automated recovery gate still requires a successful encrypted full-archive backup and isolated restore on the default branch; GitHub's secret values cannot be read back.
+The database is on Supabase Free. Both required GitHub Actions secrets have been configured and database authentication was verified. The automated recovery gate still requires a successful encrypted full-archive backup and isolated PostgreSQL restore test on the default branch; GitHub's secret values cannot be read back.
 
 1. In [Supabase](https://supabase.com/dashboard/project/ywkgcyilxhezrfxuwius), open **Connect** and obtain a production PostgreSQL connection string suitable for external backup. For GitHub-hosted runners use a supported **session-pooler** connection when direct IPv6 access is unavailable; require TLS.
 2. In GitHub, open [Actions secrets and variables](https://github.com/erwinmehehe/virtualassistant-ph-webapp/settings/secrets/actions) and set **SUPABASE_DB_URL** to the complete connection string.

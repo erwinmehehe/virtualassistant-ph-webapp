@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: "17 6 * * *"
   push:
-    branches: [main, fix/backup-secret-safe-diagnostic-2026-10-15]
+    branches: [main]
     paths:
       - ".github/workflows/database-backup.yml"
       - "scripts/create-encrypted-db-backup.sh"

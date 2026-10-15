@@ -11,3 +11,4 @@ tsconfig.tsbuildinfo
 .supabase-e2e.env
 playwright-report
 test-results
+.e2e-hiring-fixtures.json

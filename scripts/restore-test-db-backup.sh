@@ -46,6 +46,18 @@ for _ in $(seq 1 90); do
 done
 docker exec "$container_name" pg_isready -U postgres -d postgres >/dev/null
 
+# VAPH's source has the managed Supabase Realtime administrator as a NOLOGIN role.
+# This pinned disposable Postgres image may lack it, while the Supabase CLI roles
+# export still grants it memberships. Re-create only that confirmed managed
+# dependency in the disposable recovery database; never mutate production roles.
+if ! docker exec "$container_name" psql -X -U postgres -d postgres -Atc \
+    "SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'supabase_realtime_admin')" \
+    | grep -qx t; then
+  docker exec "$container_name" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 \
+    -c "CREATE ROLE supabase_realtime_admin NOLOGIN;" >/dev/null
+  echo "Provisioned the required NOLOGIN Supabase Realtime role in isolated restore target."
+fi
+
 # Supabase's documented sequence: filtered roles/schema, then managed data.
 # A single transaction and ON_ERROR_STOP ensure restore failures are fatal.
 # Capture logs locally; SQL diagnostics may include sensitive row contents.

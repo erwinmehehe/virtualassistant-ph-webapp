@@ -34,6 +34,40 @@ jobs:
           run-id: 38730362299
           github-token: ${{ github.token }}
 
+      - name: Diagnose the failing schema view without logging SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          stage="$(mktemp -d)"
+          trap 'rm -rf "$stage"' EXIT
+          archive="$(find isolated-artifact -maxdepth 1 -name '*.sql.tar.enc' -print -quit)"
+          test -n "$archive"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 250000 \
+            -pass env:BACKUP_ENCRYPTION_PASSPHRASE -in "$archive" -out "$stage/sql.tar"
+          tar -xOf "$stage/sql.tar" schema.sql > "$stage/schema.sql"
+          python3 - "$stage/schema.sql" <<'PY'
+          import pathlib, re, sys
+          lines=pathlib.Path(sys.argv[1]).read_text().splitlines()
+          target=10507
+          assert len(lines)>=target, "Original schema SQL line was not found"
+          starts=[(n,l) for n,l in enumerate(lines[:target],1) if re.match(r'^\s*CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+',l,re.I)]
+          if not starts:
+              print("Schema view header could not be located safely.")
+              raise SystemExit(1)
+          n,header=starts[-1]
+          m=re.match(r'^\s*CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+(?:"([A-Za-z_][A-Za-z0-9_]*)"|([A-Za-z_][A-Za-z0-9_]*))\.(?:"([A-Za-z_][A-Za-z0-9_]*)"|([A-Za-z_][A-Za-z0-9_]*))',header,re.I)
+          if not m:
+              print("A view was found, but no safe view identifier could be extracted.")
+              raise SystemExit(1)
+          schema,name=m.group(1) or m.group(2),m.group(3) or m.group(4)
+          fragment="\n".join(lines[n-1:target])
+          print("Failing schema view:",schema+"."+name)
+          print("View definition references Auth schema:",bool(re.search(r'\b(?:auth|\"auth\")\.',fragment,re.I)))
+          print("View definition references Storage schema:",bool(re.search(r'\b(?:storage|\"storage\")\.',fragment,re.I)))
+          print("View definition references a public schema:",bool(re.search(r'\b(?:public|\"public\")\.',fragment,re.I)))
+          PY
+
       - name: Verify and restore isolated archived SQL
         shell: bash
         run: |

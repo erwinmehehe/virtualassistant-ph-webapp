@@ -1,0 +1,50 @@
+# TEMPORARY branch-only diagnostic. Delete after verifying the final restore.
+name: TEMP isolated VAPH encrypted backup restore
+on:
+  push:
+    branches: [fix/backup-secret-safe-diagnostic-2026-10-15]
+    paths: [".github/workflows/temporary-isolated-restore-diagnostic.yml"]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: temporary-vaph-isolated-restore
+  cancel-in-progress: false
+
+jobs:
+  restore-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+      RESTORE_POSTGRES_IMAGE: supabase/postgres:17.6.1.155
+    steps:
+      - name: Checkout diagnostic branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Retrieve previous encrypted SQL bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: vaph-production-db-backup-38730362299
+          path: isolated-artifact
+          run-id: 38730362299
+          github-token: ${{ github.token }}
+
+      - name: Verify and restore isolated archived SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$BACKUP_ENCRYPTION_PASSPHRASE"
+          shopt -s nullglob
+          archives=(isolated-artifact/*.sql.tar.enc)
+          if [ "${#archives[@]}" -ne 1 ]; then
+            echo "Expected exactly one encrypted SQL archive." >&2
+            exit 1
+          fi
+          chmod +x scripts/verify-encrypted-db-backup.sh scripts/restore-test-db-backup.sh
+          scripts/verify-encrypted-db-backup.sh "${archives[0]}"
+          scripts/restore-test-db-backup.sh "${archives[0]}"

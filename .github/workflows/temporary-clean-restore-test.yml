@@ -57,13 +57,13 @@ jobs:
           docker exec -e PGPASSWORD=postgres "$container" \
             psql -X -h 127.0.0.1 -U supabase_admin -d postgres \
             -v ON_ERROR_STOP=1 -Atc \
-            "SELECT format('DROP SCHEMA IF EXISTS %I CASCADE;', nspname) FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname NOT IN ('information_schema');" \
+            "SELECT format('DROP SCHEMA IF EXISTS %I CASCADE;', nspname) FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname NOT IN ('information_schema');" \
             > "$stage/clean.sql"
           docker exec -e PGPASSWORD=postgres "$container" \
             psql -X -h 127.0.0.1 -U supabase_admin -d postgres \
             -v ON_ERROR_STOP=1 -f /backup/clean.sql > "$stage/clean.log" 2>&1 \
             || { echo "Failed to reset disposable target schemas. Live database unchanged."; exit 1; }
-          remaining="$(docker exec -e PGPASSWORD=postgres "$container" psql -X -h 127.0.0.1 -U supabase_admin -d postgres -Atc "SELECT coalesce(string_agg(nspname, ', ' ORDER BY nspname),'none') FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname <> 'information_schema';")"
+          remaining="$(docker exec -e PGPASSWORD=postgres "$container" psql -X -h 127.0.0.1 -U supabase_admin -d postgres -Atc "SELECT coalesce(string_agg(nspname, ', ' ORDER BY nspname),'none') FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname <> 'information_schema';")"
           echo "Schema catalog after disposable reset: $remaining"
           echo "Disposable-only database schemas reset. Beginning complete encrypted-archive restore."
           if ! docker exec -e PGPASSWORD=postgres "$container" \

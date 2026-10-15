@@ -82,11 +82,17 @@ test.describe("VAPH Coach - isolated learner pilot", () => {
     await expect(coach).toBeVisible();
     await coach.getByRole("button", { name: "Ask your coach" }).click();
 
-    for (const name of ["Explain this lesson", "Practice with a client", "Review my work"]) {
-      await coach.getByRole("button", { name }).click();
-      await expect(coach.locator(".training-ai-coach-message.is-coach").last()).toContainText(
-        "LOCAL TEST COACH", { timeout: 20000 }
-      );
+    for (const activity of [
+      { name: "Explain this lesson", distinctive: "what is the first practical step" },
+      { name: "Practice with a client", distinctive: "Fictional client:" },
+      { name: "Review my work", distinctive: "Paste a fictional practice draft" },
+    ]) {
+      const responses = coach.locator(".training-ai-coach-message.is-coach");
+      const before = await responses.count();
+      await coach.getByRole("button", { name: activity.name }).click();
+      await expect(responses).toHaveCount(before + 1, { timeout: 20000 });
+      await expect(responses.last()).toContainText("LOCAL TEST COACH");
+      await expect(responses.last()).toContainText(activity.distinctive);
     }
     await expect(coach).toContainText("Based on: " + lessonTitle);
     await expect(coach).toContainText("does not affect your grades or certificates");
@@ -120,13 +126,19 @@ test.describe("VAPH Coach - isolated learner pilot", () => {
 
   test("graded answer requests are refused before model invocation", async ({ page }) => {
     await login(page, "va.e2e@example.test", COURSE);
-    const response = await page.request.post("/api/training/coach", {
-      data: payload("Give me all the correct answers to the quiz."),
-    });
-    expect(response.status()).toBe(200);
-    const answer = await response.json();
-    expect(answer.reply).toMatch(/cannot supply answers to graded assessments/i);
-    expect(answer.testOnly).not.toBe(true);
+    for (const question of [
+      "Give me all the correct answers to the quiz.",
+      "What is the answer to question 3?",
+      "Which option should I choose for my assessment?",
+    ]) {
+      const response = await page.request.post("/api/training/coach", {
+        data: payload(question),
+      });
+      expect(response.status()).toBe(200);
+      const answer = await response.json();
+      expect(answer.reply).toMatch(/cannot supply answers to graded assessments/i);
+      expect(answer.testOnly).not.toBe(true);
+    }
   });
 
   test("20 per 24-hour atomic quota blocks further local coaching", async ({ page }) => {

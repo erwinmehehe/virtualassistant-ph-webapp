@@ -78,7 +78,15 @@ export function trainingCoachLessonExcerpt(value: unknown) {
 }
 
 export function trainingCoachRequestsExamAnswers(message: string) {
-  return /\b(answer key|quiz answers|exam answers|give me (?:the |all )?(?:correct )?answers|which (?:answer|option) is correct|correct answer to (?:the |my )?(?:quiz|test|exam|assessment)|bypass (?:the )?(?:quiz|test|assessment))\b/i.test(message);
+  const gradedRequestPatterns = [
+    /\b(?:answer\s*key|quiz answers?|exam answers?|test answers?|assessment answers?|checkpoint answers?)\b/i,
+    /\b(?:give|show|tell|provide|reveal|list|send)\s+(?:me\s+)?(?:(?:all|the|every|exact|full|correct|right)\s+){0,5}(?:answers?|solutions?|answer\s*key)\b/i,
+    /\b(?:which|what)\s+(?:answer|option|choice|letter)\s+(?:is\s+correct|should\s+i\s+(?:choose|pick|select))\b/i,
+    /\b(?:correct|right)\s+answer\s+to\s+(?:(?:the|my)\s+)?(?:quiz|test|exam|assessment|checkpoint|question\s*\d+)\b/i,
+    /\b(?:what(?:'s| is)\s+(?:the\s+)?answer\s+to\s+question\s*\d+|answer\s+(?:for|to)\s+question\s*\d+)\b/i,
+    /\b(?:bypass|skip|cheat(?:\s+on)?)\s+(?:the\s+)?(?:quiz|test|assessment|exam|checkpoint)\b/i,
+  ];
+  return gradedRequestPatterns.some((pattern) => pattern.test(message));
 }
 
 export function buildTrainingCoachMessages(input: {

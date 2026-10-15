@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
 type Route = { name: string; path: string };
 type RoleScenario = {
@@ -319,31 +319,63 @@ async function checkNavigation(page: Page, scenario: RoleScenario): Promise<stri
   return findings;
 }
 
+// Each user signs in once through the REAL login UI, then reuses the captured
+// Supabase SSR cookie state for independent desktop/mobile browser contexts.
+// Repeated logins used to exhaust the application's legitimate per-IP limiter
+// and turn unrelated role/navigation checks into misleading authentication failures.
+const roleAuthStates = new Map<string, Awaited<ReturnType<BrowserContext["storageState"]>>>();
+const APP_BASE = process.env.E2E_BASE_URL || "http://127.0.0.1:3000";
+
 test.describe("All VAPH roles - isolated visual/runtime smoke", () => {
-  // Dedicated-only: the broad browser suite already exercises real logins and has
-  // a shared atomic IP quota. Avoid duplicate login storms that hide actual defects.
+  // Dedicated-only: the broad browser suite already exercises real logins.
   test.skip(process.env.VAPH_ALL_ROLES_SMOKE !== "true", "Run this suite only from the isolated all-role workflow.");
-  test.beforeAll(assertIsolatedEnvironment);
+
+  test.beforeAll(async ({ browser }) => {
+    test.setTimeout(180_000);
+    assertIsolatedEnvironment();
+
+    // Use only four disposable, locally seeded identities for seven personas.
+    // The learner shares the VA session; Client Success shares Recruiter.
+    const accounts = [
+      { email: "client.e2e@example.test", home: "/workspace/client" },
+      { email: "va.e2e@example.test", home: "/workspace/va" },
+      { email: "recruiter.e2e@example.test", home: "/workspace/recruiter/today" },
+      { email: "admin.e2e@example.test", home: "/workspace/admin/today" },
+    ];
+    for (const account of accounts) {
+      const context = await browser.newContext({ baseURL: APP_BASE });
+      try {
+        const page = await context.newPage();
+        await signIn(page, account.email, account.home);
+        const state = await context.storageState();
+        if (!state.cookies.length) {
+          throw new Error("Local test login did not create a browser authentication cookie.");
+        }
+        roleAuthStates.set(account.email, state);
+      } finally {
+        await context.close();
+      }
+    }
+  });
 
   for (const scenario of SCENARIOS) {
     for (const viewport of VIEWPORTS) {
-      test(scenario.role + " / " + viewport.name + " - critical pages and navigation", async ({ page }) => {
+      test(scenario.role + " / " + viewport.name + " - critical pages and navigation", async ({ browser }) => {
         test.setTimeout(240_000);
-        await page.setViewportSize({ width: viewport.width, height: viewport.height });
+        const savedState = scenario.email ? roleAuthStates.get(scenario.email) : undefined;
+        if (scenario.email && !savedState) throw new Error("Local smoke account was not authenticated in setup.");
+        const context = await browser.newContext({
+          baseURL: APP_BASE,
+          viewport: { width: viewport.width, height: viewport.height },
+          ...(savedState ? { storageState: savedState } : {}),
+        });
+        const page = await context.newPage();
         const directory = path.join(OUTPUT, scenario.role, viewport.name);
         await mkdir(directory, { recursive: true });
         const audited: Audit[] = [];
         const allFindings: string[] = [];
 
         try {
-          if (scenario.email) {
-            try {
-              await signIn(page, scenario.email, scenario.home);
-            } catch (error) {
-              allFindings.push("Sign-in failed: " + safeMessage(error instanceof Error ? error.message : error));
-            }
-          }
-
           if (allFindings.length === 0) {
             for (const route of scenario.routes) {
               const result = await test.step("Audit " + route.path, () => auditRoute(
@@ -375,6 +407,7 @@ test.describe("All VAPH roles - isolated visual/runtime smoke", () => {
               findings: allFindings,
             }, null, 2) + "\n",
           );
+          await context.close();
         }
         expect(allFindings, scenario.role + " " + viewport.name + " smoke findings").toEqual([]);
         expect(audited.length, "Every configured route must have been audited").toBe(scenario.routes.length);
@@ -395,15 +428,23 @@ test.describe("All VAPH roles - isolated visual/runtime smoke", () => {
     }
   });
 
-  test("client and VA sessions cannot open the admin workspace", async ({ page }) => {
+  test("client and VA sessions cannot open admin or Client Success workspaces", async ({ browser }) => {
     for (const account of [
       { email: "client.e2e@example.test", home: "/workspace/client" },
       { email: "va.e2e@example.test", home: "/workspace/va" },
     ]) {
-      await page.context().clearCookies();
-      await signIn(page, account.email, account.home);
-      await page.goto("/workspace/admin/today", { waitUntil: "domcontentloaded" });
-      expect(new URL(page.url()).pathname).toBe(account.home);
+      const state = roleAuthStates.get(account.email);
+      if (!state) throw new Error("Missing local authenticated browser state.");
+      const context = await browser.newContext({ baseURL: APP_BASE, storageState: state });
+      try {
+        const page = await context.newPage();
+        for (const protectedPath of ["/workspace/admin/today", "/workspace/client-success"]) {
+          await page.goto(protectedPath, { waitUntil: "domcontentloaded" });
+          expect(new URL(page.url()).pathname, "Unauthorized path: " + protectedPath).toBe(account.home);
+        }
+      } finally {
+        await context.close();
+      }
     }
   });
 });

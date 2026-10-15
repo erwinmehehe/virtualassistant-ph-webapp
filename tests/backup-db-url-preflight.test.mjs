@@ -161,3 +161,13 @@ test("encrypted checksum is portable outside the GitHub runner directory", async
   assert.match(verify, /cd "\$\(dirname "\$encrypted"\)"/);
   assert.match(restore, /cd "\$\(dirname "\$encrypted"\)"/);
 });
+
+
+test("isolated Realtime role bootstrap is guarded and cannot change production", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const script = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(script, /SELECT EXISTS \(SELECT 1 FROM pg_roles WHERE rolname = 'supabase_realtime_admin'\)/);
+  assert.match(script, /CREATE ROLE supabase_realtime_admin NOLOGIN/);
+  assert.match(script, /docker exec "\$container_name" psql/);
+  assert.doesNotMatch(script, /SUPABASE_DB_URL/);
+});

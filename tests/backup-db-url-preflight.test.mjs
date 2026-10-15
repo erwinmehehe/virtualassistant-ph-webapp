@@ -100,18 +100,45 @@ test("backup workflow runs the credential-safe preflight before the dump", async
   assert.match(content, /node scripts\/diagnose-backup-db-url\.mjs/);
 });
 
-test("isolated restore identifies the postgres database role explicitly", async () => {
+test("Supabase filtered role, schema and data exports are encrypted as a bundle", async () => {
   const { readFile } = await import("node:fs/promises");
-  const source = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(source, /docker exec "\$container_name" pg_restore \\\n\s+--username=postgres/);
+  const dump = await readFile(new URL("../scripts/create-encrypted-db-backup.sh", import.meta.url), "utf8");
+  const verify = await readFile(new URL("../scripts/verify-encrypted-db-backup.sh", import.meta.url), "utf8");
+  assert.match(dump, /supabase db dump --db-url/);
+  assert.match(dump, /dump_sql roles --role-only/);
+  assert.match(dump, /dump_sql schema/);
+  assert.match(dump, /dump_sql data --use-copy --data-only/);
+  assert.match(dump, /tar --format=ustar/);
+  assert.match(dump, /openssl enc -aes-256-cbc/);
+  assert.match(dump, /rm -rf "\$stage"/);
+  assert.doesNotMatch(dump, /pg_dump "\$SUPABASE_DB_URL"/);
+  assert.match(verify, /tar -tf/);
+  assert.match(verify, /data\.sql roles\.sql schema\.sql/);
 });
 
-test("isolated restore uses the cron-configured postgres database", async () => {
+test("isolated restore uses Supabase's transactional SQL recovery sequence", async () => {
   const { readFile } = await import("node:fs/promises");
-  const script = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(script, /--dbname=postgres/);
-  assert.match(script, /psql -U postgres -d postgres/);
-  assert.doesNotMatch(script, /createdb -U postgres vaph_restore_test/);
+  const source = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(source, /--username=postgres --dbname=postgres --single-transaction/);
+  assert.match(source, /--set=ON_ERROR_STOP=1/);
+  assert.match(source, /--file=\/backup\/roles\.sql/);
+  assert.match(source, /--file=\/backup\/schema\.sql/);
+  assert.match(source, /session_replication_role = replica/);
+  assert.match(source, /--file=\/backup\/data\.sql/);
+  assert.match(source, /public\.lead_intake/);
+  assert.match(source, /auth\.users/);
+  assert.match(source, /pg_policies/);
+  assert.doesNotMatch(source, /pg_restore/);
+  assert.match(source, /docker rm -f "\$container_name"/);
+  assert.match(source, /raw SQL errors are withheld/);
+});
+
+test("workflow installs pinned Supabase CLI before the filtered export", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const workflow = await readFile(new URL("../.github/workflows/database-backup.yml", import.meta.url), "utf8");
+  assert.match(workflow, /supabase\/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359/);
+  assert.match(workflow, /version: 2\.121\.0/);
+  assert.ok(workflow.indexOf("Install Supabase CLI") < workflow.indexOf("Create encrypted production dump"));
 });
 
 test("backup upload is retained even when isolated restore later fails", async () => {

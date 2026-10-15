@@ -99,3 +99,9 @@ test("backup workflow runs the credential-safe preflight before the dump", async
   assert.ok(preflight > 0 && dump > preflight);
   assert.match(content, /node scripts\/diagnose-backup-db-url\.mjs/);
 });
+
+test("isolated restore identifies the postgres database role explicitly", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(source, /docker exec "\$container_name" pg_restore \\\n\s+--username=postgres/);
+});

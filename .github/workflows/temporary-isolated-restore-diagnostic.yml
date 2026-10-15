@@ -117,3 +117,4 @@ jobs:
 # Rehearsal with reserved role administration split from application restore.
 # Classify missing schema column and statement without emitting raw SQL.
 # Classify unresolved schema-column reference using only sanitized identifier names.
+# Verify read-only Auth schema preflight and target-only field compatibility.

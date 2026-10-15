@@ -51,12 +51,15 @@ docker exec "$container_name" pg_isready -U postgres -d postgres >/dev/null
 # Capture logs locally; SQL diagnostics may include sensitive row contents.
 if ! docker exec "$container_name" psql \
   --no-psqlrc --username=postgres --dbname=postgres --single-transaction \
-  --set=ON_ERROR_STOP=1 \
+  --set=ON_ERROR_STOP=1 --set=VERBOSITY=sqlstate \
   --file=/backup/roles.sql \
   --file=/backup/schema.sql \
   --command='SET session_replication_role = replica' \
   --file=/backup/data.sql >"$stage/restore.log" 2>&1; then
   echo "Isolated Supabase SQL restore failed; raw SQL errors are withheld to protect data." >&2
+  # Output only standardized five-character SQLSTATE codes, never SQL, row values or credentials.
+  sqlstates="$(grep -Eo 'ERROR:[[:space:]]*[A-Z0-9]{5}' "$stage/restore.log" | sed -E 's/^ERROR:[[:space:]]*//' | LC_ALL=C sort -u | tr '\\n' ' ' || true)"
+  if [[ -n "$sqlstates" ]]; then echo "PostgreSQL restore SQLSTATE codes: $sqlstates" >&2; fi
   if grep -qi 'does not exist' "$stage/restore.log"; then
     echo "A required object is missing from the disposable target; check target schema initialization." >&2
   elif grep -qi 'already exists' "$stage/restore.log"; then

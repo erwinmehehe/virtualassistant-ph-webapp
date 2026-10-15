@@ -39,6 +39,7 @@ docker exec "$container_name" pg_isready -U postgres -d postgres >/dev/null
 docker exec "$container_name" createdb -U postgres vaph_restore_test
 
 docker exec "$container_name" pg_restore \
+  --username=postgres \
   --exit-on-error \
   --no-owner \
   --no-privileges \

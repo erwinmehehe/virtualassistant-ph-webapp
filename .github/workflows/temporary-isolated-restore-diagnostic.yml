@@ -50,3 +50,4 @@ jobs:
           scripts/restore-test-db-backup.sh "${archives[0]}"
 # Safely classify roles SQL failure without disclosing SQL values.
 # Validate target-only Supabase Realtime NOLOGIN role bootstrap.
+# Rehearsal with reserved role administration split from application restore.

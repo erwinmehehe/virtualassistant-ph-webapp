@@ -41,7 +41,7 @@ test("native login form keeps a parseable same-origin Origin header", async ({ p
   // The authenticated workspace shell server-renders, but its streaming
   // dashboard can remain at its Suspense fallback without hydration.
   // Confirm a real signed-in client session rather than a hydrated heading.
-  await expect(page.getByRole("navigation", { name: "Workspace navigation" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Workspace navigation" }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Go to Client workspace home" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Open account settings" })).toContainText("E2E Client");
 });

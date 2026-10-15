@@ -72,3 +72,14 @@ AI_TRAINING_COACH_ENABLED=true for preview only. Test real answer quality,
 prompt-injection refusals, model costs and error behavior before release.
 Keep production disabled and preserve the backup branch
 backup/pre-vaph-coach-pilot-e2e-2026-10-15.
+
+## Small-group rollout allowlist
+
+The server-side AI_TRAINING_COACH_PILOT_USER_IDS environment variable is required
+for real preview or production access. Set it to comma-separated Supabase auth
+user IDs of approved Foundations pilot learners. When it is empty, no real
+learner sees the panel or can call the API, even if the ENABLED flag is true.
+The isolated development-only browser fixture permits local test accounts with
+a loopback Supabase URL and is not available in a production runtime.
+Keep this allowlist limited to a small group until real AI answer quality and
+operational support are established.

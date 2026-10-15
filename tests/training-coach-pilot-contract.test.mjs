@@ -47,6 +47,9 @@ test("real API still fails closed and cannot create certificates or grades", asy
   const api = await read("src/app/api/training/coach/route.ts");
   assert.match(api, /AI_TRAINING_COACH_ENABLED !== "true"/);
   assert.match(api, /!course\.enrolled/);
+  assert.match(api, /isTrainingCoachPilotLearner\(session\.userId\)/);
+  const page = await read("src/app/workspace/training/courses/[slug]/lessons/[lessonId]/page.tsx");
+  assert.match(page, /isTrainingCoachPilotLearner\(userId\)/);
   assert.match(api, /trainingCoachRequestsExamAnswers/);
   const helper = await read("src/lib/training-coach.ts");
   assert.match(helper, /gradedRequestPatterns/);

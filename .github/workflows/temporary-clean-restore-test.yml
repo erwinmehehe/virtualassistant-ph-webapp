@@ -73,6 +73,10 @@ jobs:
             echo "Full raw-archive restore failed in disposable target. No production changes."
             safe_error="$(sed -n '/ERROR:/{s/.*ERROR:[[:space:]]*//;p;q;}' "$stage/restore.log" | sed -E 's/"[^"]*"/[identifier]/g' | cut -c 1-160)"
             if [[ -n "$safe_error" ]]; then echo "First sanitized PostgreSQL ERROR: $safe_error"; fi
+            missing_name="$(sed -nE 's/.*ERROR:[[:space:]]*schema "([A-Za-z_][A-Za-z0-9_]*)" already exists.*/\1/p' "$stage/restore.log" | head -n 1 || true)"
+            if [[ "$missing_name" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+              echo "Conflicting schema identifier: $missing_name"
+            fi
             for schema in auth storage realtime public extensions cron net vault graphql_public; do
               if grep -Fq "schema \"$schema\" already exists" "$stage/restore.log"; then
                 echo "Conflicting disposable restore schema: $schema"

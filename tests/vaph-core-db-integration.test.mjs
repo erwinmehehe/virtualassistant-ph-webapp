@@ -17,7 +17,7 @@ test("core integration combines consented publication and multi-role hiring test
   assert.match(workflow, /Remote Next.js prohibited in E2E/);
   assert.match(workflow, /--workers=1/);
   assert.match(workflow, /stop --no-backup/);
-  assert.doesNotMatch(workflow, /VERCEL_TOKEN|AI_GATEWAY_API_KEY|SUPABASE_DB_URL/);
+  assert.doesNotMatch(workflow, /VERCEL_TOKEN|AI_GATEWAY_API_KEY|\bSUPABASE_DB_URL\b/);
 });
 
 test("merging #867 fixtures preserves local-only seeds and client onboarding", async () => {

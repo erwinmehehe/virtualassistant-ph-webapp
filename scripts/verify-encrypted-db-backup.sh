@@ -8,7 +8,7 @@ encrypted="${1:?Path to encrypted .sql.tar.enc file is required}"
 checksum="$encrypted.sha256"
 test -f "$encrypted"
 test -f "$checksum"
-sha256sum --check "$checksum"
+(cd "$(dirname "$encrypted")" && sha256sum --check "$(basename "$checksum")")
 
 stage="$(mktemp -d)"
 cleanup() { rm -rf "$stage"; }

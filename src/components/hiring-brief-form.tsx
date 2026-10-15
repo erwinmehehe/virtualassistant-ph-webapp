@@ -167,7 +167,7 @@ function Success({ message, category, leadId, jobId, clientLinked, feedbackToken
   );
 }
 
-function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget = "" }: { id: string; messageMin: number; placeholder: string; defaultHours?: string; defaultBudget?: string }) {
+function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget = "", allowPublicListing = true }: { id: string; messageMin: number; placeholder: string; defaultHours?: string; defaultBudget?: string; allowPublicListing?: boolean }) {
   return (
     <>
       <div className="hb-row">
@@ -205,6 +205,12 @@ function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget 
         <textarea id={`${id}-message`} name="message" rows={3} required minLength={messageMin} maxLength={3000} placeholder={placeholder} />
         {messageMin >= 40 ? <small className="hb-field-hint">Minimum 40 characters.</small> : null}
       </div>
+      {allowPublicListing ? (
+      <label className="hb-public-consent">
+        <input type="checkbox" name="public_listing_consent" value="yes" />
+        <span>Also publish this opening on the VAPH jobs page when the public brief, actual pay, and safety checks are complete. My company name and job description may be shown publicly. Leave unchecked for a private matching request.</span>
+      </label>
+      ) : null}
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     </>
   );
@@ -221,7 +227,7 @@ function Head({ title, sub }: { title: string; sub: string }) {
 }
 
 function Foot() {
-  return <p className="hb-foot"><LockKeyhole size={13} />Private request · No obligation · About 30 seconds</p>;
+  return <p className="hb-foot"><LockKeyhole size={13} />Private by default · Public listing only if you opt in · No obligation</p>;
 }
 
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {
@@ -293,7 +299,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
             {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
           </select>
         </div>
-        <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
+        <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} allowPublicListing={!talent && !shortlist} />
         <TurnstileWidget action="role_brief" />
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />

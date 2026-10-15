@@ -22,7 +22,7 @@ import "./jobs-marketplace.css";
 export const metadata: Metadata = {
   title: { absolute: "Virtual Assistant Jobs Philippines" },
   description:
-    "Find recruiter-reviewed remote Virtual Assistant jobs in the Philippines. Employers can submit a hiring request with clear role requirements, pay, and hours.",
+    "Find published remote Virtual Assistant jobs in the Philippines. Employers can submit a hiring request with clear role requirements, pay, and hours.",
   alternates: { canonical: canonicalPath("/jobs") },
   ...socialMetadata({
     title: "Virtual Assistant Jobs Philippines",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     path: canonicalPath("/jobs"),
     category: "jobs",
     eyebrow: "Remote VA jobs and hiring requests",
-    points: ["Browse remote jobs","Post a VA request","Clear pay & hours","Recruiter review"],
+    points: ["Browse remote jobs","Post a VA request","Clear pay & hours","Recruiter-supported hiring"],
   }),
 };
 
@@ -165,7 +165,7 @@ export default async function PublicJobsPage({
             {params.closed === "1" ? (
               <div className="success-banner jobs-closed-notice" role="status">
                 <strong>That role has closed.</strong>
-                <span>Browse the current recruiter-reviewed Virtual Assistant opportunities below.</span>
+                <span>Browse the current published Virtual Assistant opportunities below.</span>
               </div>
             ) : null}
           </div>
@@ -201,7 +201,7 @@ export default async function PublicJobsPage({
                 Post a Virtual Assistant job in the Philippines. Describe the role, schedule, and compensation; most submissions go to a recruiter for review before becoming public.
               </p>
               <ul>
-                <li><CheckCircle2 size={15} /> Recruiter reviews submitted requests</li>
+                <li><CheckCircle2 size={15} /> Recruiter support throughout hiring</li>
                 <li><CheckCircle2 size={15} /> Set compensation and schedule up front</li>
                 <li><CheckCircle2 size={15} /> Keep drafts private until publication</li>
               </ul>
@@ -220,7 +220,7 @@ export default async function PublicJobsPage({
               <div>
                 <span className="kicker">Remote opportunities</span>
                 <h2>Browse current Virtual Assistant jobs</h2>
-                <p>Search recruiter-reviewed, published opportunities by specialty, hours, pay, and recency. Applying is free.</p>
+                <p>Search published opportunities by specialty, hours, pay, and recency. Applying is free.</p>
               </div>
               <Link className="btn jobs-directory-post" href={VA_JOIN_HREF}>
                 <ArrowRight size={16} /> Create free VA profile
@@ -288,7 +288,7 @@ export default async function PublicJobsPage({
                   <div className="jobs-empty-icon"><BriefcaseBusiness size={25} /></div>
                   <div>
                     <span className="small">No public roles match right now</span>
-                    <h2>{q || category || minRate || hours ? "Try broader job filters." : "More reviewed VA jobs are being prepared."}</h2>
+                    <h2>{q || category || minRate || hours ? "Try broader job filters." : "More VA jobs are being prepared."}</h2>
                     <p>{q || category || minRate || hours ? "No published roles match these filters. Clear the filters to see all open opportunities." : "Check back for new published roles. You can prepare your free VA profile in the meantime; training is optional."}</p>
                   </div>
                   <div className="jobs-empty-actions">

@@ -113,3 +113,13 @@ test("isolated restore uses the cron-configured postgres database", async () => 
   assert.match(script, /psql -U postgres -d postgres/);
   assert.doesNotMatch(script, /createdb -U postgres vaph_restore_test/);
 });
+
+test("backup upload is retained even when isolated restore later fails", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const workflow = await readFile(new URL("../.github/workflows/database-backup.yml", import.meta.url), "utf8");
+  const verify = workflow.indexOf("Verify encrypted archive");
+  const upload = workflow.indexOf("Upload encrypted off-provider artifact");
+  const restore = workflow.indexOf("Restore-test encrypted archive");
+  assert.ok(verify > 0 && upload > verify && restore > upload);
+  assert.match(workflow, /retention-days: 30/);
+});

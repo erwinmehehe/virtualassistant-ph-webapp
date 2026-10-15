@@ -105,3 +105,11 @@ test("isolated restore identifies the postgres database role explicitly", async 
   const source = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
   assert.match(source, /docker exec "\$container_name" pg_restore \\\n\s+--username=postgres/);
 });
+
+test("isolated restore uses the cron-configured postgres database", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const script = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(script, /--dbname=postgres/);
+  assert.match(script, /psql -U postgres -d postgres/);
+  assert.doesNotMatch(script, /createdb -U postgres vaph_restore_test/);
+});

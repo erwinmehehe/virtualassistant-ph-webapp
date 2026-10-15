@@ -35,11 +35,15 @@ test("resume picker attaches the chosen file to the main profile form", async ()
   assert.match(component, /if \(file\) attachResumeToProfileForm\(file\)/);
 });
 
-test("resume autofill accepts generic browser MIME types by extension", async () => {
-  const action = await source("src/app/actions/resume-autofill.ts");
-  assert.match(action, /application\/octet-stream/);
-  assert.match(action, /name\.endsWith\("\.pdf"\)/);
-  assert.match(action, /name\.endsWith\("\.docx"\)/);
+test("resume autofill accepts generic browser MIME only after central byte validation", async () => {
+  const [action, fileSecurity] = await Promise.all([
+    source("src/app/actions/resume-autofill.ts"),
+    source("src/lib/file-security.ts"),
+  ]);
+  assert.match(action, /validateUpload\(file, "resume"\)/);
+  assert.match(fileSecurity, /application\/octet-stream/);
+  assert.match(fileSecurity, /GENERIC_MIME/);
+  assert.match(fileSecurity, /contentsMatchExtension/);
   assert.match(action, /DOC resume can still be saved/);
 });
 
@@ -86,16 +90,17 @@ test("Next keeps native PDF parser dependencies out of the server bundle", async
 
 test("VA profile validates resume and photo before persisting profile edits", async () => {
   const action = await source("src/app/actions/profile.ts");
-  const resumeValidation = action.indexOf('const resumeUpload = validateResumeUpload(formData.get("resume"))');
-  const avatarValidation = action.indexOf('const avatarUpload = validateAvatarUpload(formData.get("avatar"))');
+  const resumeValidation = action.indexOf('validateUpload(formData.get("resume"), "resume")');
+  const avatarValidation = action.indexOf('validateUpload(formData.get("avatar"), "avatar")');
   const firstProfileWrite = action.indexOf('admin.from("profiles").update({ full_name: fullName })');
 
   assert.ok(resumeValidation >= 0, "resume validation must run");
   assert.ok(avatarValidation >= 0, "avatar validation must run");
   assert.ok(firstProfileWrite > resumeValidation, "resume must validate before profile writes");
   assert.ok(firstProfileWrite > avatarValidation, "photo must validate before profile writes");
-  assert.match(action, /function validateResumeUpload/);
-  assert.match(action, /function validateAvatarUpload/);
+  assert.match(action, /quarantineScanAndStoreUpload/);
+  assert.match(action, /targetBucket: "resumes"/);
+  assert.match(action, /targetBucket: "avatars"/);
 });
 
 
@@ -105,14 +110,15 @@ test("client profile validates URLs and logo before persisting account edits", a
   const clientSource = action.slice(clientStart);
   const websiteValidation = clientSource.indexOf('const website = cleanUrl(formData.get("website"))');
   const logoUrlValidation = clientSource.indexOf('const logoUrl = cleanUrl(formData.get("logo_url"))');
-  const logoValidation = clientSource.indexOf('const logoUpload = validateCompanyLogoUpload(formData.get("logo"))');
+  const logoValidation = clientSource.indexOf('const logoUpload = await validateUpload(formData.get("logo"), "company-logo")');
   const firstWrite = clientSource.indexOf('admin.from("profiles").update({ full_name: fullName || null })');
 
   assert.ok(clientStart >= 0);
   assert.ok(websiteValidation >= 0 && websiteValidation < firstWrite);
   assert.ok(logoUrlValidation >= 0 && logoUrlValidation < firstWrite);
   assert.ok(logoValidation >= 0 && logoValidation < firstWrite);
-  assert.match(action, /function validateCompanyLogoUpload/);
+  assert.match(clientSource, /quarantineScanAndStoreUpload/);
+  assert.match(clientSource, /targetBucket: "company-logos"/);
 });
 
 

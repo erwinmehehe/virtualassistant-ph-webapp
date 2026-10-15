@@ -14,6 +14,7 @@ import { siteOrigin } from "@/lib/seo-url";
 import { isDisposableEmail } from "@/lib/disposable-email";
 import { sendEmailChangeVerificationEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { isKnownCompromisedPassword } from "@/lib/pwned-password";
+import { quarantineScanAndStoreUpload, validateUpload } from "@/lib/file-security";
 
 const sessionIdSchema = z.string().uuid();
 
@@ -272,27 +273,22 @@ export async function updateAccountProfileAction(formData: FormData) {
 
   let nextAvatarUrl = currentProfile?.avatar_url || null;
   let uploadedPath: string | null = null;
-  const avatar = formData.get("avatar");
+  let avatarUpload = null;
+  try {
+    avatarUpload = await validateUpload(formData.get("avatar"), "avatar");
+  } catch {
+    redirect("/workspace/account?tab=profile&error=Upload%20a%20genuine%20JPG%2C%20PNG%2C%20or%20WEBP%20photo%20up%20to%203%20MB");
+  }
 
-  if (avatar instanceof File && avatar.size > 0) {
-    if (avatar.size > 3 * 1024 * 1024) {
-      redirect("/workspace/account?tab=profile&error=Profile%20photo%20must%20be%203%20MB%20or%20smaller");
-    }
-
-    const allowedMime = new Set(["image/jpeg", "image/png", "image/webp"]);
-    if (!allowedMime.has(avatar.type)) {
-      redirect("/workspace/account?tab=profile&error=Upload%20a%20JPG%2C%20PNG%2C%20or%20WEBP%20photo");
-    }
-
-    const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
-    uploadedPath = `${user.id}/account-${Date.now()}.${extension}`;
-
-    const { error: uploadError } = await admin.storage
-      .from("avatars")
-      .upload(uploadedPath, avatar, { upsert: false, contentType: avatar.type });
-
-    if (uploadError) {
-      redirect("/workspace/account?tab=profile&error=We%20could%20not%20upload%20your%20photo");
+  if (avatarUpload) {
+    try {
+      uploadedPath = await quarantineScanAndStoreUpload({
+        upload: avatarUpload,
+        targetBucket: "avatars",
+        targetPrefix: user.id,
+      });
+    } catch {
+      redirect("/workspace/account?tab=profile&error=We%20could%20not%20securely%20scan%20and%20upload%20your%20photo");
     }
 
     const { data: publicUrl } = admin.storage.from("avatars").getPublicUrl(uploadedPath);

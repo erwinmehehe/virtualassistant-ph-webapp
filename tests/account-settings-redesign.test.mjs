@@ -5,9 +5,10 @@ import { readFile } from "node:fs/promises";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Account Center keeps editable personal profile controls and role-aware workspace shortcuts", async () => {
-  const [page, actions] = await Promise.all([
+  const [page, actions, fileSecurity] = await Promise.all([
     read("src/app/workspace/account/page.tsx"),
     read("src/app/actions/account-security.ts"),
+    read("src/lib/file-security.ts"),
   ]);
 
   assert.match(page, /account-settings-header/);
@@ -24,10 +25,13 @@ test("Account Center keeps editable personal profile controls and role-aware wor
 
   assert.match(actions, /export async function updateAccountProfileAction/);
   assert.match(actions, /requireAnyRole\(\["admin", "recruiter", "client", "va"\]\)/);
-  assert.match(actions, /avatar\.size > 3 \* 1024 \* 1024/);
-  assert.match(actions, /image\/jpeg/);
-  assert.match(actions, /image\/png/);
-  assert.match(actions, /image\/webp/);
+  assert.match(actions, /validateUpload\(formData\.get\("avatar"\), "avatar"\)/);
+  assert.match(actions, /quarantineScanAndStoreUpload/);
+  assert.match(actions, /targetBucket: "avatars"/);
+  assert.match(fileSecurity, /avatar:[\s\S]*maxBytes: 3 \* 1024 \* 1024/);
+  assert.match(fileSecurity, /jpg: "image\/jpeg"/);
+  assert.match(fileSecurity, /png: "image\/png"/);
+  assert.match(fileSecurity, /webp: "image\/webp"/);
   assert.match(actions, /full_name: parsedName\.data/);
   assert.doesNotMatch(actions, /updateUser\(\{\s*email/);
 });

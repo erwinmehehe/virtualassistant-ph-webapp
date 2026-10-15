@@ -64,12 +64,14 @@ test("hiring forms persist immutable first-touch and mutable last-touch attribut
 });
 
 test("upload transport limit safely exceeds the advertised 10 MB attachment limit",async()=>{
-  const [config,leads]=await Promise.all([
+  const [config,leads,fileSecurity]=await Promise.all([
     read("next.config.ts"),
     read("src/app/actions/leads.ts"),
+    read("src/lib/file-security.ts"),
   ]);
   assert.match(config,/bodySizeLimit: "12mb"/);
-  assert.match(leads,/attachment\.size > 10 \* 1024 \* 1024/);
+  assert.match(leads,/validateUpload\(attachment, "lead-attachment"\)/);
+  assert.match(fileSecurity,/"lead-attachment":[\s\S]*maxBytes: 10 \* 1024 \* 1024/);
 });
 
 test("operational email routing has no hard-coded personal Gmail fallback",async()=>{

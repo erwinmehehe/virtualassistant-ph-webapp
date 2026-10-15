@@ -171,3 +171,15 @@ test("isolated Realtime role bootstrap is guarded and cannot change production",
   assert.match(script, /docker exec "\$container_name" psql/);
   assert.doesNotMatch(script, /SUPABASE_DB_URL/);
 });
+
+
+test("reserved roles are restored with disposable admin, app schema and data as postgres", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const script = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(script, /CREATE ROLE supabase_realtime_admin NOLOGIN/);
+  assert.match(script, /restore_roles\(\)[\s\S]*?--username=supabase_admin --dbname=postgres --single-transaction/);
+  assert.match(script, /restore_schema_and_data\(\)[\s\S]*?--username=postgres --dbname=postgres --single-transaction/);
+  assert.match(script, /restore_roles && restore_schema_and_data/);
+  assert.match(script, /PGPASSWORD="\$POSTGRES_PASSWORD"/);
+  assert.doesNotMatch(script, /SUPABASE_DB_URL/);
+});

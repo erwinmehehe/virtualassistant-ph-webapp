@@ -158,7 +158,7 @@ async function signIn(page: Page, email: string, next: string) {
   await page.goto("/auth/login?next=" + encodeURIComponent(next), { waitUntil: "domcontentloaded" });
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /^Log in$/ }).click();
+  await page.getByRole("button", { name: /^Log in(?: to training)?$/ }).click();
   await page.waitForURL(url => samePath(url.pathname, next), { timeout: 25_000 });
 }
 

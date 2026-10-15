@@ -16,23 +16,26 @@ test("production backup workflow never uploads a plaintext dump", async () => {
   assert.match(workflow, /Restore-test encrypted archive/);
   assert.match(workflow, /steps\.backup\.outputs\.path/);
 
-  assert.match(create, /postgres:17/);
-  assert.match(create, /pg_dump/);
-  assert.match(create, /--format=custom/);
+  assert.match(workflow, /version: 2\.121\.0/);
+  assert.match(create, /supabase db dump/);
+  assert.match(create, /--role-only/);
+  assert.match(create, /--use-copy --data-only/);
+  assert.match(create, /roles\.sql schema\.sql data\.sql/);
   assert.match(create, /aes-256-cbc/);
   assert.match(create, /-pbkdf2/);
   assert.match(create, /trap cleanup EXIT/);
   assert.match(create, /rm -f "\$plain"/);
 
   assert.match(verify, /sha256sum --check/);
-  assert.match(verify, /pg_restore --list/);
+  assert.match(verify, /data\.sql roles\.sql schema\.sql/);
+  assert.match(verify, /tar -tf/);
   assert.match(verify, /aes-256-cbc/);
 });
 
 test("backup runbook documents the automated isolated restore rehearsal and remaining secret gate", async () => {
   const runbook = await readFile("docs/PRODUCTION_DATABASE_BACKUP.md", "utf8");
   assert.match(runbook, /daily/);
-  assert.match(runbook, /isolated disposable Supabase Postgres environment/);
+  assert.match(runbook, /disposable Supabase PostgreSQL container/);
   assert.match(runbook, /30 days/);
-  assert.match(runbook, /Do not claim the backup launch gate is complete/);
+  assert.match(runbook, /production backup gate is met only when a default-branch run completes successfully/);
 });

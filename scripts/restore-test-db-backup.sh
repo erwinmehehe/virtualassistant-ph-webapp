@@ -89,13 +89,23 @@ if ! (restore_roles && restore_schema_and_data) >"$stage/restore.log" 2>&1; then
   if [[ "$failure_point" =~ ^schema\.sql\ line\ ([0-9]+)$ ]]; then
     schema_line="${BASH_REMATCH[1]}"
     if [[ "$schema_line" -gt 0 && "$schema_line" -le 300000 ]]; then
-      missing_column="$(sed -nE 's/.*column "([A-Za-z_][A-Za-z_0-9]{0,62})" does not exist.*/\1/p' "$stage/restore.log" | head -n 1 || true)"
+      missing_column="$(sed -nE 's/.*column "([A-Za-z_][A-Za-z_0-9]{0,62})".*/\1/p' "$stage/restore.log" | head -n 1 || true)"
       if [[ -n "$missing_column" ]]; then
         echo "Missing SQL column identifier: $missing_column" >&2
+      fi
+      if grep -Eq 'column .* of relation .* does not exist' "$stage/restore.log"; then
+        echo "Postgres reports a column missing from a specific relation in the recovery target." >&2
+      elif grep -Eq 'column .* does not exist' "$stage/restore.log"; then
+        echo "Postgres reports an unresolved column reference in the recovery target." >&2
       fi
       statement="$(awk -v target="$schema_line" 'NR <= target && $0 ~ /^(CREATE|ALTER|GRANT|REVOKE|COMMENT)/ {last=$0} END {print last}' "$stage/schema.sql")"
       case "$statement" in
         CREATE\ POLICY\ *) echo "Schema operation: CREATE POLICY" >&2 ;;
+        CREATE\ OR\ REPLACE\ VIEW\ *|CREATE\ VIEW\ *) echo "Schema operation: CREATE VIEW" >&2 ;;
+        CREATE\ OR\ REPLACE\ FUNCTION\ *|CREATE\ FUNCTION\ *) echo "Schema operation: CREATE FUNCTION" >&2 ;;
+        CREATE\ TABLE\ *) echo "Schema operation: CREATE TABLE" >&2 ;;
+        COMMENT\ ON\ *) echo "Schema operation: COMMENT ON" >&2 ;;
+        CREATE\ EXTENSION\ *) echo "Schema operation: CREATE EXTENSION" >&2 ;;
         CREATE\ INDEX\ *|CREATE\ UNIQUE\ INDEX\ *) echo "Schema operation: CREATE INDEX" >&2 ;;
         ALTER\ TABLE\ *) echo "Schema operation: ALTER TABLE" >&2 ;;
         CREATE\ TRIGGER\ *) echo "Schema operation: CREATE TRIGGER" >&2 ;;

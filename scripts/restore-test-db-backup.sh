@@ -86,6 +86,29 @@ if ! (restore_roles && restore_schema_and_data) >"$stage/restore.log" 2>&1; then
   # SQLSTATE and file/line are safe operational diagnostics. Do not echo SQL text.
   failure_point="$(sed -nE 's@.*psql:/backup/(roles|schema|data)\.sql:([0-9]+):.*@\1.sql line \2@p' "$stage/restore.log" | head -n 1 || true)"
   if [[ -n "$failure_point" ]]; then echo "First failing SQL location: $failure_point" >&2; fi
+  if [[ "$failure_point" =~ ^schema\.sql\ line\ ([0-9]+)$ ]]; then
+    schema_line="${BASH_REMATCH[1]}"
+    if [[ "$schema_line" -gt 0 && "$schema_line" -le 300000 ]]; then
+      missing_column="$(sed -nE 's/.*column "([A-Za-z_][A-Za-z_0-9]{0,62})" does not exist.*/\1/p' "$stage/restore.log" | head -n 1 || true)"
+      if [[ -n "$missing_column" ]]; then
+        echo "Missing SQL column identifier: $missing_column" >&2
+      fi
+      statement="$(awk -v target="$schema_line" 'NR <= target && $0 ~ /^(CREATE|ALTER|GRANT|REVOKE|COMMENT)/ {last=$0} END {print last}' "$stage/schema.sql")"
+      case "$statement" in
+        CREATE\ POLICY\ *) echo "Schema operation: CREATE POLICY" >&2 ;;
+        CREATE\ INDEX\ *|CREATE\ UNIQUE\ INDEX\ *) echo "Schema operation: CREATE INDEX" >&2 ;;
+        ALTER\ TABLE\ *) echo "Schema operation: ALTER TABLE" >&2 ;;
+        CREATE\ TRIGGER\ *) echo "Schema operation: CREATE TRIGGER" >&2 ;;
+        GRANT\ *) echo "Schema operation: GRANT" >&2 ;;
+        *) echo "Schema operation: other" >&2 ;;
+      esac
+      if [[ "$statement" == *"auth."* || "$statement" == *'"auth".'* ]]; then
+        echo "Schema operation references managed Auth objects." >&2
+      elif [[ "$statement" == *"storage."* || "$statement" == *'"storage".'* ]]; then
+        echo "Schema operation references managed Storage objects." >&2
+      fi
+    fi
+  fi
   if [[ "$failure_point" =~ ^roles\.sql\ line\ ([0-9]+)$ ]]; then
     line_number="${BASH_REMATCH[1]}"
     if [[ "$line_number" -gt 0 && "$line_number" -le 100000 ]]; then

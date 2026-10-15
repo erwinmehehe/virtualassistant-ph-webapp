@@ -34,6 +34,36 @@ jobs:
           run-id: 38730362299
           github-token: ${{ github.token }}
 
+      - name: Check Auth schema compatibility in disposable image
+        shell: bash
+        run: |
+          set -euo pipefail
+          name="vaph-auth-compat-$GITHUB_RUN_ID"
+          trap 'docker rm -f "$name" >/dev/null 2>&1 || true' EXIT
+          docker run -d --name "$name" -e POSTGRES_PASSWORD=postgres supabase/postgres:17.6.1.155 >/dev/null
+          for _ in $(seq 1 60); do
+            if docker exec "$name" psql -U postgres -d postgres -Atc "SELECT to_regclass('auth.users') IS NOT NULL" 2>/dev/null | grep -qx t; then
+              break
+            fi
+            sleep 1
+          done
+          sleep 5
+          docker exec "$name" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 -Atc "
+            WITH expected(name) AS (
+              VALUES ('email_confirmed_at'), ('last_sign_in_at'), ('created_at'),
+                     ('raw_user_meta_data'), ('raw_app_meta_data')
+            )
+            SELECT 'Missing target auth.users column: ' || e.name
+            FROM expected e WHERE NOT EXISTS (
+              SELECT 1 FROM pg_catalog.pg_attribute a
+              JOIN pg_catalog.pg_class c ON a.attrelid=c.oid
+              JOIN pg_catalog.pg_namespace n ON c.relnamespace=n.oid
+              WHERE n.nspname='auth' AND c.relname='users'
+                AND a.attname=e.name AND a.attnum>0 AND NOT a.attisdropped
+            );
+          "
+          echo "Completed read-only disposable Auth schema comparison."
+
       - name: Diagnose the failing schema view without logging SQL
         shell: bash
         run: |

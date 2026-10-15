@@ -49,6 +49,11 @@ jobs:
             if docker exec "$container" pg_isready -U postgres -d postgres >/dev/null 2>&1; then break; fi
             sleep 1
           done
+          for _ in $(seq 1 90); do
+            if docker exec -e PGPASSWORD=postgres "$container" \
+              psql -X -h 127.0.0.1 -U supabase_admin -d postgres -Atc "SELECT 1" >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
           docker exec -e PGPASSWORD=postgres "$container" \
             psql -X -h 127.0.0.1 -U supabase_admin -d postgres \
             -v ON_ERROR_STOP=1 -Atc \

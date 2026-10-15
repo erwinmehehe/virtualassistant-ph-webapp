@@ -8,6 +8,7 @@ const success = {
   id: 1,
   status: "completed",
   conclusion: "success",
+  head_branch: "main",
   created_at: "2026-10-08T06:17:00.000Z",
   updated_at: "2026-10-08T06:22:00.000Z",
 };
@@ -41,6 +42,33 @@ test("an in-progress run does not hide the latest completed backup", () => {
     created_at: "2026-10-08T08:17:00.000Z",
   };
   assert.equal(evaluateBackupHealth([running, success], now).healthy, true);
+});
+
+test("feature-branch restore success cannot clear the production backup gate", () => {
+  const featureSuccess = {
+    ...success,
+    id: 10,
+    head_branch: "fix/backup-secret-safe-diagnostic-2026-10-15",
+    created_at: "2026-10-08T09:17:00.000Z",
+    updated_at: "2026-10-08T09:22:00.000Z",
+  };
+  const noMain = evaluateBackupHealth([featureSuccess], now);
+  assert.equal(noMain.healthy, false);
+  assert.equal(noMain.run, null);
+
+  // Ignore the newer feature-branch success when the latest main run failed.
+  const mainFailure = {
+    ...success,
+    id: 11,
+    conclusion: "failure",
+    created_at: "2026-10-08T08:17:00.000Z",
+  };
+  const result = evaluateBackupHealth([featureSuccess, mainFailure], now);
+  assert.equal(result.healthy, false);
+  assert.equal(result.run.id, 11);
+
+  // A newer feature run must not hide a green main backup either.
+  assert.equal(evaluateBackupHealth([featureSuccess, success], now).healthy, true);
 });
 
 test("backup health alert runs independently of database credentials and keeps issue permissions scoped", async () => {

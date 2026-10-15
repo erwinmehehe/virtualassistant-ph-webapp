@@ -30,9 +30,12 @@ test("production backup is daily, encrypted, retained off-provider, and restore-
   assert.match(workflow,/production-database-backup/);
   assert.match(create,/aes-256-cbc/);
   assert.match(create,/pbkdf2/);
-  assert.match(verify,/pg_restore --list/);
+  assert.match(verify,/tar -tf/);
+  assert.match(verify,/roles\.sql schema\.sql data\.sql/);
   assert.match(restore,/supabase\/postgres:17\.6\.1\.155/);
-  assert.match(restore,/pg_restore/);
-  assert.match(restore,/--exit-on-error/);
+  assert.match(restore,/--file=\/backup\/schema\.sql/);
+  assert.match(restore,/--file=\/backup\/data\.sql/);
+  assert.match(restore,/ON_ERROR_STOP=1/);
+  assert.match(restore,/--single-transaction/);
   assert.match(restore,/public\.lead_intake/);
 });

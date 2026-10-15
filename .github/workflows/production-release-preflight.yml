@@ -1,0 +1,45 @@
+name: Production release preflight (read only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to inspect
+        required: true
+        default: '867'
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+concurrency:
+  group: production-release-preflight
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout reviewed audit script
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check release metadata (never deploy)
+        id: preflight
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PREFLIGHT_REPO: ${{ github.repository }}
+          PREFLIGHT_PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          node scripts/production-release-preflight.mjs \
+            --repo "$PREFLIGHT_REPO" \
+            --pr "$PREFLIGHT_PR_NUMBER"
+      - name: Enforce release hold on missing evidence or approval
+        if: steps.preflight.outcome != 'success'
+        run: |
+          echo 'Release remains on hold. This audit never merges or deploys.'
+          exit 1

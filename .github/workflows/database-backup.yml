@@ -55,10 +55,6 @@ jobs:
         shell: bash
         run: scripts/verify-encrypted-db-backup.sh "${{ steps.backup.outputs.path }}"
 
-      - name: Restore-test encrypted archive
-        shell: bash
-        run: scripts/restore-test-db-backup.sh "${{ steps.backup.outputs.path }}"
-
       - name: Upload encrypted off-provider artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -68,3 +64,8 @@ jobs:
             ${{ steps.backup.outputs.path }}.sha256
           if-no-files-found: error
           retention-days: 30
+
+      - name: Restore-test encrypted archive
+        shell: bash
+        run: scripts/restore-test-db-backup.sh "${{ steps.backup.outputs.path }}"
+

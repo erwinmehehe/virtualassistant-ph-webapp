@@ -100,48 +100,43 @@ test("backup workflow runs the credential-safe preflight before the dump", async
   assert.match(content, /node scripts\/diagnose-backup-db-url\.mjs/);
 });
 
-test("Supabase filtered role, schema and data exports are encrypted as a bundle", async () => {
+test("complete PostgreSQL custom dump is encrypted with a portable checksum", async () => {
   const { readFile } = await import("node:fs/promises");
-  const dump = await readFile(new URL("../scripts/create-encrypted-db-backup.sh", import.meta.url), "utf8");
+  const create = await readFile(new URL("../scripts/create-encrypted-db-backup.sh", import.meta.url), "utf8");
   const verify = await readFile(new URL("../scripts/verify-encrypted-db-backup.sh", import.meta.url), "utf8");
-  assert.match(dump, /supabase db dump --db-url/);
-  assert.match(dump, /dump_sql roles --role-only/);
-  assert.match(dump, /dump_sql schema/);
-  assert.match(dump, /dump_sql data --use-copy --data-only/);
-  assert.match(dump, /tar --format=ustar/);
-  assert.match(dump, /openssl enc -aes-256-cbc/);
-  assert.match(dump, /rm -rf "\$stage"/);
-  assert.doesNotMatch(dump, /pg_dump "\$SUPABASE_DB_URL"/);
-  assert.match(verify, /tar -tf/);
-  assert.match(verify, /data\.sql roles\.sql schema\.sql/);
+  assert.match(create, /pg_dump.*--format=custom --no-owner --no-privileges --no-subscriptions/);
+  assert.match(create, /--user "\$\(id -u\):\$\(id -g\)"/);
+  assert.match(create, /openssl enc -aes-256-cbc/);
+  assert.match(create, /-pbkdf2 -iter 250000/);
+  assert.match(create, /digest="\$\(sha256sum "\$encrypted"/);
+  assert.match(create, /basename "\$encrypted"/);
+  assert.match(create, /rm -rf "\$stage"/);
+  assert.doesNotMatch(create, /supabase db dump/);
+  assert.match(verify, /sha256sum --check/);
+  assert.match(verify, /pg_restore --list/);
+  assert.match(verify, /cd "\$\(dirname "\$encrypted"\)"/);
 });
 
-test("isolated restore uses Supabase's transactional SQL recovery sequence", async () => {
+test("full recovery rehearsal cleans only disposable schemas and preserves public", async () => {
   const { readFile } = await import("node:fs/promises");
   const source = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(source, /--username=postgres --dbname=postgres --single-transaction/);
-  assert.match(source, /--set=ON_ERROR_STOP=1/);
-  assert.match(source, /--file=\/backup\/roles\.sql/);
-  assert.match(source, /--file=\/backup\/schema\.sql/);
-  assert.match(source, /session_replication_role = replica/);
-  assert.match(source, /--file=\/backup\/data\.sql/);
-  assert.match(source, /public\.lead_intake/);
-  assert.match(source, /auth\.users/);
+  assert.match(source, /supabase_admin/);
+  assert.match(source, /DROP SCHEMA IF EXISTS/);
+  assert.match(source, /nspname !~ '\^pg_'/);
+  assert.match(source, /'information_schema','public'/);
+  assert.match(source, /--clean --if-exists/);
+  assert.match(source, /--no-owner --no-privileges/);
+  assert.match(source, /--single-transaction --exit-on-error/);
+  assert.match(source, /to_regclass\('public\.lead_intake'\)/);
+  assert.match(source, /to_regclass\('auth\.users'\)/);
+  assert.match(source, /to_regclass\('auth\.sessions'\)/);
+  assert.match(source, /to_regclass\('storage\.objects'\)/);
   assert.match(source, /pg_policies/);
-  assert.doesNotMatch(source, /pg_restore/);
-  assert.match(source, /docker rm -f "\$container_name"/);
-  assert.match(source, /raw SQL errors are withheld/);
+  assert.match(source, /docker rm -fv "\$container_name"/);
+  assert.doesNotMatch(source, /SUPABASE_DB_URL/);
 });
 
-test("workflow installs pinned Supabase CLI before the filtered export", async () => {
-  const { readFile } = await import("node:fs/promises");
-  const workflow = await readFile(new URL("../.github/workflows/database-backup.yml", import.meta.url), "utf8");
-  assert.match(workflow, /supabase\/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359/);
-  assert.match(workflow, /version: 2\.121\.0/);
-  assert.ok(workflow.indexOf("Install Supabase CLI") < workflow.indexOf("Create encrypted production dump"));
-});
-
-test("backup upload is retained even when isolated restore later fails", async () => {
+test("backup runs as a fail-closed pipeline and uploads only encrypted files", async () => {
   const { readFile } = await import("node:fs/promises");
   const workflow = await readFile(new URL("../.github/workflows/database-backup.yml", import.meta.url), "utf8");
   const verify = workflow.indexOf("Verify encrypted archive");
@@ -149,56 +144,21 @@ test("backup upload is retained even when isolated restore later fails", async (
   const restore = workflow.indexOf("Restore-test encrypted archive");
   assert.ok(verify > 0 && upload > verify && restore > upload);
   assert.match(workflow, /retention-days: 30/);
+  assert.match(workflow, /if-no-files-found: error/);
+  assert.match(workflow, /node --test tests\/backup-db-url-preflight\.test\.mjs/);
+  assert.match(workflow, /Diagnose database login without logging credentials/);
+  assert.doesNotMatch(workflow, /Install Supabase CLI/);
 });
 
-test("encrypted checksum is portable outside the GitHub runner directory", async () => {
+test("checksums survive artifact download and isolated restoration never contacts production", async () => {
   const { readFile } = await import("node:fs/promises");
-  const dump = await readFile(new URL("../scripts/create-encrypted-db-backup.sh", import.meta.url), "utf8");
+  const create = await readFile(new URL("../scripts/create-encrypted-db-backup.sh", import.meta.url), "utf8");
   const verify = await readFile(new URL("../scripts/verify-encrypted-db-backup.sh", import.meta.url), "utf8");
   const restore = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(dump, /digest="\$\(sha256sum "\$encrypted"/);
-  assert.match(dump, /basename "\$encrypted"/);
+  assert.match(create, /digest="\$\(sha256sum "\$encrypted"/);
+  assert.match(create, /basename "\$encrypted"/);
   assert.match(verify, /cd "\$\(dirname "\$encrypted"\)"/);
   assert.match(restore, /cd "\$\(dirname "\$encrypted"\)"/);
-});
-
-
-test("isolated Realtime role bootstrap is guarded and cannot change production", async () => {
-  const { readFile } = await import("node:fs/promises");
-  const script = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(script, /SELECT EXISTS \(SELECT 1 FROM pg_roles WHERE rolname = 'supabase_realtime_admin'\)/);
-  assert.match(script, /CREATE ROLE supabase_realtime_admin NOLOGIN/);
-  assert.match(script, /docker exec "\$container_name" psql/);
-  assert.doesNotMatch(script, /SUPABASE_DB_URL/);
-});
-
-
-test("reserved roles are restored with disposable admin, app schema and data as postgres", async () => {
-  const { readFile } = await import("node:fs/promises");
-  const script = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(script, /CREATE ROLE supabase_realtime_admin NOLOGIN/);
-  assert.match(script, /restore_roles\(\)[\s\S]*?--username=supabase_admin --dbname=postgres --single-transaction/);
-  assert.match(script, /restore_schema_and_data\(\)[\s\S]*?--username=postgres --dbname=postgres --single-transaction/);
-  assert.match(script, /restore_roles && restore_schema_and_data/);
-  assert.match(script, /PGPASSWORD="\$POSTGRES_PASSWORD"/);
-  assert.doesNotMatch(script, /SUPABASE_DB_URL/);
-});
-
-
-test("disposable restore aligns only the nullable Auth timestamp field", async () => {
-  const { readFile } = await import("node:fs/promises");
-  const restore = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(restore, /ALTER TABLE auth\.users ADD COLUMN IF NOT EXISTS email_confirmed_at timestamp with time zone/);
-  assert.match(restore, /-U supabase_admin/);
-  assert.match(restore, /docker exec "\$container_name"/);
+  assert.match(restore, /POSTGRES_PASSWORD=postgres/);
   assert.doesNotMatch(restore, /SUPABASE_DB_URL/);
-});
-
-
-test("disposable Auth audit shim matches hosted required column and default", async () => {
-  const { readFile } = await import("node:fs/promises");
-  const s = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
-  assert.match(s, /ALTER TABLE auth\.audit_log_entries ADD COLUMN IF NOT EXISTS ip_address varchar\(64\) NOT NULL DEFAULT ''/);
-  assert.match(s, /docker exec -e PGPASSWORD=postgres "\$container_name"/);
-  assert.doesNotMatch(s, /SUPABASE_DB_URL/);
 });

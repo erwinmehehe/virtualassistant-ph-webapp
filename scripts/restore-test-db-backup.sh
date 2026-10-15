@@ -58,6 +58,14 @@ if ! docker exec "$container_name" psql -X -U postgres -d postgres -Atc \
   echo "Provisioned the required NOLOGIN Supabase Realtime role in isolated restore target."
 fi
 
+# This image's Auth bootstrap predates the nullable email_confirmed_at
+# timestamptz column present in the live VAPH Auth schema. Add it only to
+# this disposable target. Real Auth schema migrations remain a separate
+# recovery prerequisite and must never be applied to production here.
+docker exec "$container_name" sh -eu -c \
+  'export PGPASSWORD="$POSTGRES_PASSWORD"; exec psql -X -h 127.0.0.1 -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c "ALTER TABLE auth.users ADD COLUMN IF NOT EXISTS email_confirmed_at timestamp with time zone;"' >/dev/null
+echo "Aligned the disposable Auth users table with the nullable timestamp field."
+
 # Supabase's documented sequence: filtered roles/schema, then managed data.
 # A single transaction and ON_ERROR_STOP ensure restore failures are fatal.
 # Capture logs locally; SQL diagnostics may include sensitive row contents.

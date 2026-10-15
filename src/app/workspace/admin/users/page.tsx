@@ -103,7 +103,7 @@ export default async function AdminUsersPage({
             ? <span className="small muted">Admin role cannot be changed here.</span>
             : <form action={setInternalUserRoleAction} className="row">
                 <input type="hidden" name="user_id" value={p.id}/>
-                <select name="role" defaultValue={p.role} style={{ border: "1px solid var(--line)", borderRadius: 8, padding: "7px 8px" }}>
+                <select name="role" aria-label={`Change role for ${p.full_name || "user"}`} defaultValue={p.role} style={{ border: "1px solid var(--line)", borderRadius: 8, padding: "7px 8px" }}>
                   <option value="va">VA</option>
                   <option value="client">Client</option>
                   <option value="recruiter">Recruiter</option>

@@ -14,6 +14,7 @@ test("all workspace roles, shared training, client success and public visitors a
   assert.match(body, /work-readiness/);
   assert.match(body, /foundations-course/);
   assert.match(body, /primary link navigation/);
+  assert.ok(body.includes("name: /^Log in(?: to training)?$/"), "Training login has a distinct submit-button label");
 });
 
 test("screenshots and failures use local-only isolated data and avoid persistence of credentials", async () => {

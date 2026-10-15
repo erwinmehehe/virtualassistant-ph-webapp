@@ -514,7 +514,7 @@ export default async function RecruiterTalentDirectory({
         filteredSelectionAllowed={total <= RECRUITER_BULK_LIMIT}
       />
       <div className="bulk-action-bar bulk-action-controls" aria-label="Actions for selected Virtual Assistants">
-        <select name="bulk_action" required defaultValue="">
+        <select name="bulk_action" aria-label="Bulk action for selected VAs" required defaultValue="">
           <option value="" disabled>Action for selected VAs…</option>
           <option value="approve">Approve eligible ({APPROVAL_MIN_COMPLETION}%+)</option>
           <option value="bench">Move approved to Bench</option>
@@ -528,7 +528,7 @@ export default async function RecruiterTalentDirectory({
           <option value="assign">Assign to role internally</option>
           <option value="send_client_review">Send approved VAs to client review</option>
         </select>
-        <select name="job_id" defaultValue="">
+        <select name="job_id" aria-label="Hiring role for selected VAs" defaultValue="">
           <option value="">Role (only for assignment / client review)…</option>
           {((roles || []) as JobOptionRow[]).map((job) => <option key={job.id} value={job.id}>{job.title} — {job.company_name || job.status}{job.client_id ? " · client linked" : " · internal only"}</option>)}
         </select>

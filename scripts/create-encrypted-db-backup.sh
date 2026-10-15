@@ -47,5 +47,6 @@ openssl enc -aes-256-cbc -salt -pbkdf2 -iter 250000 \
   -in "$plain" \
   -out "$encrypted"
 
-sha256sum "$encrypted" > "$encrypted.sha256"
+digest="$(sha256sum "$encrypted" | cut -d " " -f 1)"
+printf "%s  %s\n" "$digest" "$(basename "$encrypted")" > "$encrypted.sha256"
 printf '%s\n' "$encrypted"

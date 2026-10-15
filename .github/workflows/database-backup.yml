@@ -40,6 +40,9 @@ jobs:
           test -n "$BACKUP_ENCRYPTION_PASSPHRASE" || { echo "BACKUP_ENCRYPTION_PASSPHRASE is not configured."; exit 1; }
           test "${#BACKUP_ENCRYPTION_PASSPHRASE}" -ge 32 || { echo "Backup encryption passphrase must be at least 32 characters."; exit 1; }
 
+      - name: Diagnose database login without logging credentials
+        run: node scripts/diagnose-backup-db-url.mjs
+
       - name: Create encrypted production dump
         id: backup
         shell: bash

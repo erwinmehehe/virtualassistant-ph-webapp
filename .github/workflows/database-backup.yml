@@ -39,6 +39,12 @@ jobs:
         with:
           version: 2.121.0
 
+      - name: Validate backup shell scripts and tests
+        shell: bash
+        run: |
+          bash -n scripts/create-encrypted-db-backup.sh scripts/verify-encrypted-db-backup.sh scripts/restore-test-db-backup.sh
+          node --test tests/backup-db-url-preflight.test.mjs
+
       - name: Require backup secrets
         shell: bash
         run: |

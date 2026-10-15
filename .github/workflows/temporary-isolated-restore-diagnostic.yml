@@ -51,3 +51,4 @@ jobs:
 # Safely classify roles SQL failure without disclosing SQL values.
 # Validate target-only Supabase Realtime NOLOGIN role bootstrap.
 # Rehearsal with reserved role administration split from application restore.
+# Classify missing schema column and statement without emitting raw SQL.

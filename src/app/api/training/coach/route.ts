@@ -19,6 +19,25 @@ function failure(message: string, status: number) {
   return NextResponse.json({ error: message }, { status, headers: RESPONSE_HEADERS });
 }
 
+
+/** Offline fixture: development + loopback Supabase only. Never a live AI response. */
+function allowLocalCoachFixture() {
+  if (process.env.NODE_ENV !== "development" || process.env.AI_TRAINING_COACH_E2E_MOCK !== "true") return false;
+  try {
+    const url = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "");
+    return url.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function localCoachFixtureReply(mode: "explain" | "practice" | "review", lessonTitle: string) {
+  const prefix = "LOCAL TEST COACH - not a live AI response. ";
+  if (mode === "practice") return prefix + "Fictional client: please draft a short confirmation email using dummy names.";
+  if (mode === "review") return prefix + "Paste a fictional practice draft for " + lessonTitle + " so I can suggest one improvement.";
+  return prefix + "For " + lessonTitle + ", what is the first practical step you would take?";
+}
+
 // Phase 1: closed by default, Foundations only, no schema migrations.
 export async function POST(request: Request) {
   if (process.env.AI_TRAINING_COACH_ENABLED !== "true") return failure("Not found.", 404);
@@ -67,6 +86,16 @@ export async function POST(request: Request) {
       isLimit ? "You have reached your daily coaching limit. Please try again tomorrow." : "Coach access is temporarily unavailable.",
       isLimit ? 429 : 503,
     );
+  }
+
+
+  // Exercise authentic session, enrollment, lesson lookup, and rate-limit gates first.
+  if (allowLocalCoachFixture()) {
+    return NextResponse.json({
+      reply: localCoachFixtureReply(input.mode, lesson.title),
+      source: { courseTitle: course.title, lessonTitle: lesson.title },
+      testOnly: true,
+    }, { headers: RESPONSE_HEADERS });
   }
 
   const apiKey = process.env.AI_GATEWAY_API_KEY?.trim() || process.env.VERCEL_OIDC_TOKEN?.trim();

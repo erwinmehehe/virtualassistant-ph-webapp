@@ -53,3 +53,8 @@ Run the suite again after any code or UI fix. If a route fails, inspect the matc
 ## Release gate
 
 Passing isolated role smoke tests is necessary but not sufficient for production release. VAPH production backup incident #864 and its real encrypted dump plus isolated restore remain independent blockers, as do owner-controlled Vercel configuration and protected production rollout checks. Do not use local role smoke results to waive the production backup requirement.
+
+## Faster, focused role-smoke CI job
+
+The separate `.github/workflows/all-roles-smoke.yml` also runs on pull requests. It uses the same **isolated local** database, test accounts, RLS checks and Chromium installation, but executes *only* the all-role smoke suite, with two Playwright workers. This produces earlier, focused evidence without waiting for the full browser/database-contract E2E matrix. It has no production credentials, deployments, migrations or write actions, and is capped at 30 minutes. Artifacts are named `vaph-focused-all-roles-<run-id>` and (on failure) `vaph-focused-failures-<run-id>`.
+

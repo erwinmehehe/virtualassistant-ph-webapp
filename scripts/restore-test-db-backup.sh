@@ -53,21 +53,32 @@ docker exec "$container_name" pg_isready -U postgres -d postgres >/dev/null
 if ! docker exec "$container_name" psql -X -U postgres -d postgres -Atc \
     "SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'supabase_realtime_admin')" \
     | grep -qx t; then
-  docker exec "$container_name" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 \
-    -c "CREATE ROLE supabase_realtime_admin NOLOGIN;" >/dev/null
+  docker exec "$container_name" sh -eu -c \
+    'export PGPASSWORD="$POSTGRES_PASSWORD"; exec psql -X -h 127.0.0.1 -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE supabase_realtime_admin NOLOGIN;"' >/dev/null
   echo "Provisioned the required NOLOGIN Supabase Realtime role in isolated restore target."
 fi
 
 # Supabase's documented sequence: filtered roles/schema, then managed data.
 # A single transaction and ON_ERROR_STOP ensure restore failures are fatal.
 # Capture logs locally; SQL diagnostics may include sensitive row contents.
-if ! docker exec "$container_name" psql \
-  --no-psqlrc --username=postgres --dbname=postgres --single-transaction \
-  --set=ON_ERROR_STOP=1 --set=VERBOSITY=verbose \
-  --file=/backup/roles.sql \
-  --file=/backup/schema.sql \
-  --command='SET session_replication_role = replica' \
-  --file=/backup/data.sql >"$stage/restore.log" 2>&1; then
+# Reserved Supabase role membership grants require the disposable image's superuser.
+# Restore them in a transaction first; then restore app schema/data as postgres,
+# preserving the intended owner and failing closed on either phase.
+restore_roles() {
+  docker exec "$container_name" sh -eu -c \
+    'export PGPASSWORD="$POSTGRES_PASSWORD"; exec psql --no-psqlrc --host=127.0.0.1 --username=supabase_admin --dbname=postgres --single-transaction --set=ON_ERROR_STOP=1 --set=VERBOSITY=verbose --file=/backup/roles.sql'
+}
+
+restore_schema_and_data() {
+  docker exec "$container_name" psql \
+    --no-psqlrc --username=postgres --dbname=postgres --single-transaction \
+    --set=ON_ERROR_STOP=1 --set=VERBOSITY=verbose \
+    --file=/backup/schema.sql \
+    --command='SET session_replication_role = replica' \
+    --file=/backup/data.sql
+}
+
+if ! (restore_roles && restore_schema_and_data) >"$stage/restore.log" 2>&1; then
   echo "Isolated Supabase SQL restore failed; raw SQL errors are withheld to protect data." >&2
   # Output only standardized five-character SQLSTATE codes, never SQL, row values or credentials.
   sqlstates="$(grep -Eo 'ERROR:[[:space:]]*[A-Z0-9]{5}' "$stage/restore.log" | sed -E 's/^ERROR:[[:space:]]*//' | LC_ALL=C sort -u | tr '\\n' ' ' || true)"

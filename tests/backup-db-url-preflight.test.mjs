@@ -150,3 +150,14 @@ test("backup upload is retained even when isolated restore later fails", async (
   assert.ok(verify > 0 && upload > verify && restore > upload);
   assert.match(workflow, /retention-days: 30/);
 });
+
+test("encrypted checksum is portable outside the GitHub runner directory", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const dump = await readFile(new URL("../scripts/create-encrypted-db-backup.sh", import.meta.url), "utf8");
+  const verify = await readFile(new URL("../scripts/verify-encrypted-db-backup.sh", import.meta.url), "utf8");
+  const restore = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(dump, /digest="\$\(sha256sum "\$encrypted"/);
+  assert.match(dump, /basename "\$encrypted"/);
+  assert.match(verify, /cd "\$\(dirname "\$encrypted"\)"/);
+  assert.match(restore, /cd "\$\(dirname "\$encrypted"\)"/);
+});

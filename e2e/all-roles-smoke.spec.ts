@@ -108,13 +108,15 @@ const SCENARIOS: RoleScenario[] = [
       { name: "foundations-course", path: "/workspace/training/courses/virtual-assistant-foundations" },
       { name: "training-account", path: "/workspace/training/account" },
     ],
-    navigation: { from: "/workspace/training", href: "/training", destination: "/training" },
+    navigation: { from: "/workspace/training", href: "/workspace/va", destination: "/workspace/va" },
   },
   {
     // Client Success is an admin/recruiter-only function, not a fifth account role.
     role: "client-success",
     email: "recruiter.e2e@example.test",
-    home: "/workspace/client-success",
+    // The auth action accepts role-home routes, not client-success as a login role.
+    // Sign in to Recruiter first, then audit the recruiter-authorized Client Success pages.
+    home: "/workspace/recruiter/today",
     routes: [
       { name: "placements", path: "/workspace/client-success" },
       { name: "support", path: "/workspace/client-success/support" },
@@ -159,7 +161,7 @@ async function signIn(page: Page, email: string, next: string) {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /^Log in(?: to training)?$/ }).click();
-  await page.waitForURL(url => samePath(url.pathname, next), { timeout: 25_000 });
+  await page.waitForURL(url => samePath(url.pathname, next), { timeout: 25_000, waitUntil: "domcontentloaded" });
 }
 
 async function auditRoute(page: Page, route: Route, screenshotPath: string): Promise<Audit> {
@@ -318,6 +320,9 @@ async function checkNavigation(page: Page, scenario: RoleScenario): Promise<stri
 }
 
 test.describe("All VAPH roles - isolated visual/runtime smoke", () => {
+  // Dedicated-only: the broad browser suite already exercises real logins and has
+  // a shared atomic IP quota. Avoid duplicate login storms that hide actual defects.
+  test.skip(process.env.VAPH_ALL_ROLES_SMOKE !== "true", "Run this suite only from the isolated all-role workflow.");
   test.beforeAll(assertIsolatedEnvironment);
 
   for (const scenario of SCENARIOS) {

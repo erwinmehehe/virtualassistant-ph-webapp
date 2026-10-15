@@ -62,3 +62,16 @@ test("CI uploads isolated smoke evidence even when Playwright fails", async () =
   assert.match(workflow, /retention-days: 14/);
   assert.equal(JSON.parse(pkg).scripts["smoke:roles"], "playwright test e2e/all-roles-smoke.spec.ts --project=chromium");
 });
+
+test("role smoke runs only in its dedicated CI job, not the broad browser suite", async () => {
+  const [suite, workflow] = await Promise.all([
+    read("e2e/all-roles-smoke.spec.ts"),
+    read(".github/workflows/all-roles-smoke.yml"),
+  ]);
+  assert.match(suite, /test\.skip\(process\.env\.VAPH_ALL_ROLES_SMOKE !== "true"/);
+  assert.match(workflow, /VAPH_ALL_ROLES_SMOKE: "true"/);
+  assert.match(workflow, /npm run smoke:roles -- --workers=2/);
+  assert.match(suite, /home: "\/workspace\/recruiter\/today",[\s\S]*?navigation: \{ from: "\/workspace\/client-success"/);
+  assert.match(suite, /navigation: \{ from: "\/workspace\/training", href: "\/workspace\/va", destination: "\/workspace\/va" \}/);
+  assert.match(suite, /waitUntil: "domcontentloaded"/);
+});

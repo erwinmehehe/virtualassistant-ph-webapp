@@ -49,3 +49,4 @@ jobs:
           scripts/verify-encrypted-db-backup.sh "${archives[0]}"
           scripts/restore-test-db-backup.sh "${archives[0]}"
 # Safely classify roles SQL failure without disclosing SQL values.
+# Validate target-only Supabase Realtime NOLOGIN role bootstrap.

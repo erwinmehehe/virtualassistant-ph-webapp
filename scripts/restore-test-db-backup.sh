@@ -10,7 +10,7 @@ container_name="vaph-backup-restore-${GITHUB_RUN_ID:-$$}-$RANDOM"
 
 test -f "$encrypted"
 test -f "$encrypted.sha256"
-sha256sum --check "$encrypted.sha256"
+(cd "$(dirname "$encrypted")" && sha256sum --check "$(basename "$encrypted").sha256")
 
 stage="$(mktemp -d)"
 cleanup() {

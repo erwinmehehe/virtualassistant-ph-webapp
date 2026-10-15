@@ -50,6 +50,6 @@ test("real API still fails closed and cannot create certificates or grades", asy
   assert.match(api, /trainingCoachRequestsExamAnswers/);
   const helper = await read("src/lib/training-coach.ts");
   assert.match(helper, /gradedRequestPatterns/);
-  assert.match(helper, /answer\\s\\*key/);
+  assert.match(helper, /quiz answers/);
   assert.doesNotMatch(api, /training_certificates|finalizeTrainingCourseIfEligible|training_assessment_submissions/);
 });

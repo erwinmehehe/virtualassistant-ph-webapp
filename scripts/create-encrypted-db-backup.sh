@@ -33,7 +33,7 @@ dump_sql() {
     echo "Supabase $label export was empty; refusing incomplete backup." >&2
     return 1
   fi
-  echo "Supabase $label export completed."
+  echo "Supabase $label export completed." >&2
 }
 
 dump_sql roles --role-only

@@ -71,17 +71,8 @@ jobs:
               --no-owner --no-privileges --single-transaction --exit-on-error \
               /backup/source.dump > "$stage/restore.log" 2>&1; then
             echo "Full raw-archive restore failed in disposable target. No production changes."
-            python3 - "$stage/restore.log" <<'PY'
-            import pathlib, re, sys
-            for line in pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines():
-                if "ERROR:" not in line: continue
-                msg=line.split("ERROR:",1)[1].strip()
-                msg=re.sub(r'"[^"]*"', '"[identifier]"', msg)
-                msg=re.sub(r"'[^']*'", "'[value]'", msg)
-                msg=re.sub(r"\b[\w.+-]+@[\w.-]+\.\w+\b", "[email]", msg)
-                print("First sanitized PostgreSQL ERROR:",msg[:190])
-                break
-            PY
+            safe_error="$(sed -n '/ERROR:/{s/.*ERROR:[[:space:]]*//;p;q;}' "$stage/restore.log" | sed -E 's/"[^"]*"/[identifier]/g' | cut -c 1-160)"
+            if [[ -n "$safe_error" ]]; then echo "First sanitized PostgreSQL ERROR: $safe_error"; fi
             for schema in auth storage realtime public extensions cron net vault graphql_public; do
               if grep -Fq "schema \"$schema\" already exists" "$stage/restore.log"; then
                 echo "Conflicting disposable restore schema: $schema"

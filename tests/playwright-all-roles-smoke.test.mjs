@@ -75,3 +75,14 @@ test("role smoke runs only in its dedicated CI job, not the broad browser suite"
   assert.match(suite, /navigation: \{ from: "\/workspace\/training", href: "\/workspace\/va", destination: "\/workspace\/va" \}/);
   assert.match(suite, /waitUntil: "domcontentloaded"/);
 });
+
+test("desktop and mobile audits reuse four genuine local login sessions instead of exhausting the real rate limiter", async () => {
+  const smoke = await read("e2e/all-roles-smoke.spec.ts");
+  assert.match(smoke, /roleAuthStates = new Map/);
+  assert.match(smoke, /await signIn\(page, account\.email, account\.home\)/);
+  assert.match(smoke, /await context\.storageState\(\)/);
+  assert.match(smoke, /storageState: savedState/);
+  assert.match(smoke, /browser\.newContext\(\{ baseURL: APP_BASE, storageState: state \}\)/);
+  assert.match(smoke, /"\/workspace\/admin\/today", "\/workspace\/client-success"/);
+  assert.doesNotMatch(smoke, /await signIn\(page, scenario\.email, scenario\.home\)/);
+});

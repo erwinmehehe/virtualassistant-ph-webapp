@@ -1,0 +1,109 @@
+name: VAPH Core DB Integration - isolated hiring and training
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vaph-core-db-isolated-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-journeys:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SUPABASE_CLI_VERSION: "2.113.0"
+      E2E_PASSWORD: "E2e-Only!Pass12345"
+      E2E_BASE_URL: "http://127.0.0.1:3000"
+      NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
+    steps:
+      - name: Checkout isolated integration source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci
+
+      - name: Ensure Postgres client
+        shell: bash
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+          psql --version
+
+      - name: Check Supabase CLI
+        run: npx -y "supabase@$SUPABASE_CLI_VERSION" --version
+
+      - name: Bootstrap disposable local database with migrations
+        shell: bash
+        run: bash scripts/bootstrap-e2e-local-supabase.sh
+
+      - name: Fail closed on any remote DB or app URL
+        shell: bash
+        run: |
+          set -a
+          source .supabase-e2e.env
+          set +a
+          test -n "$API_URL" && test -n "$ANON_KEY" && test -n "$SERVICE_ROLE_KEY" && test -n "$DB_URL"
+          case "$API_URL" in
+            http://127.0.0.1:*|http://localhost:*) ;;
+            *) echo "Remote Supabase prohibited in E2E"; exit 1 ;;
+          esac
+          case "$E2E_BASE_URL" in
+            http://127.0.0.1:*|http://localhost:*) ;;
+            *) echo "Remote Next.js prohibited in E2E"; exit 1 ;;
+          esac
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "LOCAL_SUPABASE_DB_URL=$DB_URL"
+          } >> "$GITHUB_ENV"
+
+      - name: Assert production-like RLS and service access
+        shell: bash
+        run: psql "$LOCAL_SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f scripts/verify-e2e-db-contracts.sql
+
+      - name: Seed only fictional roles, clients and hiring proposals
+        run: node scripts/seed-e2e-users.mjs
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run consent publishing, training, hiring and placement journeys
+        run: |
+          npx playwright test \
+            e2e/lead-job-auto-publication.spec.ts \
+            e2e/admin-training-completion-health.spec.ts \
+            e2e/training-account-activation.spec.ts \
+            e2e/agency-proposal-to-recruiting.spec.ts \
+            e2e/agency-shortlist-to-placement.spec.ts \
+            --project=chromium --workers=1
+
+      - name: Upload isolated Playwright results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vaph-core-db-test-evidence-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Shut down disposable database
+        if: always()
+        run: npx -y "supabase@$SUPABASE_CLI_VERSION" stop --no-backup

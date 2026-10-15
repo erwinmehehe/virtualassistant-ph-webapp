@@ -60,6 +60,25 @@ if ! docker exec "$container_name" psql \
   # Output only standardized five-character SQLSTATE codes, never SQL, row values or credentials.
   sqlstates="$(grep -Eo 'ERROR:[[:space:]]*[A-Z0-9]{5}' "$stage/restore.log" | sed -E 's/^ERROR:[[:space:]]*//' | LC_ALL=C sort -u | tr '\\n' ' ' || true)"
   if [[ -n "$sqlstates" ]]; then echo "PostgreSQL restore SQLSTATE codes: $sqlstates" >&2; fi
+  # Report only the known backup file and the kind of missing object. Never echo SQL text.
+  if grep -q '/backup/roles.sql:' "$stage/restore.log"; then
+    echo "Restore stopped in roles.sql." >&2
+  elif grep -q '/backup/schema.sql:' "$stage/restore.log"; then
+    echo "Restore stopped in schema.sql." >&2
+  elif grep -q '/backup/data.sql:' "$stage/restore.log"; then
+    echo "Restore stopped in data.sql." >&2
+  fi
+  if grep -Eq 'role "[^"]+" does not exist|role [^[:space:]]+ does not exist' "$stage/restore.log"; then
+    echo "Restore target is missing a referenced PostgreSQL role." >&2
+  elif grep -Eq 'extension "[^"]+" does not exist|extension [^[:space:]]+ does not exist' "$stage/restore.log"; then
+    echo "Restore target is missing a referenced PostgreSQL extension." >&2
+  elif grep -Eq 'type "[^"]+" does not exist|type [^[:space:]]+ does not exist' "$stage/restore.log"; then
+    echo "Restore target is missing a referenced PostgreSQL type." >&2
+  elif grep -Eq 'function .* does not exist' "$stage/restore.log"; then
+    echo "Restore target is missing a referenced PostgreSQL function." >&2
+  elif grep -Eq 'schema "[^"]+" does not exist' "$stage/restore.log"; then
+    echo "Restore target is missing a referenced PostgreSQL schema." >&2
+  fi
   if grep -qi 'does not exist' "$stage/restore.log"; then
     echo "A required object is missing from the disposable target; check target schema initialization." >&2
   elif grep -qi 'already exists' "$stage/restore.log"; then

@@ -37,5 +37,11 @@ test("native login form keeps a parseable same-origin Origin header", async ({ p
   const formPost = await submission;
   expect(formPost.headers()["origin"]).toBe(app.origin);
   await expect(page).toHaveURL(/\/workspace\/client\/?$/, { timeout: 25_000 });
-  await expect(page.getByRole("heading", { name: "Your hiring workspace" })).toBeVisible();
+  // JavaScript is intentionally disabled to force the native form POST path.
+  // The authenticated workspace shell server-renders, but its streaming
+  // dashboard can remain at its Suspense fallback without hydration.
+  // Confirm a real signed-in client session rather than a hydrated heading.
+  await expect(page.getByRole("navigation", { name: "Workspace navigation" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Go to Client workspace home" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open account settings" })).toContainText("E2E Client");
 });

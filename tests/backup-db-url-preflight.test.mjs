@@ -183,3 +183,13 @@ test("reserved roles are restored with disposable admin, app schema and data as 
   assert.match(script, /PGPASSWORD="\$POSTGRES_PASSWORD"/);
   assert.doesNotMatch(script, /SUPABASE_DB_URL/);
 });
+
+
+test("disposable restore aligns only the nullable Auth timestamp field", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const restore = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(restore, /ALTER TABLE auth\.users ADD COLUMN IF NOT EXISTS email_confirmed_at timestamp with time zone/);
+  assert.match(restore, /-U supabase_admin/);
+  assert.match(restore, /docker exec "\$container_name"/);
+  assert.doesNotMatch(restore, /SUPABASE_DB_URL/);
+});

@@ -26,7 +26,10 @@ test("scanner errors fail closed, remove unsaved leads and retain private downlo
   assert.match(source, /await admin\.from\("lead_intake"\)\.delete\(\)\.eq\("id", lead\.id\)/);
   assert.match(source, /await admin\.storage\.from\("lead-attachments"\)\.remove\(\[attachmentPath\]\)/);
   const client = await read("src/lib/malware-scan-client.ts");
-  assert.match(client, /MALWARE_SCAN_ENDPOINT/);
+  const security = await read("src/lib/file-security.ts");
+  assert.match(security, /MALWARE_SCAN_ENDPOINT/);
+  assert.match(client, /result\?\.clean !== true/);
+  assert.match(security, /const required = production \|\| process\.env\.MALWARE_SCAN_REQUIRED === "1"/);
 });
 
 test("local Supabase contracts jointly cover employer ownership and upload quarantine", async () => {

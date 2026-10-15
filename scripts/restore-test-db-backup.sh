@@ -63,6 +63,28 @@ if ! docker exec "$container_name" psql \
   # SQLSTATE and file/line are safe operational diagnostics. Do not echo SQL text.
   failure_point="$(sed -nE 's@.*psql:/backup/(roles|schema|data)\.sql:([0-9]+):.*@\1.sql line \2@p' "$stage/restore.log" | head -n 1 || true)"
   if [[ -n "$failure_point" ]]; then echo "First failing SQL location: $failure_point" >&2; fi
+  if [[ "$failure_point" =~ ^roles\.sql\ line\ ([0-9]+)$ ]]; then
+    line_number="${BASH_REMATCH[1]}"
+    if [[ "$line_number" -gt 0 && "$line_number" -le 100000 ]]; then
+      sql_line="$(awk -v target="$line_number" 'NR == target {print; exit}' "$stage/roles.sql")"
+      case "$sql_line" in
+        CREATE\ ROLE\ *) echo "Failure command type: CREATE ROLE" >&2 ;;
+        ALTER\ ROLE\ *) echo "Failure command type: ALTER ROLE" >&2 ;;
+        GRANT\ *) echo "Failure command type: GRANT" >&2 ;;
+        REVOKE\ *) echo "Failure command type: REVOKE" >&2 ;;
+        ALTER\ DEFAULT\ PRIVILEGES\ *) echo "Failure command type: ALTER DEFAULT PRIVILEGES" >&2 ;;
+        SET\ *) echo "Failure command type: SET" >&2 ;;
+        *) echo "Failure command type: other" >&2 ;;
+      esac
+      # Only allowlisted names of standard Supabase roles may be printed.
+      for role in anon authenticated authenticator dashboard_user postgres service_role supabase_admin supabase_auth_admin supabase_etl_admin supabase_functions_admin supabase_privileged_role supabase_read_only_user supabase_realtime_admin supabase_replication_admin supabase_storage_admin; do
+        if [[ "$sql_line" == *"\"$role\""* ]]; then
+          echo "Role referenced by the failing command: $role" >&2
+          break
+        fi
+      done
+    fi
+  fi
   if grep -Eq 'role "[^"]+" does not exist|role [^[:space:]]+ does not exist' "$stage/restore.log"; then
     echo "The recovery container is missing a referenced PostgreSQL role." >&2
     # Known managed Supabase role names are non-secret. Never print arbitrary values.

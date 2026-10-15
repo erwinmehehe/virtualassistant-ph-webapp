@@ -58,12 +58,19 @@ jobs:
             psql -X -h 127.0.0.1 -U supabase_admin -d postgres \
             -v ON_ERROR_STOP=1 -f /backup/clean.sql > "$stage/clean.log" 2>&1 \
             || { echo "Failed to reset disposable target schemas. Live database unchanged."; exit 1; }
+          remaining="$(docker exec -e PGPASSWORD=postgres "$container" psql -X -h 127.0.0.1 -U supabase_admin -d postgres -Atc "SELECT coalesce(string_agg(nspname, ', ' ORDER BY nspname),'none') FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname <> 'information_schema';")"
+          echo "Schema catalog after disposable reset: $remaining"
           echo "Disposable-only database schemas reset. Beginning complete encrypted-archive restore."
           if ! docker exec -e PGPASSWORD=postgres "$container" \
             pg_restore --host=127.0.0.1 --username=supabase_admin --dbname=postgres \
               --no-owner --no-privileges --single-transaction --exit-on-error \
               /backup/source.dump > "$stage/restore.log" 2>&1; then
             echo "Full raw-archive restore failed in disposable target. No production changes."
+            for schema in auth storage realtime public extensions cron net vault graphql_public; do
+              if grep -Fq "schema \"$schema\" already exists" "$stage/restore.log"; then
+                echo "Conflicting disposable restore schema: $schema"
+              fi
+            done
             for pattern in 'extension' 'schema' 'relation' 'role' 'permission' 'function' 'type' 'already exists' 'does not exist'; do
               if grep -qi "$pattern" "$stage/restore.log"; then echo "Failure category: $pattern"; fi
             done

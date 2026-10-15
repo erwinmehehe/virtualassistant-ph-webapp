@@ -193,3 +193,12 @@ test("disposable restore aligns only the nullable Auth timestamp field", async (
   assert.match(restore, /docker exec "\$container_name"/);
   assert.doesNotMatch(restore, /SUPABASE_DB_URL/);
 });
+
+
+test("disposable Auth audit shim matches hosted required column and default", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const s = await readFile(new URL("../scripts/restore-test-db-backup.sh", import.meta.url), "utf8");
+  assert.match(s, /ALTER TABLE auth\.audit_log_entries ADD COLUMN IF NOT EXISTS ip_address varchar\(64\) NOT NULL DEFAULT ''/);
+  assert.match(s, /docker exec -e PGPASSWORD=postgres "\$container_name"/);
+  assert.doesNotMatch(s, /SUPABASE_DB_URL/);
+});

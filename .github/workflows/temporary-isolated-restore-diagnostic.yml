@@ -34,6 +34,177 @@ jobs:
           run-id: 38730362299
           github-token: ${{ github.token }}
 
+      - name: Compare managed backup tables with disposable Supabase catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          stage="$(mktemp -d)"
+          target="vaph-copy-preflight-$GITHUB_RUN_ID"
+          cleanup() { docker rm -f "$target" >/dev/null 2>&1 || true; rm -rf "$stage"; }
+          trap cleanup EXIT
+          archive="$(find isolated-artifact -maxdepth 1 -name '*.sql.tar.enc' -print -quit)"
+          test -n "$archive"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 250000 \
+            -pass env:BACKUP_ENCRYPTION_PASSPHRASE -in "$archive" -out "$stage/bundle.tar"
+          tar -xOf "$stage/bundle.tar" data.sql > "$stage/data.sql"
+          docker run -d --name "$target" -e POSTGRES_PASSWORD=postgres supabase/postgres:17.6.1.155 >/dev/null
+          for _ in $(seq 1 60); do
+            if docker exec "$target" pg_isready -U postgres -d postgres >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker exec "$target" psql -X -U postgres -d postgres -Atc \
+            "SELECT n.nspname||'.'||c.relname||'|'||a.attname FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON c.relnamespace=n.oid JOIN pg_catalog.pg_attribute a ON a.attrelid=c.oid WHERE n.nspname IN ('auth','storage','realtime') AND c.relkind IN ('r','p') AND a.attnum>0 AND NOT a.attisdropped ORDER BY 1;" > "$stage/target-columns.txt"
+          python3 - "$stage/data.sql" "$stage/target-columns.txt" <<'PY'
+          import pathlib, re, sys
+          file=pathlib.Path(sys.argv[1])
+          target={}
+          for line in pathlib.Path(sys.argv[2]).read_text().splitlines():
+              name, col = line.split("|",1)
+              target.setdefault(name,set()).add(col)
+          pattern=re.compile(r'^COPY\s+"?([A-Za-z_][A-Za-z_0-9]*)"?\."?([A-Za-z_][A-Za-z_0-9]*)"?\s+\((.*?)\)\s+FROM stdin;\s*        shell: bash
+        run: |
+          set -euo pipefail
+          name="vaph-auth-compat-$GITHUB_RUN_ID"
+          trap 'docker rm -f "$name" >/dev/null 2>&1 || true' EXIT
+          docker run -d --name "$name" -e POSTGRES_PASSWORD=postgres supabase/postgres:17.6.1.155 >/dev/null
+          for _ in $(seq 1 60); do
+            if docker exec "$name" psql -U postgres -d postgres -Atc "SELECT to_regclass('auth.users') IS NOT NULL" 2>/dev/null | grep -qx t; then
+              break
+            fi
+            sleep 1
+          done
+          sleep 5
+          docker exec "$name" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 -Atc "
+            WITH expected(name) AS (
+              VALUES ('email_confirmed_at'), ('last_sign_in_at'), ('created_at'),
+                     ('raw_user_meta_data'), ('raw_app_meta_data')
+            )
+            SELECT 'Missing target auth.users column: ' || e.name
+            FROM expected e WHERE NOT EXISTS (
+              SELECT 1 FROM pg_catalog.pg_attribute a
+              JOIN pg_catalog.pg_class c ON a.attrelid=c.oid
+              JOIN pg_catalog.pg_namespace n ON c.relnamespace=n.oid
+              WHERE n.nspname='auth' AND c.relname='users'
+                AND a.attname=e.name AND a.attnum>0 AND NOT a.attisdropped
+            );
+          "
+          echo "Completed read-only disposable Auth schema comparison."
+
+      - name: Diagnose the failing schema view without logging SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          stage="$(mktemp -d)"
+          trap 'rm -rf "$stage"' EXIT
+          archive="$(find isolated-artifact -maxdepth 1 -name '*.sql.tar.enc' -print -quit)"
+          test -n "$archive"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 250000 \
+            -pass env:BACKUP_ENCRYPTION_PASSPHRASE -in "$archive" -out "$stage/sql.tar"
+          tar -xOf "$stage/sql.tar" schema.sql > "$stage/schema.sql"
+          python3 - "$stage/schema.sql" <<'PY'
+          import pathlib, re, sys
+          lines=pathlib.Path(sys.argv[1]).read_text().splitlines()
+          target=10507
+          assert len(lines)>=target, "Original schema SQL line was not found"
+          starts=[(n,l) for n,l in enumerate(lines[:target],1) if re.match(r'^\s*CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+',l,re.I)]
+          if not starts:
+              print("Schema view header could not be located safely.")
+              raise SystemExit(1)
+          n,header=starts[-1]
+          m=re.match(r'^\s*CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+(?:"([A-Za-z_][A-Za-z0-9_]*)"|([A-Za-z_][A-Za-z0-9_]*))\.(?:"([A-Za-z_][A-Za-z0-9_]*)"|([A-Za-z_][A-Za-z0-9_]*))',header,re.I)
+          if not m:
+              print("A view was found, but no safe view identifier could be extracted.")
+              raise SystemExit(1)
+          schema,name=m.group(1) or m.group(2),m.group(3) or m.group(4)
+          fragment="\n".join(lines[n-1:target])
+          print("Failing schema view:",schema+"."+name)
+          print("View definition references Auth schema:",bool(re.search(r'\b(?:auth|\"auth\")\.',fragment,re.I)))
+          print("View definition references Storage schema:",bool(re.search(r'\b(?:storage|\"storage\")\.',fragment,re.I)))
+          print("View definition references a public schema:",bool(re.search(r'\b(?:public|\"public\")\.',fragment,re.I)))
+          PY
+
+      - name: Identify the failing COPY target without exposing rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          stage="$(mktemp -d)"
+          trap 'rm -rf "$stage"' EXIT
+          archive="$(find isolated-artifact -maxdepth 1 -name '*.sql.tar.enc' -print -quit)"
+          test -n "$archive"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 250000 \
+            -pass env:BACKUP_ENCRYPTION_PASSPHRASE -in "$archive" -out "$stage/sql.tar"
+          tar -xOf "$stage/sql.tar" data.sql | sed -n '1,40p' > "$stage/data-head.txt"
+          python3 - "$stage/data-head.txt" <<'PY'
+          import pathlib, re, sys
+          lines=pathlib.Path(sys.argv[1]).read_text().splitlines()
+          target=28
+          raw=lines[target-1] if len(lines)>=target else ""
+          m=re.match(r'^COPY\s+"?([a-z_][a-z0-9_]*)"?\."?([a-z_][a-z0-9_]*)"?\s*\(',raw,re.I)
+          if m:
+              print("Data COPY target at original failure:",m.group(1)+"."+m.group(2))
+              cols=re.findall(r'"([a-z_][a-z0-9_]*)"',raw[raw.find("(")+1:raw.rfind(")")],re.I)
+              print("Data COPY header includes",len(cols),"named columns; no data values inspected.")
+          else:
+              kind=re.match(r'^\s*(COPY|INSERT|ALTER|SET|SELECT)\b',raw,re.I)
+              print("Failed data line command type:",kind.group(1) if kind else "other")
+          PY
+
+      - name: Verify and restore isolated archived SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$BACKUP_ENCRYPTION_PASSPHRASE"
+          shopt -s nullglob
+          archives=(isolated-artifact/*.sql.tar.enc)
+          if [ "${#archives[@]}" -ne 1 ]; then
+            echo "Expected exactly one encrypted SQL archive." >&2
+            exit 1
+          fi
+          chmod +x scripts/verify-encrypted-db-backup.sh scripts/restore-test-db-backup.sh
+          scripts/verify-encrypted-db-backup.sh "${archives[0]}"
+          scripts/restore-test-db-backup.sh "${archives[0]}"
+# Safely classify roles SQL failure without disclosing SQL values.
+# Validate target-only Supabase Realtime NOLOGIN role bootstrap.
+# Rehearsal with reserved role administration split from application restore.
+# Classify missing schema column and statement without emitting raw SQL.
+# Classify unresolved schema-column reference using only sanitized identifier names.
+# Verify read-only Auth schema preflight and target-only field compatibility.
+# Validate target-only Auth audit compatibility against the retained archive.
+, re.I)
+          current=None; row=False; managed=0; missing_tables=[]; missing_cols=[]
+          with file.open(errors="replace") as stream:
+              for line in stream:
+                  if current:
+                      if line.rstrip("\r\n") == r'\.':
+                          name, cols=current
+                          if name not in target:
+                              missing_tables.append((name, "nonempty" if row else "empty"))
+                          else:
+                              diff=cols-target[name]
+                              if diff:
+                                  missing_cols.append((name,tuple(sorted(diff)), "nonempty" if row else "empty"))
+                          current=None; row=False
+                      else:
+                          row=True
+                      continue
+                  m=pattern.match(line)
+                  if not m or m.group(1) not in {"auth","storage","realtime"}: continue
+                  managed+=1
+                  name=m.group(1)+"."+m.group(2)
+                  cols={v.strip().strip('"') for v in m.group(3).split(",")}
+                  current=(name,cols)
+          print("Managed COPY targets examined:",managed)
+          print("Missing tables (only metadata, no SQL/data rows):")
+          for table, state in missing_tables[:45]: print("  ",table,state)
+          print("Missing managed columns (identifiers only):")
+          for table, cols,state in missing_cols[:35]: print("  ",table,", ".join(cols[:24]),state)
+          print("Totals:",len(missing_tables),"missing tables;",len(missing_cols),"column-incompatible tables")
+          assert current is None, "Incomplete COPY archive stream"
+          PY
+
       - name: Check Auth schema compatibility in disposable image
         shell: bash
         run: |

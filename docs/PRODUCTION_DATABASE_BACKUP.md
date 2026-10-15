@@ -27,6 +27,8 @@ After encrypted archive verification and artifact upload, the job:
 
 The proven isolated recovery approach passed with an existing encrypted production archive in [run #38745821871](https://github.com/erwinmehehe/virtualassistant-ph-webapp/actions/runs/38745821871).
 
+A fresh end-to-end **PR-branch** encrypted production backup also passed all steps—including verification, artifact upload and isolated restore—in [run #38747301951](https://github.com/erwinmehehe/virtualassistant-ph-webapp/actions/runs/38747301951). The saved encrypted artifact is vaph-production-db-backup-38747301951, retained for 30 days. The permanent default-branch recovery gate is still pending merge and its first successful run on main.
+
 **The production backup gate is met only when a default-branch run completes successfully**, including the isolated restore and encrypted artifact upload. An uploaded backup alone does not meet this gate. Failures keep the backup issue open.
 
 ## Scheduling and secrets

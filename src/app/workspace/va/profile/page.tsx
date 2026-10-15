@@ -119,21 +119,24 @@ export default async function VaProfilePage({
               </div>
               <div className="form-grid">
                 <div className="field">
-                  <label>Full legal name <span className="muted">(private)</span></label>
-                  <input name="full_name" defaultValue={profile.full_name || ""} required />
+                  <label htmlFor="va-profile-full-name">Full legal name <span className="muted">(private)</span></label>
+                  <input id="va-profile-full-name"
+                    name="full_name" defaultValue={profile.full_name || ""} required />
                   <span className="field-help">Public pages show first name + last initial only.</span>
                 </div>
                 <div className="field">
-                  <label>Professional headline</label>
+                  <label htmlFor="va-profile-headline">Professional headline</label>
                   <input
+                    id="va-profile-headline"
                     name="headline"
                     defaultValue={va?.headline || ""}
                     placeholder="Executive Assistant · Operations · Customer Support"
                   />
                 </div>
                 <div className="field span-2">
-                  <label>Professional summary</label>
+                  <label htmlFor="va-profile-bio">Professional summary</label>
                   <textarea
+                    id="va-profile-bio"
                     name="bio"
                     defaultValue={va?.bio || ""}
                     placeholder="What work do you do best? Which clients have you supported? What outcomes can you own?"
@@ -141,7 +144,7 @@ export default async function VaProfilePage({
                   <span className="field-help">Aim for 80–220 words focused on outcomes and responsibilities.</span>
                 </div>
                 <div className="field span-2">
-                  <label>Profile photo <span className="muted">JPG/PNG/WEBP, max 3 MB</span></label>
+                  <label htmlFor="va-profile-avatar">Profile photo <span className="muted">JPG/PNG/WEBP, max 3 MB</span></label>
                   <div className="profile-photo-control">
                     {profile.avatar_url ? (
                       <img src={profile.avatar_url} alt="Current profile photo" />
@@ -151,7 +154,8 @@ export default async function VaProfilePage({
                     <div>
                       <input
                         type="file"
-                        name="avatar"
+                        id="va-profile-avatar"
+                    name="avatar"
                         accept="image/jpeg,image/png,image/webp"
                         required={!profile.avatar_url}
                       />
@@ -175,8 +179,9 @@ export default async function VaProfilePage({
               </div>
               <div className="form-grid">
                 <div className="field">
-                  <label>Primary specialty</label>
-                  <select name="primary_category" defaultValue={va?.primary_category || ""}>
+                  <label htmlFor="va-profile-primary-category">Primary specialty</label>
+                  <select id="va-profile-primary-category"
+                    name="primary_category" defaultValue={va?.primary_category || ""}>
                     <option value="">Choose a specialty</option>
                     {VA_CATEGORIES.map((category) => (
                       <option key={String(category)}>{category}</option>
@@ -185,27 +190,30 @@ export default async function VaProfilePage({
                   <span className="field-help">Choose the type of work you do best.</span>
                 </div>
                 <div className="field">
-                  <label>Years of professional experience</label>
+                  <label htmlFor="va-profile-years-experience">Years of professional experience</label>
                   <input
                     type="number"
                     min="0"
                     max="60"
+                    id="va-profile-years-experience"
                     name="years_experience"
                     defaultValue={va?.years_experience ?? ""}
                   />
                   <span className="field-help">Public discovery requires at least 2 years.</span>
                 </div>
                 <div className="field span-2">
-                  <label>Additional specialties <span className="muted">(up to 3)</span></label>
+                  <label htmlFor="va-profile-categories">Additional specialties <span className="muted">(up to 3)</span></label>
                   <input
+                    id="va-profile-categories"
                     name="categories"
                     defaultValue={(va?.categories || []).join(", ")}
                     placeholder="Customer Service, Ecommerce"
                   />
                 </div>
                 <div className="field span-2">
-                  <label>Core skills</label>
+                  <label htmlFor="va-profile-skills">Core skills</label>
                   <input
+                    id="va-profile-skills"
                     name="skills"
                     defaultValue={(va?.skills || []).join(", ")}
                     placeholder="Calendar management, recruitment coordination, customer support, reporting, research"
@@ -213,8 +221,9 @@ export default async function VaProfilePage({
                   <span className="field-help">Use specific skills separated with commas.</span>
                 </div>
                 <div className="field span-2">
-                  <label>Tools and software</label>
+                  <label htmlFor="va-profile-tools">Tools and software</label>
                   <input
+                    id="va-profile-tools"
                     name="tools"
                     defaultValue={(va?.tools || []).join(", ")}
                     placeholder="Google Workspace, HubSpot, Slack, Canva, ClickUp"
@@ -222,16 +231,18 @@ export default async function VaProfilePage({
                   <span className="field-help">List tools you can use without training.</span>
                 </div>
                 <div className="field">
-                  <label>Industries</label>
+                  <label htmlFor="va-profile-industries">Industries</label>
                   <input
+                    id="va-profile-industries"
                     name="industries"
                     defaultValue={(va?.industries || []).join(", ")}
                     placeholder="SaaS, dental, real estate"
                   />
                 </div>
                 <div className="field">
-                  <label>Languages</label>
+                  <label htmlFor="va-profile-languages">Languages</label>
                   <input
+                    id="va-profile-languages"
                     name="languages"
                     defaultValue={(va?.languages || []).join(", ")}
                     placeholder="English, Filipino"
@@ -252,47 +263,52 @@ export default async function VaProfilePage({
               </div>
               <div className="form-grid">
                 <div className="field">
-                  <label>Hours available per week</label>
+                  <label htmlFor="va-profile-weekly-hours">Hours available per week</label>
                   <input
                     type="number"
                     min="1"
                     max="80"
+                    id="va-profile-weekly-hours"
                     name="weekly_hours"
                     defaultValue={va?.weekly_hours || ""}
                   />
                 </div>
                 <div className="field">
-                  <label>Preferred hourly rate, USD</label>
+                  <label htmlFor="va-profile-hourly-rate">Preferred hourly rate, USD</label>
                   <input
                     type="number"
                     min={settings.minHourlyRate}
                     step="0.01"
+                    id="va-profile-hourly-rate"
                     name="hourly_rate"
                     defaultValue={va?.hourly_rate || ""}
                   />
                   <span className="field-help">Agency minimum: USD {settings.minHourlyRate}/hour.</span>
                 </div>
                 <div className="field">
-                  <label>Preferred schedule</label>
+                  <label htmlFor="va-profile-schedule">Preferred schedule</label>
                   <input
+                    id="va-profile-schedule"
                     name="schedule"
                     defaultValue={va?.schedule || ""}
                     placeholder="Flexible · Evening PH · US overlap"
                   />
                 </div>
                 <div className="field">
-                  <label>Maximum live client overlap/day</label>
+                  <label htmlFor="va-profile-overlap-hours">Maximum live client overlap/day</label>
                   <input
                     type="number"
                     min="0"
                     max="12"
+                    id="va-profile-overlap-hours"
                     name="overlap_hours"
                     defaultValue={va?.overlap_hours ?? 4}
                   />
                 </div>
                 <div className="field">
-                  <label>Availability status</label>
-                  <select name="availability_status" defaultValue={va?.availability_status || "available"}>
+                  <label htmlFor="va-profile-availability-status">Availability status</label>
+                  <select id="va-profile-availability-status"
+                    name="availability_status" defaultValue={va?.availability_status || "available"}>
                     <option value="available">Available now</option>
                     <option value="limited">Limited availability</option>
                     <option value="unavailable">Not available</option>
@@ -315,18 +331,20 @@ export default async function VaProfilePage({
               </div>
               <div className="form-grid">
                 <div className="field">
-                  <label>LinkedIn URL</label>
+                  <label htmlFor="va-profile-linkedin-url">LinkedIn URL</label>
                   <input
                     type="url"
+                    id="va-profile-linkedin-url"
                     name="linkedin_url"
                     defaultValue={va?.linkedin_url || ""}
                     placeholder="https://linkedin.com/in/..."
                   />
                 </div>
                 <div className="field">
-                  <label>Portfolio URL</label>
+                  <label htmlFor="va-profile-portfolio-url">Portfolio URL</label>
                   <input
                     type="url"
+                    id="va-profile-portfolio-url"
                     name="portfolio_url"
                     defaultValue={va?.portfolio_url || ""}
                     placeholder="https://..."

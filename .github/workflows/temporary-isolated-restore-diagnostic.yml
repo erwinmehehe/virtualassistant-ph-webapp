@@ -98,6 +98,33 @@ jobs:
           print("View definition references a public schema:",bool(re.search(r'\b(?:public|\"public\")\.',fragment,re.I)))
           PY
 
+      - name: Identify the failing COPY target without exposing rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          stage="$(mktemp -d)"
+          trap 'rm -rf "$stage"' EXIT
+          archive="$(find isolated-artifact -maxdepth 1 -name '*.sql.tar.enc' -print -quit)"
+          test -n "$archive"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 250000 \
+            -pass env:BACKUP_ENCRYPTION_PASSPHRASE -in "$archive" -out "$stage/sql.tar"
+          tar -xOf "$stage/sql.tar" data.sql | sed -n '1,40p' > "$stage/data-head.txt"
+          python3 - "$stage/data-head.txt" <<'PY'
+          import pathlib, re, sys
+          lines=pathlib.Path(sys.argv[1]).read_text().splitlines()
+          target=28
+          raw=lines[target-1] if len(lines)>=target else ""
+          m=re.match(r'^COPY\s+"?([a-z_][a-z0-9_]*)"?\."?([a-z_][a-z0-9_]*)"?\s*\(',raw,re.I)
+          if m:
+              print("Data COPY target at original failure:",m.group(1)+"."+m.group(2))
+              cols=re.findall(r'"([a-z_][a-z0-9_]*)"',raw[raw.find("(")+1:raw.rfind(")")],re.I)
+              print("Data COPY header includes",len(cols),"named columns; no data values inspected.")
+          else:
+              kind=re.match(r'^\s*(COPY|INSERT|ALTER|SET|SELECT)\b',raw,re.I)
+              print("Failed data line command type:",kind.group(1) if kind else "other")
+          PY
+
       - name: Verify and restore isolated archived SQL
         shell: bash
         run: |

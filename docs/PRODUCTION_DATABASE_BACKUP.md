@@ -1,76 +1,67 @@
 # Production database backup runbook
 
-VAPH uses a Supabase Free plan, so managed point-in-time recovery is not available on this tier. The **Encrypted production database backup** GitHub Actions workflow creates a portable, encrypted database export and tests it against a disposable Supabase-compatible PostgreSQL instance.
+VAPH uses Supabase Free. A separate GitHub Actions workflow creates an encrypted off-provider PostgreSQL archive each day and rehearses recovery inside a disposable Supabase PostgreSQL container. The restore rehearsal never modifies production.
 
 ## Backup format
 
-As of PR #902, the workflow follows Supabase's documented recovery approach rather than attempting to restore a raw `pg_dump` of Supabase-managed schemas. The current bundle contains:
+The supported backup is a complete PostgreSQL 17 **custom-format archive**, including application tables and Supabase-managed Auth and Storage database objects and rows. Its encrypted filename ends in **.dump.enc**.
 
-- `roles.sql` — Supabase CLI role-only export, including non-reserved roles.
-- `schema.sql` — application schema objects, including tables, functions, triggers, and RLS policies; Supabase CLI excludes conflicting managed schema DDL.
-- `data.sql` — data export, including applicable managed table data (e.g. Auth users), with PostgreSQL COPY format.
+- The production URI is used only for a PostgreSQL pg_dump export. A credential-safe read-only authentication check runs first.
+- The dump runs in custom format with no owner, no privileges and no subscriptions, to avoid requiring destination-specific roles. Database-global roles and privileges are a separate recovery requirement.
+- The plaintext dump is created with restricted permissions, encrypted using **AES-256-CBC and PBKDF2 (250,000 iterations)** and deleted from the temporary runner by a cleanup trap. Raw client diagnostics and plaintext content are never uploaded.
+- A portable SHA-256 checksum uses the encrypted filename's basename so it can be verified after download.
+- Only the encrypted archive and SHA-256 checksum are uploaded as GitHub Actions artifacts, retained for **30 days**.
 
-The SQL files are bundled into `vaph-production-TIMESTAMP.sql.tar`, then encrypted as `.sql.tar.enc` using AES-256-CBC with PBKDF2 (250,000 iterations). The workflow produces a SHA-256 checksum beside the encrypted file. The plaintext SQL files and tar archive are removed from the runner when the script exits. **Only the encrypted archive and checksum are uploaded**, retained as a GitHub Actions artifact for 30 days.
+Experimental older **.sql.tar.enc** artifacts came from an unsuccessful restore design. Do not use them as verified recovery points.
 
-The workflow pins Supabase CLI 2.121.0 and its setup action to a specific commit. Pin upgrades should go through a tested PR. The production connection secret remains in GitHub Actions and must never be logged, copied into the repository, or sent through chat.
+## Automated isolated restore
 
-Older artifacts ending in `.dump.enc` (before PR #902) are **raw PostgreSQL custom-format dumps**, not the current portable SQL-tar format. They require the old custom-archive recovery process and must not be treated as compatible with the new SQL bundle restoration script.
+After encrypted archive verification and artifact upload, the job:
 
-## Safety and success criteria
+1. Starts a disposable database using **supabase/postgres:17.6.1.155**, matching the current production PostgreSQL engine version.
+2. Waits for the disposable database's local Supabase administrator connection. It does not accept or use the production database URI for restoring.
+3. Clears the preinitialized managed namespaces inside the disposable database, while preserving PostgreSQL's default **public** schema. This correctly handles the stock container's older Auth, Storage and pgbouncer objects.
+4. Uses PostgreSQL's **pg_restore --no-owner --no-privileges --clean --if-exists --single-transaction --exit-on-error**. The clean phase also replaces preexisting publications and other database-level objects.
+5. Verifies representative application tables, Auth user/session and Storage tables, and presence of public row-level security policies.
+6. Destroys the disposable container, temporary plaintext files and anonymous volumes.
 
-- The workflow is scheduled daily at 06:17 UTC, allows a manual dispatch, and runs on changes to its backup scripts on `main`.
-- Both `SUPABASE_DB_URL` and `BACKUP_ENCRYPTION_PASSPHRASE` are mandatory. The encryption passphrase must have 32+ characters; keep a recovery copy outside GitHub.
-- A credential-safe preflight checks the Supabase session-pooler URI and runs a read-only query. It does not disclose credentials.
-- All three Supabase CLI exports must finish successfully and be nonempty.
-- The verified encrypted archive is uploaded **before** the restore rehearsal. If the restore test fails, the job still fails; the encrypted archive remains available for forensic analysis or recovery.
-- Verification checks the SHA-256 digest, decryptability, exact three-file manifest, and nonempty SQL files.
-- The restore test starts a disposable Supabase PostgreSQL container and imports roles, schema, and data with `psql --single-transaction --set=ON_ERROR_STOP=1`. It tests representative application tables, Auth schema availability, and RLS policies. The disposable database is destroyed afterward.
-- **A retained archive alone is not a verified recovery point.** The production backup gate is met only when a default-branch run completes successfully, including the isolated restore and encrypted artifact upload.
+The proven isolated recovery approach passed with an existing encrypted production archive in [run #38745821871](https://github.com/erwinmehehe/virtualassistant-ph-webapp/actions/runs/38745821871).
 
-These logical exports cover the database; they do **not** capture Storage object binaries, API/JWT encryption roots, OAuth/email provider configuration, deployed Edge Functions, DNS, or external integrations. Protect and separately back up those dependencies. A disposable database restore proves logical recovery, not a complete application disaster-recovery drill.
+**The production backup gate is met only when a default-branch run completes successfully**, including the isolated restore and encrypted artifact upload. An uploaded backup alone does not meet this gate. Failures keep the backup issue open.
 
-## Required GitHub Actions secrets
+## Scheduling and secrets
 
-In repository Settings → Secrets and variables → Actions:
+The workflow runs daily at **06:17 UTC**, supports manual dispatch, and runs after backup-code changes reach main. It requires these two GitHub Actions secrets:
 
-- `SUPABASE_DB_URL`: complete database URI for the actual VAPH Supabase project. Use a session-pooler connection and a real database password, not a placeholder.
-- `BACKUP_ENCRYPTION_PASSPHRASE`: independent random passphrase of at least 32 characters, backed up in your password manager.
+- **SUPABASE_DB_URL** — actual VAPH database URI using session pooling and the real database password, not a placeholder.
+- **BACKUP_ENCRYPTION_PASSPHRASE** — a different random passphrase of at least 32 characters, separately retained in a password manager.
 
-GitHub cannot display existing secret values; never reset the production database password just for a backup job unless a controlled credential-rotation procedure requires it.
+Never paste database URLs or passphrases into source code, logs, GitHub issues or chats. No Vercel environment-variable changes are needed.
 
-## Health monitoring
+The **Production backup health alert** workflow checks GitHub Actions metadata and reports backup failures or restored backups older than 36 hours. A successful monitoring job is not proof of a verified backup.
 
-The **Production backup health alert** workflow tracks completed default-branch backups and opens or updates the **Production database backup needs attention** issue when the most recent verified run failed or no successful, restored backup exists within 36 hours. Green monitoring alone does not prove the backup gate passed.
+## Manual recovery and limitations
 
-## Non-production recovery procedure
+**Never run pg_restore --clean against the current production database.** It destroys objects in its target database. Only use a separately approved, isolated recovery environment.
 
-1. Download the most recent **successful and fully restored** GitHub Actions encrypted artifact and checksum. Check that its name ends with `.sql.tar.enc` (not the older `.dump.enc`).
-2. On a secure, access-controlled recovery machine, export `BACKUP_ENCRYPTION_PASSPHRASE` from your password manager. Never place the passphrase in command history, source files, or messages.
-3. In the artifact directory, verify and decrypt:
+1. Download the encrypted archive and its SHA-256 sidecar from a successful default-branch backup run.
+2. Load the stored recovery passphrase securely, without placing it into shell history.
+3. Verify the artifact checksum, then decrypt it on a secure recovery machine:
 
-   ```bash
-   sha256sum --check vaph-production-TIMESTAMP.sql.tar.enc.sha256
+   ~~~bash
+   sha256sum --check vaph-production-TIMESTAMP.dump.enc.sha256
    openssl enc -d -aes-256-cbc -pbkdf2 -iter 250000 \
      -pass env:BACKUP_ENCRYPTION_PASSPHRASE \
-     -in vaph-production-TIMESTAMP.sql.tar.enc \
-     -out recovery.sql.tar
-   mkdir -p recovery
-   tar -xf recovery.sql.tar -C recovery
-   ```
+     -in vaph-production-TIMESTAMP.dump.enc \
+     -out recovery.dump
+   ~~~
 
-4. Provision a **new, isolated, non-production Supabase-compatible** target with a compatible PostgreSQL 17 setup and the required extensions. Do not point `RESTORE_DB_URL` to the production project.
-5. From the recovery machine, run the restore with credentials for that isolated target:
+4. Use **scripts/restore-test-db-backup.sh** and the encrypted archive to rehearse a new disposable restore. Never substitute a production URI as the restore target.
+5. For a real recovery, plan PostgreSQL global roles, object ownership, grants, managed service versions and extensions separately. The automated content rehearsal deliberately disables owner/privilege restoration, and **does not prove production grants or role memberships have been rebuilt**.
+6. Compare critical record counts, database migrations, Auth user records, and actual RLS behavior under relevant application roles.
+7. Separately protect and recover Storage **object binaries** (not included in database SQL exports), Edge Functions, Vault encryption keys, JWT/API secrets, OAuth providers, SMTP, DNS and connected services.
+8. Destroy decrypted exports and temporary recovery environments securely.
 
-   ```bash
-   psql --single-transaction --set=ON_ERROR_STOP=1 \
-     --file=recovery/roles.sql \
-     --file=recovery/schema.sql \
-     --command='SET session_replication_role = replica' \
-     --file=recovery/data.sql \
-     --dbname="$RESTORE_DB_URL"
-   ```
+This test provides evidence of database **content/schema** restoration, not a complete Supabase platform disaster-recovery drill or deployed application UAT.
 
-6. Validate application-owned table counts, RLS policy behavior, Auth user metadata, migrations, and representative application reads on the isolated target. Separately validate how Storage objects, Auth settings, Vault/encryption keys, OAuth, functions, and external services would be recovered.
-7. Only after independent review plan any production recovery and downtime. Securely destroy local decrypted dumps and the disposable environment.
-
-See the official [Supabase platform-to-self-hosted recovery guide](https://supabase.com/docs/guides/self-hosting/restore-from-platform) and [CLI backup/restore instructions](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore).
+Official reference: [Supabase platform-to-self-hosted restore guidance](https://supabase.com/docs/guides/self-hosting/restore-from-platform).

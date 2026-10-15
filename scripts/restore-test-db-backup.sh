@@ -36,21 +36,22 @@ for _ in $(seq 1 90); do
 done
 
 docker exec "$container_name" pg_isready -U postgres -d postgres >/dev/null
-docker exec "$container_name" createdb -U postgres vaph_restore_test
+# pg_cron in this disposable Supabase image is configured for the postgres DB.
+# Restoring there is safe: the entire container is isolated and deleted after testing.
 
 docker exec "$container_name" pg_restore \
   --username=postgres \
   --exit-on-error \
   --no-owner \
   --no-privileges \
-  --dbname=vaph_restore_test \
+  --dbname=postgres \
   /backup/vaph.dump
 
-docker exec "$container_name" psql -U postgres -d vaph_restore_test -v ON_ERROR_STOP=1 -Atc \
+docker exec "$container_name" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -Atc \
   "select to_regclass('public.lead_intake') is not null;" \
   | grep -qx "t"
 
-docker exec "$container_name" psql -U postgres -d vaph_restore_test -v ON_ERROR_STOP=1 -Atc \
+docker exec "$container_name" psql -U postgres -d postgres -v ON_ERROR_STOP=1 -Atc \
   "select count(*) > 0 from pg_tables where schemaname='public';" \
   | grep -qx "t"
 

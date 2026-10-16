@@ -27,6 +27,7 @@ import {
   type PublicTrainingCourse,
 } from "@/lib/public-training";
 import { trainingCourseDestination, trainingJoinHref } from "@/lib/training-intent";
+import { AUSTRALIA_SPECIALIZATIONS } from "@/lib/training-specializations";
 import { getSessionProfile } from "@/lib/auth";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import "../training-landing.css";
@@ -497,6 +498,28 @@ export default async function TrainingPage() {
                   </div>
                 </div>
                 <strong>{australiaCourseCount} available</strong>
+              </div>
+
+              <div className="tr-australia-paths" aria-label="Australian Virtual Assistant specialisations">
+                <h4>Choose an Australian client-work specialisation</h4>
+                <p>Explore four role-focused learning paths. Complete shared courses once and see that progress across tracks.</p>
+                <div className="tr-australia-path-grid">
+                  {AUSTRALIA_SPECIALIZATIONS.map((track) => (
+                    <article className="tr-australia-path-card" key={track.slug}>
+                      <strong>{track.title}</strong>
+                      <p>{track.bestFor}</p>
+                      <Link
+                        href={signedIn
+                          ? `/workspace/training/paths/${track.slug}`
+                          : trainingJoinHref(track.startSignals[0])}
+                        data-track="training_australia_path_interest"
+                        data-cta-position="australia_learning_path"
+                      >
+                        {signedIn ? "View learning path" : "Create account to start"} <ArrowRight size={14}/>
+                      </Link>
+                    </article>
+                  ))}
+                </div>
               </div>
 
               {australiaCourses.length ? (

@@ -1,0 +1,111 @@
+name: Isolated all-role Playwright smoke
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: isolated-all-roles-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  all-roles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_CLI_VERSION: "2.113.0"
+      E2E_PASSWORD: "E2e-Only!Pass12345"
+      E2E_BASE_URL: "http://127.0.0.1:3000"
+      NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
+      VAPH_ALL_ROLES_SMOKE: "true"
+      VAPH_ALL_ROLES_PRODUCTION_BUILD: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure PostgreSQL client
+        shell: bash
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+          psql --version
+
+      - name: Verify pinned Supabase CLI
+        run: npx -y supabase@${SUPABASE_CLI_VERSION} --version
+
+      - name: Rebuild isolated Supabase database
+        shell: bash
+        run: bash scripts/bootstrap-e2e-local-supabase.sh
+
+      - name: Export local application environment
+        shell: bash
+        run: |
+          set -a
+          source .supabase-e2e.env
+          set +a
+          : "${API_URL:?Supabase API_URL missing}"
+          : "${ANON_KEY:?Supabase ANON_KEY missing}"
+          : "${SERVICE_ROLE_KEY:?Supabase SERVICE_ROLE_KEY missing}"
+          : "${DB_URL:?Supabase DB_URL missing}"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+            echo "LOCAL_SUPABASE_DB_URL=${DB_URL}"
+          } >> "$GITHUB_ENV"
+
+      - name: Verify RLS and server-only DB contracts
+        shell: bash
+        run: psql "$LOCAL_SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f scripts/verify-e2e-db-contracts.sql
+
+      - name: Seed test-only role accounts
+        run: node scripts/seed-e2e-users.mjs
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build isolated production-mode app
+        run: npm run build
+
+      - name: Run all-role smoke against built app (no retries)
+        run: npm run smoke:roles -- --workers=2 --retries=0
+
+      - name: Upload all-role screenshots and per-page results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vaph-focused-all-roles-${{ github.run_id }}
+          path: artifacts/all-roles-smoke/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Playwright failure evidence
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vaph-focused-failures-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Shut down isolated Supabase
+        if: always()
+        run: npx -y supabase@${SUPABASE_CLI_VERSION} stop --no-backup

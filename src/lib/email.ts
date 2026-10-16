@@ -2,6 +2,7 @@ import "server-only";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createCalendarInvite } from "@/lib/booking-operations";
+import { jobReviewLink } from "@/lib/job-review-link";
 
 const SIMPLE_EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 
@@ -763,11 +764,13 @@ export async function sendJobSubmittedForReviewEmail(args: { jobId: string; jobT
   const recipient = normalizeEmailList(process.env.LEAD_NOTIFICATION_EMAIL || process.env.APPLICATION_CC_EMAIL)
     .filter((email) => !isBlockedEmailRecipient(email))[0];
   if (!config || !recipient) return { sent: false as const, reason: !recipient ? "no_recipient_configured" : "email_not_configured" };
+  const reviewPath = jobReviewLink(args.jobId);
+  if (!reviewPath) return { sent: false as const, reason: "invalid_job_id" };
   const delivery = await trackedSend(config, {
     from: config.from,
     to: [recipient],
     subject: `Job ready for review: ${args.jobTitle}`,
-    html: `<h2>A client submitted a job for review</h2><p><strong>Title:</strong> ${escapeHtml(args.jobTitle)}</p>${args.clientName ? `<p><strong>Client:</strong> ${escapeHtml(args.clientName)}</p>` : ""}<p><a href="${args.appUrl}/workspace/admin/jobs/${args.jobId}">Open the job review page</a></p>`
+    html: `<h2>A client submitted a job for review</h2><p><strong>Title:</strong> ${escapeHtml(args.jobTitle)}</p>${args.clientName ? `<p><strong>Client:</strong> ${escapeHtml(args.clientName)}</p>` : ""}<p><a href="${escapeHtml(args.appUrl + reviewPath)}">Open the job review page</a></p>`
   }, "job_submitted", { archive: false, priority: "critical", idempotencyKey: `job-submitted-${args.jobId}` });
   return delivery.sent ? { sent: true as const } : { sent: false as const, reason: delivery.reason };
 }

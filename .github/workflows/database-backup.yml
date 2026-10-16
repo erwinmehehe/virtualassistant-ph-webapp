@@ -11,6 +11,7 @@ on:
       - "scripts/create-encrypted-db-backup.sh"
       - "scripts/verify-encrypted-db-backup.sh"
       - "scripts/restore-test-db-backup.sh"
+      - "scripts/diagnose-backup-db-url.mjs"
 
 permissions:
   contents: read
@@ -33,12 +34,21 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Validate backup shell scripts and tests
+        shell: bash
+        run: |
+          bash -n scripts/create-encrypted-db-backup.sh scripts/verify-encrypted-db-backup.sh scripts/restore-test-db-backup.sh
+          node --test tests/backup-db-url-preflight.test.mjs
+
       - name: Require backup secrets
         shell: bash
         run: |
           test -n "$SUPABASE_DB_URL" || { echo "SUPABASE_DB_URL is not configured."; exit 1; }
           test -n "$BACKUP_ENCRYPTION_PASSPHRASE" || { echo "BACKUP_ENCRYPTION_PASSPHRASE is not configured."; exit 1; }
           test "${#BACKUP_ENCRYPTION_PASSPHRASE}" -ge 32 || { echo "Backup encryption passphrase must be at least 32 characters."; exit 1; }
+
+      - name: Diagnose database login without logging credentials
+        run: node scripts/diagnose-backup-db-url.mjs
 
       - name: Create encrypted production dump
         id: backup
@@ -52,10 +62,6 @@ jobs:
         shell: bash
         run: scripts/verify-encrypted-db-backup.sh "${{ steps.backup.outputs.path }}"
 
-      - name: Restore-test encrypted archive
-        shell: bash
-        run: scripts/restore-test-db-backup.sh "${{ steps.backup.outputs.path }}"
-
       - name: Upload encrypted off-provider artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -65,3 +71,8 @@ jobs:
             ${{ steps.backup.outputs.path }}.sha256
           if-no-files-found: error
           retention-days: 30
+
+      - name: Restore-test encrypted archive
+        shell: bash
+        run: scripts/restore-test-db-backup.sh "${{ steps.backup.outputs.path }}"
+

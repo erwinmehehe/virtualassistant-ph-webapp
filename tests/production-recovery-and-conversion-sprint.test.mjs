@@ -67,8 +67,9 @@ test("recruiter data fetches run in parallel and the funnel names the proposal g
     source("src/app/workspace/recruiter/today/page.tsx"),
     source("src/components/agency-funnel-dashboard.tsx"),
   ]);
-  assert.match(today, /const \[\{ data: summaryData, error: summaryError \}, roleSummary\] = await Promise\.all/);
+  assert.match(today, /const \[\{ data: summaryData, error: summaryError \}, roleSummary, teamJobRequests\] = await Promise\.all/);
   assert.match(today, /getRecruiterRolesSummary\(userId\)/);
+  assert.match(today, /getRecruiterTeamPendingJobRequests\(\)/);
   assert.match(funnel, /journey\.qualified > 0 && proposal\.sent === 0/);
   assert.match(funnel, /no recorded proposal sends/);
   assert.match(funnel, /Open client leads and proposal follow-ups/);

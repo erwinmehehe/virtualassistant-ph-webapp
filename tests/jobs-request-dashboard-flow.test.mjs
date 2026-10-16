@@ -42,7 +42,8 @@ test("request owner labels distinguish own, team and unassigned roles", () => {
 
 test("Recruiter Today shows pending requests before general pipeline work", async () => {
   const page = await read("src/app/workspace/recruiter/today/page.tsx");
-  assert.match(page, /pendingJobRequests\(roleSummary\.data\.jobs\)/);
+  assert.match(page, /getRecruiterTeamPendingJobRequests\(\)/);
+  assert.match(page, /pendingRequests = teamJobRequests\.jobs/);
   assert.match(page, /Job requests awaiting review/);
   assert.ok(page.indexOf("Job requests awaiting review") < page.indexOf("Hiring at a glance"));
   assert.match(page, /\/workspace\/recruiter\/roles\?view=requests&sort=oldest/);
@@ -53,8 +54,10 @@ test("Recruiter Today shows pending requests before general pipeline work", asyn
 test("Roles has a count, saved view and detail route for pending requests", async () => {
   const page = await read("src/app/workspace/recruiter/roles/page.tsx");
   assert.match(page, /\["requests", "Job requests"\]/);
-  assert.match(page, /const requests=pendingJobRequests\(open\)/);
-  assert.match(page, /requestedView==="requests"\?\[\.\.\.requests\]/);
+  assert.match(page, /const requests=teamJobRequests\.jobs/);
+  assert.match(page, /getRecruiterTeamPendingJobRequests\(\)/);
+  assert.match(page, /requestedView==="requests"\?\[\]/);
+  assert.match(page, /teamRequestRows\.map/);
   assert.match(page, /Job request · Pending/);
   assert.match(page, /view=requests&sort=oldest/);
   assert.match(page, /\/workspace\/recruiter\/roles\/\$\{job\.id\}/);

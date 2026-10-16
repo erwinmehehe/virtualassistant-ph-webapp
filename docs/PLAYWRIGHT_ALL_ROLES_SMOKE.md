@@ -60,3 +60,10 @@ The separate `.github/workflows/all-roles-smoke.yml` also runs on pull requests.
 
 
 The training login button reads **Log in to training**, unlike the regular **Log in** button. The shared sign-in helper accepts both variants. This is a confirmed fix for the learner login timeout found in the first screenshot/report artifact.
+
+
+## Production-build CI hardening
+
+The isolated all-role job builds a **production-mode Next.js server** after local Supabase setup, then runs the seven personas across desktop and mobile with `--retries=0`. Its Playwright web server selects `next start` only when `VAPH_ALL_ROLES_PRODUCTION_BUILD=true`; other test jobs still use their existing development server.
+
+The October 16 exploratory run (38838272445) completed successfully but recorded six hydration-warning retries under Next.js dev mode. That result is evidence of coverage, **not a clean first-attempt sign-off**. The hardened run must pass all scenarios with zero retries and retain its local-only evidence before this PR can merge. Never silence React hydration errors merely to make the check pass.

@@ -70,7 +70,12 @@ test("role smoke runs only in its dedicated CI job, not the broad browser suite"
   ]);
   assert.match(suite, /test\.skip\(process\.env\.VAPH_ALL_ROLES_SMOKE !== "true"/);
   assert.match(workflow, /VAPH_ALL_ROLES_SMOKE: "true"/);
-  assert.match(workflow, /npm run smoke:roles -- --workers=2/);
+  const playwrightConfig = await read("playwright.config.ts");
+  assert.match(workflow, /VAPH_ALL_ROLES_PRODUCTION_BUILD: "true"/);
+  assert.match(workflow, /Build isolated production-mode app[\s\S]*?run: npm run build/);
+  assert.match(playwrightConfig, /VAPH_ALL_ROLES_PRODUCTION_BUILD/);
+  assert.match(playwrightConfig, /npm run start -- --hostname 127\.0\.0\.1 --port 3000/);
+  assert.match(workflow, /npm run smoke:roles -- --workers=2 --retries=0/);
   assert.match(suite, /home: "\/workspace\/recruiter\/today",[\s\S]*?navigation: \{ from: "\/workspace\/client-success"/);
   assert.match(suite, /navigation: \{ from: "\/workspace\/training", href: "\/workspace\/va", destination: "\/workspace\/va" \}/);
   assert.match(suite, /waitUntil: "domcontentloaded"/);

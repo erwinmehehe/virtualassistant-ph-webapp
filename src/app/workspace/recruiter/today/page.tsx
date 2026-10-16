@@ -10,7 +10,8 @@ import { sendClientShortlistFollowupAction } from "@/app/actions/client-shortlis
 import { prepareTopMatchesForReviewAction } from "@/app/actions/matching";
 import { getRecruiterRolesSummary } from "@/lib/recruiter-roles-summary";
 import { recruiterTodayFocus } from "@/lib/recruiter-today-focus";
-import { pendingJobRequests, jobRequestOwnerLabel, jobRequestAccountLabel } from "@/lib/recruiter-job-requests";
+import { jobRequestOwnerLabel, jobRequestAccountLabel } from "@/lib/recruiter-job-requests";
+import { getRecruiterTeamPendingJobRequests } from "@/lib/recruiter-team-job-requests";
 import { canonicalRecruiterHref } from "@/lib/recruiter-routes";
 import { formatDateTimeInTimeZone, isValidTimeZone } from "@/lib/timezone";
 import styles from "./today.module.css";
@@ -321,9 +322,10 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const params = await searchParams;
   const { userId } = await requireRoleFast("recruiter");
   // These independent queries previously ran serially and delayed the Today screen.
-  const [{ data: summaryData, error: summaryError }, roleSummary] = await Promise.all([
+  const [{ data: summaryData, error: summaryError }, roleSummary, teamJobRequests] = await Promise.all([
     withServerTiming("recruiter.today_summary", () => createAdminClient().rpc("recruiter_today_summary", { p_user_id:userId })),
     getRecruiterRolesSummary(userId),
+    getRecruiterTeamPendingJobRequests(),
   ]);
   if (summaryError) throw summaryError;
   if (roleSummary.error) throw roleSummary.error;
@@ -335,7 +337,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const dueClientActions = activeLeadActions.filter((item) => ["urgent", "high"].includes(item.priority) && item.action_key !== "first_contact");
   const placementHandoffs = (Array.isArray(summary.placement_handoffs) ? summary.placement_handoffs : []) as PlacementHandoffRow[];
   const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
-  const pendingRequests = pendingJobRequests(roleSummary.data.jobs);
+  const pendingRequests = teamJobRequests.jobs;
+  const recentPendingRequests = pendingRequests.slice(-5).reverse();
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
   const readyToSendRoles = shortlistConversionRoles.filter((job) => {
@@ -535,14 +538,14 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       <div className="recruiter-focus-section-top">
         <div>
           <h2 id="recruiter-job-requests-heading">Job requests awaiting review</h2>
-          <p>Employer requests stay private until the publication checks are complete. Review the brief and next client step first.</p>
+          <p>Recent submissions appear first. Requests stay private until staff publication checks are complete.</p>
         </div>
-        <Link prefetch={false} href="/workspace/recruiter/roles?view=requests&sort=oldest">
-          View all requests ({pendingRequests.length}) <ArrowRight size={14} aria-hidden="true"/>
+        <Link prefetch={false} href="/workspace/recruiter/roles?view=requests&sort=newest">
+          View all requests ({pendingRequests.length}{teamJobRequests.truncated ? "+" : ""}) <ArrowRight size={14} aria-hidden="true"/>
         </Link>
       </div>
       {pendingRequests.length ? <div className="recruiter-focus-rows">
-        {pendingRequests.slice(0,5).map((request) => (
+        {recentPendingRequests.map((request) => (
           <article key={request.id} className="recruiter-focus-row">
             <div>
               <strong>{request.title || "Virtual Assistant request"}</strong>
@@ -554,7 +557,8 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
             </Link>
           </article>
         ))}
-        {pendingRequests.length > 5 ? <Link className="text-link" href="/workspace/recruiter/roles?view=requests&sort=oldest">
+        {teamJobRequests.truncated ? <p className="small muted">Showing the most recent 250 submitted requests. Older requests may require staff follow-up.</p> : null}
+        {pendingRequests.length > 5 ? <Link className="text-link" href="/workspace/recruiter/roles?view=requests&sort=newest">
           See {pendingRequests.length - 5} more pending requests
         </Link> : null}
       </div> : <div className="dashboard-caught-up">

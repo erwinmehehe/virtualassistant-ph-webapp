@@ -55,10 +55,14 @@ test("a private submitted job request is visible to recruiters but never public"
     await expect(requests.locator(`a[href="/workspace/recruiter/roles/${request.id}#overview"]`)).toBeVisible();
 
     await page.goto("/workspace/recruiter/roles?view=requests&sort=oldest");
-    await expect(page.locator(`a[href="/workspace/recruiter/roles/${request.id}"]`)).toBeVisible();
-    await expect(page.getByText(title)).toBeVisible();
+    const requestLink = page.locator(`a[href="/workspace/recruiter/roles/${request.id}#overview"]`);
+    await expect(requestLink).toBeVisible();
+    await expect(requestLink.getByText(title)).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(2);
+    await requestLink.click();
+    await expect(page).toHaveURL(new RegExp(`/workspace/recruiter/roles/${request.id}#overview$`));
+    await expect(page.getByRole("heading", { name: title })).toBeVisible();
   } finally {
     const { error: cleanupError } = await admin.from("jobs").delete().eq("id", request.id);
     if (cleanupError) throw cleanupError;

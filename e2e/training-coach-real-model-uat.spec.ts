@@ -58,6 +58,13 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
     const { data: course, error: courseError } = await admin.from("training_courses")
       .select("id").eq("slug", SLUG).eq("status", "published").single();
     if (courseError || !course) throw courseError || new Error("Published Foundations course missing");
+    // Provision only the disposable local learner's prerequisite enrollment.
+    // The #904 browser suite independently tests the real Start action.
+    const { error: enrollmentError } = await admin.from("training_enrollments").upsert({
+      user_id: learnerId,
+      course_id: course.id,
+    }, { onConflict: "user_id,course_id" });
+    if (enrollmentError) throw enrollmentError;
     const { data: modules, error: moduleError } = await admin.from("training_modules")
       .select("id").eq("course_id", course.id).order("position");
     if (moduleError || !modules?.length) throw moduleError || new Error("Missing Foundations modules");

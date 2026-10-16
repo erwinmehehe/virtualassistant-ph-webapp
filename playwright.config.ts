@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const roleSmokeProductionBuild = process.env.VAPH_ALL_ROLES_PRODUCTION_BUILD === "true";
+
 export default defineConfig({
   testDir: "./e2e",
   timeout: 45_000,
@@ -17,7 +19,9 @@ export default defineConfig({
     video: "retain-on-failure",
   },
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1 --port 3000",
+    command: roleSmokeProductionBuild
+      ? "npm run start -- --hostname 127.0.0.1 --port 3000"
+      : "npm run dev -- --hostname 127.0.0.1 --port 3000",
     url: "http://127.0.0.1:3000/auth/login",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

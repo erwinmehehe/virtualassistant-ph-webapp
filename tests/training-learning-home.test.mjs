@@ -194,8 +194,8 @@ test("training home makes the last lesson and ready final check explicit", async
   assert.match(page, /Your final check is ready now/);
   assert.match(page, /Finish last lesson/);
   assert.match(page, /Start final check/);
-  assert.match(page, /course\.nextAssessment \? "training_assessment_open" : "training_course_continue"/);
-  assert.match(page, /resumeCourse\.nextAssessment \? "training_assessment_open" : "training_resume_next"/);
+  assert.match(page, /!course\.nextLesson && course\.nextAssessment \? "training_assessment_open" : "training_course_continue"/);
+  assert.match(page, /!resumeCourse\.nextLesson && resumeCourse\.nextAssessment \? "training_assessment_open" : "training_resume_next"/);
 });
 
 
@@ -224,4 +224,33 @@ test("specialisation cards link to dedicated path pages", async () => {
 
   assert.match(page, /\/workspace\/training\/paths\/\$\{specialization\.slug\}/);
   assert.match(page, /View path/);
+});
+
+test("enrolled learners with no completed lessons see a start action, not continue", async () => {
+  const page = await readFile(new URL("../src/app/workspace/training/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /course\.nextLesson && course\.completedLessons === 0\) return "Start first lesson"/);
+  assert.match(page, /resumeCourse\.completedLessons === 0 \?/);
+  assert.match(page, /Start with <strong>\{resumeCourse\.nextLesson\.title\}/);
+  assert.match(page, /href=\{nextCourseHref\(resumeCourse\)\}/);
+  const first = page.indexOf('return "Start first lesson"');
+  const last = page.indexOf('return "Finish last lesson"');
+  assert.ok(first > 0 && first < last, "one-lesson courses also start with Start first lesson");
+});
+
+test("new enrolments open the first published lesson without a second overview click", async () => {
+  const action = await readFile(new URL("../src/app/actions/training.ts", import.meta.url), "utf8");
+  const start = action.slice(action.indexOf("export async function startTrainingCourseAction"),
+    action.indexOf("export async function selectAustraliaSpecializationAction"));
+  assert.match(start, /eq\("status", "published"\)/);
+  assert.match(start, /if \(error && error\.code !== "23505"\)/);
+  assert.match(start, /const courseOverview =/);
+  assert.match(start, /if \(!error\) \{/);
+  assert.match(start, /\.from\("training_modules"\)/);
+  assert.match(start, /\.from\("training_lessons"\)/);
+  assert.match(start, /\.eq\("is_published", true\)/);
+  assert.match(start, /moduleOrder\.get\(a\.module_id\)/);
+  assert.match(start, /destination = .+lessons\/\$\{firstLesson\.id\}/);
+  assert.match(start, /path: destination/);
+  assert.match(start, /redirect\(destination\)/);
+  assert.doesNotMatch(start, /update\(\{ completed_at/);
 });

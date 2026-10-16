@@ -4,13 +4,13 @@ Project: VirtualAssistant.com.ph. This runbook describes the checks that require
 
 ## Backups: required operator configuration
 
-The database is on Supabase Free. The repository already has a daily encrypted backup workflow with an isolated PostgreSQL restore test. It cannot run until **both** GitHub Actions secrets are configured.
+The database is on Supabase Free. Both required GitHub Actions secrets have been configured and database authentication was verified. The automated recovery gate still requires a successful encrypted full-archive backup and isolated PostgreSQL restore test on the default branch; GitHub's secret values cannot be read back.
 
 1. In [Supabase](https://supabase.com/dashboard/project/ywkgcyilxhezrfxuwius), open **Connect** and obtain a production PostgreSQL connection string suitable for external backup. For GitHub-hosted runners use a supported **session-pooler** connection when direct IPv6 access is unavailable; require TLS.
 2. In GitHub, open [Actions secrets and variables](https://github.com/erwinmehehe/virtualassistant-ph-webapp/settings/secrets/actions) and set **SUPABASE_DB_URL** to the complete connection string.
 3. Generate a unique random **BACKUP_ENCRYPTION_PASSPHRASE** of at least 32 characters using a password manager. Add it as a second GitHub Actions secret; keep an independent recoverable copy outside the GitHub repository.
 4. Manually trigger [Encrypted production database backup](https://github.com/erwinmehehe/virtualassistant-ph-webapp/actions/workflows/database-backup.yml) on main.
-5. Confirm **Create encrypted production dump**, **Verify encrypted archive**, **Restore-test encrypted archive** and **Upload encrypted off-provider artifact** all pass. Check that the resulting artifact has only an encrypted dump and checksum, retained for 30 days.
+5. Confirm **Validate backup shell scripts and tests**, **Create encrypted production dump**, **Verify encrypted archive**, **Upload encrypted off-provider artifact**, and **Restore-test encrypted archive** all pass. The artifact must contain only the encrypted PostgreSQL custom-format archive (.dump.enc) and its portable checksum, retained for 30 days. A green upload with a failed restore is **not** a completed recovery rehearsal.
 6. Download the encrypted artifact and its checksum for an operator-managed recovery rehearsal as described in [PRODUCTION_DATABASE_BACKUP.md](PRODUCTION_DATABASE_BACKUP.md).
 
 The **Production backup health alert** workflow automatically tracks the newest completed run. On failure or no successful run within 36 hours, it opens/updates a GitHub issue. After a recent backup and isolated restore succeed, it closes the issue. The monitor never needs database credentials and must not be confused with an actual backup.

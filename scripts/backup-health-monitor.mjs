@@ -3,9 +3,9 @@ import { pathToFileURL } from "node:url";
 export const BACKUP_ISSUE_TITLE = "Production database backup needs attention";
 export const BACKUP_ISSUE_MARKER = "<!-- vaph-backup-health-monitor -->";
 
-export function evaluateBackupHealth(runs, nowMs = Date.now()) {
+export function evaluateBackupHealth(runs, nowMs = Date.now(), defaultBranch = "main") {
   const completed = (Array.isArray(runs) ? runs : [])
-    .filter((run) => run && run.status === "completed")
+    .filter((run) => run && run.status === "completed" && run.head_branch === defaultBranch)
     .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
   const latest = completed[0] || null;
   if (!latest) return { healthy: false, reason: "No completed production backup run was found.", run: null };
@@ -75,8 +75,11 @@ async function runMonitor() {
     return response.json();
   }
 
-  const runsResponse = await api("/repos/" + repository + "/actions/workflows/database-backup.yml/runs?per_page=20");
-  const health = evaluateBackupHealth(runsResponse.workflow_runs || []);
+  // A successful feature-branch rehearsal is not a production recovery point.
+  // GitHub sets GITHUB_REF_NAME to the default branch for this workflow_run monitor.
+  const defaultBranch = process.env.GITHUB_REF_NAME || "main";
+  const runsResponse = await api("/repos/" + repository + "/actions/workflows/database-backup.yml/runs?branch=" + encodeURIComponent(defaultBranch) + "&per_page=20");
+  const health = evaluateBackupHealth(runsResponse.workflow_runs || [], Date.now(), defaultBranch);
   const query = 'repo:' + repository + ' is:issue in:title "' + BACKUP_ISSUE_TITLE + '"';
   const search = await api("/search/issues?q=" + encodeURIComponent(query) + "&per_page=30");
   const candidates = (search.items || []).filter((item) => item.title === BACKUP_ISSUE_TITLE && !item.pull_request);

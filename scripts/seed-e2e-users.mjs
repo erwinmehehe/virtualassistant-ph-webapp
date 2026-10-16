@@ -5,10 +5,16 @@ const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const password = process.env.E2E_PASSWORD || "E2e-Only!Pass12345";
 
 if (!url || !serviceKey) throw new Error("Local Supabase URL and service-role key are required.");
+const databaseUrl = new URL(url);
+if (databaseUrl.protocol !== "http:" || !["localhost", "127.0.0.1", "[::1]"].includes(databaseUrl.hostname)) {
+  throw new Error("E2E account provisioning is restricted to an isolated loopback Supabase database.");
+}
+
 
 const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 const accounts = [
   { email: "recruiter.e2e@example.test", role: "recruiter", fullName: "E2E Recruiter" },
+  { email: "admin.e2e@example.test", role: "admin", fullName: "E2E Admin" },
   { email: "client.e2e@example.test", role: "client", fullName: "E2E Client" },
   { email: "va.e2e@example.test", role: "va", fullName: "E2E VA" },
 ];

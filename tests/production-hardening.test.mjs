@@ -31,8 +31,11 @@ test("production backup is daily, encrypted, retained off-provider, and restore-
   assert.match(create,/aes-256-cbc/);
   assert.match(create,/pbkdf2/);
   assert.match(verify,/pg_restore --list/);
-  assert.match(restore,/supabase\/postgres:17\.6\.1\.155/);
-  assert.match(restore,/pg_restore/);
-  assert.match(restore,/--exit-on-error/);
+  assert.match(verify,/sha256sum --check/);
+  assert.match(restore,/pg_restore --host=127\.0\.0\.1/);
+  assert.match(restore,/--clean --if-exists/);
+  assert.match(restore,/--single-transaction --exit-on-error/);
+  assert.match(restore,/nspname !~ '\^pg_'/);
+  assert.match(restore,/public\.lead_intake/);
   assert.match(restore,/public\.lead_intake/);
 });

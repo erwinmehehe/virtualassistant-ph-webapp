@@ -118,7 +118,10 @@ const nextConfig: NextConfig = {
         source: "/auth/:path*",
         headers: [
           { key: "Cache-Control", value: "private, no-store, max-age=0" },
-          { key: "Referrer-Policy", value: "no-referrer" }
+          // Native login forms send Origin: null under no-referrer. Next 15's
+          // Server Action handler rejects that value with a 500 before login.
+          // same-origin still suppresses referrers on third-party requests.
+          { key: "Referrer-Policy", value: "same-origin" }
         ]
       }
     ];

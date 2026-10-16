@@ -149,13 +149,13 @@ test("Turnstile fails closed on partial configuration and binds tokens to sensit
   assert.match(forgot, /TurnstileWidget action="password_reset"/);
 });
 
-test("auth routes are no-store and deployment preflight checks independent security secrets", async () => {
+test("auth routes are no-store, keep same-site form origin, and require independent security secrets", async () => {
   const [nextConfig, runtimeConfig] = await Promise.all([
     read("next.config.ts"),
     read("scripts/check-runtime-config.mjs"),
   ]);
 
-  assert.match(nextConfig, /source: "\/auth\/:path\*"[\s\S]*Cache-Control"[\s\S]*private, no-store, max-age=0[\s\S]*Referrer-Policy"[\s\S]*no-referrer/);
+  assert.match(nextConfig, /source: "\/auth\/:path\*"[\s\S]*Cache-Control"[\s\S]*private, no-store, max-age=0[\s\S]*Referrer-Policy"[\s\S]*same-origin/);
   assert.match(runtimeConfig, /name: "CRON_SECRET"/);
   assert.match(runtimeConfig, /name: "CAPABILITY_SIGNING_SECRET"/);
   assert.match(runtimeConfig, /name: "TURNSTILE"/);

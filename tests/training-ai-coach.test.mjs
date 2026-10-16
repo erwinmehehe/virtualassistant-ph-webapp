@@ -53,7 +53,8 @@ test("Learner coach has explain, roleplay and review choices with an explicit pr
   assert.match(ui, /"explain"/);
   assert.match(ui, /"practice"/);
   assert.match(ui, /"review"/);
-  assert.match(ui, /Chat stays in this browser session/);
+  assert.match(ui, /Your messages are sent to an AI provider/);
+  assert.match(ui, /VAPH does not save this chat to your training account/);
   assert.match(ui, /Never share passwords or real client details/);
   assert.match(ui, /role="log"/);
   assert.match(css, /@media \(max-width: 600px\)/);

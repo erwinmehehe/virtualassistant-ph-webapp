@@ -188,7 +188,7 @@ export function TrainingCoach({
             </div>
           </form>
           <p className="training-ai-coach-privacy">
-            Chat stays in this browser session and is not saved to your VAPH account. Never share passwords or real client details. Coach advice does not affect your grades or certificates.
+            Your messages are sent to an AI provider to generate replies. VAPH does not save this chat to your training account. Never share passwords or real client details. Coach advice does not affect your grades or certificates.
           </p>
         </div>
       )}

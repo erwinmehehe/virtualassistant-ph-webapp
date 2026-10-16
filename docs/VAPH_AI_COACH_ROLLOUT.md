@@ -12,6 +12,7 @@
 - Only a signed-in, course-enrolled learner can access the API.
 - Lesson context and learner progress come from VAPH's existing training system, never from client-provided lesson text.
 - The client holds the conversation in React memory; chats disappear on navigation/reload and are not saved to training tables.
+- Learner messages are transmitted to Vercel AI Gateway and its model provider to produce replies; browser-only chat history does not imply provider-side non-retention. Verify provider data handling before inviting real learners, and never submit client credentials or identifiable client data.
 - No new tables, migrations, or RLS changes are required for Phase 1.
 - The existing Supabase consume_action_rate_limit RPC enforces 20 requests per learner per 24-hour window.
 - AI Coach cannot write grades, certificates, enrollment, progress, or official assessment submissions.

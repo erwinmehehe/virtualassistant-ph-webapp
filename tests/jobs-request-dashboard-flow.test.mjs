@@ -44,9 +44,11 @@ test("Recruiter Today shows pending requests before general pipeline work", asyn
   const page = await read("src/app/workspace/recruiter/today/page.tsx");
   assert.match(page, /getRecruiterTeamPendingJobRequests\(\)/);
   assert.match(page, /pendingRequests = teamJobRequests\.jobs/);
+  assert.match(page, /recentPendingRequests = pendingRequests\.slice\(-5\)\.reverse\(\)/);
+  assert.match(page, /recentPendingRequests\.map/);
   assert.match(page, /Job requests awaiting review/);
   assert.ok(page.indexOf("Job requests awaiting review") < page.indexOf("Hiring at a glance"));
-  assert.match(page, /\/workspace\/recruiter\/roles\?view=requests&sort=oldest/);
+  assert.match(page, /\/workspace\/recruiter\/roles\?view=requests&sort=newest/);
   assert.match(page, /\/workspace\/recruiter\/roles\/\$\{request\.id\}#overview/);
   assert.match(page, /No submitted job requests are waiting/);
 });

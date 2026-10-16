@@ -338,6 +338,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
   const placementHandoffs = (Array.isArray(summary.placement_handoffs) ? summary.placement_handoffs : []) as PlacementHandoffRow[];
   const upcomingDiscoveryCalls = (Array.isArray(summary.upcoming_discovery_calls) ? summary.upcoming_discovery_calls : []) as UpcomingDiscoveryRow[];
   const pendingRequests = teamJobRequests.jobs;
+  const recentPendingRequests = pendingRequests.slice(-5).reverse();
   const activeRoleSummaries = roleSummary.data.jobs.filter((job) => !["filled", "closed"].includes(job.hiring_stage));
   const shortlistConversionRoles = activeRoleSummaries.filter((job) => job.proposed_count > 0 && job.released_count === 0);
   const readyToSendRoles = shortlistConversionRoles.filter((job) => {
@@ -537,14 +538,14 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
       <div className="recruiter-focus-section-top">
         <div>
           <h2 id="recruiter-job-requests-heading">Job requests awaiting review</h2>
-          <p>Employer requests stay private until the publication checks are complete. Review the brief and next client step first.</p>
+          <p>Recent submissions appear first. Requests stay private until staff publication checks are complete.</p>
         </div>
-        <Link prefetch={false} href="/workspace/recruiter/roles?view=requests&sort=oldest">
+        <Link prefetch={false} href="/workspace/recruiter/roles?view=requests&sort=newest">
           View all requests ({pendingRequests.length}{teamJobRequests.truncated ? "+" : ""}) <ArrowRight size={14} aria-hidden="true"/>
         </Link>
       </div>
       {pendingRequests.length ? <div className="recruiter-focus-rows">
-        {pendingRequests.slice(0,5).map((request) => (
+        {recentPendingRequests.map((request) => (
           <article key={request.id} className="recruiter-focus-row">
             <div>
               <strong>{request.title || "Virtual Assistant request"}</strong>
@@ -557,7 +558,7 @@ export default async function RecruiterTodayPage({searchParams}:{searchParams:Pr
           </article>
         ))}
         {teamJobRequests.truncated ? <p className="small muted">Showing the most recent 250 submitted requests. Older requests may require staff follow-up.</p> : null}
-        {pendingRequests.length > 5 ? <Link className="text-link" href="/workspace/recruiter/roles?view=requests&sort=oldest">
+        {pendingRequests.length > 5 ? <Link className="text-link" href="/workspace/recruiter/roles?view=requests&sort=newest">
           See {pendingRequests.length - 5} more pending requests
         </Link> : null}
       </div> : <div className="dashboard-caught-up">

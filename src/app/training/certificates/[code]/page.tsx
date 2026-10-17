@@ -125,7 +125,7 @@ export default async function TrainingCredentialVerificationPage({
                 <div className="credential-note">
                   <strong>What this certificate means</strong>
                   <p>
-                    The credential confirms completion of the named training course. It does not verify employment,
+                    The credential confirms completion of the named training course. The recipient name is learner-confirmed or support-corrected, not independently government-ID-verified. It does not verify employment,
                     client experience, recruiter approval, or suitability for a specific role.
                   </p>
                 </div>

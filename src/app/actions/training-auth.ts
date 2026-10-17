@@ -20,6 +20,7 @@ const COMMON_PASSWORD_PARTS = ["password", "qwerty", "letmein", "welcome", "admi
 
 const trainingJoinSchema = z.object({
   full_name: z.string().trim().min(2).max(100),
+  certificate_name_confirmed: z.literal("yes"),
   email: z.string().trim().toLowerCase().email(),
   password: z.string()
     .min(12)
@@ -85,6 +86,7 @@ export async function joinTrainingAction(
 
   const parsed = trainingJoinSchema.safeParse({
     full_name: formData.get("full_name"),
+    certificate_name_confirmed: formData.get("certificate_name_confirmed"),
     email: rawEmail,
     password: formData.get("password"),
   });
@@ -99,7 +101,9 @@ export async function joinTrainingAction(
     }
     return joinError(
       previousState,
-      fieldErrors.password || fieldErrors.email || fieldErrors.full_name || "Check the highlighted fields.",
+      fields.has("certificate_name_confirmed")
+        ? "Confirm that the entered name is correct for public certificates."
+        : fieldErrors.password || fieldErrors.email || fieldErrors.full_name || "Check the highlighted fields.",
       "validation",
       fieldErrors,
     );
@@ -162,6 +166,9 @@ export async function joinTrainingAction(
     options: {
       data: {
         full_name: parsed.data.full_name,
+        // Suggested name only. Real public-identity confirmation happens
+        // after verified login and is saved to server-owned app_metadata.
+        certificate_name: parsed.data.full_name,
         account_type: "training",
         ...(courseSlug ? { intended_training_course: courseSlug } : {}),
       },

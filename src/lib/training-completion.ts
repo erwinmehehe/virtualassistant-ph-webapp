@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { confirmedTrainingCertificateName } from "@/lib/training-certificate-identity";
 
 function completionCredentialCode() {
   return `VAT-${crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
@@ -112,35 +113,34 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
     // Freeze the learner's name in the issued credential. Later account name
     // edits must not silently change previously verified certificates.
     const { data: learner } = await admin.auth.admin.getUserById(userId);
-    const recipientName = [
-      learner?.user?.user_metadata?.full_name,
-      learner?.user?.user_metadata?.name,
-    ]
-      .map((value) => typeof value === "string" ? value.trim().replace(/\s+/g, " ") : "")
-      .find((value) => value.length >= 2 && value.length <= 100) || null;
+    const recipientName = learner?.user?.email_confirmed_at
+      ? confirmedTrainingCertificateName(learner.user.app_metadata)
+      : null;
 
-    const credentialCode = completionCredentialCode();
-    const { data: insertedCertificate, error } = await admin
-      .from("training_certificates")
-      .insert({
-        credential_code: credentialCode,
-        user_id: userId,
-        course_id: courseId,
-        issued_at: completedAt,
-        metadata: {
-          credential_type: "certificate_of_completion",
-          public_profile_visible: false,
-          ...(recipientName ? { recipient_name: recipientName } : {}),
-        },
-      })
-      .select("id,credential_code")
-      .maybeSingle();
+    if (recipientName) {
+      const credentialCode = completionCredentialCode();
+      const { data: insertedCertificate, error } = await admin
+        .from("training_certificates")
+        .insert({
+          credential_code: credentialCode,
+          user_id: userId,
+          course_id: courseId,
+          issued_at: completedAt,
+          metadata: {
+            credential_type: "certificate_of_completion",
+            public_profile_visible: false,
+            recipient_name: recipientName,
+          },
+        })
+        .select("id,credential_code")
+        .maybeSingle();
 
-    if (error && error.code !== "23505") {
-      throw new Error("Course completion was saved, but the certificate could not be issued.");
+      if (error && error.code !== "23505") {
+        throw new Error("Course completion was saved, but the certificate could not be issued.");
+      }
+      certificateIssued = !error;
+      certificate = insertedCertificate || null;
     }
-    certificateIssued = !error;
-    certificate = insertedCertificate || null;
   }
 
   if (newlyCompleted) {

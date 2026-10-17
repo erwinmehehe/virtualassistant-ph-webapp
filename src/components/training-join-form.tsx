@@ -138,7 +138,7 @@ export function TrainingJoinForm({
         {course ? <input type="hidden" name="course_slug" value={course.slug}/> : null}
 
         <div className="field">
-          <label htmlFor="training-full-name">Full name</label>
+          <label htmlFor="training-full-name">Full name (as it should appear on certificates)</label>
           <input
             id="training-full-name"
             name="full_name"
@@ -154,6 +154,11 @@ export function TrainingJoinForm({
           {state.fieldErrors.full_name ? (
             <span className="field-error" id="training-full-name-error">{state.fieldErrors.full_name}</span>
           ) : null}
+          <small className="muted">Use the name you want printed on certificates, not your email nickname. You will confirm it again after email verification, before any certificate is issued.</small>
+          <label className="row" style={{ alignItems: "flex-start", gap: 10 }}>
+            <input type="checkbox" name="certificate_name_confirmed" value="yes" required />
+            <span>This is my proposed certificate name. After verifying my email, I will confirm it in Training account settings before it appears on a public certificate.</span>
+          </label>
         </div>
 
         <div className="field">

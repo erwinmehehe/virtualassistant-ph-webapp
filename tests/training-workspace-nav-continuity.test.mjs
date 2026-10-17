@@ -24,7 +24,7 @@ test("training navigation exposes learning, course browsing, certificates, accou
   assert.match(shell, /href="\/workspace\/training" aria-current="page"/);
   assert.match(shell, /\/workspace\/training\?browse=1#course-library-title/);
   assert.match(shell, /\/workspace\/training#certificates/);
-  assert.match(shell, /const accountHref = role \? "\/workspace\/account" : "\/workspace\/training\/account"/);
+  assert.match(shell, /const accountHref = "\/workspace\/training\/account"/);
   assert.match(shell, /href=\{accountHref\}/);
   assert.match(shell, /roleWorkspaceLabel/);
   assert.match(shell, /VA workspace/);
@@ -73,7 +73,7 @@ test("certificate navigation always lands on a real learner-dashboard section", 
 
   assert.match(dashboard, /<section id="certificates"/);
   assert.match(dashboard, /No certificates yet\./);
-  assert.match(dashboard, /Your verified certificate will appear here automatically/);
+  assert.match(dashboard, /If you have already passed, your completion is saved and a certificate can be issued without retaking the course/);
 });
 
 

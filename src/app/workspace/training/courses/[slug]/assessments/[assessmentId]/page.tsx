@@ -227,7 +227,7 @@ export default async function TrainingAssessmentPage({
             <span>{credentialHref ? <CheckCircle2 size={14}/> : <Award size={14}/>}</span>
             <div>
               <strong>Certificate</strong>
-              <small>{credentialHref ? "Issued" : "After passing"}</small>
+              <small>{credentialHref ? "Issued" : passed ? "Confirm name" : "After passing"}</small>
             </div>
           </div>
         </div>
@@ -239,8 +239,8 @@ export default async function TrainingAssessmentPage({
             <div className="dash-kicker">Final check</div>
             <h1>{assessment.title}</h1>
             <p>
-              Answer {questions.length || 8} questions based on the course. Pass once and your
-              certificate is issued automatically.
+              Answer {questions.length || 8} questions based on the course. After you pass and confirm
+              your certificate recipient name, a verified credential can be issued.
             </p>
             <div className="training-assessment-meta">
               <span><FileCheck2 size={14}/> {questions.length || 8} questions</span>
@@ -256,7 +256,7 @@ export default async function TrainingAssessmentPage({
           <aside className="training-assessment-attempt-card">
             <span className="training-assessment-attempt-label">Attempt status</span>
             <strong>{passed ? "Complete" : retryLocked ? "Locked for review" : `Attempt ${attemptNumber}`}</strong>
-            <small>{passed ? "Your certificate is ready." : retryLocked && retryAt ? `Next attempt after ${retryAt}` : "You can make up to 3 attempts in a rolling 24-hour period."}</small>
+            <small>{passed ? credentialHref ? "Your certificate is ready." : "Your completion is saved. Confirm your certificate name." : retryLocked && retryAt ? `Next attempt after ${retryAt}` : "You can make up to 3 attempts in a rolling 24-hour period."}</small>
           </aside>
         </div>
         <p className="training-assessment-attempt-note">
@@ -283,7 +283,7 @@ export default async function TrainingAssessmentPage({
           <span><Award size={17}/></span>
           <div>
             <strong>Certificate after passing</strong>
-            <p>Passing completes the course and issues your certificate automatically.</p>
+            <p>Passing completes the course. Your certificate is issued after you confirm the recipient name.</p>
           </div>
         </div>
         <p className="training-assessment-guide-note">The answer key is not shown after a failed attempt.</p>
@@ -432,7 +432,7 @@ export default async function TrainingAssessmentPage({
             <div className="training-completion-copy">
               <div className="dash-kicker">Course complete</div>
               <h2>{course.title}</h2>
-              <p>You passed the final check. Your course is complete and your certificate is ready.</p>
+              <p>{credentialHref ? "You passed the final check. Your course is complete and your certificate is ready." : "You passed the final check and your completion is saved. Confirm the recipient name to issue your certificate."}</p>
 
               {course.certificate ? (
                 <div className="training-completion-credential training-completion-credential-v2">
@@ -451,7 +451,10 @@ export default async function TrainingAssessmentPage({
                   </div>
                 </div>
               ) : (
-                <p className="small muted">Your completion is saved. Refresh if the certificate does not appear immediately.</p>
+                <div className="notice">
+                  <p>Your completion and passing assessment are saved. Confirm your certificate name; you will not need to retake the course.</p>
+                  <Link className="btn btn-primary" href="/workspace/training/account">Confirm certificate name</Link>
+                </div>
               )}
 
               <div className="row wrap training-completion-actions">

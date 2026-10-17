@@ -53,15 +53,18 @@ test("public event ingestion and payment/email webhooks have request body ceilin
   assert.match(stripe, /status:\s*413/);
 });
 
-test("private resume and lead-document redirects cannot be cached or leak referrers", async () => {
+test("private resume and lead-document downloads cannot be cached or leak referrers", async () => {
+  const helper = await read("src/lib/private-storage-download.ts");
+  assert.match(helper, /"Cache-Control": "private, no-store, max-age=0"/);
+  assert.match(helper, /"Referrer-Policy": "no-referrer"/);
   for (const path of [
     "src/app/api/admin/va-resume/[vaId]/route.ts",
     "src/app/api/recruiter/lead-attachment/[leadId]/route.ts",
     "src/app/api/resume/[applicationId]/route.ts",
   ]) {
     const source = await read(path);
-    assert.match(source, /Cache-Control", "private, no-store, max-age=0"/, path);
-    assert.match(source, /Referrer-Policy", "no-referrer"/, path);
+    assert.match(source, /privateStorageDownloadResponse/, path);
+    assert.doesNotMatch(source, /createSignedUrl|NextResponse\.redirect/, path);
   }
 });
 

@@ -653,7 +653,8 @@ export default async function TrainingCoursePage({ params }: { params: Promise<{
             <Link className="btn btn-primary" href={`/workspace/training/courses/${course.slug}/assessments/${nextAssessment.id}`} data-track="training_assessment_open">Start final check <ArrowRight size={14}/></Link>
           ) : course.completedAt ? (
             <div className="row wrap">
-              <span className="badge">Completion saved · Certificate preparing</span>
+              <span className="badge">Completion saved · Certificate name confirmation</span>
+              <Link className="btn btn-primary" href="/workspace/training/account">Confirm certificate name</Link>
               <Link className="btn" href="/workspace/training">My learning</Link>
             </div>
           ) : (

@@ -10,8 +10,16 @@ import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { candidateAccessLabel, candidateAccessUnlocked } from "@/lib/candidate-access";
 
 export default async function ClientJobDetail({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|undefined>>}){
-  const {id}=await params;const query=await searchParams;const {userId}=await requireRoleFast("client");const supabase=await createClient();const {data:job}=await supabase.from("jobs").select("*").eq("id",id).eq("client_id",userId).single();if(!job)notFound();
+  const {id}=await params;const query=await searchParams;const {userId}=await requireRoleFast("client");
+  // The server has verified the client role and account. Read only the
+  // caller-owned job through an explicit owner filter, including immediately
+  // after an atomic recruiter-to-client proposal acceptance handoff. The
+  // nullable RLS browser query previously returned a misleading 404 here.
+  // Never fetch an unscoped job with the service-role client.
   const admin=createAdminClient();
+  const {data:job,error:jobError}=await admin.from("jobs").select("*").eq("id",id).eq("client_id",userId).maybeSingle();
+  if(jobError||!job)notFound();
+  const supabase=await createClient();
   const [{data:commercial},{data:access},{data:releasedRows},{data:interviews},{data:offers},{data:workrooms}]=await Promise.all([
     supabase.from("job_commercials").select("*").eq("job_id",id).maybeSingle(),
     admin.from("job_candidate_access").select("access_status").eq("job_id",id).maybeSingle(),

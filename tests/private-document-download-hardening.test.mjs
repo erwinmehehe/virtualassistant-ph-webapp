@@ -10,8 +10,8 @@ test("private document response forces download and disallows sniffing/caching/i
     /Cache-Control/, /private, no-store/, /no-referrer/, /X-Content-Type-Options/,
     /nosniff/, /Content-Security-Policy/, /sandbox/,
   ]) assert.match(helper, expected);
-  assert.match(helper, /replace\(\/\[\\r\\n"\]/g/);
-  assert.match(helper, /replace\(\/\[\\\\\/\]/g/);
+  assert.match(helper, /function safeFilename/);
+  assert.match(helper, /function asciiFilename/);
 });
 
 test("private resume and employer documents retain auth gates without redirecting to signed URLs", async () => {

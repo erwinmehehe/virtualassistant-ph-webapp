@@ -76,6 +76,9 @@ test("free-only coaching refuses paid model fallback and the isolated real-model
   assert.match(route, /model !== "reflection\/beam-free"/);
   assert.match(workflow, /AI_TRAINING_COACH_MODEL: "reflection\/beam-free"/);
   assert.match(workflow, /AI_TRAINING_COACH_FREE_ONLY: "true"/);
+  assert.match(workflow, /Validate free-only model pricing before any AI credential/);
+  assert.match(workflow, /Number\(model\.pricing\[key\]\) === 0/);
+  assert.match(workflow, /https:\/\/ai-gateway\.vercel\.sh\/v1\/models/);
   assert.match(workflow, /VAPH_AI_GATEWAY_BUDGET_CONFIRMED/);
   assert.match(workflow, /vaph-ai-coach-sandbox/);
 });

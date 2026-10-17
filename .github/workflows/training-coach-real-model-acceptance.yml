@@ -21,7 +21,8 @@ jobs:
       E2E_BASE_URL: "http://127.0.0.1:3000"
       NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
       AI_TRAINING_COACH_ENABLED: "true"
-      AI_TRAINING_COACH_MODEL: "openai/gpt-5.4-mini"
+      AI_TRAINING_COACH_MODEL: "reflection/beam-free"
+      AI_TRAINING_COACH_FREE_ONLY: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -75,12 +76,13 @@ jobs:
           NODE
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Real Gateway on test identities, max four paid requests
+      - name: Real Gateway free-only model on test identities, max four requests
         env:
           VAPH_COACH_LIVE_MODEL_UAT: operator-approved
           AI_GATEWAY_API_KEY: ${{ secrets.VAPH_AI_COACH_SANDBOX_GATEWAY_KEY }}
         run: |
           test -n "${AI_GATEWAY_API_KEY:-}" || exit 1
+          test "${AI_TRAINING_COACH_MODEL}" = "reflection/beam-free" || exit 1
           npx playwright test e2e/training-coach-real-model-uat.spec.ts --project=chromium --workers=1
       - name: Preserve real-model fictional response evidence
         if: always()

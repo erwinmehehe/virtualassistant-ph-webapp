@@ -726,12 +726,17 @@
 
 /* Recipient identity on verified and printable certificates. */
 .credential-recipient {
-  margin: 22px auto 18px;
   display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  margin: 22px auto 18px;
+  text-align: center;
 }
+
 .credential-recipient span {
   color: #667085;
   font-size: 11px;
@@ -739,14 +744,73 @@
   letter-spacing: .12em;
   text-transform: uppercase;
 }
+
+/* Preserve the actual full name: shrink long names, balance lines where
+   supported, and wrap even uninterrupted surnames instead of cutting them. */
 .credential-recipient strong {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   color: #101828;
   font-size: clamp(26px, 3.5vw, 40px);
   font-weight: 800;
   letter-spacing: -.03em;
   line-height: 1.15;
+  text-align: center;
+  text-wrap: balance;
+  white-space: normal;
+  word-break: normal;
   overflow-wrap: anywhere;
 }
+
+.credential-recipient--compact strong {
+  font-size: clamp(23px, 2.8vw, 32px);
+}
+
+.credential-recipient--dense strong {
+  font-size: clamp(20px, 2.4vw, 27px);
+  letter-spacing: -.02em;
+}
+
+@media (max-width: 620px) {
+  .credential-recipient {
+    margin: 16px auto 14px;
+  }
+
+  .credential-recipient strong {
+    font-size: clamp(23px, 6.5vw, 32px);
+  }
+
+  .credential-recipient--compact strong {
+    font-size: clamp(20px, 5.5vw, 27px);
+  }
+
+  .credential-recipient--dense strong {
+    font-size: clamp(18px, 5vw, 24px);
+  }
+}
+
 @media print {
-  .credential-recipient strong { font-size: 34px; }
+  .credential-recipient {
+    break-inside: avoid;
+  }
+
+  .credential-recipient strong {
+    font-size: 34px;
+  }
+
+  .credential-recipient--compact strong {
+    font-size: 27px;
+  }
+
+  .credential-recipient--dense {
+    margin: 14px auto 12px;
+  }
+
+  .credential-recipient--dense strong {
+    font-size: 22px;
+    line-height: 1.16;
+  }
 }

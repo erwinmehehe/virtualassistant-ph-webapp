@@ -411,7 +411,9 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       hours: parsed.data.hours,
       timezone: timeZone,
       message: briefMessage,
-      budget: parsed.data.budget
+      budget: parsed.data.budget,
+      publicListingConsent: formData.get("public_listing_consent") === "yes",
+      publicBrief: parsed.data.message
     });
 
     await recordLeadAnalytics(admin, {
@@ -575,7 +577,9 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       hours: parsed.data.hours,
       timezone: timeZone,
       message: combinedMessage,
-      budget: parsed.data.budget
+      budget: parsed.data.budget,
+      publicListingConsent: formData.get("public_listing_consent") === "yes",
+      publicBrief: parsed.data.message
     });
 
     await recordLeadAnalytics(admin, {
@@ -675,7 +679,7 @@ export async function submitRoleBriefAction(formData: FormData) {
   const raw = Object.fromEntries(formData);
   const attachmentValue = formData.get("attachment");
   const attachment = attachmentValue instanceof File && attachmentValue.size > 0 ? attachmentValue : null;
-  // Validate both declared type and file bytes, not filename OR MIME alone.
+  // Validate both declared file type and bytes, not filename OR MIME alone.
   // Return the visitor to the page they submitted from. Validated the same way
   // as source_path, so it can only ever be a path on this site.
   const rawReturn = String(formData.get("source_path") || "").trim();
@@ -789,7 +793,9 @@ export async function submitRoleBriefAction(formData: FormData) {
       message,
       budget: parsed.data.budget,
       tools,
-      requestedVaId
+      requestedVaId,
+      publicListingConsent: formData.get("public_listing_consent") === "yes" && !parsed.data.talent && !parsed.data.shortlist,
+      publicBrief: parsed.data.message
     });
   } catch {
     await admin.from("lead_intake").update({ status: "new" }).eq("id", lead.id);

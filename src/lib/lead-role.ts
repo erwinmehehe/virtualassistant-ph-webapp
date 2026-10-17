@@ -1,9 +1,14 @@
 import "server-only";
+import { revalidatePath } from "next/cache";
+import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { inferCategories, inferHours } from "@/lib/category-inference";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
+import { canAutoPublishLeadJob, publicJobReviewSignals } from "@/lib/job-publication";
+import { publicJobAutoPublicationEnabled } from "@/lib/public-job-rollout";
+import { hiringCircumventionSignals } from "@/lib/hiring-circumvention";
 
 export type EnsurePendingRoleForLeadArgs = {
   admin: ReturnType<typeof createAdminClient>;
@@ -21,6 +26,8 @@ export type EnsurePendingRoleForLeadArgs = {
   clientId?: string | null;
   recruiterId?: string | null;
   ownerId?: string | null;
+  publicListingConsent?: boolean;
+  publicBrief?: string | null;
 };
 
 export function rateRangeFromBudget(value?: string | null) {
@@ -109,6 +116,34 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
   const rates = rateRangeFromBudget(args.budget);
   const fallbackSummary = `Virtual Assistant support requested for ${args.service || "business operations"}.`;
   const description = cleanJobDescription(args.message);
+  const publicBrief = cleanJobDescription(args.publicBrief);
+  // Screen the ORIGINAL employer text, not a redacted/cleaned derivative.
+  // Redaction is for display only; contact information must still hold the
+  // entire public listing for recruiter review.
+  const publicContent = [
+    args.title, args.company, args.publicBrief, args.tools || [],
+  ];
+  const safeContent = hiringCircumventionSignals(publicContent).length === 0
+    && publicJobReviewSignals(publicContent).length === 0;
+  // An anonymous public listing must never bypass bot protection merely
+  // because the host omitted both Turnstile keys. Private intake is separate.
+  const publicListingChallengeConfigured = process.env.NODE_ENV !== "production"
+    || Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim()
+      && process.env.TURNSTILE_SECRET_KEY?.trim());
+  // Require explicit production release authorization; no environment entry means
+  // opted-in leads remain pending even when Turnstile and consent are present.
+  const rolloutEnabled = publicJobAutoPublicationEnabled(process.env.VAPH_AUTO_PUBLISH_CONSENTED_JOBS);
+  const publishNow = rolloutEnabled && publicListingChallengeConfigured && safeContent && canAutoPublishLeadJob({
+    optedIn: args.publicListingConsent === true,
+    clientId: args.clientId,
+    requestedVaId: args.requestedVaId,
+    title: args.title,
+    companyName: args.company,
+    publicBrief,
+    hoursPerWeek: inferHours(args.hours),
+    budget: args.budget,
+    minHourlyRate: rates.min,
+  });
 
   const payload: Record<string, unknown> = {
     client_id: args.clientId || null,
@@ -116,9 +151,9 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
     requested_va_id: args.requestedVaId || null,
     title: args.title,
     company_name: args.company || null,
-    summary: cleanJobSummary(args.message, fallbackSummary),
-    description,
-    responsibilities: description ? [description] : [],
+    summary: publishNow ? cleanJobSummary(publicBrief, fallbackSummary) : cleanJobSummary(args.message, fallbackSummary),
+    description: publishNow ? publicBrief : description,
+    responsibilities: publishNow ? [publicBrief] : description ? [description] : [],
     required_tools: args.tools || [],
     categories,
     hours_per_week: inferHours(args.hours),
@@ -131,7 +166,8 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
     direct_feedback: true,
     engagement_length: "Long-term preferred",
     start_timing: args.startTime || null,
-    status: "pending",
+    status: publishNow ? "published" : "pending",
+    ...(publishNow ? { recruiter_managed_public: true, moderation_status: "clear", published_at: new Date().toISOString() } : {}),
   };
   if (args.recruiterId) payload.recruiter_id = args.recruiterId;
 
@@ -158,5 +194,22 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
   }
 
   await updateLeadLink(args, job.id as string);
+  if (publishNow) {
+    revalidatePath("/jobs");
+    // Public visibility is already committed; indexing must not roll it back.
+    try {
+      const { data: publicJob } = await args.admin
+        .from("jobs")
+        .select("id,slug")
+        .eq("id", job.id)
+        .maybeSingle();
+      if (publicJob) {
+        await notifyGoogleIndexingBestEffort(`/jobs/${publicJob.slug || publicJob.id}`, "URL_UPDATED");
+        revalidatePath(`/jobs/${publicJob.slug || publicJob.id}`);
+      }
+    } catch (indexError) {
+      console.error("[jobs] Public role indexing notification failed", indexError);
+    }
+  }
   return job.id as string;
 }

@@ -12,7 +12,7 @@ test("opted-in public hiring request publishes; private request stays out of /jo
   const admin = createClient(base, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const created: string[] = [];
 
-  async function submitRequest(optIn: boolean) {
+  async function submitRequest(optIn: boolean, brief = "We are hiring a remote administrative Virtual Assistant to handle calendar coordination, shared inbox routing, customer appointment confirmations, follow-up logs, and weekly status reporting.", shouldPublish = optIn) {
     const code = crypto.randomUUID().slice(0, 10);
     const company = `E2E Job Release ${code}`;
     await page.goto("/hire");
@@ -22,9 +22,7 @@ test("opted-in public hiring request publishes; private request stays out of /jo
     await page.getByRole("textbox", { name: "Company name", exact: true }).fill(company);
     await page.getByLabel("Hours per week").selectOption({ label: "20 to 30 hours/week" });
     await page.getByLabel("Hourly budget").selectOption({ label: "USD 8 to 12/hour" });
-    await page.getByLabel("What should your VA handle?").fill(
-      "We are hiring a remote administrative Virtual Assistant to handle calendar coordination, shared inbox routing, customer appointment confirmations, follow-up logs, and weekly status reporting."
-    );
+    await page.getByLabel("What should your VA handle?").fill(brief);
     if (optIn) await page.getByRole("checkbox", { name: /Also publish this opening/ }).check();
     await page.getByRole("button", { name: /Get your free virtual assistant match/ }).click();
     await expect(page).toHaveURL(/\/hire\/?\?sent=1/);
@@ -37,9 +35,9 @@ test("opted-in public hiring request publishes; private request stays out of /jo
     if (error || !job) throw error || new Error("Request did not create a role.");
     expect(job.client_id).toBeNull();
     expect(job.min_hourly_rate).toBe(8);
-    expect(job.status).toBe(optIn ? "published" : "pending");
-    expect(Boolean(job.recruiter_managed_public)).toBe(optIn);
-    if (optIn) {
+    expect(job.status).toBe(shouldPublish ? "published" : "pending");
+    expect(Boolean(job.recruiter_managed_public)).toBe(shouldPublish);
+    if (shouldPublish) {
       expect(job.published_at).not.toBeNull();
       expect(job.expires_at).not.toBeNull();
     }
@@ -53,6 +51,13 @@ test("opted-in public hiring request publishes; private request stays out of /jo
     const privateJob = await submitRequest(false);
     await page.goto("/jobs");
     await expect(page.getByText(privateJob.company)).toHaveCount(0);
+    // Even with explicit opt-in, off-platform contact details must keep a lead private.
+    const unsafeJob = await submitRequest(true,
+      "We need an administrative VA to schedule calls, manage follow-up records, and prepare weekly reports. For off-platform communication, email hiring-privacy-check@example.test directly instead of using VAPH.",
+      false
+    );
+    await page.goto("/jobs");
+    await expect(page.getByText(unsafeJob.company)).toHaveCount(0);
   } finally {
     for (const leadId of created) {
       await admin.from("lead_intake").update({ job_id: null }).eq("id", leadId);

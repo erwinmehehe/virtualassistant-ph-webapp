@@ -195,7 +195,7 @@ const FAQS = [
   ],
   [
     "How do I earn a certificate?",
-    "Complete the published lessons and their practical checkpoints, then pass the randomized final check. Passing courses issue a verified certificate automatically."
+    "Complete the published lessons and practical checkpoints, pass the randomized final check, then confirm the full name you want printed in Training account settings. Your completion is saved even if you confirm your name later, so you do not need to retake the course."
   ],
   [
     "Does a training certificate prove work experience?",
@@ -374,7 +374,7 @@ export default async function TrainingPage() {
                 <span className="tr-path-outcome-icon"><Award size={18}/></span>
                 <div>
                   <span>03 · Prove completion</span>
-                  <strong>Pass the final check and receive a verified certificate.</strong>
+                  <strong>Pass the final check, confirm your name, and receive a verified certificate.</strong>
                 </div>
               </div>
             </aside>
@@ -584,8 +584,8 @@ export default async function TrainingPage() {
               <article>
                 <span className="tr-completion-number">04</span>
                 <Award size={21}/>
-                <h3>Certificate issued automatically</h3>
-                <p>No admin approval queue. Passing the course triggers completion and the verifiable credential.</p>
+                <h3>Confirm your certificate name</h3>
+                <p>Your course completion is saved after passing. Confirm the exact recipient name in Training account settings before your verified certificate is issued. Anyone with the verification link can see that name.</p>
               </article>
             </div>
           </div>
@@ -597,7 +597,7 @@ export default async function TrainingPage() {
               <span className="tr-kicker">Verified completion</span>
               <h2>A certificate you can actually verify.</h2>
               <p>
-                Passing a course issues a credential with a public verification page.
+                After you pass and confirm your certificate name, VAPH issues a credential with a public verification page.
                 If you also use a Virtual Assistant candidate profile, completed training
                 appears there automatically as supporting evidence for recruiters.
               </p>

@@ -12,6 +12,7 @@ import { requireAnyRole, requireRole } from "@/lib/auth";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { siteOrigin } from "@/lib/seo-url";
 import { isDisposableEmail } from "@/lib/disposable-email";
+import { uploadContentsMatch } from "@/lib/upload-file-signatures";
 import { sendEmailChangeVerificationEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { isKnownCompromisedPassword } from "@/lib/pwned-password";
 
@@ -284,6 +285,9 @@ export async function updateAccountProfileAction(formData: FormData) {
       redirect("/workspace/account?tab=profile&error=Upload%20a%20JPG%2C%20PNG%2C%20or%20WEBP%20photo");
     }
 
+    if (!(await uploadContentsMatch(avatar, "avatar"))) {
+      redirect("/workspace/account?tab=profile&error=The%20uploaded%20photo%20contents%20do%20not%20match%20its%20format");
+    }
     const extension = avatar.type === "image/png" ? "png" : avatar.type === "image/webp" ? "webp" : "jpg";
     uploadedPath = `${user.id}/account-${Date.now()}.${extension}`;
 

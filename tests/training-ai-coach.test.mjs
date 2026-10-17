@@ -66,3 +66,16 @@ test("Rollback instructions record an immutable original commit and no required 
   assert.match(instructions, /backup\/pre-vaph-ai-coach-2026-10-15/);
   assert.match(instructions, /No new tables, migrations, or RLS changes/);
 });
+
+test("free-only coaching refuses paid model fallback and the isolated real-model workflow names the free slug", async () => {
+  const [route, workflow] = await Promise.all([
+    read("src/app/api/training/coach/route.ts"),
+    read(".github/workflows/training-coach-real-model-acceptance.yml"),
+  ]);
+  assert.match(route, /AI_TRAINING_COACH_FREE_ONLY === "true"/);
+  assert.match(route, /model !== "reflection\/beam-free"/);
+  assert.match(workflow, /AI_TRAINING_COACH_MODEL: "reflection\/beam-free"/);
+  assert.match(workflow, /AI_TRAINING_COACH_FREE_ONLY: "true"/);
+  assert.match(workflow, /VAPH_AI_GATEWAY_BUDGET_CONFIRMED/);
+  assert.match(workflow, /vaph-ai-coach-sandbox/);
+});

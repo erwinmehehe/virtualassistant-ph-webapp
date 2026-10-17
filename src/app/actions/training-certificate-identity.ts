@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAuthenticatedUserFast, requireRoleFast } from "@/lib/auth";
@@ -151,7 +152,9 @@ export async function correctIssuedTrainingCertificateNameAction(formData: FormD
           {
             previous_name: oldName,
             new_name: name,
-            case_reference: caseReference,
+            // training_certificates is readable by its owner under RLS.
+            // Keep the internal support reference out of learner-visible JSON.
+            case_reference_sha256: createHash("sha256").update(caseReference).digest("hex"),
             corrected_by: userId,
             corrected_at: new Date().toISOString(),
           },
@@ -161,6 +164,8 @@ export async function correctIssuedTrainingCertificateNameAction(formData: FormD
     .eq("id", certificate.id)
     .eq("user_id", certificate.user_id)
     .eq("credential_code", certificate.credential_code)
+    // Optimistic CAS prevents two staff corrections overwriting audit history.
+    .eq("metadata", JSON.stringify(metadata))
     .is("revoked_at", null).select("id").maybeSingle();
   if (updateError || !updated) adminStatus(code, "update_failed");
 

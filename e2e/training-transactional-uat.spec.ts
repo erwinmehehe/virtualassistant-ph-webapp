@@ -456,10 +456,11 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
       expect(after?.course_id).toBe(before?.course_id);
       expect(after?.metadata?.recipient_name).toBe("Isolated Corrected UAT");
       expect(after?.metadata?.recipient_name_corrections).toHaveLength(1);
+      expect(JSON.stringify(after?.metadata)).not.toContain("TEST-CASE-915");
       expect(after?.metadata?.recipient_name_corrections[0]).toMatchObject({
         previous_name: "Isolated Confirmed UAT",
         new_name: "Isolated Corrected UAT",
-        case_reference: "TEST-CASE-915",
+        case_reference_sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
       });
     } finally {
       await adminContext.close();

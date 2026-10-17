@@ -82,3 +82,16 @@ test("free-only coaching refuses paid model fallback and the isolated real-model
   assert.match(workflow, /VAPH_AI_GATEWAY_BUDGET_CONFIRMED/);
   assert.match(workflow, /vaph-ai-coach-sandbox/);
 });
+
+test("real-model pilot sanitizes source lessons before any external inference", async () => {
+  const [spec, runbook] = await Promise.all([
+    read("e2e/training-coach-real-model-uat.spec.ts"),
+    read("docs/VAPH_AI_COACH_ROLLOUT.md"),
+  ]);
+  assert.match(spec, /if \(!loopback\(url\)/);
+  assert.match(spec, /fictionalLessonContent/);
+  assert.match(spec, /content: fictionalLessonContent/);
+  assert.match(spec, /expect\(result\.reply\)\.toMatch\(\/handoff/);
+  assert.match(runbook, /Discounted Services/);
+  assert.match(runbook, /Do not turn this free provider on for real learners/);
+});

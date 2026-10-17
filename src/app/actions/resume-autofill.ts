@@ -1,6 +1,7 @@
 "use server";
 
 import { requireRole } from "@/lib/auth";
+import { uploadContentsMatch } from "@/lib/upload-file-signatures";
 import { extractResumeText, parseResumeWithAI, type ParsedResumeFields } from "@/lib/resume-parsing";
 
 export type ParseResumeState = {
@@ -45,6 +46,10 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
         ? "Your DOC resume can still be saved with the profile, but auto-fill needs a PDF or DOCX file."
         : "Auto-fill supports PDF and DOCX files. If this is a valid resume, export it again as PDF or DOCX and retry."
     };
+  }
+
+  if (!(await uploadContentsMatch(file, "resume-autofill"))) {
+    return { status: "error", message: "The resume contents do not match a supported PDF or DOCX file." };
   }
 
   try {

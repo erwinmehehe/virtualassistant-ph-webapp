@@ -95,3 +95,10 @@ operational support are established.
 - Before any model credentials are used, the sandbox workflow fetches the live AI Gateway model catalog and verifies the selected model still exists as a language model with exactly zero input and output token pricing. An error or pricing change aborts the workflow.
 - Preserve `VAPH_COACH_LIVE_MODEL_UAT_ALLOWED` and `VAPH_AI_GATEWAY_BUDGET_CONFIRMED` dispatch gates, require the approved operator key, confirm the live model catalog at runtime, inspect provider logs, and document human acceptance before any production activation.
 - Local fixture `LOCAL TEST COACH` passes do not prove live-model operation. No learner traffic or model inference is activated by this preparation.
+
+## Free-model provider data-use review (October 17, 2026)
+
+- Reflection's [Commercial Terms](https://reflection.ai/legal/commercial-terms-of-service) distinguish Standard from Discounted Services. Discounted Services permit provider use of content for training and model improvement. **Do not assume** the free Beam service is excluded from that category without confirmation of the actual provider terms for the AI Gateway route.
+- Reflection's [API safety information](https://reflection.ai/legal/how-we-keep-our-api-safe) describes content retention for abuse and safety monitoring. Absence of VAPH-side chat persistence does **not** mean no external retention.
+- The real-model test replaces the lesson title/content in the **disposable local Supabase instance only** with a fictional work-handoff exercise, and uses fictional test users and placeholder client tasks. This prevents the free-model acceptance test from transmitting actual learner content or VAPH proprietary lessons by accident.
+- **Do not turn this free provider on for real learners** until its route-specific training, retention, processing and learner-notice terms have been reviewed and approved. A future pilot may need a provider with verified non-training and acceptable retention guarantees, even if the free provider works well for synthetic testing.

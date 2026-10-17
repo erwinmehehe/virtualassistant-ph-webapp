@@ -39,6 +39,7 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
   const admin = createClient(dbUrl, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const recruiterContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(31) });
   const clientContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(32) });
+  const otherClientContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(40) });
   try {
     const recruiter = await recruiterContext.newPage();
     await login(recruiter, "recruiter.hiring-e2e@example.test", "/workspace/recruiter/today");
@@ -103,8 +104,16 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
     await login(client, "client.hiring-e2e@example.test", `/workspace/client/jobs/${jobId}`);
     await expect(client.getByRole("heading", { name: fixture.roleTitle })).toBeVisible();
     await expect(client.getByRole("region", { name: "Hiring progress" })).toBeVisible();
+
+    // The page uses an admin-backed query, so prove another authenticated
+    // client cannot view the role even with its UUID. Never rely on a UI-only
+    // hidden link as an ownership authorization check.
+    const otherClient = await otherClientContext.newPage();
+    await login(otherClient, "client.training-e2e@example.test", `/workspace/client/jobs/${jobId}`);
+    await expect(otherClient.getByRole("heading", { name: /couldn.t find that page/i })).toBeVisible();
+    await expect(otherClient.getByRole("heading", { name: fixture.roleTitle })).toHaveCount(0);
   } finally {
-    await Promise.all([recruiterContext.close(), clientContext.close()]);
+    await Promise.allSettled([recruiterContext.close(), clientContext.close(), otherClientContext.close()]);
   }
 });
 

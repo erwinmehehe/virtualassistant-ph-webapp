@@ -15,6 +15,7 @@ import { formatDateTimeInTimeZone, isValidTimeZone, zonedDateTimeToUtc } from "@
 import { queueInterviewFeedbackAutomation, queueOfferClientConfirmationAutomation, queuePlacementHandoffAutomation } from "@/lib/trigger-automation";
 import { ensureOfferPrepAction, resolveInterviewFeedbackIfClear, resolveInterviewSchedulingIfClear, resolveOfferPrepIfNoProceed, resolveOfferPrepTask } from "@/lib/hiring-pipeline-automation";
 import { ensurePlacementHandoffAction, resolveOfferClientConfirmationArtifacts } from "@/lib/post-hire-automation";
+import { hasExplicitPlacementTermsConsent } from "@/lib/placement-confirmation-consent";
 
 const SCREEN_RESULTS = new Set(["client_ready", "needs_development", "role_specific", "do_not_present"]);
 const INTERVIEW_DECISIONS = new Set(["proceed", "hold", "pass"]);
@@ -728,6 +729,11 @@ export async function respondPlacementOfferAction(formData: FormData) {
 
 export async function confirmPlacementOfferAction(formData: FormData) {
   const { user } = await requireRole("client");
+  // The browser checkbox can be skipped by direct server-action requests.
+  // Require explicit acknowledgement before looking up an offer or hiring.
+  if (!hasExplicitPlacementTermsConsent(formData)) {
+    throw new Error("Confirm the final rate, schedule, hours, and start date before hiring.");
+  }
   const offerId = String(formData.get("offer_id") || "");
   const admin = createAdminClient();
   const { data: offer } = await admin.from("placement_offers").select("*,jobs(title,recruiter_id,timezone)").eq("id", offerId).eq("client_id", user.id).maybeSingle();

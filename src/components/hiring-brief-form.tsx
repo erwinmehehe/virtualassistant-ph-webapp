@@ -208,7 +208,7 @@ function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget 
       {allowPublicListing ? (
       <label className="hb-public-consent">
         <input type="checkbox" name="public_listing_consent" value="yes" />
-        <span>I consent to VAPH considering this opening for its public jobs page after role, pay, and safety review. My company name and job description may be shown publicly. Publication is not automatic or guaranteed. Leave unchecked for a private matching request.</span>
+        <span>I consent to VAPH considering this opening for its public jobs page after role, pay, and safety review. My company name and job description may be shown publicly. Publication is not guaranteed; eligible requests may appear as soon as checks pass. Leave unchecked for a private matching request.</span>
       </label>
       ) : null}
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>

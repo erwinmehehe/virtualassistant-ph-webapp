@@ -487,6 +487,93 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
     expect(saved.user?.app_metadata?.certificate_recipient_name_confirmed_at).toBeTruthy();
   });
 
+
+  test("long recipient names remain fully visible in desktop, mobile and print certificate layouts", async ({ page }) => {
+    test.setTimeout(120_000);
+    const { data: certificate, error: lookupError } = await admin.from("training_certificates")
+      .select("id,credential_code,metadata")
+      .eq("user_id", learnerId).eq("course_id", courseId).single();
+    expect(lookupError).toBeNull();
+
+    // Synthetic names only. The fixture uses a disposable local database and
+    // restores its metadata after visual checks, even on failure.
+    const originalMetadata = certificate!.metadata || {};
+    const examples = [
+      "Alexandria Maria Celestina Isabelle de la Cruz Villanueva Monteverde Santos",
+      "AlexandriaMarianellaConstantinopleMiranellaDeLaCruzSantosReyes",
+    ];
+
+    try {
+      for (const [index, longName] of examples.entries()) {
+        const { error: updateError } = await admin.from("training_certificates")
+          .update({ metadata: { ...originalMetadata, recipient_name: longName } })
+          .eq("id", certificate!.id);
+        expect(updateError).toBeNull();
+
+        for (const viewport of [
+          { name: "desktop", width: 1280, height: 900 },
+          { name: "mobile", width: 390, height: 844 },
+        ]) {
+          await page.setViewportSize({ width: viewport.width, height: viewport.height });
+          await page.emulateMedia({ media: "screen" });
+          await page.goto("/training/certificates/" + certificate!.credential_code);
+          const recipient = page.locator(".credential-recipient");
+          const name = recipient.locator("strong");
+          await expect(name).toHaveText(longName);
+          await expect(recipient).toHaveClass(/credential-recipient--dense/);
+          const bounds = await name.evaluate((element) => {
+            const text = element as HTMLElement;
+            const frame = text.closest(".credential-certificate-frame") as HTMLElement;
+            const r = text.getBoundingClientRect();
+            const outer = frame.getBoundingClientRect();
+            return {
+              horizontalOverflow: text.scrollWidth > text.clientWidth + 2,
+              outsideFrame: r.left < outer.left - 2 || r.right > outer.right + 2,
+              truncated: getComputedStyle(text).textOverflow === "ellipsis",
+              hidden: getComputedStyle(text).whiteSpace === "nowrap",
+            };
+          });
+          expect(bounds).toEqual({
+            horizontalOverflow: false,
+            outsideFrame: false,
+            truncated: false,
+            hidden: false,
+          });
+          if (index === 0) {
+            await page.screenshot({
+              path: ARTIFACT_DIR + "/certificate-long-name-" + viewport.name + ".png",
+              animations: "disabled",
+              fullPage: true,
+            });
+          }
+        }
+
+        await page.emulateMedia({ media: "print" });
+        const printName = page.locator(".credential-recipient strong");
+        await expect(printName).toHaveText(longName);
+        const printMetrics = await printName.evaluate((element) => {
+          const text = element as HTMLElement;
+          const frame = text.closest(".credential-certificate-frame") as HTMLElement;
+          const rect = text.getBoundingClientRect();
+          const frameRect = frame.getBoundingClientRect();
+          return {
+            fontSize: Number.parseFloat(getComputedStyle(text).fontSize),
+            fits: text.scrollWidth <= text.clientWidth + 2 &&
+              rect.left >= frameRect.left - 2 &&
+              rect.right <= frameRect.right + 2 &&
+              rect.bottom <= frameRect.bottom + 2,
+          };
+        });
+        expect(printMetrics.fontSize).toBeLessThanOrEqual(22);
+        expect(printMetrics.fits).toBe(true);
+      }
+    } finally {
+      await admin.from("training_certificates")
+        .update({ metadata: originalMetadata }).eq("id", certificate!.id);
+      await page.emulateMedia({ media: "screen" });
+    }
+  });
+
   test("complete a two-lesson course through real-time learner UI gates without preloaded progress", async ({ page, browser }) => {
     test.setTimeout(480_000);
     // This intentionally published course and learner exist ONLY in the

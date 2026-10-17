@@ -14,10 +14,14 @@ export function suggestedTrainingCertificateName(metadata: Record<string, unknow
     || normalizeTrainingCertificateName(metadata?.name);
 }
 
-/** Never use an unconfirmed OAuth/profile name on a newly issued public certificate. */
-export function confirmedTrainingCertificateName(metadata: Record<string, unknown> | null | undefined): string | null {
-  const name = normalizeTrainingCertificateName(metadata?.certificate_name);
-  const confirmedAt = metadata?.certificate_name_confirmed_at;
+/**
+ * Only the server-signed app_metadata is authoritative for public issuance.
+ * user_metadata is editable through the client Auth API, and must never
+ * supply a certificate's confirmation marker or recipient identity.
+ */
+export function confirmedTrainingCertificateName(appMetadata: Record<string, unknown> | null | undefined): string | null {
+  const name = normalizeTrainingCertificateName(appMetadata?.certificate_recipient_name);
+  const confirmedAt = appMetadata?.certificate_recipient_name_confirmed_at;
   return name && typeof confirmedAt === "string" && Number.isFinite(Date.parse(confirmedAt))
     ? name
     : null;

@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { getPublicTrainingCredentialByCode } from "@/lib/training-credentials";
+import { certificateRecipientNameSize } from "@/lib/training-certificate-name-fit";
 import "./certificate.css";
 
 export const metadata: Metadata = {
@@ -74,7 +75,7 @@ export default async function TrainingCredentialVerificationPage({
                   <div className="credential-course-mark" aria-hidden="true">{certificateMark(credential.courseTitle)}</div>
                   <span className="credential-status">Certificate of completion</span>
                   {credential.recipientName ? (
-                    <div className="credential-recipient">
+                    <div className={`credential-recipient credential-recipient--${certificateRecipientNameSize(credential.recipientName)}`}>
                       <span>Awarded to</span>
                       <strong>{credential.recipientName}</strong>
                     </div>

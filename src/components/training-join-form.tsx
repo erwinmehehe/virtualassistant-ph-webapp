@@ -154,10 +154,10 @@ export function TrainingJoinForm({
           {state.fieldErrors.full_name ? (
             <span className="field-error" id="training-full-name-error">{state.fieldErrors.full_name}</span>
           ) : null}
-          <small className="muted">Use the name you want printed on your certificates, not your email nickname. You can change this name in Training account settings before completing a course.</small>
+          <small className="muted">Use the name you want printed on certificates, not your email nickname. You will confirm it again after email verification, before any certificate is issued.</small>
           <label className="row" style={{ alignItems: "flex-start", gap: 10 }}>
             <input type="checkbox" name="certificate_name_confirmed" value="yes" required />
-            <span>I confirm this is my certificate name and understand it will be visible to anyone with the certificate verification link.</span>
+            <span>This is my proposed certificate name. After verifying my email, I will confirm it in Training account settings before it appears on a public certificate.</span>
           </label>
         </div>
 

@@ -94,7 +94,7 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
   // conversations. The existing atomic service-role limiter fails closed when
   // it is unavailable, so multiple parallel requests cannot bypass these caps.
   if (profile.role === "client") {
-    const normalizedBody = body.normalize("NFKC").toLowerCase().replace(/\\s+/g, " ").trim();
+    const normalizedBody = body.normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim();
     await enforceActionRateLimit("client_recruiter_chat:client:burst", user.id, 8, 1);
     await enforceActionRateLimit("client_recruiter_chat:client:hour", user.id, 40, 60);
     await enforceActionRateLimit(

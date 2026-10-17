@@ -71,6 +71,7 @@ for (const scenario of ["approved", "changes", "pipeline"]) for (const attempt o
   const leadId = crypto.randomUUID();
   const proposalId = crypto.randomUUID();
   const token = crypto.randomUUID();
+  const roleTitle = "E2E " + scenario + " " + attempt + " Administrative Virtual Assistant";
   const company = scenario === "approved" ? "E2E Acceptance Company"
     : scenario === "changes" ? "E2E Revision Company"
     : "E2E Hiring Pipeline Company";
@@ -104,7 +105,7 @@ for (const scenario of ["approved", "changes", "pipeline"]) for (const attempt o
     status: "sent",
     // One employer can hire for multiple roles, but cannot create two OPEN
     // roles with the same normalized title (database uniqueness guard).
-    role_title: "E2E " + scenario + " " + attempt + " Administrative Virtual Assistant",
+    role_title: roleTitle,
     summary: "Local-only sample proposal to test recruiter and client workflow handoff.",
     service_model: "curated_placement",
     hours_per_week: 40,
@@ -124,7 +125,7 @@ for (const scenario of ["approved", "changes", "pipeline"]) for (const attempt o
     send_count: 1,
   });
   if (proposalError) throw new Error(`Cannot seed ${scenario} proposal: ${proposalError.message}`);
-  fixtures[`${scenario}${attempt}`] = { leadId, proposalId, token, company };
+  fixtures[`${scenario}${attempt}`] = { leadId, proposalId, token, company, roleTitle };
 }
 
 // Gitignored local-only fixture UUIDs and proposal tokens: never commit these artifacts.

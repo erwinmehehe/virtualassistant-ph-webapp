@@ -22,5 +22,5 @@ test("jobs marketplace can still explain a retired listing when linked with the 
 
   assert.match(jobs, /params\.closed === "1"/);
   assert.match(jobs, /That role has closed\./);
-  assert.match(jobs, /current recruiter-reviewed Virtual Assistant opportunities/);
+  assert.match(jobs, /current published Virtual Assistant opportunities/);
 });

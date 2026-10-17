@@ -62,9 +62,8 @@ number of the *current open PR* to audit. It prints its read-only checklist to t
 uploaded, and the workflow cannot merge or deploy.
 
 **Important first-install limitation:** GitHub only supports manual
-workflow_dispatch for workflows already on its default branch. PR #867 is
-installing this workflow; it is therefore not dispatchable until a reviewed
-merge makes it available on main. During review, the script and its unit tests
+workflow_dispatch for workflows already on its default branch. PR #910 independently installs this workflow from the former #867 bundle;
+it becomes dispatchable only after #910 is reviewed and merged to main. During review, the script and its unit tests
 still run in CI, while operators should verify external backup and Turnstile
 state independently. Do **not** merge #867 solely to activate this gate.
 

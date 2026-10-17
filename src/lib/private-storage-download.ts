@@ -32,14 +32,14 @@ export async function privateStorageDownloadResponse(args: {
 
   const filename = safeFilename(args.downloadName, "download");
   const ascii = asciiFilename(filename) || "download";
-  const bytes = await data.arrayBuffer();
-
-  return new NextResponse(bytes, {
+  // Stream through the authorized route: buffering a non-streaming response
+  // would exceed Vercel's 4.5 MB Function payload cap for larger resumes.
+  return new NextResponse(data.stream(), {
     status: 200,
     headers: {
       "Content-Type": "application/octet-stream",
       "Content-Disposition": `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
-      "Content-Length": String(bytes.byteLength),
+      "Content-Length": String(data.size),
       "Cache-Control": "private, no-store, max-age=0",
       "Pragma": "no-cache",
       "Referrer-Policy": "no-referrer",

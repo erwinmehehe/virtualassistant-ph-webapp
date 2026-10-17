@@ -353,6 +353,20 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
     expect(completedError).toBeNull();
     expect(completed?.completed_at).toBeTruthy();
 
+    // A user can tamper with user_metadata using the public Auth SDK; that
+    // must never count as the server-owned public identity confirmation.
+    const { data: beforeIdentity } = await admin.auth.admin.getUserById(learnerId);
+    const { error: spoofError } = await admin.auth.admin.updateUserById(learnerId, {
+      user_metadata: {
+        ...(beforeIdentity.user?.user_metadata || {}),
+        certificate_name: "Unconfirmed Spoofed UAT",
+        certificate_name_confirmed_at: new Date().toISOString(),
+      },
+    });
+    expect(spoofError).toBeNull();
+    const { data: spoofedIdentity } = await admin.auth.admin.getUserById(learnerId);
+    expect(spoofedIdentity.user?.app_metadata?.certificate_recipient_name).toBeUndefined();
+
     // Passing never publishes an unconfirmed account/Google name. Confirm the
     // desired public name through the same form real learners use, then verify
     // that issuance resumes without a second assessment.
@@ -468,7 +482,8 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
     expect(unchanged?.issued_at).toBe(before?.issued_at);
     expect(unchanged?.metadata?.recipient_name).toBe("Isolated Corrected UAT");
     const { data: saved } = await admin.auth.admin.getUserById(learnerId);
-    expect(saved.user?.user_metadata?.certificate_name).toBe("Isolated Future-Only UAT");
+    expect(saved.user?.app_metadata?.certificate_recipient_name).toBe("Isolated Future-Only UAT");
+    expect(saved.user?.app_metadata?.certificate_recipient_name_confirmed_at).toBeTruthy();
   });
 
   test("complete a two-lesson course through real-time learner UI gates without preloaded progress", async ({ page, browser }) => {
@@ -566,9 +581,13 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
       user_metadata: {
         role: "va", full_name: "Genuine Completion Test Learner",
         certificate_name: "Genuine Completion Test Learner",
-        certificate_name_confirmed_at: now,
       },
-      app_metadata: { account_type: "training" },
+      // Fixture simulates a verified server-side name confirmation.
+      app_metadata: {
+        account_type: "training",
+        certificate_recipient_name: "Genuine Completion Test Learner",
+        certificate_recipient_name_confirmed_at: now,
+      },
     });
     expect(userError).toBeNull();
     const uid = createdUser.user!.id;

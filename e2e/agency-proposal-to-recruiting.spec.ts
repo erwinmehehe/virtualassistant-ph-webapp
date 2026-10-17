@@ -1,6 +1,7 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
+import { disposableLoginHeaders } from "./disposable-login-isolation";
 
 type Fixture = { leadId: string; proposalId: string; token: string; company: string; roleTitle: string };
 type Fixtures = Record<"approved0" | "approved1" | "changes0" | "changes1", Fixture>;
@@ -36,11 +37,11 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
   const { dbUrl, key } = localOnlyEnv();
   const fixture = (await fixtures())[testInfo.retry > 0 ? "approved1" : "approved0"];
   const admin = createClient(dbUrl, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const recruiterContext = await browser.newContext();
-  const clientContext = await browser.newContext();
+  const recruiterContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(31) });
+  const clientContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(32) });
   try {
     const recruiter = await recruiterContext.newPage();
-    await login(recruiter, "recruiter.e2e@example.test", "/workspace/recruiter/today");
+    await login(recruiter, "recruiter.hiring-e2e@example.test", "/workspace/recruiter/today");
 
     await recruiter.goto(`/workspace/recruiter/crm/${fixture.leadId}/discovery`);
     await expect(recruiter.getByText("Discovery Workspace", { exact: true }).first()).toBeVisible();
@@ -85,7 +86,7 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
     // create a duplicate client with the same email.
     const { data: clientAuth, error: authLookupError } = await admin.auth.admin.listUsers({page:1,perPage:100});
     expect(authLookupError).toBeNull();
-    expect(lead?.client_id).toBe(clientAuth.users.find(user => user.email === "client.e2e@example.test")?.id);
+    expect(lead?.client_id).toBe(clientAuth.users.find(user => user.email === "client.hiring-e2e@example.test")?.id);
     expect(job?.lead_id).toBe(fixture.leadId);
     expect(commercials?.commercial_status).toBe("accepted");
     expect(count).toBe(1);
@@ -99,7 +100,7 @@ test("isolated employer proposal acceptance creates a linked recruiting role and
     await expect(recruiter.getByText("Accepted", { exact: true }).first()).toBeVisible();
 
     const client = await clientContext.newPage();
-    await login(client, "client.e2e@example.test", `/workspace/client/jobs/${jobId}`);
+    await login(client, "client.hiring-e2e@example.test", `/workspace/client/jobs/${jobId}`);
     await expect(client.getByRole("heading", { name: fixture.roleTitle })).toBeVisible();
     await expect(client.getByRole("region", { name: "Hiring progress" })).toBeVisible();
   } finally {

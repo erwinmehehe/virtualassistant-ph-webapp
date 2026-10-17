@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { canAutoPublishLeadJob } from "../src/lib/job-publication.ts";
+import { publicJobAutoPublicationEnabled } from "../src/lib/public-job-rollout.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const complete = {
@@ -16,7 +17,14 @@ const complete = {
   minHourlyRate: 8,
 };
 
-test("only opted-in complete roles publish without an account", () => {
+test("public jobs stay private by default until an exact operator switch is enabled", () => {
+  for (const flag of [undefined, "", "false", "true", "ENABLED", "enabled ", "1"]) {
+    assert.equal(publicJobAutoPublicationEnabled(flag), false);
+  }
+  assert.equal(publicJobAutoPublicationEnabled("enabled"), true);
+});
+
+test("only opted-in complete roles qualify for publication after the rollout switch", () => {
   assert.equal(canAutoPublishLeadJob(complete), true);
   assert.equal(canAutoPublishLeadJob({ ...complete, optedIn: false }), false);
   assert.equal(canAutoPublishLeadJob({ ...complete, publicBrief: "Need a VA" }), false);
@@ -66,7 +74,8 @@ test("the anonymous job workflow requires consent and enforces moderation", asyn
   assert.match(role, /publicListingChallengeConfigured = process\.env\.NODE_ENV !== "production"/);
   assert.match(role, /NEXT_PUBLIC_TURNSTILE_SITE_KEY/);
   assert.match(role, /TURNSTILE_SECRET_KEY/);
-  assert.match(role, /publicListingChallengeConfigured && safeContent && canAutoPublishLeadJob/);
+  assert.match(role, /publicJobAutoPublicationEnabled\(process\.env\.VAPH_AUTO_PUBLISH_CONSENTED_JOBS\)/);
+  assert.match(role, /rolloutEnabled && publicListingChallengeConfigured && safeContent && canAutoPublishLeadJob/);
   assert.match(role, /hiringCircumventionSignals\(publicContent\)/);
   assert.match(role, /args\.publicBrief, args\.tools/);
   // PII detection must run against the raw brief, before display redaction.

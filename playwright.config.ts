@@ -24,6 +24,9 @@ export default defineConfig({
       : "npm run dev -- --hostname 127.0.0.1 --port 3000",
     url: "http://127.0.0.1:3000/auth/login",
     reuseExistingServer: !process.env.CI,
+    // Local Playwright starts an isolated 127.0.0.1 app + disposable Supabase.
+    // Exercise the enabled rollout only there; production defaults OFF.
+    env: { VAPH_AUTO_PUBLISH_CONSENTED_JOBS: "enabled" },
     timeout: 120_000,
   },
   projects: [

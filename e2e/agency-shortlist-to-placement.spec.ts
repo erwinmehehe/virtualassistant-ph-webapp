@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
+import { disposableLoginHeaders } from "./disposable-login-isolation";
 
 type ProposalFixture = { leadId: string; proposalId: string; token: string; company: string };
 type LocalFixtures = { pipeline0: ProposalFixture; pipeline1: ProposalFixture };
@@ -43,9 +44,9 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
   const admin = localAdmin();
   const fixtures = JSON.parse(await readFile(".e2e-hiring-fixtures.json", "utf8")) as LocalFixtures;
   const fixture = fixtures[info.retry > 0 ? "pipeline1" : "pipeline0"];
-  const recruiterContext = await browser.newContext();
-  const clientContext = await browser.newContext();
-  const vaContext = await browser.newContext();
+  const recruiterContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(33) });
+  const clientContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(34) });
+  const vaContext = await browser.newContext({ extraHTTPHeaders: disposableLoginHeaders(35) });
 
   try {
     const recruiter = await recruiterContext.newPage();
@@ -53,13 +54,13 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
     const va = await vaContext.newPage();
     const { data: authUsers, error: authError } = await admin.auth.admin.listUsers({page:1,perPage:100});
     expect(authError).toBeNull();
-    const recruiterId = authUsers.users.find(user => user.email === "recruiter.e2e@example.test")?.id;
-    const clientId = authUsers.users.find(user => user.email === "client.e2e@example.test")?.id;
-    const vaId = authUsers.users.find(user => user.email === "va.e2e@example.test")?.id;
+    const recruiterId = authUsers.users.find(user => user.email === "recruiter.hiring-e2e@example.test")?.id;
+    const clientId = authUsers.users.find(user => user.email === "client.hiring-e2e@example.test")?.id;
+    const vaId = authUsers.users.find(user => user.email === "va.hiring-e2e@example.test")?.id;
     if (!recruiterId || !clientId || !vaId) throw new Error("Missing isolated browser identities");
 
     // Real server action: accept the fictional proposal and publish a linked role.
-    await login(recruiter, "recruiter.e2e@example.test", "/workspace/recruiter/today");
+    await login(recruiter, "recruiter.hiring-e2e@example.test", "/workspace/recruiter/today");
     await recruiter.goto(`/proposal/${fixture.token}`);
     await expect(recruiter.getByRole("heading", { name: "Approve and start recruiting" })).toBeVisible();
     await recruiter.locator('input[name="acceptance_name"]').fill("E2E Client");
@@ -136,7 +137,7 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
     expect(shortlisted.created_by).toBe(recruiterId);
 
     // Real client decision action creates the interview request once.
-    await login(client, "client.e2e@example.test", clientCandidates);
+    await login(client, "client.hiring-e2e@example.test", clientCandidates);
     await expect(client.getByRole("heading", { name: "Review candidates", exact: true })).toBeVisible();
     await client.getByRole("button", { name: "Request interview" }).click();
     // Interview requests intentionally navigate to the scheduling workspace.
@@ -191,7 +192,7 @@ test("isolated shortlisted VA moves through interview, two-sided offer, and one 
     expect(offer.client_id).toBe(clientId);
 
     // Real two-sided acceptance actions: VA first, then the employer.
-    await login(va, "va.e2e@example.test", "/workspace/va/offers");
+    await login(va, "va.hiring-e2e@example.test", "/workspace/va/offers");
     await va.getByRole("button", { name: "Accept final terms" }).click();
     await expect(va).toHaveURL(/accepted=1/);
     const vaAccepted = await single(await admin.from("placement_offers").select("status,va_accepted_at").eq("id",offer.id).single(),"VA offer acceptance");

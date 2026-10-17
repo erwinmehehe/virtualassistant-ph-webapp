@@ -32,7 +32,7 @@ export default async function TrainingCertificateCorrectionsPage({
         admin.auth.admin.getUserById(certificate.user_id),
         admin.from("training_courses").select("title").eq("id", certificate.course_id).maybeSingle(),
       ])
-    : [null, null];
+    : [null, null] as const;
 
   const metadataValue = certificate?.metadata &&
     typeof certificate.metadata === "object" && !Array.isArray(certificate.metadata)

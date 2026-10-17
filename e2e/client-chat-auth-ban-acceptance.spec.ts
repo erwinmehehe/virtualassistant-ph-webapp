@@ -287,6 +287,19 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
         if (error) throw error;
         expect(Date.parse(data.user!.banned_until!)).toBeGreaterThan(Date.now());
       }
+      // An actual login using an anonymous client must be refused by Supabase Auth.
+      // Reading a future banned_until field alone is not sufficient evidence.
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+      if (!anonKey) throw new Error("No local anonymous API key");
+      const blockedClient = createClient(DB, anonKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const { error: blockedLogin } = await blockedClient.auth.signInWithPassword({
+        email: clients.ban.email,
+        password: PASS,
+      });
+      expect(blockedLogin).not.toBeNull();
+
       const { data: audited, error: auditError } = await admin.from("admin_audit_log")
         .select("action").eq("target_id", targetId).eq("action", "user_auth_ban_reconciled");
       if (auditError) throw auditError;
@@ -311,6 +324,15 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
         .select("account_status").eq("id", targetId).single();
       if (profileError) throw profileError;
       expect(profile.account_status).toBe("active");
+      const unblockedClient = createClient(DB, anonKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const { data: loginData, error: loginError } = await unblockedClient.auth.signInWithPassword({
+        email: clients.ban.email,
+        password: PASS,
+      });
+      expect(loginError).toBeNull();
+      expect(loginData.user?.id).toBe(targetId);
       const { data: audits, error: auditReadError } = await admin.from("admin_audit_log")
         .select("action").eq("target_id", targetId).eq("action", "user_unbanned");
       if (auditReadError) throw auditReadError;

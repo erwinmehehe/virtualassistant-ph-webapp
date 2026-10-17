@@ -111,7 +111,7 @@ export async function correctIssuedTrainingCertificateNameAction(formData: FormD
   const history = Array.isArray(metadata.recipient_name_corrections)
     ? metadata.recipient_name_corrections
     : [];
-  const { error: updateError } = await admin.from("training_certificates")
+  const { data: updated, error: updateError } = await admin.from("training_certificates")
     .update({
       metadata: {
         ...metadata,
@@ -131,8 +131,8 @@ export async function correctIssuedTrainingCertificateNameAction(formData: FormD
     .eq("id", certificate.id)
     .eq("user_id", certificate.user_id)
     .eq("credential_code", certificate.credential_code)
-    .is("revoked_at", null);
-  if (updateError) adminStatus(code, "update_failed");
+    .is("revoked_at", null).select("id").maybeSingle();
+  if (updateError || !updated) adminStatus(code, "update_failed");
 
   revalidatePath("/training/certificates/" + encodeURIComponent(code));
   revalidatePath("/workspace/training", "layout");

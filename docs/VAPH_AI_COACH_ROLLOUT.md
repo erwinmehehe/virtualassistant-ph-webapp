@@ -84,3 +84,13 @@ The isolated development-only browser fixture permits local test accounts with
 a loopback Supabase URL and is not available in a production runtime.
 Keep this allowlist limited to a small group until real AI answer quality and
 operational support are established.
+
+## October 17, 2026 — free-only model pilot preparation
+
+- Vercel Preview has `AI_TRAINING_COACH_MODEL=reflection/beam-free`; it is still **disabled** (`AI_TRAINING_COACH_ENABLED=false`). **Production remains disabled**.
+- The operator-gated isolated GitHub real-model acceptance workflow proposes `reflection/beam-free` instead of the paid GPT model. It uses disposable loopback Supabase users only, a secret restricted to the `vaph-ai-coach-sandbox` environment, and four controlled real requests at most.
+- `AI_TRAINING_COACH_FREE_ONLY=true` makes the API reject any model other than `reflection/beam-free`; for future hosted trials add this variable in Preview only. There is no paid-model fallback in the request body. If the free offer ends or the model becomes unavailable, return an error instead of substituting a paid model.
+- The Vercel Preview environment currently has no distinct sandbox Supabase credentials, so **do not enable Preview** until a separate disposable non-production Supabase project/branch and protected deployment access are confirmed.
+- AI Gateway authentication and billing eligibility still require separate verification, even for a model currently advertised at zero token price. Do not assume a zero-priced model removes provider authorization, verification, or other platform charges.
+- Preserve `VAPH_COACH_LIVE_MODEL_UAT_ALLOWED` and `VAPH_AI_GATEWAY_BUDGET_CONFIRMED` dispatch gates, require the approved operator key, confirm the live model catalog at runtime, inspect provider logs, and document human acceptance before any production activation.
+- Local fixture `LOCAL TEST COACH` passes do not prove live-model operation. No learner traffic or model inference is activated by this preparation.

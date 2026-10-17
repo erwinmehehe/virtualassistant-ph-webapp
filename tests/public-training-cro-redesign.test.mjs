@@ -50,7 +50,9 @@ test("public training explains real course integrity and name-confirmed certific
   assert.match(page, /Anyone with the verification link can see that name/);
   assert.doesNotMatch(page, /Certificate issued automatically|Passing courses issue a verified certificate automatically/);
   assert.match(page, /answer key is not shown/i);
-  assert.match(page, /No admin approval queue/);
+  assert.match(page, /Your course completion is saved after passing/);
+  assert.match(page, /before your verified certificate is issued/);
+  assert.doesNotMatch(page, /No admin approval queue|Certificate issued automatically/);
   assert.match(page, /Certificates require real course completion/);
   assert.doesNotMatch(page, /required practical assessment/);
   assert.doesNotMatch(page, /Specialist courses stay unpublished until reviewed/);

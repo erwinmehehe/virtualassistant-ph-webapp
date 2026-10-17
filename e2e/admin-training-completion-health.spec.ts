@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { disposableLoginHeaders } from "./disposable-login-isolation";
 
 const password = process.env.E2E_PASSWORD || "E2e-Only!Pass12345";
 
@@ -12,7 +13,8 @@ async function login(page: Page, email: string, next: string) {
 
 test("admin sees aggregate course and next-lesson completion bottlenecks without learner identities", async ({ page }) => {
   test.setTimeout(90_000);
-  await login(page, "admin.e2e@example.test", "/workspace/admin/training");
+  await page.context().setExtraHTTPHeaders(disposableLoginHeaders(38));
+  await login(page, "admin.training-e2e@example.test", "/workspace/admin/training");
 
   await expect(page.getByRole("heading", { name: "Where learners get stuck" })).toBeVisible();
   await expect(page.getByText("Course enrolments", { exact: true })).toBeVisible();
@@ -25,7 +27,8 @@ test("admin sees aggregate course and next-lesson completion bottlenecks without
 });
 
 test("client cannot open administrator training completion diagnostics", async ({ page }) => {
-  await login(page, "client.e2e@example.test", "/workspace/client/company");
+  await page.context().setExtraHTTPHeaders(disposableLoginHeaders(39));
+  await login(page, "client.training-e2e@example.test", "/workspace/client/company");
   await page.goto("/workspace/admin/training");
   await expect(page).not.toHaveURL(/\/workspace\/admin\/training/);
   await expect(page.getByRole("heading", { name: "Where learners get stuck" })).toHaveCount(0);

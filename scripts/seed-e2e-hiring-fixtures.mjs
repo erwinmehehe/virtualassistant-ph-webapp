@@ -17,17 +17,55 @@ for (const target of [database, app]) {
   }
 }
 const admin = createClient(database, key, { auth: { autoRefreshToken: false, persistSession: false } });
+// The full E2E suite already exercises login with the generic role accounts.
+ // Give these *additional* connected hiring and analytics scenarios their own
+ // fictional identities: shared accounts otherwise hit the real per-email
+ // login rate limit and cause unrelated training tests to fail later.
 const { data: identities, error: identityError } = await admin.auth.admin.listUsers({ page: 1, perPage: 100 });
 if (identityError) throw identityError;
+const accounts = [
+  { key: "recruiter", role: "recruiter", email: "recruiter.hiring-e2e@example.test", fullName: "E2E Hiring Recruiter" },
+  { key: "client", role: "client", email: "client.hiring-e2e@example.test", fullName: "E2E Hiring Client" },
+  { key: "va", role: "va", email: "va.hiring-e2e@example.test", fullName: "E2E Hiring VA" },
+  { key: "training_admin", role: "admin", email: "admin.training-e2e@example.test", fullName: "E2E Training Admin" },
+  { key: "training_recruiter", role: "recruiter", email: "recruiter.training-e2e@example.test", fullName: "E2E Training Recruiter" },
+  { key: "training_client", role: "client", email: "client.training-e2e@example.test", fullName: "E2E Training Client" },
+];
 const seededUserIds = {};
-for (const role of ["recruiter", "client", "va"]) {
-  const user = identities.users.find(person => person.email === role + ".e2e@example.test");
-  if (!user) throw new Error("Run the ordinary isolated identity seeder first (" + role + ")");
-  seededUserIds[role] = user.id;
+for (const account of accounts) {
+  let user = identities.users.find(person => person.email === account.email);
+  if (!user) {
+    const { data, error } = await admin.auth.admin.createUser({
+      email: account.email,
+      password: process.env.E2E_PASSWORD || "E2e-Only!Pass12345",
+      email_confirm: true,
+      user_metadata: { role: account.role, full_name: account.fullName },
+    });
+    if (error || !data?.user) throw new Error("Cannot create isolated " + account.key + ": " + error?.message);
+    user = data.user;
+  }
+  const { error: profileError } = await admin.from("profiles").upsert({
+    id: user.id,
+    role: account.role,
+    full_name: account.fullName,
+    account_status: "active",
+    email_verified: true,
+  }, { onConflict: "id" });
+  if (profileError) throw new Error("Cannot seed role " + account.key + ": " + profileError.message);
+  if (account.role === "client") {
+    const { error: clientError } = await admin.from("client_profiles").upsert({
+      user_id: user.id,
+      company_name: "E2E Hiring Fixtures Company",
+      timezone: "Asia/Manila",
+      onboarding_completed_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
+    if (clientError) throw new Error("Cannot seed client " + account.key + ": " + clientError.message);
+  }
+  seededUserIds[account.key] = user.id;
 }
 
-// Existing generic seed deliberately creates only the minimal VA. Extend
-// that fictional candidate here so real shortlist vetting gates are tested.
+// Only the fictional VA for this workflow is approved. Do not change the
+// generic role-smoke VA or relax live vetting/availability requirements.
 const { error: vaError } = await admin.from("va_profiles").upsert({
   user_id: seededUserIds.va,
   headline: "E2E Administrative Virtual Assistant",
@@ -78,7 +116,7 @@ for (const scenario of ["approved", "changes", "pipeline"]) for (const attempt o
   const { error: leadError } = await admin.from("lead_intake").insert({
     id: leadId,
     name: "E2E Client",
-    email: "client.e2e@example.test",
+    email: "client.hiring-e2e@example.test",
     service: "Administrative Virtual Assistant",
     company,
     hours: "40",

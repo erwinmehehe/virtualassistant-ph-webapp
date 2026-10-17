@@ -92,6 +92,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain training transactional UAT screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vaph-training-uat-${{ github.run_id }}
+          path: artifacts/training-uat/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Upload isolated responsive screenshots
         if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

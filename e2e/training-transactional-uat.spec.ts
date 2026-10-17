@@ -426,7 +426,7 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
       await staffPage.getByLabel("Credential code").fill(code);
       await staffPage.getByRole("button", { name: "Find certificate" }).click();
       await expect(staffPage.getByRole("heading", { name: "Verify and correct recipient" })).toBeVisible();
-      await expect(staffPage.getByText("Isolated Confirmed UAT", { exact: true })).toBeVisible();
+      await expect(staffPage.getByText(/Current recipient: Isolated Confirmed UAT/)).toBeVisible();
       await staffPage.getByLabel("Correct recipient name").fill("Isolated Corrected UAT");
       await staffPage.getByLabel("Support case reference").fill("TEST-CASE-915");
       await staffPage.getByLabel(/I verified account ownership/).check();

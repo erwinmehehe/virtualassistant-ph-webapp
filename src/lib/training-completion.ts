@@ -113,7 +113,9 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
     // Freeze the learner's name in the issued credential. Later account name
     // edits must not silently change previously verified certificates.
     const { data: learner } = await admin.auth.admin.getUserById(userId);
-    const recipientName = confirmedTrainingCertificateName(learner?.user?.user_metadata);
+    const recipientName = learner?.user?.email_confirmed_at
+      ? confirmedTrainingCertificateName(learner.user.app_metadata)
+      : null;
 
     if (recipientName) {
       const credentialCode = completionCredentialCode();

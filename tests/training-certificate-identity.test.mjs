@@ -47,7 +47,10 @@ test("verified staff correction is scoped, audited and does not reissue certific
   const adminOnly = action.split("export async function correctIssuedTrainingCertificateNameAction")[1];
   assert.match(adminOnly, /requireRoleFast\("admin"\)/);
   assert.match(adminOnly, /identity_verified/);
-  assert.match(adminOnly, /case_reference/);
+  assert.match(adminOnly, /case_reference_sha256/);
+  assert.match(adminOnly, /createHash\("sha256"\)/);
+  assert.doesNotMatch(adminOnly, /case_reference:\s*caseReference/);
+  assert.match(adminOnly, /\.eq\("metadata", JSON\.stringify\(metadata\)\)/);
   assert.match(adminOnly, /recipient_name_corrections/);
   assert.match(adminOnly, /\.is\("revoked_at", null\)/);
   assert.doesNotMatch(adminOnly, /issued_at:\s*new Date|credential_code:\s*completionCredentialCode/);

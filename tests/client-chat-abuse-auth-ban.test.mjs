@@ -17,6 +17,7 @@ test("client-to-recruiter messages have atomic account-wide and repeat limits", 
   assert.match(action, /if \(profile\.role === "client"\) \{\s*const normalizedBody = body\.normalize\("NFKC"\)\.toLowerCase\(\)\.replace\(\/\\s\+\/g, " "\)\.trim\(\)/);
   assert.match(action, /enforceActionRateLimit\("client_recruiter_chat:client:burst", user\.id, 8, 1\)/);
   assert.match(action, /enforceActionRateLimit\("client_recruiter_chat:client:hour", user\.id, 40, 60\)/);
+  assert.match(action, /if \(normalizedBody\.length >= 24\)/);
   assert.match(action, /"client_recruiter_chat:client:repeat",\s*\x60\$\{user\.id\}:\$\{normalizedBody\}\x60,\s*2,\s*15/s);
 
   const ownership = action.indexOf('if (requestedClientId && requestedClientId !== thread.client_id)');

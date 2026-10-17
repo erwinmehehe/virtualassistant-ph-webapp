@@ -43,7 +43,7 @@ export default async function TrainingAccountPage({
 
   const params = await searchParams;
   const proposedName = suggestedTrainingCertificateName(user.user_metadata);
-  const confirmedName = confirmedTrainingCertificateName(user.user_metadata);
+  const confirmedName = confirmedTrainingCertificateName(user.app_metadata);
   const { data: issuedCertificates } = await supabase
     .from("training_certificates")
     .select("credential_code,issued_at,metadata")

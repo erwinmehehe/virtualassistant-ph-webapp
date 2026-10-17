@@ -21,7 +21,8 @@ jobs:
       E2E_BASE_URL: "http://127.0.0.1:3000"
       NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
       AI_TRAINING_COACH_ENABLED: "true"
-      AI_TRAINING_COACH_MODEL: "openai/gpt-5.4-mini"
+      AI_TRAINING_COACH_MODEL: "reflection/beam-free"
+      AI_TRAINING_COACH_FREE_ONLY: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -32,6 +33,30 @@ jobs:
           cache: npm
       - name: Install without AI secrets
         run: npm ci
+      - name: Validate free-only model pricing before any AI credential or local fixture
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const selected = process.env.AI_TRAINING_COACH_MODEL;
+          if (process.env.AI_TRAINING_COACH_FREE_ONLY !== "true" || selected !== "reflection/beam-free") {
+            throw new Error("The authorized free-only coaching model is not selected");
+          }
+          const response = await fetch("https://ai-gateway.vercel.sh/v1/models", {
+            cache: "no-store",
+            signal: AbortSignal.timeout(15000),
+          });
+          if (!response.ok) throw new Error("Live model catalog unavailable: " + response.status);
+          const catalog = await response.json();
+          const model = catalog?.data?.find((item) => item.id === selected);
+          if (!model || model.type !== "language" ||
+              !["input", "output"].every((key) =>
+                model.pricing?.[key] !== undefined &&
+                Number.isFinite(Number(model.pricing[key])) &&
+                Number(model.pricing[key]) === 0)) {
+            throw new Error("Free-only model missing, unsupported, or not zero-priced: abort");
+          }
+          console.log("Live free-only model validated:", selected);
+          NODE
       - name: Install local PostgreSQL client
         run: |
           if ! command -v psql >/dev/null; then
@@ -75,12 +100,13 @@ jobs:
           NODE
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Real Gateway on test identities, max four paid requests
+      - name: Real Gateway free-only model on test identities, max four requests
         env:
           VAPH_COACH_LIVE_MODEL_UAT: operator-approved
           AI_GATEWAY_API_KEY: ${{ secrets.VAPH_AI_COACH_SANDBOX_GATEWAY_KEY }}
         run: |
           test -n "${AI_GATEWAY_API_KEY:-}" || exit 1
+          test "${AI_TRAINING_COACH_MODEL}" = "reflection/beam-free" || exit 1
           npx playwright test e2e/training-coach-real-model-uat.spec.ts --project=chromium --workers=1
       - name: Preserve real-model fictional response evidence
         if: always()

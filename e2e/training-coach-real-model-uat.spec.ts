@@ -124,6 +124,14 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
       expect(result.reply.length).toBeGreaterThan(30);
       expect(result.reply).not.toContain("LOCAL TEST COACH");
       expect(result.testOnly).not.toBe(true);
+      if (scenario.mode === "explain") {
+        // The fictional lesson's central learning point must appear in the reply.
+        expect(result.reply).toMatch(/handoff|time[ -]?zone|approval/i);
+      }
+      if (scenario.mode === "review") {
+        // Feedback must engage with the fictional mistake, not offer generic praise.
+        expect(result.reply).toMatch(/time[ -]?zone|approval|handoff/i);
+      }
       results.push({ mode: scenario.mode, latencyMs: Date.now() - started,
         reply: result.reply, status: response.status() });
     }

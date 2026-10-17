@@ -166,8 +166,9 @@ export async function joinTrainingAction(
     options: {
       data: {
         full_name: parsed.data.full_name,
+        // Suggested name only. Real public-identity confirmation happens
+        // after verified login and is saved to server-owned app_metadata.
         certificate_name: parsed.data.full_name,
-        certificate_name_confirmed_at: new Date().toISOString(),
         account_type: "training",
         ...(courseSlug ? { intended_training_course: courseSlug } : {}),
       },

@@ -178,13 +178,29 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
         .select("lesson_id").eq("user_id", learnerId);
       expect(lessonRowsError).toBeNull();
       expect(lessonRows).toHaveLength(0);
-      // The isolated CI seed contains no other training-origin account. The
-      // two figures must match the actual Supabase Auth + enrollment fixture.
+      // Compute *all* training-origin accounts from authoritative Auth rather
+      // than assuming the database contains only this test learner. Serial
+      // Playwright retries can leave other synthetic local UAT users behind.
+      const { data: authList, error: authListError } = await admin.auth.admin.listUsers({
+        page: 1, perPage: 500,
+      });
+      expect(authListError).toBeNull();
+      expect(authList.users.length).toBeLessThan(500);
+      const originIds = authList.users.filter((user) =>
+        user.app_metadata?.account_type === "training" && !user.deleted_at && !user.is_anonymous
+      ).map((user) => user.id);
+      expect(originIds).toContain(learnerId);
+      const { data: sourceEnrollments, error: sourceError } = await admin.from("training_enrollments")
+        .select("user_id,started_at,completed_at").in("user_id", originIds);
+      expect(sourceError).toBeNull();
+      const startedCount = new Set((sourceEnrollments || []).map((row) => row.user_id)).size;
+      const completedCount = new Set((sourceEnrollments || [])
+        .filter((row) => row.completed_at).map((row) => row.user_id)).size;
       const activationCard = (label: string) => adminPage.locator(".status-summary-card")
         .filter({ hasText: label }).locator("strong").first();
-      await expect(activationCard("Training registrations")).toHaveText("1");
-      await expect(activationCard("First course started")).toHaveText("1");
-      await expect(activationCard("First course completion")).toHaveText("0");
+      await expect(activationCard("Training registrations")).toHaveText(String(originIds.length));
+      await expect(activationCard("First course started")).toHaveText(String(startedCount));
+      await expect(activationCard("First course completion")).toHaveText(String(completedCount));
       await adminPage.setViewportSize({ width: 390, height: 844 });
       await adminPage.screenshot({ path: ARTIFACT_DIR + "/admin-activation-mobile.png", animations: "disabled", fullPage: true });
 

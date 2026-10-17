@@ -332,7 +332,8 @@ export async function updateVaProfileAction(formData: FormData) {
     const safePrefixes = [
       "Enter ", "Hourly rate ", "Years of experience ", "Weekly availability ", "Daily overlap ",
       "Your headline ", "One of your ", "Use a valid URL", "Only http or https",
-      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG", "Choose a valid primary specialty"
+      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG", "Choose a valid primary specialty",
+      "The resume contents ", "The photo contents ", "The logo contents "
     ];
     const message = safePrefixes.some((prefix) => raw.startsWith(prefix))
       ? raw

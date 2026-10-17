@@ -77,6 +77,7 @@ export async function confirmTrainingCertificateNameAction(formData: FormData) {
     if (alreadyIssued.has(row.course_id)) continue;
     try {
       const completion = await finalizeTrainingCourseIfEligible(user.id, row.course_id);
+      if (!completion.certificateIssued) pending = true;
       if (completion.certificateIssued) {
         // Delayed issuance is still a real certificate event. Do not silently
         // undercount completion-to-certificate conversion after confirmation.

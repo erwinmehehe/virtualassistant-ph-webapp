@@ -60,7 +60,7 @@ export function TrainingShell({
   const name = profile?.full_name || learnerName || "Training learner";
   const workspaceHref = role ? roleHome[role] : null;
   const workspaceLabel = role ? roleWorkspaceLabel[role] : "Workspace";
-  const accountHref = role ? "/workspace/account" : "/workspace/training/account";
+  const accountHref = "/workspace/training/account";
   const isAdminPreview = role === "admin";
   const pageTitle = isAdminPreview ? "Training preview" : "Learner dashboard";
   const accountLabel = isAdminPreview ? "Admin account" : role === "va" ? "VA learner" : "Training account";

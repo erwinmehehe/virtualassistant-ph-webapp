@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, Compass, Target } from "lucide-react";
 import { TrainingLessonIntegrityGate } from "@/components/training-lesson-integrity-gate";
+import { TrainingCoach } from "@/components/training-coach";
+import { isTrainingCoachPilotLearner } from "@/lib/training-coach";
 import { TrainingChecklistBlock, TrainingTemplateBlock } from "@/components/training-practice-blocks";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingLesson, type LessonContentBlock, type TrainingAssessment } from "@/lib/training";
@@ -372,6 +374,14 @@ export default async function TrainingLessonPage({
         </article>
 
         <aside className="training-player-sidebar">
+          {course.slug === "virtual-assistant-foundations" && course.enrolled && process.env.AI_TRAINING_COACH_ENABLED === "true" && isTrainingCoachPilotLearner(userId) ? (
+            <TrainingCoach
+              key={lesson.id}
+              courseSlug={course.slug}
+              lessonId={lesson.id}
+              lessonTitle={lesson.title}
+            />
+          ) : null}
           {pathContext.primary ? (
             <section className="card training-player-path-context" aria-label="Learning path context">
               <span className="training-player-path-eyebrow">

@@ -1,0 +1,109 @@
+name: VAPH AI Coach isolated pilot
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vaph-ai-coach-pilot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coach-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SUPABASE_CLI_VERSION: "2.113.0"
+      E2E_PASSWORD: "E2e-Only!Pass12345"
+      E2E_BASE_URL: "http://127.0.0.1:3000"
+      NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
+      AI_TRAINING_COACH_ENABLED: "true"
+      AI_TRAINING_COACH_E2E_MOCK: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure PostgreSQL client
+        shell: bash
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+          psql --version
+
+      - name: Verify pinned Supabase CLI
+        run: npx -y "supabase@$SUPABASE_CLI_VERSION" --version
+
+      - name: Bootstrap isolated Supabase
+        shell: bash
+        run: bash scripts/bootstrap-e2e-local-supabase.sh
+
+      - name: Export test-only connection
+        shell: bash
+        run: |
+          set -a
+          source .supabase-e2e.env
+          set +a
+          test -n "$API_URL" && test -n "$ANON_KEY" && test -n "$SERVICE_ROLE_KEY" && test -n "$DB_URL"
+          case "$API_URL" in
+            http://127.0.0.1:*|http://localhost:*) ;;
+            *) echo "Refusing nonlocal Supabase"; exit 1 ;;
+          esac
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "LOCAL_SUPABASE_DB_URL=$DB_URL"
+          } >> "$GITHUB_ENV"
+
+      - name: Verify local RLS and contracts
+        shell: bash
+        run: psql "$LOCAL_SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f scripts/verify-e2e-db-contracts.sql
+
+      - name: Seed test-only accounts
+        run: node scripts/seed-e2e-users.mjs
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run coach pilot with test-only replies
+        run: npm run smoke:coach
+
+      - name: Upload coach screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vaph-coach-pilot-${{ github.run_id }}
+          path: artifacts/training-coach-pilot/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload browser failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vaph-coach-pilot-failures-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Shut down isolated Supabase
+        if: always()
+        run: npx -y "supabase@$SUPABASE_CLI_VERSION" stop --no-backup

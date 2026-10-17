@@ -1,6 +1,10 @@
 name: Production browser smoke
 
 on:
+  pull_request:
+    paths:
+      - "scripts/production-browser-smoke.mjs"
+      - ".github/workflows/production-browser-smoke.yml"
   workflow_dispatch:
   push:
     branches: [main]

@@ -25,6 +25,7 @@
     "seo:production-audit": "node scripts/audit-seo-production.mjs",
     "smoke:production": "node scripts/production-browser-smoke.mjs",
     "smoke:roles": "playwright test e2e/all-roles-smoke.spec.ts --project=chromium",
+    "smoke:coach": "playwright test e2e/training-ai-coach-pilot.spec.ts --project=chromium --workers=1",
     "seo:crawl": "node scripts/crawl-sitemap.mjs",
     "seo:index-jobs": "node scripts/google-indexing-backfill.mjs"
   },

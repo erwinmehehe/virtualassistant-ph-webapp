@@ -1,0 +1,95 @@
+name: VAPH Coach real-model acceptance (operator gated)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-model-acceptance:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      vars.VAPH_COACH_LIVE_MODEL_UAT_ALLOWED == 'true' &&
+      vars.VAPH_AI_GATEWAY_BUDGET_CONFIRMED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: vaph-ai-coach-sandbox
+    env:
+      SUPABASE_CLI_VERSION: "2.113.0"
+      E2E_PASSWORD: "E2e-Only!Pass12345"
+      E2E_BASE_URL: "http://127.0.0.1:3000"
+      NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
+      AI_TRAINING_COACH_ENABLED: "true"
+      AI_TRAINING_COACH_MODEL: "openai/gpt-5.4-mini"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install without AI secrets
+        run: npm ci
+      - name: Install local PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+      - name: Start disposable local Supabase
+        run: bash scripts/bootstrap-e2e-local-supabase.sh
+      - name: Export loopback-only app configuration
+        shell: bash
+        run: |
+          set -a
+          source .supabase-e2e.env
+          set +a
+          case "$API_URL" in
+            http://127.0.0.1:*|http://localhost:*) ;;
+            *) echo "Refusing non-local database"; exit 1 ;;
+          esac
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "LOCAL_SUPABASE_DB_URL=$DB_URL"
+          } >> "$GITHUB_ENV"
+      - name: Seed fake users only
+        run: node scripts/seed-e2e-users.mjs
+      - name: Allowlist disposable VA (not a production UUID)
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from "node:fs";
+          import {createClient} from "@supabase/supabase-js";
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+          if (!/^http:\/\/(localhost|127\.0\.0\.1):\d+/.test(url)) process.exit(1);
+          const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY, {auth:{persistSession:false,autoRefreshToken:false}});
+          const {data,error} = await admin.auth.admin.listUsers({page:1,perPage:100});
+          if(error) throw error;
+          const user=data.users.find(x=>x.email==="va.e2e@example.test");
+          if(!user) throw new Error("No fake learner");
+          appendFileSync(process.env.GITHUB_ENV,"AI_TRAINING_COACH_PILOT_USER_IDS="+user.id+"\n");
+          NODE
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Real Gateway on test identities, max four paid requests
+        env:
+          VAPH_COACH_LIVE_MODEL_UAT: operator-approved
+          AI_GATEWAY_API_KEY: ${{ secrets.VAPH_AI_COACH_SANDBOX_GATEWAY_KEY }}
+        run: |
+          test -n "${AI_GATEWAY_API_KEY:-}" || exit 1
+          npx playwright test e2e/training-coach-real-model-uat.spec.ts --project=chromium --workers=1
+      - name: Preserve real-model fictional response evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vaph-coach-real-model-${{ github.run_id }}
+          path: artifacts/training-coach-live-uat/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Stop local Supabase
+        if: always()
+        run: npx -y "supabase@$SUPABASE_CLI_VERSION" stop --no-backup

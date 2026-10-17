@@ -750,8 +750,14 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   const now = new Date().toISOString();
   const proposalCutoff = daysAgo(2);
   const discoveryCutoff = daysAgo(1);
-  const [{ data: staff }, { data: leads }, { data: proposals }, { data: completedDiscoveries }, { data: recentProposalRefs }] = await Promise.all([
+  const firstContactCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+  const [{ data: staff }, { data: firstContactLeads, error: firstContactLoadError }, { data: leads }, { data: proposals }, { data: completedDiscoveries }, { data: recentProposalRefs }] = await Promise.all([
     admin.from("profiles").select("id").in("role", ["recruiter", "admin"]).eq("account_status", "active"),
+    // Bot acknowledgements are NOT human outreach. Only create private staff work.
+    admin.from("lead_intake").select("id,name,company,owner_id")
+      .eq("lead_type", "client_hiring").eq("crm_stage", "new")
+      .is("first_contact_at", null).lte("created_at", firstContactCutoff)
+      .gte("created_at", daysAgo(14)).limit(300),
     admin.from("lead_intake").select("id,name,company,crm_stage,owner_id,next_follow_up_at").in("crm_stage", ["new","contacted","discovery_booked","qualified","terms_sent","shortlist_sent","nurture"]).not("next_follow_up_at", "is", null).lte("next_follow_up_at", now).gte("next_follow_up_at", daysAgo(14)).limit(300),
     admin.from("lead_proposals").select("id,lead_id,role_title,status,sent_at,viewed_at,public_token").eq("status", "sent").not("sent_at", "is", null).lte("sent_at", proposalCutoff).gte("sent_at", daysAgo(30)).limit(300),
     admin.from("lead_intake").select("id,name,company,owner_id,discovery_completed_at").eq("lead_type","client_hiring").eq("crm_stage","qualified").not("discovery_completed_at","is",null).gte("discovery_completed_at", discoveryCutoff).lte("discovery_completed_at", now).limit(300),
@@ -762,6 +768,44 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
   const leadIds = [...new Set((proposals || []).map((row: any) => row.lead_id))];
   const { data: proposalLeads } = leadIds.length ? await admin.from("lead_intake").select("id,name,email,company,owner_id").in("id", leadIds) : { data: [] as any[] };
   const proposalLeadMap = new Map((proposalLeads || []).map((row: any) => [row.id, row]));
+
+  if (firstContactLoadError) console.error("[maintenance] First-response SLA lookup failed", firstContactLoadError.message);
+  const firstContactOwned = (firstContactLeads || []).filter(
+    (lead: any) => lead.owner_id && staffIds.includes(lead.owner_id)
+  );
+  const firstContactLeadIds = [...new Set(firstContactOwned.map((lead: any) => String(lead.id)))];
+  let firstContactTasksCreated = 0;
+  if (firstContactLeadIds.length) {
+    // Include completed tasks. Cron reruns must never reopen already handled work.
+    const { data: oldTasks, error: taskLookupError } = await admin
+      .from("recruiter_tasks").select("subject_id")
+      .eq("subject_type", "lead").in("subject_id", firstContactLeadIds)
+      .like("title", "First human response overdue:%");
+    if (taskLookupError) {
+      console.error("[maintenance] First-response task lookup failed", taskLookupError.message);
+    } else {
+      const existing = new Set((oldTasks || []).map((task: any) => String(task.subject_id)));
+      const newTasks = firstContactOwned
+        .filter((lead: any) => !existing.has(String(lead.id)))
+        .map((lead: any) => ({
+          title: `First human response overdue: ${String(lead.company || lead.name || "Employer enquiry").slice(0, 80)}`,
+          description: "Hiring enquiry has no recorded human response after two hours. Reach out, log contact in CRM, and set the next follow-up. This task does not message the employer.",
+          assignee_id: lead.owner_id,
+          subject_type: "lead",
+          subject_id: lead.id,
+          href: `/workspace/recruiter/crm/${lead.id}`,
+          priority: "urgent",
+          status: "todo",
+          due_at: now,
+        }));
+      if (newTasks.length) {
+        const { data: inserted, error: taskInsertError } = await admin
+          .from("recruiter_tasks").insert(newTasks).select("id");
+        if (taskInsertError) console.error("[maintenance] First-response task creation failed", taskInsertError.message);
+        else firstContactTasksCreated = (inserted || []).length;
+      }
+    }
+  }
 
   let proposalDueToday = 0;
   for (const lead of completedDiscoveries || []) {
@@ -780,6 +824,22 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
         maxReminders: 1,
         notificationType: "sales_follow_up"
       })) proposalDueToday++;
+    }
+  }
+
+  let firstContactReminders = 0;
+  for (const lead of firstContactLeads || []) {
+    const recipients = lead.owner_id && staffIds.includes(lead.owner_id) ? [lead.owner_id] : staffIds;
+    for (const recipientId of recipients) {
+      if (await sendWorkflowReminder(admin, {
+        subjectType: "lead", subjectId: lead.id, recipientId,
+        action: "sales_first_human_contact_due",
+        title: `First human response overdue: ${String(lead.company || lead.name || "Employer enquiry").slice(0, 80)}`,
+        body: "An automated acknowledgement is not a human response. Contact the employer personally, record it in CRM, and set a next follow-up.",
+        href: `/workspace/recruiter/crm/${lead.id}`,
+        repeatDays: 1, maxReminders: 3, notificationType: "sales_follow_up",
+        email: false,
+      })) firstContactReminders++;
     }
   }
 
@@ -830,7 +890,7 @@ async function runSalesCrmReminders(admin: ReturnType<typeof createAdminClient>)
       }
     }
   }
-  return { leadReminders, proposalReminders, proposalDueToday, clientProposalFollowups };
+  return { firstContactReminders, firstContactTasksCreated, leadReminders, proposalReminders, proposalDueToday, clientProposalFollowups };
 }
 
 async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAdminClient>) {

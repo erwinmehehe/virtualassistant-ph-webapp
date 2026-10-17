@@ -73,6 +73,23 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
       .eq("is_published", true).order("position").limit(1).single();
     if (lessonError || !lesson) throw lessonError || new Error("Missing published lesson");
     lessonId = lesson.id;
+    // A free/discounted model may have different training and retention terms.
+    // Replace the lesson ONLY in the disposable loopback database with fictional
+    // material before any external provider requests. Never send client/student data.
+    const fictionalLessonContent = [
+      { type: "heading", title: "Fictional client work handoff" },
+      { type: "paragraph", text: "Practice scenario: a fictional client requests a project update. The virtual assistant must confirm the client's time zone, summarize completed tasks, identify blockers and ask for approval before sending any final message. Use placeholder people and organizations only." },
+      { type: "checklist", title: "Safe handoff checklist", items: [
+        "Confirm the recipient's time zone and deadline",
+        "Summarize the fictional work completed",
+        "Identify open blockers and next steps",
+        "Request client approval before sending an external update"
+      ] },
+    ];
+    const { error: fictionalContentError } = await admin.from("training_lessons")
+      .update({ title: "Fictional client handoff exercise", content: fictionalLessonContent })
+      .eq("id", lessonId);
+    if (fictionalContentError) throw fictionalContentError;
     await mkdir(OUTPUT, { recursive: true });
   });
 

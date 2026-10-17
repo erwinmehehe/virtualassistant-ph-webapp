@@ -39,13 +39,16 @@ test("public catalogue is driven by published LMS courses and keeps one public t
   assert.match(helper, /lesson_count/);
 });
 
-test("public training explains the real integrity and automatic certificate flow", async () => {
+test("public training explains real course integrity and name-confirmed certificate issuance", async () => {
   const page = await readFile(pagePath, "utf8");
 
   assert.match(page, /Do the practical work/);
   assert.match(page, /Pass the randomized final check/);
   assert.match(page, /questions are scored automatically|scored automatically/i);
-  assert.match(page, /Certificate issued automatically/);
+  assert.match(page, /Confirm your certificate name/);
+  assert.match(page, /Training account settings/);
+  assert.match(page, /Anyone with the verification link can see that name/);
+  assert.doesNotMatch(page, /Certificate issued automatically|Passing courses issue a verified certificate automatically/);
   assert.match(page, /answer key is not shown/i);
   assert.match(page, /No admin approval queue/);
   assert.match(page, /Certificates require real course completion/);

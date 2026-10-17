@@ -97,12 +97,16 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
     const normalizedBody = body.normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim();
     await enforceActionRateLimit("client_recruiter_chat:client:burst", user.id, 8, 1);
     await enforceActionRateLimit("client_recruiter_chat:client:hour", user.id, 40, 60);
-    await enforceActionRateLimit(
-      "client_recruiter_chat:client:repeat",
-      `${user.id}:${normalizedBody}`,
-      2,
-      15,
-    );
+    // Short acknowledgements ("yes", "thanks") commonly recur across roles.
+    // Still subject to burst/hourly limits, but not the copy-paste guard.
+    if (normalizedBody.length >= 24) {
+      await enforceActionRateLimit(
+        "client_recruiter_chat:client:repeat",
+        `${user.id}:${normalizedBody}`,
+        2,
+        15,
+      );
+    }
   }
 
   const now = new Date().toISOString();

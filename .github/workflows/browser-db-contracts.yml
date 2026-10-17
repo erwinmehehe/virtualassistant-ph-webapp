@@ -77,6 +77,9 @@ jobs:
       - name: Seed isolated browser identities
         run: node scripts/seed-e2e-users.mjs
 
+      - name: Seed fictional hiring proposals and approved VA (loopback only)
+        run: node scripts/seed-e2e-hiring-fixtures.mjs
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 

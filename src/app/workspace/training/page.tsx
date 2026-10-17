@@ -27,6 +27,8 @@ import { TrainingCertificateActions } from "@/components/training-certificate-ac
 import { TrainingNextSteps } from "@/components/training-next-steps";
 import { TrainingSaveCourseButton } from "@/components/training-save-course-button";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { confirmedTrainingCertificateName } from "@/lib/training-certificate-identity";
 import { getTrainingDashboard, type TrainingCourseSummary } from "@/lib/training";
 import { chooseTrainingResumeCourse } from "@/lib/training-learning-priority";
 import { vaCategoryLabel } from "@/lib/constants";
@@ -288,6 +290,8 @@ export default async function TrainingDashboardPage({
   const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
   const { userId, profile } = await requireAuthenticatedUserFast("/workspace/training");
   const { courses, learnerProfile, learnerPreferences, savedCourseIds, error } = await getTrainingDashboard(userId);
+  const { data: { user: learnerAccount } } = await (await createClient()).auth.getUser();
+  const certificateNameConfirmed = Boolean(confirmedTrainingCertificateName(learnerAccount?.user_metadata));
 
   const active = courses
     .filter((course) => course.enrolled && !course.completedAt)
@@ -459,6 +463,19 @@ export default async function TrainingDashboardPage({
           ? <>Start with the foundations, then choose a role or Australian client specialisation when you are ready. Training is free and separate from hiring.</>
           : <>Continue your current lesson, follow a recommended path, or choose one course from the library. Training remains separate from hiring and certificates are free.</>}
       />
+
+      {!certificateNameConfirmed ? (
+        <section className="card dashboard-section-card" aria-labelledby="certificate-name-notice-title">
+          <div className="dashboard-section-head">
+            <div>
+              <span className="small">Certificate identity</span>
+              <h2 id="certificate-name-notice-title">Confirm your certificate name</h2>
+              <p>Your course progress is safe. Confirm the full name to appear on your certificate before one is issued, including if you joined using Google.</p>
+            </div>
+            <Link className="btn btn-primary" href="/workspace/training/account">Confirm certificate name</Link>
+          </div>
+        </section>
+      ) : null}
 
       {error ? (
         <section className="card dashboard-section-card">
@@ -765,7 +782,7 @@ export default async function TrainingDashboardPage({
           <div>
             <span className="small">Credentials</span>
             <h2>Your certificates</h2>
-            <p>Every credential has a public verification page you can share with a client or recruiter.</p>
+            <p>Every credential has a public verification page you can share with a client or recruiter. <Link href="/workspace/training/account">Manage certificate name</Link>.</p>
           </div>
         </div>
 
@@ -796,7 +813,7 @@ export default async function TrainingDashboardPage({
             <Award size={22} />
             <div>
               <strong>No certificates yet.</strong>
-              <p>Complete a course and pass its final check. Your verified certificate will appear here automatically.</p>
+              <p>Complete a course and pass its final check, then confirm your certificate name. If you have already passed, your completion is saved and a certificate can be issued without retaking the course.</p>
             </div>
           </div>
         )}

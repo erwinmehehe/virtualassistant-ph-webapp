@@ -42,11 +42,20 @@ export async function confirmTrainingCertificateNameAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
+  // Only service-role-controlled app_metadata is trusted at issuance.
+  // Auth users may freely edit user_metadata through the public SDK, so it
+  // must remain a suggestion and never count as a consent confirmation.
+  const { data: existingIdentity, error: fetchError } = await admin.auth.admin.getUserById(user.id);
+  if (fetchError || !existingIdentity?.user) accountStatus("save_failed");
   const { error: identityError } = await admin.auth.admin.updateUserById(user.id, {
+    app_metadata: {
+      ...(existingIdentity.user.app_metadata || {}),
+      certificate_recipient_name: name,
+      certificate_recipient_name_confirmed_at: new Date().toISOString(),
+    },
     user_metadata: {
-      ...(user.user_metadata || {}),
+      ...(existingIdentity.user.user_metadata || {}),
       certificate_name: name,
-      certificate_name_confirmed_at: new Date().toISOString(),
     },
   });
   if (identityError) accountStatus("save_failed");

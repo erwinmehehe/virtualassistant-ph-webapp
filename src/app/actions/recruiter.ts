@@ -489,6 +489,25 @@ export async function recordLeadContactAction(formData: FormData) {
   const advancedToContacted = (lead.crm_stage || "new") === "new";
   const { error: updateError } = await admin.from("lead_intake").update(patch).eq("id", leadId);
   if (updateError) throw updateError;
+
+  // The human interaction is recorded; close only this lead's first-response
+  // task and alert. Do not email anyone or close other recruiting work.
+  const [{ error: firstContactTaskError }, { error: firstContactAlertError }] = await Promise.all([
+    admin.from("recruiter_tasks")
+      .update({ status: "done", completed_at: now.toISOString(), updated_at: now.toISOString() })
+      .eq("subject_type", "lead")
+      .eq("subject_id", leadId)
+      .like("title", "First human response overdue:%")
+      .in("status", ["todo", "in_progress"]),
+    admin.from("notifications")
+      .update({ done_at: now.toISOString(), read_at: now.toISOString(), snoozed_until: null })
+      .eq("href", `/workspace/recruiter/crm/${leadId}`)
+      .like("title", "First human response overdue:%")
+      .is("done_at", null),
+  ]);
+  if (firstContactTaskError) console.error("[crm] Could not resolve overdue first-response task", firstContactTaskError.message);
+  if (firstContactAlertError) console.error("[crm] Could not resolve overdue first-response alert", firstContactAlertError.message);
+
   if (advancedToContacted) {
     await runCrmStageWorkflows({ leadId, stage: "contacted", actorId: user.id });
   }

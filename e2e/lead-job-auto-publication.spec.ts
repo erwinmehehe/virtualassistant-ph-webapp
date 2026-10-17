@@ -10,6 +10,8 @@ test("opted-in public hiring request publishes; private request stays out of /jo
     throw new Error("Public hiring E2E requires loopback Supabase and the isolated test service key.");
   }
   const admin = createClient(base, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  // The Playwright webServer explicitly enables the otherwise OFF release flag.
+  // Never silently repurpose this destructive isolated fixture for production.
   const created: string[] = [];
 
   async function submitRequest(optIn: boolean, brief = "We are hiring a remote administrative Virtual Assistant to handle calendar coordination, shared inbox routing, customer appointment confirmations, follow-up logs, and weekly status reporting.", shouldPublish = optIn) {
@@ -23,7 +25,7 @@ test("opted-in public hiring request publishes; private request stays out of /jo
     await page.getByLabel("Hours per week").selectOption({ label: "20 to 30 hours/week" });
     await page.getByLabel("Hourly budget").selectOption({ label: "USD 8 to 12/hour" });
     await page.getByLabel("What should your VA handle?").fill(brief);
-    if (optIn) await page.getByRole("checkbox", { name: /Also publish this opening/ }).check();
+    if (optIn) await page.getByRole("checkbox", { name: /I consent to VAPH considering this opening/ }).check();
     await page.getByRole("button", { name: /Get your free virtual assistant match/ }).click();
     await expect(page).toHaveURL(/\/hire\/?\?sent=1/);
     const leadId = new URL(page.url()).searchParams.get("lead");

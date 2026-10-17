@@ -12,6 +12,8 @@ test("private document response forces download and disallows sniffing/caching/i
   ]) assert.match(helper, expected);
   assert.match(helper, /function safeFilename/);
   assert.match(helper, /function asciiFilename/);
+  assert.match(helper, /new NextResponse\(data\.stream\(\)/, "large private files must stream through Vercel Functions");
+  assert.doesNotMatch(helper, /await data\.arrayBuffer\(\)/, "never build a non-streaming large response");
 });
 
 test("private resume and employer documents retain auth gates without redirecting to signed URLs", async () => {

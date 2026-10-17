@@ -41,7 +41,7 @@ test("training-only accounts have a real account settings destination", async ()
     read("src/app/workspace/training/account/page.tsx"),
   ]);
 
-  assert.match(shell, /const accountHref = role \? "\/workspace\/account" : "\/workspace\/training\/account"/);
+  assert.match(shell, /const accountHref = "\/workspace\/training\/account"/);
   assert.match(shell, /href=\{accountHref\}/);
   assert.match(page, /createClient\(\)/);
   assert.match(page, /supabase\.auth\.getUser\(\)/);

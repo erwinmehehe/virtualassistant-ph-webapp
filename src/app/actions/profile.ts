@@ -10,6 +10,7 @@ import { normalizeTimeZone } from "@/lib/timezones";
 import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/lib/category-inference";
 import { getClassificationEvidenceReadiness } from "@/lib/classification-readiness";
 import { isPubliclyEligible } from "@/lib/public-visibility";
+import { uploadContentsMatch } from "@/lib/upload-file-signatures";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
 // Each tag is meant to be a short label ("Customer Service", "HubSpot"),
@@ -162,6 +163,13 @@ export async function updateVaProfileAction(formData: FormData) {
   // were already persisted.
   const resumeUpload = validateResumeUpload(formData.get("resume"));
   const avatarUpload = validateAvatarUpload(formData.get("avatar"));
+  // Refuse renamed binaries before updating any profile state or storage.
+  if (resumeUpload && !(await uploadContentsMatch(resumeUpload.file, "resume"))) {
+    throw new Error("The resume contents do not match a supported PDF, DOC, or DOCX file.");
+  }
+  if (avatarUpload && !(await uploadContentsMatch(avatarUpload.file, "avatar"))) {
+    throw new Error("The photo contents do not match a supported JPG, PNG, or WEBP file.");
+  }
 
   const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
     admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
@@ -324,7 +332,8 @@ export async function updateVaProfileAction(formData: FormData) {
     const safePrefixes = [
       "Enter ", "Hourly rate ", "Years of experience ", "Weekly availability ", "Daily overlap ",
       "Your headline ", "One of your ", "Use a valid URL", "Only http or https",
-      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG", "Choose a valid primary specialty"
+      "Resume must ", "Upload a PDF", "Photo must ", "Upload a JPG", "Choose a valid primary specialty",
+      "The resume contents ", "The photo contents ", "The logo contents "
     ];
     const message = safePrefixes.some((prefix) => raw.startsWith(prefix))
       ? raw
@@ -378,6 +387,9 @@ export async function updateClientProfileAction(formData: FormData) {
   const website = cleanUrl(formData.get("website"));
   const logoUrl = cleanUrl(formData.get("logo_url"));
   const logoUpload = validateCompanyLogoUpload(formData.get("logo"));
+  if (logoUpload && !(await uploadContentsMatch(logoUpload.file, "company-logo"))) {
+    throw new Error("The logo contents do not match a supported JPG, PNG, or WEBP file.");
+  }
   const rawTimeZone = String(formData.get("timezone") ?? "").trim();
   const clientTimeZone = normalizeTimeZone(rawTimeZone);
   if (!clientTimeZone) redirect("/workspace/client/company?timezone_error=1");

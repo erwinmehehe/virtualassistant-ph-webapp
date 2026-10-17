@@ -69,3 +69,28 @@ test("only administrators can reconcile Auth state on an already-banned account"
   assert.match(ui, /Verify \/ retry Auth ban/);
   assert.match(ui, /form action=\{unbanUserAction\}/);
 });
+
+
+test("real-action security acceptance uses only disposable loopback accounts and saves redacted evidence", async () => {
+  const [browser, workflow] = await Promise.all([
+    read("e2e/client-chat-auth-ban-acceptance.spec.ts"),
+    read(".github/workflows/browser-db-contracts.yml"),
+  ]);
+  assert.match(browser, /!loopback\(BASE\) \|\| !loopback\(DB\)/);
+  assert.match(browser, /Refusing to test against any hosted app/);
+  assert.match(browser, /account_status: kind === "ban" \? "banned" : "active"/);
+  for (const caseLabel of [
+    "eighth distinct client message succeeds",
+    "third long duplicate",
+    "fortieth attempt",
+    "forged conversation and oversize",
+    "recruiter can still reply",
+    "Auth ban reconciliation is verified and idempotent",
+    "client cannot access the moderation workspace",
+  ]) assert.ok(browser.includes(caseLabel), "Missing " + caseLabel);
+  assert.match(browser, /blockedClient\.auth\.signInWithPassword/);
+  assert.match(browser, /unblockedClient\.auth\.signInWithPassword/);
+  assert.match(browser, /acceptance-summary\.json/);
+  assert.match(workflow, /Retain isolated chat and Auth-ban acceptance summary/);
+  assert.match(workflow, /artifacts\/chat-auth-uat\//);
+});

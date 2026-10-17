@@ -6,6 +6,7 @@ import { requireAnyRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getOrCreateClientRecruiterThread } from "@/lib/recruiter-client-chat";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
+import { enforceActionRateLimit } from "@/lib/rate-limit";
 
 function safeReturnTo(value: FormDataEntryValue | null, fallback: string) {
   const path = String(value || "");
@@ -25,7 +26,7 @@ async function recruiterRecipients(admin: ReturnType<typeof createAdminClient>, 
 
 export async function sendRecruiterClientChatMessageAction(formData: FormData) {
   const { user, profile } = await requireAnyRole(["client", "recruiter"]);
-  const body = String(formData.get("body") || "").trim().slice(0, 4000);
+  const body = String(formData.get("body") || "").trim();
   const requestedThreadId = String(formData.get("thread_id") || "");
   const requestedClientId = String(formData.get("client_id") || "");
   const fallback = profile.role === "client"
@@ -34,7 +35,7 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
       ? "/workspace/recruiter/messages?thread=" + encodeURIComponent(requestedThreadId)
       : "/workspace/recruiter/messages";
   const returnTo = safeReturnTo(formData.get("return_to"), fallback);
-  if (!body) throw new Error("Write a message before sending.");
+  if (!body || body.length > 4000) throw new Error("Message must be 1 to 4000 characters.");
 
   const admin = createAdminClient();
   let thread = null as Awaited<ReturnType<typeof getOrCreateClientRecruiterThread>> | null;
@@ -86,6 +87,22 @@ export async function sendRecruiterClientChatMessageAction(formData: FormData) {
   if (!thread) throw new Error("Chat thread not found.");
   if (requestedClientId && requestedClientId !== thread.client_id) {
     throw new Error("Client does not match this conversation.");
+  }
+
+  // All sends use the same account-scoped counters across threads. Count only
+  // AFTER checking thread ownership to avoid charging attempts at other users'
+  // conversations. The existing atomic service-role limiter fails closed when
+  // it is unavailable, so multiple parallel requests cannot bypass these caps.
+  if (profile.role === "client") {
+    const normalizedBody = body.normalize("NFKC").toLowerCase().replace(/\\s+/g, " ").trim();
+    await enforceActionRateLimit("client_recruiter_chat:client:burst", user.id, 8, 1);
+    await enforceActionRateLimit("client_recruiter_chat:client:hour", user.id, 40, 60);
+    await enforceActionRateLimit(
+      "client_recruiter_chat:client:repeat",
+      `${user.id}:${normalizedBody}`,
+      2,
+      15,
+    );
   }
 
   const now = new Date().toISOString();

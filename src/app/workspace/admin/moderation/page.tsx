@@ -1,6 +1,6 @@
 import { requireRoleFast } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { banUserAction, dismissFlagAction, unbanUserAction } from "@/app/actions/moderation";
+import { banUserAction, dismissFlagAction, reconcileBannedUserAuthAction, unbanUserAction } from "@/app/actions/moderation";
 import { dateShort } from "@/lib/format";
 
 export default async function ModerationPage() {
@@ -52,6 +52,7 @@ export default async function ModerationPage() {
     </div>
 
     <h3>Banned accounts</h3>
+    <p className="small muted">The VAPH ban is enforced on protected actions. Supabase Auth bans are verified separately; use the admin-only verification button if a previous ban may not have reached the identity provider.</p>
     <div className="stack">
       {bannedUsers?.length ? bannedUsers.map((u: any) => <div className="card" key={u.id}>
         <div className="row-between wrap">
@@ -59,7 +60,10 @@ export default async function ModerationPage() {
             <h3 style={{ margin: "0 0 3px" }}>{u.full_name || "Unknown"} <span className="small muted">({u.role})</span></h3>
             <div className="small muted">Banned {dateShort(u.banned_at)}{u.banned_reason ? ` — ${u.banned_reason}` : ""}</div>
           </div>
-          <form action={unbanUserAction}><input type="hidden" name="user_id" value={u.id}/><button className="btn btn-sm" type="submit">Restore account</button></form>
+          <div className="row wrap" style={{ gap: 8 }}>
+            <form action={reconcileBannedUserAuthAction}><input type="hidden" name="user_id" value={u.id}/><button className="btn btn-sm" type="submit">Verify / retry Auth ban</button></form>
+            <form action={unbanUserAction}><input type="hidden" name="user_id" value={u.id}/><button className="btn btn-sm" type="submit">Restore account</button></form>
+          </div>
         </div>
       </div>) : <div className="card empty">No banned accounts.</div>}
     </div>

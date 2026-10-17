@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { confirmedTrainingCertificateName } from "@/lib/training-certificate-identity";
 
 function completionCredentialCode() {
   return `VAT-${crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
@@ -112,13 +113,9 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
     // Freeze the learner's name in the issued credential. Later account name
     // edits must not silently change previously verified certificates.
     const { data: learner } = await admin.auth.admin.getUserById(userId);
-    const recipientName = [
-      learner?.user?.user_metadata?.full_name,
-      learner?.user?.user_metadata?.name,
-    ]
-      .map((value) => typeof value === "string" ? value.trim().replace(/\s+/g, " ") : "")
-      .find((value) => value.length >= 2 && value.length <= 100) || null;
+    const recipientName = confirmedTrainingCertificateName(learner?.user?.user_metadata);
 
+    if (recipientName) {
     const credentialCode = completionCredentialCode();
     const { data: insertedCertificate, error } = await admin
       .from("training_certificates")
@@ -141,6 +138,7 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
     }
     certificateIssued = !error;
     certificate = insertedCertificate || null;
+    }
   }
 
   if (newlyCompleted) {

@@ -38,7 +38,7 @@ async function postChat(page: Page, route: string, message: string, alter?: (pag
   await page.locator('textarea[name="body"]').fill(message);
   const [response] = await Promise.all([
     page.waitForResponse(
-      (r) => r.request().method() === "POST" && new URL(r.url()).pathname === route,
+      (r) => r.request().method() === "POST" && new URL(r.url()).pathname === new URL(route, BASE).pathname,
       { timeout: 30000 },
     ),
     page.getByRole("button", { name: /^Send$/ }).click(),
@@ -251,9 +251,7 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
   test("a recruiter can still reply when client sends are rate-limited", async ({ browser }) => {
     test.setTimeout(90000);
     await withPage(browser, state.get("recruiter")!, async (page) => {
-      const route = "/workspace/recruiter/messages";
-      await page.goto(route + "?thread=" + encodeURIComponent(clients.burst.threadId!));
-      await expect(page.locator('textarea[name="body"]')).toBeVisible();
+      const route = "/workspace/recruiter/messages?thread=" + encodeURIComponent(clients.burst.threadId!);
       await postChat(page, route, "Fictional recruiter reply");
       const { data, error } = await admin.from("client_recruiter_messages")
         .select("id").eq("thread_id", clients.burst.threadId!)

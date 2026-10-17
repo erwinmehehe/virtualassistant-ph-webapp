@@ -338,7 +338,10 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
     await completeAnswerSheet("correct");
     await expect(page).toHaveURL(/result=passed/, { timeout: 30_000 });
     await expect(page.getByRole("heading", { name: "Final check complete" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "View certificate" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Confirm certificate name" })).toBeVisible();
+    const { data: heldCertificates } = await admin.from("training_certificates")
+      .select("id").eq("user_id", learnerId).eq("course_id", courseId);
+    expect(heldCertificates).toHaveLength(0);
     const { data: passedAttempts, error: attemptsError } = await admin.from("training_assessment_submissions")
       .select("status,score").eq("user_id", learnerId).eq("assessment_id", assessments![0].id);
     expect(attemptsError).toBeNull();
@@ -349,12 +352,31 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
       .select("completed_at").eq("user_id", learnerId).eq("course_id", courseId).single();
     expect(completedError).toBeNull();
     expect(completed?.completed_at).toBeTruthy();
+
+    // Passing never publishes an unconfirmed account/Google name. Confirm the
+    // desired public name through the same form real learners use, then verify
+    // that issuance resumes without a second assessment.
+    await page.goto("/workspace/training/account");
+    await expect(page.getByRole("heading", { name: "Certificate recipient name" })).toBeVisible();
+    await page.getByLabel("Full name to print on certificates").fill("Isolated Confirmed UAT");
+    await page.getByLabel(/I confirm this is the name I want on my certificates/).check();
+    await page.getByRole("button", { name: "Confirm certificate name" }).click();
+    await expect(page).toHaveURL(/certificate_name_status=saved/, { timeout: 30_000 });
+    await expect.poll(async () => {
+      const { data } = await admin.from("training_certificates")
+        .select("id").eq("user_id", learnerId).eq("course_id", courseId);
+      return data?.length || 0;
+    }, { timeout: 20_000 }).toBe(1);
+    await page.goto(assessmentPath);
+    await expect(page.getByRole("link", { name: "View certificate" }).first()).toBeVisible();
+
     const { data: issued, error: issuedError } = await admin.from("training_certificates")
       .select("id,credential_code,metadata").eq("user_id", learnerId).eq("course_id", courseId);
     expect(issuedError).toBeNull();
     expect(issued).toHaveLength(1);
     expect(issued?.[0].credential_code).toMatch(/^VAT-[0-9A-F]{12}$/);
     expect(issued?.[0].metadata?.public_profile_visible).toBe(false);
+    expect(issued?.[0].metadata?.recipient_name).toBe("Isolated Confirmed UAT");
     const { data: notifications, error: notificationsError } = await admin.from("training_notifications")
       .select("type").eq("user_id", learnerId).in("type", ["course_completed", "certificate_issued"]);
     expect(notificationsError).toBeNull();
@@ -388,6 +410,66 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
     expect(stillOne).toHaveLength(1);
   });
 
+
+  test("staff verified correction preserves issued evidence and future name edits do not rewrite it", async ({ page, browser }) => {
+    test.setTimeout(120_000);
+    const { data: before, error: beforeError } = await admin.from("training_certificates")
+      .select("id,credential_code,issued_at,course_id,metadata")
+      .eq("user_id", learnerId).eq("course_id", courseId).single();
+    expect(beforeError).toBeNull();
+    const code = before!.credential_code;
+
+    const adminContext = await browser.newContext();
+    try {
+      const staffPage = await adminContext.newPage();
+      await signIn(staffPage, "admin.e2e@example.test", "/workspace/admin/training/certificate-corrections");
+      await staffPage.getByLabel("Credential code").fill(code);
+      await staffPage.getByRole("button", { name: "Find certificate" }).click();
+      await expect(staffPage.getByRole("heading", { name: "Verify and correct recipient" })).toBeVisible();
+      await expect(staffPage.getByText("Isolated Confirmed UAT", { exact: true })).toBeVisible();
+      await staffPage.getByLabel("Correct recipient name").fill("Isolated Corrected UAT");
+      await staffPage.getByLabel("Support case reference").fill("TEST-CASE-915");
+      await staffPage.getByLabel(/I verified account ownership/).check();
+      await staffPage.getByRole("button", { name: "Save verified correction" }).click();
+      await expect(staffPage).toHaveURL(/status=corrected/, { timeout: 30_000 });
+
+      const { data: after, error: afterError } = await admin.from("training_certificates")
+        .select("id,credential_code,issued_at,course_id,metadata").eq("id", before!.id).single();
+      expect(afterError).toBeNull();
+      expect(after?.id).toBe(before?.id);
+      expect(after?.credential_code).toBe(before?.credential_code);
+      expect(after?.issued_at).toBe(before?.issued_at);
+      expect(after?.course_id).toBe(before?.course_id);
+      expect(after?.metadata?.recipient_name).toBe("Isolated Corrected UAT");
+      expect(after?.metadata?.recipient_name_corrections).toHaveLength(1);
+      expect(after?.metadata?.recipient_name_corrections[0]).toMatchObject({
+        previous_name: "Isolated Confirmed UAT",
+        new_name: "Isolated Corrected UAT",
+        case_reference: "TEST-CASE-915",
+      });
+    } finally {
+      await adminContext.close();
+    }
+
+    // Public verifier shows the corrected recipient, not support case or
+    // private account metadata; learner changes only apply to future awards.
+    await page.goto("/training/certificates/" + code);
+    await expect(page.getByText("Isolated Corrected UAT", { exact: true })).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("TEST-CASE-915");
+    await signIn(page, learnerEmail, "/workspace/training/account");
+    await page.getByLabel("Full name to print on certificates").fill("Isolated Future-Only UAT");
+    await page.getByLabel(/I confirm this is the name I want on my certificates/).check();
+    await page.getByRole("button", { name: "Confirm certificate name" }).click();
+    await expect(page).toHaveURL(/certificate_name_status=saved/, { timeout: 30_000 });
+
+    const { data: unchanged } = await admin.from("training_certificates")
+      .select("issued_at,credential_code,metadata").eq("id", before!.id).single();
+    expect(unchanged?.credential_code).toBe(before?.credential_code);
+    expect(unchanged?.issued_at).toBe(before?.issued_at);
+    expect(unchanged?.metadata?.recipient_name).toBe("Isolated Corrected UAT");
+    const { data: saved } = await admin.auth.admin.getUserById(learnerId);
+    expect(saved.user?.user_metadata?.certificate_name).toBe("Isolated Future-Only UAT");
+  });
 
   test("complete a two-lesson course through real-time learner UI gates without preloaded progress", async ({ page, browser }) => {
     test.setTimeout(480_000);
@@ -481,7 +563,11 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
 
     const { data: createdUser, error: userError } = await admin.auth.admin.createUser({
       email, password: PASSWORD, email_confirm: true,
-      user_metadata: { role: "va", full_name: "Genuine Completion Test Learner" },
+      user_metadata: {
+        role: "va", full_name: "Genuine Completion Test Learner",
+        certificate_name: "Genuine Completion Test Learner",
+        certificate_name_confirmed_at: now,
+      },
       app_metadata: { account_type: "training" },
     });
     expect(userError).toBeNull();

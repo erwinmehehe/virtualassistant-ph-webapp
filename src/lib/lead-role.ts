@@ -7,6 +7,7 @@ import { VA_CATEGORIES, MIN_HOURLY_RATE } from "@/lib/constants";
 import { inferCategories, inferHours } from "@/lib/category-inference";
 import { cleanJobSummary, cleanJobDescription } from "@/lib/job-content-cleanup";
 import { canAutoPublishLeadJob, publicJobReviewSignals } from "@/lib/job-publication";
+import { publicJobAutoPublicationEnabled } from "@/lib/public-job-rollout";
 import { hiringCircumventionSignals } from "@/lib/hiring-circumvention";
 
 export type EnsurePendingRoleForLeadArgs = {
@@ -129,7 +130,10 @@ export async function ensurePendingRoleForLead(args: EnsurePendingRoleForLeadArg
   const publicListingChallengeConfigured = process.env.NODE_ENV !== "production"
     || Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim()
       && process.env.TURNSTILE_SECRET_KEY?.trim());
-  const publishNow = publicListingChallengeConfigured && safeContent && canAutoPublishLeadJob({
+  // Require explicit production release authorization; no environment entry means
+  // opted-in leads remain pending even when Turnstile and consent are present.
+  const rolloutEnabled = publicJobAutoPublicationEnabled(process.env.VAPH_AUTO_PUBLISH_CONSENTED_JOBS);
+  const publishNow = rolloutEnabled && publicListingChallengeConfigured && safeContent && canAutoPublishLeadJob({
     optedIn: args.publicListingConsent === true,
     clientId: args.clientId,
     requestedVaId: args.requestedVaId,

@@ -124,3 +124,25 @@ test("workflow has no deployment or command injection through dispatch inputs",a
   assert.match(source,/permissions:\s*\n\s*contents: read/);
   assert.doesNotMatch(source,/vercel deploy|vercel --prod|gh pr merge|git push|supabase db push/i);
 });
+
+
+test("skipped and in-progress exact-head security checks never count as a pass", () => {
+  const skipped=fixture();
+  skipped.commitRuns.find(run => run.name === "CodeQL security scan").conclusion="skipped";
+  assert.ok(blocked(evaluate(skipped),"Workflow: CodeQL security scan"));
+
+  const running=fixture();
+  const check=running.commitRuns.find(run => run.name === "Browser and database contracts");
+  check.status="in_progress";
+  check.conclusion=null;
+  assert.ok(blocked(evaluate(running),"Workflow: Browser and database contracts"));
+});
+
+test("untrusted zero-cost env names cannot falsely approve a production launch", () => {
+  const s=fixture();
+  s.vercelEnvs.push({key:"MALWARE_SCAN_ENDPOINT",target:["production"]});
+  const result=evaluate(s);
+  assert.equal(result.decision,"OPERATOR_REVIEW_REQUIRED");
+  assert.equal(result.readyForProduction,false);
+  assert.match(result.manualReleaseRequirements.join(" "),/human change approval/i);
+});

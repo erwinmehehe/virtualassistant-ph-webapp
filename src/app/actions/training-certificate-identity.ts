@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
+import { recordProductEvent } from "@/lib/product-events";
 import { normalizeTrainingCertificateName } from "@/lib/training-certificate-identity";
 
 const accountPath = "/workspace/training/account";
@@ -65,7 +66,27 @@ export async function confirmTrainingCertificateNameAction(formData: FormData) {
   for (const row of completions || []) {
     if (alreadyIssued.has(row.course_id)) continue;
     try {
-      await finalizeTrainingCourseIfEligible(user.id, row.course_id);
+      const completion = await finalizeTrainingCourseIfEligible(user.id, row.course_id);
+      if (completion.certificateIssued) {
+        // Delayed issuance is still a real certificate event. Do not silently
+        // undercount completion-to-certificate conversion after confirmation.
+        const { data: course } = await admin.from("training_courses")
+          .select("slug").eq("id", row.course_id).maybeSingle();
+        try {
+          await recordProductEvent("training_certificate_issued", {
+            userId: user.id,
+            path: course?.slug
+              ? "/workspace/training/courses/" + course.slug
+              : "/workspace/training",
+            metadata: {
+              course_slug: course?.slug || null,
+              issuance_source: "certificate_name_confirmation",
+            },
+          });
+        } catch {
+          // Reporting must not undo an issued credential.
+        }
+      }
     } catch {
       pending = true;
     }

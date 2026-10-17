@@ -55,7 +55,8 @@ test("hero uses a product-like learning path preview instead of the old dark pro
   assert.match(page, /Recommended learning path/);
   assert.match(page, /Virtual Assistant Foundations/);
   assert.match(page, /heroCourses\.map/);
-  assert.match(page, /Pass the final check and receive a verified certificate/);
+  assert.match(page, /Pass the final check, confirm your name, and receive a verified certificate/);
+  assert.doesNotMatch(page, /Pass the final check and receive a verified certificate/);
   assert.doesNotMatch(page, /tr-flow-card/);
 
   assert.match(css, /\.tr-path-preview \{/);

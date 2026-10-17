@@ -14,6 +14,7 @@ import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { uploadContentsMatch } from "@/lib/upload-file-signatures";
 import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 import { createSignedCapability } from "@/lib/public-capability";
 import { ensurePendingRoleForLead, jobTitleForCategory, rateRangeFromBudget } from "@/lib/lead-role";
@@ -410,7 +411,9 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       hours: parsed.data.hours,
       timezone: timeZone,
       message: briefMessage,
-      budget: parsed.data.budget
+      budget: parsed.data.budget,
+      publicListingConsent: formData.get("public_listing_consent") === "yes",
+      publicBrief: parsed.data.message
     });
 
     await recordLeadAnalytics(admin, {
@@ -574,7 +577,9 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       hours: parsed.data.hours,
       timezone: timeZone,
       message: combinedMessage,
-      budget: parsed.data.budget
+      budget: parsed.data.budget,
+      publicListingConsent: formData.get("public_listing_consent") === "yes",
+      publicBrief: parsed.data.message
     });
 
     await recordLeadAnalytics(admin, {
@@ -674,13 +679,12 @@ export async function submitRoleBriefAction(formData: FormData) {
   const raw = Object.fromEntries(formData);
   const attachmentValue = formData.get("attachment");
   const attachment = attachmentValue instanceof File && attachmentValue.size > 0 ? attachmentValue : null;
-  const allowedAttachmentTypes = new Set(["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"]);
-  const allowedAttachmentName = /\.(pdf|doc|docx|txt)$/i;
+  // Validate both declared file type and bytes, not filename OR MIME alone.
   // Return the visitor to the page they submitted from. Validated the same way
   // as source_path, so it can only ever be a path on this site.
   const rawReturn = String(formData.get("source_path") || "").trim();
   const returnTo = rawReturn.startsWith("/") && !rawReturn.startsWith("//") ? rawReturn : "/hire";
-  if (attachment && (attachment.size > 10 * 1024 * 1024 || (!allowedAttachmentTypes.has(attachment.type) && !allowedAttachmentName.test(attachment.name)))) {
+  if (attachment && (attachment.size > 10 * 1024 * 1024 || !(await uploadContentsMatch(attachment, "lead-attachment")))) {
     redirect(`${returnTo}?error=${encodeURIComponent("Attach a PDF, Word, or text file no larger than 10 MB.")}`);
   }
   const parsed = roleBriefSchema.safeParse(raw);
@@ -789,7 +793,9 @@ export async function submitRoleBriefAction(formData: FormData) {
       message,
       budget: parsed.data.budget,
       tools,
-      requestedVaId
+      requestedVaId,
+      publicListingConsent: formData.get("public_listing_consent") === "yes" && !parsed.data.talent && !parsed.data.shortlist,
+      publicBrief: parsed.data.message
     });
   } catch {
     await admin.from("lead_intake").update({ status: "new" }).eq("id", lead.id);

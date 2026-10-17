@@ -116,28 +116,28 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
     const recipientName = confirmedTrainingCertificateName(learner?.user?.user_metadata);
 
     if (recipientName) {
-    const credentialCode = completionCredentialCode();
-    const { data: insertedCertificate, error } = await admin
-      .from("training_certificates")
-      .insert({
-        credential_code: credentialCode,
-        user_id: userId,
-        course_id: courseId,
-        issued_at: completedAt,
-        metadata: {
-          credential_type: "certificate_of_completion",
-          public_profile_visible: false,
-          ...(recipientName ? { recipient_name: recipientName } : {}),
-        },
-      })
-      .select("id,credential_code")
-      .maybeSingle();
+      const credentialCode = completionCredentialCode();
+      const { data: insertedCertificate, error } = await admin
+        .from("training_certificates")
+        .insert({
+          credential_code: credentialCode,
+          user_id: userId,
+          course_id: courseId,
+          issued_at: completedAt,
+          metadata: {
+            credential_type: "certificate_of_completion",
+            public_profile_visible: false,
+            recipient_name: recipientName,
+          },
+        })
+        .select("id,credential_code")
+        .maybeSingle();
 
-    if (error && error.code !== "23505") {
-      throw new Error("Course completion was saved, but the certificate could not be issued.");
-    }
-    certificateIssued = !error;
-    certificate = insertedCertificate || null;
+      if (error && error.code !== "23505") {
+        throw new Error("Course completion was saved, but the certificate could not be issued.");
+      }
+      certificateIssued = !error;
+      certificate = insertedCertificate || null;
     }
   }
 

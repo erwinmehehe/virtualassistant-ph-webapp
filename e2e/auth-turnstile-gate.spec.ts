@@ -96,23 +96,36 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await expect(page.locator('form .turnstile-wrap [data-turnstile-action="login"]')).toBeAttached();
     await expectToken(page, "resend_confirmation");
     await page.locator('.auth-confirmation-form input[name="email"]').fill(learnerEmail);
-    const resendCompleteMessage =
-      "If that account still needs confirmation, check your inbox and spam folder. If nothing arrives, wait a minute and try Resend again.";
-    // The preceding unconfirmed-login redirect already has confirm=1 and next.
-    // Waiting only for those parameters can pass BEFORE the Resend server
-    // action completes. Wait for its distinct successful response instead.
-    await Promise.all([
-      page.waitForURL((url) =>
-        url.pathname === "/auth/login" &&
-        url.searchParams.get("confirm") === "1" &&
-        url.searchParams.get("next") === TRAINING &&
-        url.searchParams.get("message") === resendCompleteMessage &&
-        !url.searchParams.has("error"),
-      { timeout: 45_000 }),
-      page.locator('.auth-confirmation-form button[type="submit"]').click(),
-    ]);
+    const resendForm = page.locator(".auth-confirmation-form");
+    // Check browser-native validity before submitting. Playwright click() alone
+    // does not prove a form submitted if HTML validation prevents dispatch.
+    expect(await resendForm.evaluate((form) => (form as HTMLFormElement).checkValidity())).toBe(true);
+    await resendForm.locator('button[type="submit"]').click();
+    // The earlier unconfirmed-login URL already has confirm=1/next. Await the
+    // *new server-action result* visible to learners and retain next intent,
+    // rather than wait for a full document 'load' during an RSC redirect.
+    // The distinct banner prevents a stale login error from counting as success.
+    await expect.poll(async () => {
+      const url = new URL(page.url());
+      return {
+        onLogin: url.pathname === "/auth/login",
+        confirmation: url.searchParams.get("confirm") === "1",
+        trainingIntent: url.searchParams.get("next") === TRAINING,
+        hasMessage: Boolean(url.searchParams.get("message")),
+        hasError: url.searchParams.has("error"),
+        visibleSuccess: await page.locator(".success-banner").isVisible(),
+        staleAlert: await page.locator(".auth-alert").count() > 0,
+      };
+    }, { timeout: 45_000 }).toEqual({
+      onLogin: true,
+      confirmation: true,
+      trainingIntent: true,
+      hasMessage: true,
+      hasError: false,
+      visibleSuccess: true,
+      staleAlert: false,
+    });
     await expect(page.locator(".success-banner")).toContainText("If that account still needs confirmation");
-    await expect(page.locator(".auth-alert")).toHaveCount(0);
   });
 
   test("email confirmation activates disposable learner and reaches training", async ({ page }) => {

@@ -256,15 +256,41 @@ export async function POST(request: Request) {
     }
     return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
   }
-  let event: ResendEvent;
+  // Svix 2.x validates the raw body but no longer returns parsed JSON.
+  // Do not parse or trust any event content until its signature is verified.
   try {
-    event = new Webhook(secret).verify(payload, {
+    new Webhook(secret).verify(payload, {
       "svix-id": request.headers.get("svix-id") || "",
       "svix-timestamp": request.headers.get("svix-timestamp") || "",
       "svix-signature": request.headers.get("svix-signature") || "",
-    }) as ResendEvent;
+    });
   } catch {
     return Response.json({ error: "Invalid signature" }, { status: 400 });
+  }
+
+  let event: ResendEvent;
+  try {
+    const parsed: unknown = JSON.parse(payload);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
+    }
+    const envelope = parsed as Record<string, unknown>;
+    if (envelope.type !== undefined && typeof envelope.type !== "string") {
+      return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
+    }
+    if (envelope.data != null && (typeof envelope.data !== "object" || Array.isArray(envelope.data))) {
+      return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
+    }
+    const data = envelope.data as Record<string, unknown> | undefined;
+    if (data?.to != null && (!Array.isArray(data.to) || !data.to.every((address) => typeof address === "string"))) {
+      return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
+    }
+    if (data?.email_id != null && typeof data.email_id !== "string") {
+      return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
+    }
+    event = parsed as ResendEvent;
+  } catch {
+    return Response.json({ error: "Invalid webhook payload" }, { status: 400 });
   }
 
   const providerId = event.data?.email_id;

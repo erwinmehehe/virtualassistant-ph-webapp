@@ -22,7 +22,7 @@ test("public credential verification exposes only valid published-course credent
   assert.match(page, /Not verified/);
   assert.match(page, /robots:\s*\{ index: false, follow: false \}/);
   assert.match(page, /credential\.recipientName/);
-  assert.match(page, /Awarded to/);
+  assert.match(page, /Proudly presented to/);
   assert.doesNotMatch(page, /email|phone/i);
 });
 

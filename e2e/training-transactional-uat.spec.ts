@@ -469,7 +469,8 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
     // Public verifier shows the corrected recipient, not support case or
     // private account metadata; learner changes only apply to future awards.
     await page.goto("/training/certificates/" + code);
-    await expect(page.getByText("Isolated Corrected UAT", { exact: true })).toBeVisible();
+    await expect(page.locator(".credential-document .certificate-recipient")).toHaveText("Isolated Corrected UAT");
+    await expect(page.locator(".credential-side-panel .credential-verification-facts")).toContainText("Isolated Corrected UAT");
     await expect(page.locator("body")).not.toContainText("TEST-CASE-915");
     await signIn(page, learnerEmail, "/workspace/training/account");
     await page.getByLabel("Full name to print on certificates").fill("Isolated Future-Only UAT");

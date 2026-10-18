@@ -13,7 +13,8 @@ export function getStripe() {
     throw new Error("STRIPE_SECRET_KEY is not configured.");
   }
   if (!client) {
-    client = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-07-29.dahlia" });
+    // Stripe 23 generates types for this API version. Validate payment and webhook flows in Stripe test mode before release.
+    client = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-09-30.endive" });
   }
   return client;
 }

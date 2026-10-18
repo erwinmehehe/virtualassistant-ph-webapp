@@ -94,6 +94,13 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await expect(page.getByRole("alert")).toContainText("Confirm your email before logging in.");
     await expect(page.locator('form .turnstile-wrap [data-turnstile-action="login"]')).toBeAttached();
     await expectToken(page, "resend_confirmation");
+    await page.locator('.auth-confirmation-form input[name="email"]').fill(learnerEmail);
+    await page.locator('.auth-confirmation-form button[type="submit"]').click();
+    await expect(page).toHaveURL((url) =>
+      url.pathname === "/auth/login" && url.searchParams.get("confirm") === "1" &&
+      url.searchParams.get("next") === TRAINING,
+    );
+    await expect(page.getByRole("status")).toContainText("If that account still needs confirmation");
   });
 
   test("email confirmation activates disposable learner and reaches training", async ({ page }) => {

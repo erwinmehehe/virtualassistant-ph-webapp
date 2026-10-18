@@ -76,6 +76,9 @@ test("protected training login and recovery are mandatory in isolated browser CI
   assert.match(journey, /requireIsolatedAuthGate\(\)/);
   assert.match(journey, /page\.locator\("\.auth-alert"\)/);
   assert.match(journey, /page\.locator\("\.success-banner"\)/);
+  // Do not accept a pre-existing confirm=1 URL as evidence that Resend finished.
+  assert.match(journey, /page\.waitForURL/);
+  assert.match(journey, /url\.searchParams\.get\("message"\) === resendCompleteMessage/);
   assert.doesNotMatch(journey, /getByRole\("alert"\)/);
   assert.match(journey, /email confirmation activates disposable learner/);
   assert.match(journey, /failed password followed by valid password/);

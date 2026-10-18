@@ -78,6 +78,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
   }
 
   test("signup-to-login client navigation mounts independent security challenges", async ({ page }) => {
+    test.setTimeout(90_000); // Real server-action redirect and sandbox email delivery may be slow.
     await page.goto("/auth/join/training");
     await expect(page.getByRole("heading", { name: "Create your free training account" })).toBeVisible();
     await expectToken(page, "training_join");
@@ -95,12 +96,23 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await expect(page.locator('form .turnstile-wrap [data-turnstile-action="login"]')).toBeAttached();
     await expectToken(page, "resend_confirmation");
     await page.locator('.auth-confirmation-form input[name="email"]').fill(learnerEmail);
-    await page.locator('.auth-confirmation-form button[type="submit"]').click();
-    await expect(page).toHaveURL((url) =>
-      url.pathname === "/auth/login" && url.searchParams.get("confirm") === "1" &&
-      url.searchParams.get("next") === TRAINING,
-    );
+    const resendCompleteMessage =
+      "If that account still needs confirmation, check your inbox and spam folder. If nothing arrives, wait a minute and try Resend again.";
+    // The preceding unconfirmed-login redirect already has confirm=1 and next.
+    // Waiting only for those parameters can pass BEFORE the Resend server
+    // action completes. Wait for its distinct successful response instead.
+    await Promise.all([
+      page.waitForURL((url) =>
+        url.pathname === "/auth/login" &&
+        url.searchParams.get("confirm") === "1" &&
+        url.searchParams.get("next") === TRAINING &&
+        url.searchParams.get("message") === resendCompleteMessage &&
+        !url.searchParams.has("error"),
+      { timeout: 45_000 }),
+      page.locator('.auth-confirmation-form button[type="submit"]').click(),
+    ]);
     await expect(page.locator(".success-banner")).toContainText("If that account still needs confirmation");
+    await expect(page.locator(".auth-alert")).toHaveCount(0);
   });
 
   test("email confirmation activates disposable learner and reaches training", async ({ page }) => {

@@ -30,7 +30,7 @@ export function ArchiveArticle({ post }: { post: ArchivePost }) {
         <div className="blog-editorial-hero-grid">
           <div className="blog-editorial-hero-copy">
             {post.tag ? <span className="blog-topic-pill">{post.tag}</span> : null}
-            <h1>{post.title}</h1>
+            <h1 className={post.title.length > 68 ? "blog-long-title" : undefined}>{post.title}</h1>
             {post.excerpt ? <p className="blog-deck">{post.excerpt}</p> : null}
             <div className="blog-byline archive-byline">
               {post.date ? <span><CalendarDays size={14} aria-hidden="true"/>Published {post.date}</span> : null}

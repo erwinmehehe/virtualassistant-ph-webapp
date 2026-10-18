@@ -5,7 +5,6 @@ import {
   BadgeCheck,
   CheckCircle2,
   Clock3,
-  GraduationCap,
   ShieldCheck,
   XCircle,
 } from "lucide-react";
@@ -98,9 +97,6 @@ export default async function TrainingCredentialVerificationPage({
                     </div>
 
                     <div className="certificate-document-body">
-                      <div className="certificate-emblem" aria-hidden="true">
-                        <GraduationCap size={29} strokeWidth={1.65} />
-                      </div>
                       <span className="certificate-eyebrow">In recognition of learning</span>
                       <h2 className="certificate-title">Certificate of Completion</h2>
                       <span className="certificate-title-rule" aria-hidden="true" />

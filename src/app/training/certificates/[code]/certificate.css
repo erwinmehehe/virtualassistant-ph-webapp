@@ -118,18 +118,6 @@
   padding: 5px 0 10px;
   text-align: center;
 }
-.certificate-emblem {
-  display: flex;
-  width: 56px;
-  height: 56px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  border: 1px solid #d3d9f7;
-  border-radius: 50%;
-  color: #444ce7;
-  background: #f4f5ff;
-}
 .certificate-eyebrow {
   color: #576985;
   font-size: 10px;
@@ -376,7 +364,6 @@
   .certificate-wordmark { font-size: 17pt !important; }
   .certificate-document-edition { font-size: 8pt !important; text-align: right !important; }
   .certificate-document-body { padding: 2mm 0 3mm !important; }
-  .certificate-emblem { width: 13mm; height: 13mm; margin-bottom: 3mm; }
   .certificate-eyebrow { font-size: 8pt !important; }
   .certificate-title { font-size: 29pt !important; }
   .certificate-title-rule { margin: 3mm 0 4mm !important; }

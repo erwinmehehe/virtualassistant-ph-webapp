@@ -26,6 +26,7 @@ test("certificate uses the issuer brand without inventing accreditation", () => 
   );
   assert.match(source, /<strong>VirtualAssistant\.com\.ph<\/strong>/);
   assert.doesNotMatch(source, /VirtualAssistant\.com\.ph Training/);
+  assert.doesNotMatch(source, /certificate-emblem|GraduationCap/);
   assert.match(source, /not a professional license/);
   assert.match(source, /government-ID-verified/);
 });
@@ -38,5 +39,6 @@ test("print CSS targets A4 landscape and keeps the certificate header visible", 
   assert.match(stylesheet, /@page\s*\{\s*size:\s*A4 landscape/);
   assert.match(stylesheet, /\.credential-side-panel\s*\{\s*display:\s*none\s*!important/);
   assert.match(stylesheet, /\.footer\.va-site-footer/);
+  assert.doesNotMatch(stylesheet, /\.certificate-emblem/);
   assert.doesNotMatch(stylesheet, /@media print\s*\{[^}]*\bheader,\s*footer\s*\{/);
 });

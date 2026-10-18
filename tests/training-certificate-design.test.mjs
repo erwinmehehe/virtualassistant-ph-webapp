@@ -37,5 +37,5 @@ test("print CSS targets A4 landscape and keeps the certificate header visible", 
   );
   assert.match(stylesheet, /@page\s*\{\s*size:\s*A4 landscape/);
   assert.match(stylesheet, /\.credential-side-panel\s*\{\s*display:\s*none\s*!important/);
-  assert.doesNotMatch(stylesheet, /@media print\s*\{[^}]*\bheader,\s*footer\s*\{/);
+  assert.match(stylesheet, /\.footer\.va-site-footer/);\n  assert.doesNotMatch(stylesheet, /@media print\s*\{[^}]*\bheader,\s*footer\s*\{/);
 });

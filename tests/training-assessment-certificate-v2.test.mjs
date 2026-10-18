@@ -32,29 +32,31 @@ test("final check carries course identity through readiness, questions, and comp
   assert.match(css, /\.training-completion-card\.training-completion-card-v2/);
 });
 
-test("public verification page renders a real printable certificate with a separate verification panel", async () => {
+test("public verification page renders an A4 completion certificate with a separate verification panel", async () => {
   const [page, css] = await Promise.all([
     readFile(certificatePath, "utf8"),
     readFile(certificateCssPath, "utf8"),
   ]);
 
-  assert.match(page, /function certificateMark/);
-  assert.match(page, /credential-certificate-frame/);
-  assert.match(page, /credential-brand-mark/);
-  assert.match(page, /Verified credential/);
-  assert.match(page, /credential-course-mark/);
-  assert.match(page, /credential-certificate-foot/);
-  assert.match(page, /credential-seal/);
+  assert.match(page, /credential-document/);
+  assert.match(page, /certificate-document-header/);
+  assert.match(page, /certificate-title/);
+  assert.match(page, /CertificateVerificationQr/);
+  assert.match(page, /Verified course completion/);
+  assert.match(page, /certificate-document-issuer/);
   assert.match(page, /credential-side-panel/);
   assert.match(page, /TrainingCertificateActions/);
   assert.match(page, /credential\.recipientName/);
+  assert.match(page, /Not verified/);
+  assert.match(page, /government-ID-verified/);
   assert.doesNotMatch(page, /email|phone/i);
 
-  assert.match(css, /\/\* Certificate document v2 \*\//);
   assert.match(css, /\.credential-card\.credential-certificate/);
-  assert.match(css, /\.credential-certificate-frame/);
+  assert.match(css, /\.credential-document/);
+  assert.match(css, /\.certificate-document-issuer/);
   assert.match(css, /\.credential-side-panel/);
-  assert.match(css, /@media print[\s\S]*\.credential-side-panel/);
+  assert.match(css, /@page\s*\{\s*size:\s*A4 landscape/);
+  assert.match(css, /@media print[\s\S]*\.credential-side-panel\s*\{\s*display:\s*none\s*!important/);
 });
 
 test("assessment and certificate redesigns stay compact on phone screens", async () => {
@@ -65,6 +67,7 @@ test("assessment and certificate redesigns stay compact on phone screens", async
 
   assert.match(trainingCss, /@media \(max-width: 620px\)[\s\S]*\.training-assessment-step-track/);
   assert.match(trainingCss, /@media \(max-width: 430px\)[\s\S]*\.training-auto-question\.training-auto-question-v2/);
-  assert.match(certificateCss, /@media \(max-width: 620px\)[\s\S]*\.credential-card\.credential-certificate/);
-  assert.match(certificateCss, /\.credential-side-panel \.credential-print-actions[\s\S]*grid-template-columns: 1fr/);
+  assert.match(certificateCss, /@media \(max-width: 760px\)[\s\S]*\.credential-document/);
+  assert.match(certificateCss, /@media \(max-width: 760px\)[\s\S]*\.credential-side-panel/);
+  assert.match(certificateCss, /@media \(max-width: 410px\)[\s\S]*\.credential-side-panel/);
 });

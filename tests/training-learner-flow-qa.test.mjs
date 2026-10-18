@@ -139,7 +139,7 @@ test("certificate issuance is idempotent and public verification rejects revoked
   assert.match(page, /It does not verify employment/);
 
   const certificateCss = await readFile("src/app/training/certificates/[code]/certificate.css", "utf8");
-  assert.match(certificateCss, /@media \(max-width: 430px\)/);
+  assert.match(certificateCss, /@media \(max-width: 760px\)/);
   assert.match(certificateCss, /\.credential-link/);
   assert.match(certificateCss, /min-height: 44px/);
 });

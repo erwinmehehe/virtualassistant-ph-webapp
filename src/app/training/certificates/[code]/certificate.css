@@ -279,7 +279,7 @@
 .credential-note p { margin: 8px 0 0; color: #52647e; font-size: 12px; line-height: 1.6; }
 .credential-panel-support { display: flex; align-items: center; gap: 8px; color: #5d6b81; font-size: 12px; line-height: 1.4; }
 .credential-panel-support svg { flex: none; }
-.credential-link { display: inline-flex; align-items: center; gap: 6px; width: fit-content; color: #444ce7; font-size: 13px; font-weight: 800; text-decoration: none; }
+.credential-link { display: inline-flex; align-items: center; min-height: 44px; gap: 6px; width: fit-content; color: #444ce7; font-size: 13px; font-weight: 800; text-decoration: none; }
 .credential-link:hover { text-decoration: underline; }
 .credential-card.credential-invalid {
   display: flex;

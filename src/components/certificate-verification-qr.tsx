@@ -1,4 +1,4 @@
-import { qrcode } from "@/lib/vendor/qrcode-generator.mjs";
+import { qrcode } from "../../vendor/qrcode-generator.mjs";
 
 type CertificateVerificationQrProps = {
   url: string;

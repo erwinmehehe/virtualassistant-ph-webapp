@@ -44,6 +44,7 @@
   align-items: start;
 }
 .credential-document {
+  box-sizing: border-box;
   position: relative;
   width: 100%;
   min-width: 0;
@@ -237,8 +238,8 @@
 .certificate-document-verify { display: flex; flex: none; align-items: center; gap: 8px; }
 .certificate-qr-link {
   display: block;
-  width: clamp(60px, 6.8vw, 84px);
-  height: clamp(60px, 6.8vw, 84px);
+  width: clamp(72px, 7.7vw, 104px);
+  height: clamp(72px, 7.7vw, 104px);
   flex: none;
   border: 1px solid #e5e9f0;
   background: #fff;
@@ -392,7 +393,7 @@
   .certificate-document-issuer strong { font-size: 13pt !important; }
   .certificate-document-issuer small { font-size: 8pt !important; }
   .certificate-issuer-label { font-size: 8pt !important; }
-  .certificate-qr-link { width: 21mm !important; height: 21mm !important; }
+  .certificate-qr-link { width: 24mm !important; height: 24mm !important; }
   .certificate-qr-copy strong, .certificate-qr-copy span { font-size: 8pt !important; }
   .credential-invalid { display: none !important; }
 }

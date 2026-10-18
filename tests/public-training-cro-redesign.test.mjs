@@ -98,10 +98,11 @@ test("CRO redesign stays compact and responsive across course library and certif
 
 
 test("public course cards use illustrated covers, accessible metadata and original course routes", async () => {
-  const [page, css, artwork] = await Promise.all([
+  const [page, css, artwork, artworkCss] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(cssPath, "utf8"),
     readFile("src/components/training-course-artwork.tsx", "utf8"),
+    readFile("src/components/training-course-artwork.css", "utf8"),
   ]);
 
   assert.match(page, /getTrainingCourseArtwork\(course\.slug, course\.title\)/);
@@ -117,7 +118,8 @@ test("public course cards use illustrated covers, accessible metadata and origin
 
   assert.match(artwork, /aria-hidden="true"/);
   assert.match(artwork, /if \(!art\) return null/);
-  assert.match(css, /\.tr-course-art-window/);
+  assert.match(artworkCss, /\.tr-course-art-window/);
+  assert.match(page, /training-course-artwork\.css/);
   assert.match(css, /\.tr-course-card-v2 \.tr-course-card-meta/);
   assert.match(css, /\.tr-course-card-v2 \.tr-course-cta:focus-visible/);
   assert.match(css, /prefers-reduced-motion: reduce/);

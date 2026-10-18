@@ -10,9 +10,11 @@ test("public training hero sells the live product instead of the old roadmap con
   const page = await readFile(pagePath, "utf8");
 
   assert.match(page, /Free VA training · \{totalCourseCount\} courses available/);
-  assert.match(page, /Build practical VA skills\./);
-  assert.match(page, /Earn verified certificates\./);
-  assert.match(page, /Browse \{totalCourseCount\} courses/);
+  assert.match(page, /<h1>Virtual Assistant Training Philippines<\/h1>/);
+  assert.match(page, /Learn practical VA skills\. Earn verifiable certificates\./);
+  assert.match(page, /Explore \{totalCourseCount\} free courses/);
+  assert.match(page, /data-cta-position="hero_foundations"/);
+  assert.doesNotMatch(page, /Sparkles/);
   assert.match(page, /No course or certificate fees/);
   assert.match(page, /Progress saved automatically/);
   assert.doesNotMatch(page, /courses mapped/);

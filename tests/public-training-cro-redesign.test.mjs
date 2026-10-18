@@ -97,21 +97,28 @@ test("CRO redesign stays compact and responsive across course library and certif
 });
 
 
-test("public course cards use distinct typographic covers instead of repeated category icons", async () => {
-  const [page, css] = await Promise.all([
+test("public course cards use illustrated covers, accessible metadata and original course routes", async () => {
+  const [page, css, artwork] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(cssPath, "utf8"),
+    readFile("src/components/training-course-artwork.tsx", "utf8"),
   ]);
 
-  assert.match(page, /function courseMark\(course: PublicTrainingCourse\)/);
-  assert.match(page, /function courseDescriptor\(course: PublicTrainingCourse\)/);
-  assert.match(page, /tr-course-card-v2/);
-  assert.match(page, /tr-course-mark/);
+  assert.match(page, /getTrainingCourseArtwork\(course\.slug, course\.title\)/);
+  assert.match(page, /<TrainingCourseArtwork slug=\{course\.slug\} title=\{course\.title\}/);
+  assert.match(page, /tr-course-mark/); // Future/unknown courses retain a text-only fallback.
   assert.match(page, /tr-course-cover-note/);
-  assert.match(page, /Certificate/);
+  assert.match(page, /course\.lesson_count/);
+  assert.match(page, /duration\(course\.estimated_minutes\)/);
+  assert.match(page, /Certificate included/);
+  assert.match(page, /trainingCourseDestination\(course\.slug\)/);
+  assert.match(page, /trainingJoinHref\(course\.slug\)/);
+  assert.match(page, /data-track="training_course_interest_click"/);
 
-  assert.match(css, /\/\* Course cards v2 \*\//);
-  assert.match(css, /\.tr-course-cover/);
+  assert.match(artwork, /aria-hidden="true"/);
+  assert.match(artwork, /if \(!art\) return null/);
+  assert.match(css, /\.tr-course-art-window/);
   assert.match(css, /\.tr-course-card-v2 \.tr-course-card-meta/);
-  assert.match(css, /\.tr-course-card-v2 \.tr-course-cta/);
+  assert.match(css, /\.tr-course-card-v2 \.tr-course-cta:focus-visible/);
+  assert.match(css, /prefers-reduced-motion: reduce/);
 });

@@ -86,6 +86,9 @@ jobs:
       - name: Run browser journeys
         run: npx playwright test
 
+      - name: Isolated auth gate
+        run: npx playwright test e2e/auth-turnstile-gate.spec.ts --project=chromium --workers=1 --retries=0
+
       - name: Upload all-roles smoke evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

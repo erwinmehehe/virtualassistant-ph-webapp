@@ -58,6 +58,11 @@ test("protected training login and recovery are mandatory in isolated browser CI
   assert.match(workflow, /auth-turnstile-gate\.spec\.ts/);
   assert.match(workflow, /VAPH_AUTH_E2E_TURNSTILE_SITE_KEY/);
   assert.match(workflow, /VAPH_AUTH_E2E_TURNSTILE_SECRET_KEY/);
+  // Public Cloudflare dummy pair makes the isolated gate runnable even before
+  // optional GitHub Actions test-only variables have been configured.
+  assert.match(workflow, /1x00000000000000000000AA/);
+  assert.match(workflow, /1x0000000000000000000000000000000AA/);
+  assert.match(journey, /Refusing to run auth gate against a remote service/);
   assert.match(journey, /requireIsolatedAuthGate\(\)/);
   assert.match(journey, /email confirmation activates disposable learner/);
   assert.match(journey, /failed password followed by valid password/);

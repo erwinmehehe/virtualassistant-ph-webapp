@@ -9,20 +9,23 @@ relaxing Cloudflare Siteverify, Supabase Auth, email confirmation, RLS or rate l
 are disposable or Cloudflare's published dummy keys. Never automate real learner
 sign-in, force CAPTCHA completion or alter production accounts in unattended tests.
 
-## Before merging
+## CI test credentials and merging safeguards
 
-In GitHub **Settings → Secrets and variables → Actions**, configure:
+The isolated browser gate uses Cloudflare's **published always-pass test keys**
+as the CI workflow's fallback values. These are publicly documented dummy
+credentials, not account secrets, and are scoped to the dedicated loopback-only
+CI step. No repository variable or secret provisioning is required for this
+test gate to execute.
 
-- **Repository variable** VAPH_AUTH_E2E_TURNSTILE_SITE_KEY:
-  Cloudflare's published always-pass **test** sitekey, never the production key.
-- **Repository secret** VAPH_AUTH_E2E_TURNSTILE_SECRET_KEY:
-  Cloudflare's published matching always-pass **test** secret, not production.
+Optional GitHub Actions overrides remain supported:
+- Repository variable `VAPH_AUTH_E2E_TURNSTILE_SITE_KEY`
+- Repository secret `VAPH_AUTH_E2E_TURNSTILE_SECRET_KEY`
 
-Reference: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
-
-The new Playwright suite refuses non-loopback app or Supabase URLs, missing/wrong
-dummy credentials or VERCEL_ENV=production. A missing configuration fails the
-dedicated CI step instead of reporting a misleading passing test.
+Overrides must be **the same official test-only key pair**. The test rejects
+missing/mismatched keys, non-loopback services and `VERCEL_ENV=production`.
+Never copy dummy credentials into a production application or use production
+credentials in CI. Source:
+https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 
 The existing **Browser and database contracts** workflow runs:
 

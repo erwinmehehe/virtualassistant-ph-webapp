@@ -68,6 +68,10 @@ test("protected training login and recovery are mandatory in isolated browser CI
   assert.match(workflow, /auth-turnstile-gate\.spec\.ts/);
   assert.match(workflow, /VAPH_AUTH_E2E_TURNSTILE_SITE_KEY/);
   assert.match(workflow, /VAPH_AUTH_E2E_TURNSTILE_SECRET_KEY/);
+  const gatePosition = workflow.indexOf("- name: Isolated Turnstile-enabled authentication gate");
+  const otherBrowserPosition = workflow.indexOf("- name: Run browser journeys");
+  assert.ok(gatePosition !== -1 && otherBrowserPosition !== -1 && gatePosition < otherBrowserPosition,
+    "the disposable Turnstile gate must run before unrelated browser suites");
   // Public Cloudflare dummy pair makes the isolated gate runnable even before
   // optional GitHub Actions test-only variables have been configured.
   assert.match(workflow, /1x00000000000000000000AA/);

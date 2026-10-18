@@ -83,9 +83,8 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run browser journeys
-        run: npx playwright test
-
+      # Run this gate while the disposable database is fresh; unrelated
+      # browser journeys must not affect authentication rate-limit state.
       - name: Isolated Turnstile-enabled authentication gate
         env:
           VAPH_AUTH_GATE: "true"
@@ -95,6 +94,9 @@ jobs:
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.VAPH_AUTH_E2E_TURNSTILE_SITE_KEY || '1x00000000000000000000AA' }}
           TURNSTILE_SECRET_KEY: ${{ secrets.VAPH_AUTH_E2E_TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA' }}
         run: npx playwright test e2e/auth-turnstile-gate.spec.ts --project=chromium --workers=1 --retries=0
+
+      - name: Run browser journeys
+        run: npx playwright test
 
       - name: Upload all-roles smoke evidence
         if: always()

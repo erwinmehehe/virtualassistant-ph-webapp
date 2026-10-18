@@ -5,14 +5,16 @@ import test from "node:test";
 const pagePath = "src/app/training/page.tsx";
 const cssPath = "src/app/training-landing.css";
 
-test("training hero keeps proof in the eyebrow and uses a shorter value headline", async () => {
+test("training hero leads with the requested search intent and value proposition", async () => {
   const page = await readFile(pagePath, "utf8");
 
   assert.match(page, /Free VA training · \{totalCourseCount\} courses available/);
-  assert.match(page, /Build practical VA skills\./);
-  assert.match(page, /Earn verified certificates\./);
+  assert.match(page, /<h1>Virtual Assistant Training Philippines<\/h1>/);
+  assert.match(page, /Learn practical VA skills\. Earn verifiable certificates\./);
+  assert.match(page, /realistic exercises, and certificates you can share after passing the final check/);
+  assert.match(page, /Start Foundations free/);
   assert.match(page, /Recommended learning path/);
-  assert.match(page, /Start broad, then specialise\./);
+  assert.match(page, /Start with Foundations\. Build from there\./);
   assert.doesNotMatch(page, /\{totalCourseCount\} free VA courses\./);
   assert.doesNotMatch(page, /Practical skills\. Verified certificates\./);
 });

@@ -105,5 +105,5 @@ test("certificate verification has mobile share and print support", async () => 
   assert.match(actions, /training_certificate_share/);
   assert.match(css, /credential-print-actions/);
   assert.match(css, /@media print/);
-  assert.match(css, /@media \(max-width: 430px\)/);
+  assert.match(css, /@media \(max-width: 410px\)/);
 });

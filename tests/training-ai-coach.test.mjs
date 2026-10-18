@@ -74,10 +74,14 @@ test("free-only coaching refuses paid model fallback and the isolated real-model
   ]);
   assert.match(route, /AI_TRAINING_COACH_FREE_ONLY === "true"/);
   assert.match(route, /model !== "reflection\/beam-free"/);
+  assert.match(route, /currentlyZeroPricedGatewayModel\(model\)/);
+  assert.match(route, /if \(!response\.ok\) return false/);
+  assert.match(route, /typeof value === "string" && !value\.trim\(\)/);
   assert.match(workflow, /AI_TRAINING_COACH_MODEL: "reflection\/beam-free"/);
   assert.match(workflow, /AI_TRAINING_COACH_FREE_ONLY: "true"/);
   assert.match(workflow, /Validate free-only model pricing before any AI credential/);
-  assert.match(workflow, /Number\(model\.pricing\[key\]\) === 0/);
+  assert.match(workflow, /Number\(price\) === 0/);
+  assert.match(workflow, /price\.trim\(\) !== ""/);
   assert.match(workflow, /https:\/\/ai-gateway\.vercel\.sh\/v1\/models/);
   assert.match(workflow, /VAPH_AI_GATEWAY_BUDGET_CONFIRMED/);
   assert.match(workflow, /vaph-ai-coach-sandbox/);
@@ -89,6 +93,8 @@ test("real-model pilot sanitizes source lessons before any external inference", 
     read("docs/VAPH_AI_COACH_ROLLOUT.md"),
   ]);
   assert.match(spec, /if \(!loopback\(url\)/);
+  assert.match(spec, /AI_TRAINING_COACH_FREE_ONLY !== "true"/);
+  assert.match(spec, /AI_TRAINING_COACH_MODEL !== "reflection\/beam-free"/);
   assert.match(spec, /fictionalLessonContent/);
   assert.match(spec, /content: fictionalLessonContent/);
   assert.match(spec, /expect\(result\.reply\)\.toMatch\(\/handoff/);

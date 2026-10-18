@@ -93,6 +93,7 @@ operational support are established.
 - The Vercel Preview environment currently has no distinct sandbox Supabase credentials, so **do not enable Preview** until a separate disposable non-production Supabase project/branch and protected deployment access are confirmed.
 - AI Gateway authentication and billing eligibility still require separate verification, even for a model currently advertised at zero token price. Do not assume a zero-priced model removes provider authorization, verification, or other platform charges.
 - Before any model credentials are used, the sandbox workflow fetches the live AI Gateway model catalog and verifies the selected model still exists as a language model with exactly zero input and output token pricing. An error or pricing change aborts the workflow.
+- In free-only API mode, each model request also rechecks the current catalog pricing before sending any learner message. Missing prices, empty prices, nonzero prices, or catalog outages return HTTP 503 without a model request. This is a conservative cost gate; third-party fees and provider terms still require separate approval.
 - Preserve `VAPH_COACH_LIVE_MODEL_UAT_ALLOWED` and `VAPH_AI_GATEWAY_BUDGET_CONFIRMED` dispatch gates, require the approved operator key, confirm the live model catalog at runtime, inspect provider logs, and document human acceptance before any production activation.
 - Local fixture `LOCAL TEST COACH` passes do not prove live-model operation. No learner traffic or model inference is activated by this preparation.
 

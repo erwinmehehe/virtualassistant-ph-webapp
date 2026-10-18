@@ -16,6 +16,41 @@ export const dynamic = "force-dynamic";
 const GATEWAY_URL = "https://ai-gateway.vercel.sh/v1/chat/completions";
 const RESPONSE_HEADERS = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
 
+function isExplicitlyZeroCost(value: unknown): boolean {
+  if (typeof value !== "number" && typeof value !== "string") return false;
+  if (typeof value === "string" && !value.trim()) return false;
+  const price = Number(value);
+  return Number.isFinite(price) && price === 0;
+}
+
+/**
+ * Free-only mode is a zero-spend gate, not just a model-name allowlist.
+ * Verify current published input/output prices before EVERY provider request.
+ * Any missing field, changed rate, network error or catalog outage fails shut.
+ * No learner messages are sent to this unauthenticated catalog endpoint.
+ */
+async function currentlyZeroPricedGatewayModel(modelId: string): Promise<boolean> {
+  try {
+    const response = await fetch("https://ai-gateway.vercel.sh/v1/models", {
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) return false;
+    const catalog: unknown = await response.json();
+    if (!catalog || typeof catalog !== "object" || !("data" in catalog) ||
+        !Array.isArray(catalog.data)) return false;
+    return catalog.data.some((item) => {
+      if (!item || typeof item !== "object" || item.id !== modelId ||
+          item.type !== "language" || !item.pricing ||
+          typeof item.pricing !== "object") return false;
+      return isExplicitlyZeroCost(item.pricing.input) &&
+        isExplicitlyZeroCost(item.pricing.output);
+    });
+  } catch {
+    return false;
+  }
+}
+
 function failure(message: string, status: number) {
   return NextResponse.json({ error: message }, { status, headers: RESPONSE_HEADERS });
 }
@@ -105,8 +140,13 @@ export async function POST(request: Request) {
 
   const model = process.env.AI_TRAINING_COACH_MODEL?.trim() || "openai/gpt-5.4";
   // Optional free-only gate: never silently fall back to a billable model.
-  if (process.env.AI_TRAINING_COACH_FREE_ONLY === "true" && model !== "reflection/beam-free") {
-    return failure("The free coaching model is not configured.", 503);
+  if (process.env.AI_TRAINING_COACH_FREE_ONLY === "true") {
+    if (model !== "reflection/beam-free") {
+      return failure("The free coaching model is not configured.", 503);
+    }
+    if (!(await currentlyZeroPricedGatewayModel(model))) {
+      return failure("Free coaching is unavailable until zero-cost pricing is verified.", 503);
+    }
   }
 
   const messages = buildTrainingCoachMessages({

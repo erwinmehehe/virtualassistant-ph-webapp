@@ -30,6 +30,8 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
   test.skip(
     process.env.VAPH_COACH_LIVE_MODEL_UAT !== "operator-approved" ||
     process.env.AI_TRAINING_COACH_ENABLED !== "true" ||
+    process.env.AI_TRAINING_COACH_FREE_ONLY !== "true" ||
+    process.env.AI_TRAINING_COACH_MODEL !== "reflection/beam-free" ||
     process.env.AI_TRAINING_COACH_E2E_MOCK === "true" ||
     !process.env.AI_GATEWAY_API_KEY ||
     !loopback(process.env.NEXT_PUBLIC_SUPABASE_URL) ||
@@ -43,7 +45,9 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
   test.beforeAll(async () => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!loopback(url) || !key || process.env.AI_TRAINING_COACH_E2E_MOCK === "true") {
+    if (!loopback(url) || !key || process.env.AI_TRAINING_COACH_E2E_MOCK === "true" ||
+        process.env.AI_TRAINING_COACH_FREE_ONLY !== "true" ||
+        process.env.AI_TRAINING_COACH_MODEL !== "reflection/beam-free") {
       throw new Error("Local Supabase and REAL model are mandatory for this operator test");
     }
     const admin = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });

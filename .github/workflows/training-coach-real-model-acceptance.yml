@@ -49,10 +49,12 @@ jobs:
           const catalog = await response.json();
           const model = catalog?.data?.find((item) => item.id === selected);
           if (!model || model.type !== "language" ||
-              !["input", "output"].every((key) =>
-                model.pricing?.[key] !== undefined &&
-                Number.isFinite(Number(model.pricing[key])) &&
-                Number(model.pricing[key]) === 0)) {
+              !["input", "output"].every((key) => {
+                const price = model.pricing?.[key];
+                return (typeof price === "number" || (typeof price === "string" && price.trim() !== "")) &&
+                  Number.isFinite(Number(price)) &&
+                  Number(price) === 0;
+              })) {
             throw new Error("Free-only model missing, unsupported, or not zero-priced: abort");
           }
           console.log("Live free-only model validated:", selected);

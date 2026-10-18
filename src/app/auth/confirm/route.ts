@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { redirect } from "next/navigation";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -25,17 +25,17 @@ export async function GET(request: Request) {
   const lead = url.searchParams.get("lead") || undefined;
 
   if (!tokenHash || !type || !ALLOWED_TYPES.has(type)) {
-    return NextResponse.redirect(new URL("/auth/login?error=Authentication%20link%20is%20invalid", url.origin));
+    redirect("/auth/login?error=Authentication%20link%20is%20invalid");
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
   if (error) {
-    return NextResponse.redirect(new URL("/auth/login?error=Authentication%20link%20could%20not%20be%20verified", url.origin));
+    redirect("/auth/login?error=Authentication%20link%20could%20not%20be%20verified");
   }
 
   if (type === "recovery") {
-    return NextResponse.redirect(new URL(requestedNext || "/auth/update-password", url.origin));
+    redirect(requestedNext || "/auth/update-password");
   }
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   const trainingDestination = isTrainingPath(requestedNext);
   if (!user || (!profile && !trainingDestination)) {
     await supabase.auth.signOut();
-    return NextResponse.redirect(new URL("/auth/login?error=Your%20account%20was%20confirmed%20but%20its%20workspace%20could%20not%20be%20loaded", url.origin));
+    redirect("/auth/login?error=Your%20account%20was%20confirmed%20but%20its%20workspace%20could%20not%20be%20loaded");
   }
 
   if (profile) {
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     try {
       const claimedJobId = await claimClientHiringRequests({ userId: user.id, email: user.email, leadId: lead });
       if (claimedJobId) {
-        return NextResponse.redirect(new URL(`/workspace/client/jobs/${claimedJobId}?claimed=1`, url.origin));
+        redirect(`/workspace/client/jobs/${claimedJobId}?claimed=1`);
       }
     } catch {
       // A stale or already-claimed hiring request must not block account confirmation.
@@ -88,5 +88,9 @@ export async function GET(request: Request) {
       : profile || !next.startsWith("/workspace/")
         ? next
         : "/workspace/training";
-  return NextResponse.redirect(new URL(destination, url.origin));
+  // A path-relative redirect preserves the browser’s actual origin. In local
+  // acceptance, Next.js may report request.url as localhost even when the
+  // browser used 127.0.0.1; switching hosts would discard host-only SSR
+  // cookies and send a confirmed learner back to the login page.
+  redirect(destination);
 }

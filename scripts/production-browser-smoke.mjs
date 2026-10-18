@@ -10,6 +10,11 @@ const routes = [
   { name: "home", path: "/", status: 200, minText: 200 },
   { name: "hire", path: "/hire", status: 200, minText: 200 },
   { name: "training", path: "/training", status: 200, minText: 200 },
+  // Read-only production auth coverage. Never submit forms or consume a real
+  // learner's token in the scheduled smoke run.
+  { name: "training-login", path: "/auth/login?next=%2Fworkspace%2Ftraining", status: 200, minText: 160 },
+  { name: "training-signup", path: "/auth/join/training", status: 200, minText: 190 },
+  { name: "password-recovery", path: "/auth/forgot", status: 200, minText: 100 },
   { name: "booking", path: "/book-client-call", status: 200, minText: 150 },
   { name: "contact", path: "/contact", status: 200, minText: 120 },
   { name: "proposal-not-found", path: "/proposal/not-found", status: 404, minText: 20, expectedHeading: "We couldn’t find this hiring proposal." },
@@ -33,6 +38,12 @@ const navigationJourneys = [
     desktopLink: 'nav[aria-label="Primary navigation"] a[href="/training"]',
     mobileLink: 'nav[aria-label="Mobile navigation"] a[href="/training"]',
     openMobileMenu: true,
+  },
+  {
+    name: "training-signup-to-login",
+    from: "/auth/join/training",
+    to: "/auth/login",
+    label: "Log in and use the same account",
   },
   {
     name: "proposal-recovery-to-contact",
@@ -96,6 +107,17 @@ try {
       if (overlay) throw new Error(`${route.name} rendered a framework error overlay`);
       if (horizontalOverflow) throw new Error(`${route.name} has horizontal overflow on ${viewport.name}`);
       if (pageErrors.length) throw new Error(`${route.name} page errors: ${pageErrors.join(" | ")}`);
+
+      const authActions = {
+        "training-login": "login",
+        "training-signup": "training_join",
+        "password-recovery": "password_reset",
+      };
+      const authAction = authActions[route.name];
+      if (authAction) {
+        await page.locator('[data-turnstile-action="' + authAction + '"]').waitFor({ state: "attached", timeout: 15000 });
+        await page.locator('input[name="cf-turnstile-response"]').first().waitFor({ state: "attached", timeout: 15000 });
+      }
 
       if (route.name === "hire") {
         await page.locator('form[action], form').first().waitFor({ state: "visible", timeout: 15000 });
@@ -161,6 +183,10 @@ try {
           { timeout: 20000 },
         );
         await page.locator("main h1").first().waitFor({ state: "visible", timeout: 20000 });
+        if (journey.name === "training-signup-to-login") {
+          await page.locator('[data-turnstile-action="login"]').waitFor({ state: "attached", timeout: 15000 });
+          await page.locator('input[name="cf-turnstile-response"]').first().waitFor({ state: "attached", timeout: 15000 });
+        }
         await page.waitForTimeout(250);
 
         const destinationText = (await page.locator("main").first().innerText()).trim();

@@ -10,6 +10,11 @@ const routes = [
   { name: "home", path: "/", status: 200, minText: 200 },
   { name: "hire", path: "/hire", status: 200, minText: 200 },
   { name: "training", path: "/training", status: 200, minText: 200 },
+  // Read-only production auth coverage. Never submit forms or consume a real
+  // learner's token in the scheduled smoke run.
+  { name: "training-login", path: "/auth/login?next=%2Fworkspace%2Ftraining", status: 200, minText: 160 },
+  { name: "training-signup", path: "/auth/join/training", status: 200, minText: 190 },
+  { name: "password-recovery", path: "/auth/forgot", status: 200, minText: 100 },
   { name: "booking", path: "/book-client-call", status: 200, minText: 150 },
   { name: "contact", path: "/contact", status: 200, minText: 120 },
   { name: "proposal-not-found", path: "/proposal/not-found", status: 404, minText: 20, expectedHeading: "We couldn’t find this hiring proposal." },

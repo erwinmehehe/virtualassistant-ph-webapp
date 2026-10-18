@@ -16,7 +16,6 @@ import {
   MapPinned,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   WalletCards,
 } from "lucide-react";
 import { TrainingSiteHeader } from "@/components/training-site-header";
@@ -152,9 +151,9 @@ function CourseCard({ course, position, signedIn }: { course: PublicTrainingCour
   );
 }
 
-const META_TITLE = "Free Virtual Assistant Training Philippines | Free Certificates";
+const META_TITLE = "Virtual Assistant Training Philippines | Free Certificates";
 const META_DESCRIPTION =
-  "Free virtual assistant training with certificate in the Philippines. Learn practical VA skills online, complete courses, and earn certificates at no cost.";
+  "Learn virtual assistant skills in the Philippines with free, self-paced courses. Practise real tasks and earn verifiable certificates after passing.";
 
 export const metadata: Metadata = {
   title: { absolute: META_TITLE },
@@ -170,7 +169,7 @@ export const metadata: Metadata = {
       url: "/training/opengraph-image",
       width: 1200,
       height: 630,
-      alt: "VirtualAssistant.com.ph training"
+      alt: "Free virtual assistant training courses in the Philippines"
     }]
   },
   twitter: {
@@ -274,15 +273,12 @@ export default async function TrainingPage() {
                 Free VA training · {totalCourseCount} courses available
               </span>
 
-              <h1>
-                Build practical VA skills.
-                <span>Earn verified certificates.</span>
-              </h1>
-
+              <h1>Virtual Assistant Training Philippines</h1>
+              <p className="tr-hero-value">Learn practical VA skills. Earn verifiable certificates.</p>
               <p className="tr-hero-lede">
-                Learn through text-first lessons, practise real VA workflows, and prove what you
-                understood through checkpoints and a randomized final check. Training is free,
-                self-paced, and completely separate from hiring.
+                Learn practical virtual assistant skills at your own pace with free online courses,
+                realistic exercises, and certificates you can share after passing the final check
+                and confirming your name.
               </p>
 
               <div className="tr-cta-row">
@@ -299,7 +295,7 @@ export default async function TrainingPage() {
                   href="#course-library"
                   data-track="training_learning_paths_click"
                 >
-                  Browse {totalCourseCount} courses
+                  Explore {totalCourseCount} free courses
                 </a>
               </div>
 
@@ -308,6 +304,7 @@ export default async function TrainingPage() {
                 <span><Check size={14}/> Mobile-friendly</span>
                 <span><Check size={14}/> Progress saved automatically</span>
               </div>
+              <p className="tr-hero-boundary">Training is completely separate from hiring.</p>
 
               <p className="tr-login-note">
                 {signedIn ? (
@@ -332,9 +329,9 @@ export default async function TrainingPage() {
               <div className="tr-path-preview-head">
                 <div>
                   <span>Recommended learning path</span>
-                  <strong>Start broad, then specialise.</strong>
+                  <strong>Start with Foundations. Build from there.</strong>
                 </div>
-                <span className="tr-path-free"><Sparkles size={13}/> Free</span>
+                <span className="tr-path-free">Free</span>
               </div>
 
               <div className="tr-path-featured">
@@ -376,6 +373,20 @@ export default async function TrainingPage() {
                   <span>03 · Prove completion</span>
                   <strong>Pass the final check, confirm your name, and receive a verified certificate.</strong>
                 </div>
+              </div>
+              <div className="tr-path-action">
+                <Link
+                  className="tr-path-start-cta"
+                  href={signedIn
+                    ? trainingCourseDestination("virtual-assistant-foundations")
+                    : trainingJoinHref("virtual-assistant-foundations")}
+                  data-track="training_course_interest_click"
+                  data-course-slug="virtual-assistant-foundations"
+                  data-cta-position="hero_foundations"
+                >
+                  {signedIn ? "Open Foundations course" : "Start Foundations free"}
+                  <ArrowRight size={16} aria-hidden="true"/>
+                </Link>
               </div>
             </aside>
           </div>

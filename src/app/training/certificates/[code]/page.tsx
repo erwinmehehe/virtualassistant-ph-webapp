@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  CheckCircle2,
+  Clock3,
+  ShieldCheck,
+  XCircle,
+} from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CertificateVerificationQr } from "@/components/certificate-verification-qr";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { getPublicTrainingCredentialByCode } from "@/lib/training-credentials";
 import "./certificate.css";
@@ -23,22 +31,26 @@ function issuedDate(value: string) {
 
 function duration(minutes: number) {
   const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  if (!hours) return `${minutes} minutes`;
-  return rest ? `${hours} hr ${rest} min` : `${hours} hours`;
+  const remainder = minutes % 60;
+  if (!hours) return minutes + " minutes";
+  return remainder ? hours + " hr " + remainder + " min" : hours + " hours";
 }
 
-function certificateMark(title: string) {
-  const value = title.toLowerCase();
-  if (value.includes("seo")) return "SEO";
-  if (value.includes("ndis")) return "NDIS";
-  if (value.includes("xero")) return "XERO";
-  if (value.includes("myob")) return "MYOB";
-  if (value.includes("cliniko")) return "CLIN";
-  if (value.includes("servicem8")) return "S8";
-  if (value.includes("virtual assistant foundations")) return "VA";
-  const words = title.replace(/virtual assistant/gi, "").replace(/[^a-z0-9 ]/gi, " ").split(/\s+/).filter(Boolean);
-  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "VA";
+/**
+ * The verification destination is the application's configured public origin.
+ * Always fall back to the canonical production domain rather than trusting
+ * a request Host header when creating printed/shareable credentials.
+ */
+function publicVerificationUrl(path: string) {
+  try {
+    const base = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph");
+    if (base.protocol !== "https:" && !(process.env.NODE_ENV !== "production" && base.protocol === "http:")) {
+      throw new Error("Invalid public app origin");
+    }
+    return new URL(path, base.origin).toString();
+  } catch {
+    return new URL(path, "https://virtualassistant.com.ph").toString();
+  }
 }
 
 export default async function TrainingCredentialVerificationPage({
@@ -48,103 +60,187 @@ export default async function TrainingCredentialVerificationPage({
 }) {
   const { code } = await params;
   const credential = await getPublicTrainingCredentialByCode(code);
+  const certificatePath = credential
+    ? "/training/certificates/" + encodeURIComponent(credential.credentialCode)
+    : null;
+  const verificationUrl = certificatePath ? publicVerificationUrl(certificatePath) : null;
 
   return (
     <>
       <SiteHeader />
       <main id="main-content" className="credential-page">
         <div className="container credential-shell">
-          <div className="credential-kicker"><ShieldCheck size={15}/> Certificate of completion</div>
+          <div className="credential-intro">
+            <div className="credential-kicker">
+              <ShieldCheck size={16} aria-hidden="true" />
+              Official course completion
+            </div>
+            <h1>Certificate verification</h1>
+            <p>
+              Each credential has a unique verification page that confirms the
+              recorded course completion.
+            </p>
+          </div>
 
-          {credential ? (
+          {credential && verificationUrl ? (
             <section className="credential-card credential-valid credential-certificate">
-              <div className="credential-certificate-frame">
-                <header className="credential-certificate-head">
-                  <div className="credential-brand">
-                    <span className="credential-brand-mark" aria-hidden="true">VA</span>
-                    <div>
-                      <strong>VirtualAssistant.com.ph</strong>
-                      <small>Free skills training</small>
+              <div className="credential-document" aria-label="Certificate of completion">
+                <div className="credential-document-border">
+                  <div className="credential-document-inner">
+                    <div className="certificate-document-header">
+                      <div className="certificate-wordmark">
+                        VirtualAssistant<span>.com.ph</span>
+                      </div>
+                      <span className="certificate-document-edition">
+                        FREE SKILLS TRAINING <span aria-hidden="true">/</span> VERIFIED COMPLETION
+                      </span>
                     </div>
-                  </div>
-                  <div className="credential-verified-pill"><CheckCircle2 size={14}/> Verified credential</div>
-                </header>
 
-                <div className="credential-certificate-body">
-                  <div className="credential-course-mark" aria-hidden="true">{certificateMark(credential.courseTitle)}</div>
-                  <span className="credential-status">Certificate of completion</span>
-                  {credential.recipientName ? (
-                    <div className="credential-recipient">
-                      <span>Awarded to</span>
-                      <strong>{credential.recipientName}</strong>
+                    <div className="certificate-document-body">
+                      <span className="certificate-eyebrow">In recognition of learning</span>
+                      <h2 className="certificate-title">Certificate of Completion</h2>
+                      <span className="certificate-title-rule" aria-hidden="true" />
+
+                      <p className="certificate-presented">Proudly presented to</p>
+                      {credential.recipientName ? (
+                        <p className="certificate-recipient">{credential.recipientName}</p>
+                      ) : (
+                        <p className="certificate-recipient certificate-recipient-missing">
+                          Recipient name not recorded
+                        </p>
+                      )}
+                      <p className="certificate-completion-label">
+                        For successfully completing the course
+                      </p>
+                      <h3 className="certificate-course">{credential.courseTitle}</h3>
+                      <p className="certificate-explanation">
+                        This certificate confirms completion of the named training course.
+                      </p>
                     </div>
-                  ) : null}
-                  <h1>{credential.courseTitle}</h1>
-                  <p>{credential.courseSummary || "This certificate confirms completion of a VirtualAssistant.com.ph training course."}</p>
 
-                  <div className="credential-certificate-rule" aria-hidden="true"/>
+                    <div className="certificate-document-footer">
+                      <dl className="certificate-document-details">
+                        <div>
+                          <dt>ISSUED ON</dt>
+                          <dd>{issuedDate(credential.issuedAt)}</dd>
+                        </div>
+                        <div>
+                          <dt>COURSE LENGTH</dt>
+                          <dd>{duration(credential.estimatedMinutes)}</dd>
+                        </div>
+                        <div>
+                          <dt>CREDENTIAL ID</dt>
+                          <dd>{credential.credentialCode}</dd>
+                        </div>
+                      </dl>
 
-                  <dl className="credential-facts">
-                    <div><dt>Credential</dt><dd>{credential.credentialCode}</dd></div>
-                    <div><dt>Issued</dt><dd>{issuedDate(credential.issuedAt)}</dd></div>
-                    <div><dt>Course length</dt><dd>{duration(credential.estimatedMinutes)}</dd></div>
-                    <div><dt>Status</dt><dd><span className="credential-verified-text"><CheckCircle2 size={13}/> Verified</span></dd></div>
-                  </dl>
-
-                  <div className="credential-certificate-foot">
-                    <div className="credential-seal">
-                      <ShieldCheck size={21}/>
-                      <span>Verified</span>
-                    </div>
-                    <div className="credential-signature">
-                      <span>Issued by</span>
-                      <strong>VirtualAssistant.com.ph Training</strong>
-                      <small>Verification is available at this public credential URL.</small>
+                      <div className="certificate-document-bottom">
+                        <div className="certificate-document-issuer">
+                          <span className="certificate-issuer-rule" aria-hidden="true" />
+                          <span className="certificate-issuer-label">Issued by</span>
+                          <strong>VirtualAssistant.com.ph</strong>
+                          <small>
+                            A verifiable course completion record, not a professional license.
+                          </small>
+                        </div>
+                        <div className="certificate-document-verify">
+                          <a
+                            href={verificationUrl}
+                            className="certificate-qr-link"
+                            aria-label="Open the public certificate verification page"
+                          >
+                            <CertificateVerificationQr url={verificationUrl} />
+                          </a>
+                          <div className="certificate-qr-copy">
+                            <strong>SCAN TO VERIFY</strong>
+                            <span>virtualassistant.com.ph</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <aside className="credential-side-panel">
-                <div className="credential-side-status">
-                  <div className="credential-status-icon"><CheckCircle2 size={24}/></div>
+              <aside className="credential-side-panel" aria-label="Credential verification information">
+                <div className="credential-verification-status">
+                  <span className="credential-status-icon">
+                    <CheckCircle2 size={24} aria-hidden="true" />
+                  </span>
                   <div>
-                    <span>Verification status</span>
-                    <strong>Verified</strong>
+                    <small>Verification status</small>
+                    <strong>Verified course completion</strong>
                   </div>
                 </div>
 
+                <p className="credential-verification-caption">
+                  This credential matches an active course completion record
+                  held by VirtualAssistant.com.ph.
+                </p>
+
+                <dl className="credential-verification-facts">
+                  {credential.recipientName ? (
+                    <div>
+                      <dt>Learner</dt>
+                      <dd>{credential.recipientName}</dd>
+                    </div>
+                  ) : null}
+                  <div>
+                    <dt>Course</dt>
+                    <dd>{credential.courseTitle}</dd>
+                  </div>
+                  <div>
+                    <dt>Issued</dt>
+                    <dd>{issuedDate(credential.issuedAt)}</dd>
+                  </div>
+                  <div>
+                    <dt>Credential ID</dt>
+                    <dd>{credential.credentialCode}</dd>
+                  </div>
+                </dl>
+
                 <div className="credential-print-actions">
                   <TrainingCertificateActions
-                    href={`/training/certificates/${encodeURIComponent(credential.credentialCode)}`}
+                    href={verificationUrl}
                     courseTitle={credential.courseTitle}
                     showPrint
                   />
                 </div>
 
                 <div className="credential-note">
-                  <strong>What this certificate means</strong>
+                  <div className="credential-note-title">
+                    <BadgeCheck size={17} aria-hidden="true" />
+                    <strong>What this certificate means</strong>
+                  </div>
                   <p>
-                    The credential confirms completion of the named training course. The recipient name is learner-confirmed or support-corrected, not independently government-ID-verified. It does not verify employment,
-                    client experience, recruiter approval, or suitability for a specific role.
+                    This verifies course completion only. The recipient name
+                    is learner-confirmed or support-corrected, not independently
+                    government-ID-verified. It does not verify employment,
+                    client experience, recruiter approval, or suitability for a role.
                   </p>
                 </div>
 
+                <div className="credential-panel-support">
+                  <Clock3 size={16} aria-hidden="true" />
+                  <span>Use Print to save an A4 landscape PDF.</span>
+                </div>
                 <Link className="credential-link" href="/training">
-                  Explore training <ArrowRight size={14}/>
+                  Explore free training <ArrowRight size={16} aria-hidden="true" />
                 </Link>
               </aside>
             </section>
           ) : (
             <section className="credential-card credential-invalid">
-              <div className="credential-status-icon"><XCircle size={28}/></div>
+              <span className="credential-status-icon credential-status-invalid">
+                <XCircle size={30} aria-hidden="true" />
+              </span>
               <div>
-                <span className="credential-status">Not verified</span>
-                <h1>We could not verify this certificate.</h1>
-                <p>
-                  The code may be incorrect, or this certificate may no longer be active.
-                </p>
-                <Link className="credential-link" href="/training">Explore training</Link>
+                <span className="credential-invalid-eyebrow">Not verified</span>
+                <h2>We could not verify this certificate.</h2>
+                <p>The credential code may be incorrect, or the certificate may no longer be active.</p>
+                <Link className="credential-link" href="/training">
+                  Explore training <ArrowRight size={16} aria-hidden="true" />
+                </Link>
               </div>
             </section>
           )}

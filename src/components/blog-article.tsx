@@ -261,7 +261,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         <div className="blog-editorial-hero-grid">
           <div className="blog-editorial-hero-copy">
             <Link className="blog-topic-pill" href={`/blog/topic/${post.topic}`}>{topic.label}</Link>
-            <h1>{post.title}</h1>
+            <h1 className={post.title.length > 68 ? "blog-long-title" : undefined}>{post.title}</h1>
             <p className="blog-deck">{post.excerpt}</p>
 
             <div className="blog-editorial-author-row">

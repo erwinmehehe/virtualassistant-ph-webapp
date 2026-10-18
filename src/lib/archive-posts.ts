@@ -55,7 +55,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
 },
   {
   "slug": "get-paid-virtual-assistant-philippines",
-  "title": "How to Get Paid as a Virtual Assistant in the Philippines by International Clients",
+  "title": "How to Get Paid as a Virtual Assistant in the Philippines",
   "metaTitle": "How to Get Paid as a Virtual Assistant in the Philippines",
   "metaDescription": "Learn how Filipino Virtual Assistants get paid by international clients, including currency, invoices, transfer methods, fees, records, and scam checks.",
   "date": "July 5, 2026",

@@ -92,5 +92,7 @@ test("real-action security acceptance uses only disposable loopback accounts and
   assert.match(browser, /unblockedClient\.auth\.signInWithPassword/);
   assert.match(browser, /acceptance-summary\.json/);
   assert.match(workflow, /Retain isolated chat and Auth-ban acceptance summary/);
+  assert.ok(workflow.indexOf("- name: Isolated Turnstile-enabled authentication gate") < workflow.indexOf("- name: Run browser journeys"),
+    "keep the refreshed auth gate ahead of the broader browser suite");
   assert.match(workflow, /artifacts\/chat-auth-uat\//);
 });

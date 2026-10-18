@@ -165,10 +165,21 @@ async function limitOrRedirect(actionKey: string, subject: string, maxAttempts: 
 
 export async function loginAction(formData: FormData) {
   const rawEmail = String(formData.get("email") || "").trim().toLowerCase();
-  await limitOrRedirect("auth_login", rawEmail, 8, 30, 15, (message) => `/auth/login?error=${encodeURIComponent(message)}`);
-  if (!(await verifyTurnstile(formData, "login"))) redirect("/auth/login?error=Please%20complete%20the%20security%20check");
   const rawNext = String(formData.get("next") || "").trim();
   const rawLead = String(formData.get("lead") || "").trim();
+  const loginErrorPath = (message: string) => {
+    const params = new URLSearchParams({ error: message });
+    // A failed security check must not erase training-course intent. Only
+    // preserve internal destinations and validated lead identifiers.
+    const next = safePath(rawNext, "");
+    if (next) params.set("next", next);
+    if (z.string().uuid().safeParse(rawLead).success) params.set("lead", rawLead);
+    return `/auth/login?${params.toString()}`;
+  };
+  await limitOrRedirect("auth_login", rawEmail, 8, 30, 15, loginErrorPath);
+  if (!(await verifyTurnstile(formData, "login"))) {
+    redirect(loginErrorPath("Please complete the security check and try again."));
+  }
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     const params = new URLSearchParams({ error: "Please check your email and password" });

@@ -30,6 +30,7 @@ import { AUSTRALIA_SPECIALIZATIONS } from "@/lib/training-specializations";
 import { getSessionProfile } from "@/lib/auth";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import { getTrainingCourseArtwork, TrainingCourseArtwork } from "@/components/training-course-artwork";
+import "@/components/training-course-artwork.css";
 import "../training-landing.css";
 
 export const dynamic = "force-dynamic";

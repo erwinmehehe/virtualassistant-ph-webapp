@@ -140,7 +140,12 @@ test("Turnstile fails closed on partial configuration and binds tokens to sensit
   assert.match(turnstile, /remoteip/);
   assert.match(turnstile, /AbortSignal\.timeout\(5_000\)/);
   assert.match(turnstile, /result\.action !== expectedAction/);
-  assert.match(widget, /data-action=\{action\}/);
+  // Explicit rendering now binds the challenge action through the API
+  // rather than the auto-render DOM attribute.
+  assert.match(widget, /api\.js\?render=explicit/);
+  assert.match(widget, /api\.render\(containerRef\.current/);
+  assert.match(widget, /action,/);
+  assert.match(widget, /name="cf-turnstile-response" value=\{token\}/);
 
   assert.match(auth, /verifyTurnstile\(formData, "login"\)/);
   assert.match(auth, /verifyTurnstile\(formData, "join"\)/);

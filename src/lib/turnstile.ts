@@ -28,7 +28,12 @@ export async function verifyTurnstile(formData: FormData, expectedAction?: strin
   }
 
   const token = String(formData.get("cf-turnstile-response") || "").trim();
-  if (!token || token.length > 2_048) return false;
+  if (!token || token.length > 2_048) {
+    // This often means an SPA navigation failed to mount the widget. Never
+    // log the token, email, IP address, or secret.
+    console.warn("[turnstile] missing_or_malformed_token", { action: expectedAction || null });
+    return false;
+  }
 
   try {
     const requestHeaders = await headers();
@@ -42,7 +47,13 @@ export async function verifyTurnstile(formData: FormData, expectedAction?: strin
       cache: "no-store",
       signal: AbortSignal.timeout(5_000),
     });
-    if (!response.ok) return false;
+    if (!response.ok) {
+      console.warn("[turnstile] siteverify_http_failure", {
+        action: expectedAction || null,
+        status: response.status,
+      });
+      return false;
+    }
 
     const result = await response.json() as TurnstileResult;
     if (!result.success) {
@@ -77,6 +88,7 @@ export async function verifyTurnstile(formData: FormData, expectedAction?: strin
     }
     return true;
   } catch {
+    console.warn("[turnstile] siteverify_request_failed", { action: expectedAction || null });
     return false;
   }
 }

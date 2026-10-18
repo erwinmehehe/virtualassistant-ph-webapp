@@ -57,10 +57,11 @@
   max-width: 940px;
   margin: 0;
   color: #111827;
-  font-size: clamp(42px, 6vw, 72px);
+  font-size: clamp(36px, 4.4vw, 58px);
   font-weight: 740;
-  letter-spacing: -.048em;
-  line-height: 1.01;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+  overflow-wrap: break-word;
   text-wrap: balance;
 }
 
@@ -843,8 +844,10 @@
 }
 
 /* Recovered WordPress articles use the same editorial rhythm. */
+/* Archive articles use the same full-width editorial canvas as newer posts.
+   The previous 900px container squeezed long H1s beside 410px artwork. */
 .archive-editorial-hero .blog-editorial-hero-inner {
-  max-width: 900px;
+  max-width: 1180px;
 }
 
 .archive-editorial-layout {
@@ -995,8 +998,8 @@
   }
 
   .blog-editorial-hero h1 {
-    font-size: clamp(38px, 12vw, 52px);
-    line-height: 1.03;
+    font-size: clamp(32px, 8.5vw, 42px);
+    line-height: 1.13;
   }
 
   .blog-editorial-page .blog-deck {

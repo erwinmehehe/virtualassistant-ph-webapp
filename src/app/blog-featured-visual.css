@@ -22,8 +22,18 @@
 
 .blog-editorial-hero h1 {
   max-width: 760px;
-  font-size: clamp(40px, 5vw, 64px);
-  line-height: 1.02;
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.1;
+}
+
+/* Long titles retain a single semantic H1 but scale to the available text column.
+   Applies to new guides and recovered WordPress articles alike. */
+.blog-editorial-hero h1.blog-long-title {
+  font-size: clamp(33px, 3.25vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
 }
 
 .blog-editorial-page .blog-deck {
@@ -348,8 +358,15 @@
   }
 
   .blog-editorial-hero h1 {
-    font-size: clamp(36px, 11vw, 48px);
-    letter-spacing: -.042em;
+    font-size: clamp(32px, 8.5vw, 42px);
+    line-height: 1.13;
+    letter-spacing: -.035em;
+  }
+
+  .blog-editorial-hero h1.blog-long-title {
+    font-size: clamp(29px, 7.8vw, 37px);
+    line-height: 1.16;
+    letter-spacing: -.028em;
   }
 
   .blog-editorial-page .blog-deck {

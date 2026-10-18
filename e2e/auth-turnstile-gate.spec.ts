@@ -129,8 +129,14 @@ test.describe("isolated Turnstile authentication release gate", () => {
       type: "magiclink",
       next: TRAINING,
     });
+    const browserOrigin = new URL(process.env.E2E_BASE_URL!).origin;
     await page.goto("/auth/confirm?" + params.toString());
-    await expect(page).toHaveURL((url) => url.pathname === TRAINING, { timeout: 30_000 });
+    // Host-only Supabase session cookies are lost if the confirmation handler
+    // silently switches from 127.0.0.1 to localhost during its redirect.
+    await expect(page).toHaveURL(
+      (url) => url.origin === browserOrigin && url.pathname === TRAINING,
+      { timeout: 30_000 },
+    );
 
     const { data: verified, error: lookupError } = await admin.auth.admin.getUserById(learnerId);
     if (lookupError) throw lookupError;

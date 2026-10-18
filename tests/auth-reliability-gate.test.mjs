@@ -89,6 +89,15 @@ test("protected training login and recovery are mandatory in isolated browser CI
   assert.match(smoke, /\/auth\/join\/training/);
 });
 
+test("email confirmation route redirects within the browser origin without dropping session cookies", async () => {
+  const route = await read("src/app/auth/confirm/route.ts");
+  const journey = await read("e2e/auth-turnstile-gate.spec.ts");
+  assert.match(route, /import \{ redirect \} from "next\/navigation"/);
+  assert.match(route, /redirect\(destination\)/);
+  assert.doesNotMatch(route, /NextResponse\.redirect\(new URL\([^\n]*url\.origin/);
+  assert.match(journey, /url\.origin === browserOrigin && url\.pathname === TRAINING/);
+});
+
 test("health workflow monitors aggregate failures without production credentials in source", async () => {
   const workflow = await read(".github/workflows/auth-security-health-alert.yml");
   assert.match(workflow, /cron: "\*\/10 \* \* \* \*"/);

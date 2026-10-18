@@ -27,6 +27,15 @@ Never copy dummy credentials into a production application or use production
 credentials in CI. Source:
 https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 
+Cloudflare's always-pass test verification does not preserve the widget's real
+per-action value (it returns a generic `test` action or no action). The app
+accepts this dummy-only response **only** when the dedicated gate is enabled
+in Next.js development mode, all app/Supabase/request origins are loopback,
+and both keys match the official dummy pair. For any real keys or deployed
+Vercel environment, Siteverify action matching remains exact and fail-closed.
+The dummy gate proves end-to-end test form navigation and server validation,
+not production action binding; retain the manual live-provider acceptance.
+
 The existing **Browser and database contracts** workflow runs:
 
 1. Disposable Supabase bootstrap, RLS verification and seeded test roles.

@@ -15,6 +15,45 @@ function requestIpFromHeaders(requestHeaders: Headers) {
   return forwarded || requestHeaders.get("x-real-ip")?.trim() || "";
 }
 
+// Official Cloudflare dummy keys return generic test actions, not the widget
+// action. Only the isolated loopback CI gate may accept that fixture response.
+// Real credentials still require an exact action match.
+function isLoopbackHttpUrl(value: string | undefined): boolean {
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" &&
+      ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function allowIsolatedDummyAction(args: {
+  siteKey: string;
+  secret: string;
+  observedAction?: string;
+  requestHeaders: Headers;
+}): boolean {
+  if (args.observedAction && args.observedAction !== "test") return false;
+  if (process.env.VAPH_AUTH_GATE !== "true" ||
+      process.env.NODE_ENV !== "development" ||
+      process.env.VERCEL_ENV ||
+      process.env.VERCEL ||
+      args.siteKey !== "1x00000000000000000000AA" ||
+      args.secret !== "1x0000000000000000000000000000000AA") {
+    return false;
+  }
+  const loopbackUrls = [
+    process.env.E2E_BASE_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+  ];
+  if (!loopbackUrls.every(isLoopbackHttpUrl)) return false;
+  const host = args.requestHeaders.get("host");
+  return Boolean(host && isLoopbackHttpUrl("http://" + host));
+}
+
 export async function verifyTurnstile(formData: FormData, expectedAction?: string) {
   const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim();
@@ -67,7 +106,8 @@ export async function verifyTurnstile(formData: FormData, expectedAction?: strin
       await recordAuthChallengeFailure(expectedAction, "siteverify_rejected");
       return false;
     }
-    if (expectedAction && result.action !== expectedAction) {
+    if (expectedAction && result.action !== expectedAction &&
+        !allowIsolatedDummyAction({ siteKey, secret, observedAction: result.action, requestHeaders })) {
       console.warn("[turnstile] action mismatch", {
         expectedAction,
         receivedAction: result.action || null,

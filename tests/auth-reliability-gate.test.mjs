@@ -37,6 +37,16 @@ test("Turnstile signals contain fixed categories, never customer data", async ()
     read("scripts/auth-security-health-monitor.mjs"),
   ]);
   assert.match(turnstile, /recordAuthChallengeFailure/);
+  // Only the official dummy keys in a local development test may override
+  // Cloudflare's synthetic action. Real action and token validation remain strict.
+  assert.match(turnstile, /function allowIsolatedDummyAction/);
+  assert.match(turnstile, /process\.env\.VAPH_AUTH_GATE !== "true"/);
+  assert.match(turnstile, /process\.env\.NODE_ENV !== "development"/);
+  assert.match(turnstile, /process\.env\.VERCEL_ENV/);
+  assert.match(turnstile, /args\.observedAction !== "test"/);
+  assert.match(turnstile, /loopbackUrls\.every\(isLoopbackHttpUrl\)/);
+  assert.match(turnstile, /expectedAction && result\.action !== expectedAction/);
+  assert.match(turnstile, /!allowIsolatedDummyAction/);
   assert.match(telemetry, /event_name: "auth_security_check_failed"/);
   assert.match(telemetry, /session_id: null/);
   assert.match(telemetry, /user_id: null/);
@@ -64,6 +74,9 @@ test("protected training login and recovery are mandatory in isolated browser CI
   assert.match(workflow, /1x0000000000000000000000000000000AA/);
   assert.match(journey, /Refusing to run auth gate against a remote service/);
   assert.match(journey, /requireIsolatedAuthGate\(\)/);
+  assert.match(journey, /page\.locator\("\.auth-alert"\)/);
+  assert.match(journey, /page\.locator\("\.success-banner"\)/);
+  assert.doesNotMatch(journey, /getByRole\("alert"\)/);
   assert.match(journey, /email confirmation activates disposable learner/);
   assert.match(journey, /failed password followed by valid password/);
   assert.match(journey, /password reset uses a fresh protected challenge/);

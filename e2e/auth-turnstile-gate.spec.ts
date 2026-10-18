@@ -91,7 +91,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await page.getByLabel("Password").fill(PASSWORD);
     await page.getByRole("button", { name: "Log in to training" }).click();
     await expect(page).toHaveURL(/\/auth\/login\?/);
-    await expect(page.getByRole("alert")).toContainText("Confirm your email before logging in.");
+    await expect(page.locator(".auth-alert")).toContainText("Confirm your email before logging in.");
     await expect(page.locator('form .turnstile-wrap [data-turnstile-action="login"]')).toBeAttached();
     await expectToken(page, "resend_confirmation");
     await page.locator('.auth-confirmation-form input[name="email"]').fill(learnerEmail);
@@ -100,7 +100,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
       url.pathname === "/auth/login" && url.searchParams.get("confirm") === "1" &&
       url.searchParams.get("next") === TRAINING,
     );
-    await expect(page.getByRole("status")).toContainText("If that account still needs confirmation");
+    await expect(page.locator(".success-banner")).toContainText("If that account still needs confirmation");
   });
 
   test("email confirmation activates disposable learner and reaches training", async ({ page }) => {
@@ -133,7 +133,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await page.getByRole("button", { name: "Log in to training" }).click();
 
     await expect(page).toHaveURL((url) => url.pathname === "/auth/login" && url.searchParams.get("next") === TRAINING);
-    await expect(page.getByRole("alert")).toContainText("Email or password is incorrect.");
+    await expect(page.locator(".auth-alert")).toContainText("Email or password is incorrect.");
     await expectToken(page, "login");
 
     await page.getByLabel("Email").fill(learnerEmail);
@@ -151,7 +151,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await page.getByLabel("Email").fill("unknown-recovery-gate@example.test");
     await page.getByRole("button", { name: "Send reset link" }).click();
     await expect(page).toHaveURL(/\/auth\/login\?message=/, { timeout: 30_000 });
-    await expect(page.getByRole("status")).toContainText("If that email exists");
+    await expect(page.locator(".success-banner")).toContainText("If that email exists");
   });
 
   test("missing verification token is rejected without losing training destination", async ({ page }) => {
@@ -163,7 +163,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await tokenField.evaluate((input) => input.remove());
     await page.getByRole("button", { name: "Log in to training" }).click();
     await expect(page).toHaveURL((url) => url.pathname === "/auth/login" && url.searchParams.get("next") === TRAINING);
-    await expect(page.getByRole("alert")).toContainText("Please complete the security check");
+    await expect(page.locator(".auth-alert")).toContainText("Please complete the security check");
     await expectToken(page, "login");
   });
 });

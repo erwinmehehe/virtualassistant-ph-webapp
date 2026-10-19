@@ -4,7 +4,7 @@
 
 Extend the approved answer-first editorial format from PRs #940 and #942 to **12 distinct existing articles** in the original VAPH editorial corpus. This pass prioritizes hiring evaluation, cost interpretation, and concrete customer-service, ecommerce, executive, SEO, finance and healthcare workflow handoffs. Selection is based on topical and user-intent coverage, **not** unverified rankings or Search Console traffic.
 
-| Article slug under /blog/ | Audience | Distinctive addition |
+| Existing article slug (canonical path preserved) | Audience | Distinctive addition |
 | --- | --- | --- |
 | `hire-virtual-assistant-philippines` | Employer | Three-outcome role brief and evidence-based 30-day review |
 | `average-hourly-rate-virtual-assistants-philippines` | Employer | Snapshot/sample limitations and like-for-like rate budgeting |
@@ -25,6 +25,7 @@ Extend the approved answer-first editorial format from PRs #940 and #942 to **12
 - All existing sections gain contextual `questionHeading` text. Original `heading` values and canonical anchor IDs remain **unchanged**.
 - Two specific, practical paragraphs per article (24 in total), one extra reader-facing FAQ per article (12), and one relevant contextual internal link per article (12).
 - Removed an existing duplicate `/service/ecommerce` link from the ecommerce tasks guide.
+- The rate guide retains its original root-level canonical: `/average-hourly-rate-virtual-assistants-philippines/`; the other selected guides use existing `/blog/` paths.
 - Preserved article titles, SEO metadata, canonical slugs, `publishedAt`, `updatedAt`, bylines, takeaways, disclosures, and existing linked sources. Dates have not been artificially refreshed.
 - No new pages, invented statistics, platform-fee promises, AI-citation claims, testimonials, or new structured-data eligibility claims.
 

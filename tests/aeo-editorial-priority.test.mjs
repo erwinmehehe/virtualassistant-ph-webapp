@@ -62,3 +62,11 @@ test("editorial edits leave canonical blog slugs unique and keep existing sectio
   assert.match(template, /editorialQuestionHeading\(section\.heading, section\.questionHeading\)/u);
   assert.match(template, /post\.quickAnswer\?\.trim\(\)/u);
 });
+
+test("unreviewed blog sections keep natural headings when a question would be forced", () => {
+  const helper = source("src/lib/answer-first.ts");
+  const sectionHelper = helper.split("export function editorialQuestionHeading")[1];
+  assert.ok(sectionHelper);
+  assert.match(sectionHelper, /return cleaned;/);
+  assert.doesNotMatch(sectionHelper, /What should you know about/);
+});

@@ -34,13 +34,13 @@ test("priority blog guides have reviewed, visible answer-first copy and natural 
     if (!cache.has(path)) cache.set(path, blogRecords(path));
     const post = cache.get(path).find((p) => p.slug === slug);
     assert.ok(post, `missing priority guide: ${slug}`);
-    assert.match(post.quickAnswerQuestion || "", /\\?$/u, `missing editor-reviewed answer question: ${slug}`);
+    assert.match(post.quickAnswerQuestion || "", /\?$/u, `missing editor-reviewed answer question: ${slug}`);
     assert.ok(post.quickAnswer && post.quickAnswer !== post.description, `missing authored answer: ${slug}`);
-    const words = post.quickAnswer.trim().split(/\\s+/u).length;
+    const words = post.quickAnswer.trim().split(/\s+/u).length;
     assert.ok(words >= 35 && words <= 85, `answer for ${slug} should be complete, concise copy; got ${words} words`);
     assert.ok(post.sections.length >= 6, `guide lacks depth: ${slug}`);
     for (const section of post.sections) {
-      assert.match(section.questionHeading || "", /\\?$/u, `review section heading on ${slug}: ${section.heading}`);
+      assert.match(section.questionHeading || "", /\?$/u, `review section heading on ${slug}: ${section.heading}`);
     }
     const sectionCopy = post.sections.flatMap((s) => [...(s.paragraphs || []), ...(s.bullets || [])]).join(" ");
     assert.ok(sectionCopy.toLowerCase().includes(example.toLowerCase()), `missing practical editorial example in ${slug}`);
@@ -58,7 +58,7 @@ test("editorial edits leave canonical blog slugs unique and keep existing sectio
   const slugs = all.map((p) => p.slug);
   assert.equal(new Set(slugs).size, slugs.length);
   const template = source("src/components/blog-article.tsx");
-  assert.match(template, /idFor\\(section\\.heading\\)/u);
-  assert.match(template, /editorialQuestionHeading\\(section\\.heading, section\\.questionHeading\\)/u);
-  assert.match(template, /post\\.quickAnswer\\?\\.trim\\(\\)/u);
+  assert.match(template, /idFor\(section\.heading\)/u);
+  assert.match(template, /editorialQuestionHeading\(section\.heading, section\.questionHeading\)/u);
+  assert.match(template, /post\.quickAnswer\?\.trim\(\)/u);
 });

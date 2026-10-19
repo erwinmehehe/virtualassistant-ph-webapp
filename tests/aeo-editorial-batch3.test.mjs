@@ -112,6 +112,12 @@ test("Batch 3 contains twelve distinct, specifically authored answer-first guide
     assert.equal(headingFingerprint(post), spec.hash, "original section anchor text changed: " + slug);
     assert.equal(post.publishedAt, spec.published, "original publication date changed: " + slug);
     assert.equal(post.updatedAt, spec.updated, "unapproved date freshness claim: " + slug);
+    if (slug === "average-hourly-rate-virtual-assistants-philippines") {
+      assert.equal(post.legacyPath, "/average-hourly-rate-virtual-assistants-philippines/",
+        "first-party rate guide root canonical must stay intact");
+    } else {
+      assert.equal(post.legacyPath, undefined, "unintended legacy route on " + slug);
+    }
     assert.ok(post.author && post.title && post.excerpt, "article attribution missing: " + slug);
     assert.ok(post.metaTitle.length >= 45 && post.metaTitle.length <= 65, "meta title length: " + slug);
     assert.ok(post.description.length >= 130 && post.description.length <= 165, "meta description length: " + slug);

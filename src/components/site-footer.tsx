@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./site-footer.module.css";
 import { FloatingCta } from "@/components/floating-cta";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
@@ -22,6 +23,20 @@ export function SiteFooter() {
           <div className="footer-brand-block">
             <Link className="brand" href="/" style={{ gap: 0 }}><span style={{ marginLeft: 9, display: "inline-flex", gap: 0 }}>VirtualAssistant<span className="ph" style={{ marginLeft: 0, paddingLeft: 0 }}>.com.ph</span></span></Link>
             <p>Vetted Filipino virtual assistants for businesses that want a clearer path from workload to shortlist to hire.</p>
+            <div className={styles.socialLinks}>
+              <a
+                className={styles.facebookLink}
+                href="https://www.facebook.com/profile.php?id=61595768241097"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Virtual Assistant Philippines on Facebook (opens in a new tab)"
+              >
+                <svg className={styles.facebookIcon} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z" />
+                </svg>
+                <span>Facebook</span>
+              </a>
+            </div>
           </div>
           <div className="footer-links"><strong>Hire</strong><Link href="/hire">Hire a Virtual Assistant</Link><Link href="/find-talent">Browse Virtual Assistants</Link><Link href="/services">Services</Link><Link href="/pricing">Pricing</Link><Link href="/managed-vs-direct-hire">Managed vs. Direct Hire</Link></div>
           <div className="footer-links"><strong>Resources</strong><Link href="/industries">Industries</Link><Link href="/software">Software guides</Link><Link href="/how-vetting-works">How vetting works</Link><Link href="/blog">Blog</Link><Link href="/research/virtual-assistant-rates-philippines-2026">2026 Rate &amp; Skills Report</Link><Link href="/tools">Free tools</Link></div>

@@ -340,6 +340,11 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
         "label": "Virtual Assistant tasks",
         "href": "/blog/virtual-assistant-tasks",
         "description": "Build a coherent workload instead of a random task list."
+      },
+      {
+        "label": "Use a 30-day VA onboarding checklist",
+        "href": "/blog/virtual-assistant-onboarding-checklist",
+        "description": "Introduce inbox ownership with staged access and sampled review."
       }
     ]
   },
@@ -2904,6 +2909,11 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
         "label": "Virtual Assistant tasks",
         "href": "/blog/virtual-assistant-tasks",
         "description": "Build a coherent delegated marketing workload."
+      },
+      {
+        "label": "Build a virtual assistant onboarding plan",
+        "href": "/blog/virtual-assistant-onboarding-checklist",
+        "description": "Turn approved marketing tasks into staged, reviewable workflows."
       }
     ]
   },

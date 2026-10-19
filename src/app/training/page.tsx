@@ -21,6 +21,9 @@ import {
 import { TrainingSiteHeader } from "@/components/training-site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
+import { AnswerFirst } from "@/components/answer-first";
+import { faqSchema } from "@/lib/faq-schema";
+import { organizationId, websiteId } from "@/lib/organization";
 import {
   getPublicTrainingOverview,
   type PublicTrainingCourse,
@@ -112,7 +115,7 @@ function CourseCard({ course, position, signedIn }: { course: PublicTrainingCour
   const courseHref = signedIn ? trainingCourseDestination(course.slug) : trainingJoinHref(course.slug);
 
   return (
-    <article className={`tr-course-card tr-course-card-v2 tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
+    <article id={`course-${course.slug}`} className={`tr-course-card tr-course-card-v2 tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
       <div className="tr-course-cover">
         <div className="tr-course-cover-top">
           <span className="tr-course-type">{categoryLabel(course.category)}</span>
@@ -231,30 +234,54 @@ export default async function TrainingPage() {
   const australiaCourseCount = australiaCourses.length || 11;
   const foundationDuration = foundation ? duration(foundation.estimated_minutes) : "3h 40m";
 
-  const schema = [
-    ...(foundation ? [{
-      "@context": "https://schema.org",
-      "@type": "Course",
-      "@id": `${canonicalUrl("/training")}#virtual-assistant-foundations`,
-      name: foundation.title,
-      description:
-        foundation.summary ||
-        "Practical Virtual Assistant foundations training for Filipino professionals.",
-      url: canonicalUrl("/training"),
-      isAccessibleForFree: true,
-      provider: {
-        "@type": "Organization",
-        name: "VirtualAssistant.com.ph",
-        url: canonicalUrl("/")
+  // Only published, publicly listed courses are described in structured data.
+  // Each Course URL targets a visible catalogue card; lesson content stays private.
+  const trainingUrl = canonicalUrl("/training");
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${trainingUrl}#webpage`,
+        url: trainingUrl,
+        name: META_TITLE,
+        description: META_DESCRIPTION,
+        isPartOf: { "@id": websiteId(canonicalUrl("/")) },
+        publisher: { "@id": organizationId(canonicalUrl("/")) },
+        mainEntity: { "@id": `${trainingUrl}#course-list` },
       },
-      offers: {
-        "@type": "Offer",
-        price: 0,
-        priceCurrency: "PHP",
-        availability: "https://schema.org/InStock"
-      }
-    }] : [])
-  ];
+      {
+        "@type": "ItemList",
+        "@id": `${trainingUrl}#course-list`,
+        numberOfItems: publishedCourses.length,
+        itemListElement: publishedCourses.map((course, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          item: {
+            "@type": "Course",
+            "@id": `${trainingUrl}#course-${course.slug}`,
+            url: `${trainingUrl}#course-${course.slug}`,
+            name: course.title,
+            description: course.summary || `Free practical Virtual Assistant training in ${course.title}.`,
+            provider: {
+              "@type": "Organization",
+              "@id": organizationId(canonicalUrl("/")),
+              name: "Virtual Assistant Philippines",
+              url: canonicalUrl("/"),
+            },
+            isAccessibleForFree: true,
+            offers: {
+              "@type": "Offer",
+              price: 0,
+              priceCurrency: "PHP",
+              availability: "https://schema.org/InStock",
+            },
+          },
+        })),
+      },
+      faqSchema(trainingUrl, FAQS.map(([question, answer]) => ({ question, answer }))),
+    ],
+  };
 
   return (
     <>
@@ -275,11 +302,11 @@ export default async function TrainingPage() {
 
               <h1>Virtual Assistant Training Philippines</h1>
               <p className="tr-hero-value">Learn practical VA skills. Earn verifiable certificates.</p>
-              <p className="tr-hero-lede">
-                Learn practical virtual assistant skills at your own pace with free online courses,
-                realistic exercises, and certificates you can share after passing the final check
-                and confirming your name.
-              </p>
+              <AnswerFirst
+                id="training-quick-answer"
+                question="Where can you get free Virtual Assistant training in the Philippines?"
+                answer="VirtualAssistant.com.ph offers free, self-paced Virtual Assistant training for Filipino learners. Published courses cover foundational skills, software, and industry workflows, with practical lessons and assessments. Learners can earn verifiable certificates after passing the final check and confirming their name. Training is optional and does not guarantee a job or determine hiring eligibility."
+              />
 
               <div className="tr-cta-row">
                 <Link

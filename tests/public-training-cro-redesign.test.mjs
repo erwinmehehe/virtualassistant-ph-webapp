@@ -35,7 +35,7 @@ test("public catalogue is driven by published LMS courses and keeps one public t
   assert.match(page, /Recommended first/);
   assert.match(page, /CourseCard course=\{course\}/);
   assert.match(page, /training_course_interest_click/);
-  assert.match(page, /Start this course/);
+  assert.match(page, /Explore course/);
   assert.match(page, /View all \{globalCourseCount\} global courses/);
   assert.doesNotMatch(page, /href=\{?["'`]\/training\/courses\//);
   assert.match(helper, /lesson_count/);

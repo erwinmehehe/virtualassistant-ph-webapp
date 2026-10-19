@@ -1,8 +1,8 @@
 import { mkdir } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
-// Public profiles and counts may legitimately be empty on local disposable DBs.
-// The acceptance gate requires truthful fallback copy and no clipped UI.
+// The user-confirmed total (700) includes more profiles than the consent-gated
+// public directory, from which the five optional photos are selected.
 const pages = [
   { path: "/", name: "home", root: ".pva-hero-copy" },
   { path: "/services", name: "services", root: ".compact-page-header-copy" },
@@ -16,7 +16,7 @@ const viewports = [
 ] as const;
 
 for (const viewport of viewports) {
-  test("public VA proof on homepage, services, and industries - " + viewport.name, async ({ page }) => {
+  test("700 VA profile proof on homepage, services, and industries - " + viewport.name, async ({ page }) => {
     test.setTimeout(240_000);
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await mkdir("artifacts/public-talent-proof", { recursive: true });
@@ -28,16 +28,12 @@ for (const viewport of viewports) {
       const proof = hero.locator(".va-public-proof");
       await expect(proof, "Proof must appear within hero: " + entry.path).toBeVisible();
       await expect(proof).toHaveAttribute("href", "/find-talent");
+      await expect(proof).toHaveAttribute("aria-label", /700 VA profiles/);
 
       const actualCopy = ((await proof.textContent()) || "").trim();
-      expect(actualCopy).toMatch(/vetted Filipino VA profiles|Meet vetted Filipino VAs/);
+      expect(actualCopy).toBe("700 VA profiles");
       const strongText = ((await proof.locator("strong").textContent()) || "").trim();
-      if (/^[\d,]+$/.test(strongText)) {
-        expect(Number(strongText.replaceAll(",", ""))).toBeGreaterThan(0);
-        expect(actualCopy).toContain("vetted Filipino VA profiles");
-      } else {
-        expect(strongText).toBe("Meet vetted Filipino VAs");
-      }
+      expect(strongText).toBe("700");
 
       const bounds = await proof.boundingBox();
       expect(bounds).not.toBeNull();

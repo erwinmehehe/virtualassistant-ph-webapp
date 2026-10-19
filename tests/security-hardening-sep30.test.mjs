@@ -124,12 +124,13 @@ test("security.txt exposes a responsible disclosure contact", async () => {
 
 
 test("Turnstile fails closed on partial configuration and binds tokens to sensitive auth actions", async () => {
-  const [turnstile, widget, auth, resend, login, join, forgot] = await Promise.all([
+  const [turnstile, widget, auth, resend, login, resendForm, join, forgot] = await Promise.all([
     read("src/lib/turnstile.ts"),
     read("src/components/turnstile-widget.tsx"),
     read("src/app/actions/auth.ts"),
     read("src/app/actions/resend-confirmation.ts"),
     read("src/app/auth/login/page.tsx"),
+    read("src/components/resend-confirmation-form.tsx"),
     read("src/components/join-account-form.tsx"),
     read("src/app/auth/forgot/page.tsx"),
   ]);
@@ -152,7 +153,10 @@ test("Turnstile fails closed on partial configuration and binds tokens to sensit
   assert.match(auth, /verifyTurnstile\(formData, "password_reset"\)/);
   assert.match(resend, /verifyTurnstile\(formData, "resend_confirmation"\)/);
   assert.match(login, /TurnstileWidget action="login"/);
-  assert.match(login, /TurnstileWidget[^>]*action="resend_confirmation"/);
+  assert.match(login, /<ResendConfirmationForm next=\{next\} lead=\{lead\}\/>/);
+  assert.match(resendForm, /<TurnstileWidget action="resend_confirmation"\/>/);
+  assert.match(resendForm, /action=\{resendSignupConfirmationAction\}/);
+  assert.match(resendForm, /disabled=\{pending\}/);
   assert.match(join, /TurnstileWidget action="join"/);
   assert.match(forgot, /TurnstileWidget action="password_reset"/);
 });

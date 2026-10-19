@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { TrainingSiteHeader } from "@/components/training-site-header";
 import { AuthExperienceShell } from "@/components/auth-experience-shell";
 import { loginAction, oauthAction } from "@/app/actions/auth";
-import { resendSignupConfirmationAction } from "@/app/actions/resend-confirmation";
+import { ResendConfirmationForm } from "@/components/resend-confirmation-form";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import { googleLoginEnabled, microsoftLoginEnabled } from "@/lib/social-login";
 import { safeTrainingCourseSlug, trainingJoinHref } from "@/lib/training-intent";
@@ -127,14 +127,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               <p>Enter the email you used to register and we&apos;ll try the secure confirmation again.</p>
             </div>
           </div>
-          <form action={resendSignupConfirmationAction} className="auth-confirmation-form">
-            {next ? <input type="hidden" name="next" value={next}/> : null}
-            {lead ? <input type="hidden" name="lead" value={lead}/> : null}
-            <label htmlFor="confirmation-email" className="sr-only">Confirmation email</label>
-            <input id="confirmation-email" type="email" name="email" required autoComplete="email" placeholder="Email address"/>
-            <TurnstileWidget action="resend_confirmation"/>
-            <button className="btn btn-sm" type="submit">Resend</button>
-          </form>
+          <ResendConfirmationForm next={next} lead={lead}/>
         </div>
       ) : null}
 

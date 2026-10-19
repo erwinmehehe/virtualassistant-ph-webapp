@@ -2,19 +2,15 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 import { getHomepageFeaturedVas } from "@/lib/homepage-data";
-import { createPublicClient } from "@/lib/supabase/public";
 
 export type PublicTalentProof = {
-  directoryCount: number | null;
   avatars: { user_id: string; full_name: string; avatar_url: string }[];
 };
 
 /**
- * Public proof only: photos already displayed in the consent-gated public
- * directory and an exact count of rows in that same public view.
- *
- * A public-directory count is NOT a count of all registered VAs. Never infer
- * or hard-code a registered-user total from the sample marketing graphic.
+ * The avatar sample is limited to consented, publicly visible VA profiles.
+ * It is intentionally distinct from the user-confirmed site-wide total
+ * of 700 VA profiles displayed by PublicTalentProof.
  */
 export const getPublicTalentProof = unstable_cache(
   async (): Promise<PublicTalentProof> => {
@@ -28,27 +24,8 @@ export const getPublicTalentProof = unstable_cache(
         avatar_url: String(va.avatar_url),
       }));
 
-    const client = createPublicClient();
-    if (!client) return { directoryCount: null, avatars };
-
-    try {
-      const { count, error } = await client
-        .from("public_va_directory")
-        .select("user_id", { count: "exact", head: true });
-
-      if (error) {
-        console.warn("[public-talent-proof] directory count unavailable", { code: error.code });
-        return { directoryCount: null, avatars };
-      }
-
-      return {
-        directoryCount: typeof count === "number" && Number.isSafeInteger(count) && count > 0 ? count : null,
-        avatars,
-      };
-    } catch {
-      return { directoryCount: null, avatars };
-    }
+    return { avatars };
   },
-  ["public-talent-proof-v1"],
+  ["public-talent-proof-v2"],
   { revalidate: 300, tags: ["public-va-directory"] },
 );

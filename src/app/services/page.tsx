@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Briefcase, ChevronRight, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AnswerFirst } from "@/components/answer-first";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { PublicTalentProof } from "@/components/public-talent-proof";
 import { getPublicTalentProof } from "@/lib/public-talent-proof";
@@ -66,6 +67,14 @@ export default async function ServicesPage() {
         meta={<PublicTalentProof proof={talentProof} />}
         actions={<><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn" href="/find-talent">Browse Virtual Assistants</Link></>}
       />
+
+      <div className="container">
+        <AnswerFirst
+          id="services-quick-answer"
+          question="Which Virtual Assistant services can Philippine-based VAs provide?"
+          answer="Filipino Virtual Assistants can support administration, executive work, customer service, marketing, ecommerce, bookkeeping, technical tasks, and industry-specific operations. The right service depends on your recurring workflow, software, weekly hours, and supervision requirements. Use the role guides below to compare responsibilities and tools before discussing candidate experience, approval boundaries, and hiring arrangements."
+        />
+      </div>
 
       <section className="premium-services-nav-wrap">
         <div className="container">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AnswerFirst } from "@/components/answer-first";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { PublicTalentProof } from "@/components/public-talent-proof";
 import { getPublicTalentProof } from "@/lib/public-talent-proof";
@@ -77,6 +78,14 @@ export default async function IndustriesPage() {
       meta={<PublicTalentProof proof={talentProof} />}
       actions={<><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn" href="/find-talent">Browse Virtual Assistants</Link></>}
     />
+
+    <div className="container">
+      <AnswerFirst
+        id="industries-quick-answer"
+        question="Which industries can work with Filipino Virtual Assistants?"
+        answer="Filipino Virtual Assistants can support repeatable administrative and operational work for healthcare, legal, real estate, construction, ecommerce, home-service, finance, and other teams. The right responsibilities depend on industry software, records, security, hours, and oversight. Compare the guides below to identify suitable workflows and keep regulated decisions with appropriately qualified staff."
+      />
+    </div>
 
     <section className="ip-stats" aria-label="Industry directory summary">
       <div className="container ip-stats-grid">

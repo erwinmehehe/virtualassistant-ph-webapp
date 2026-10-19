@@ -19,6 +19,8 @@ import { canonicalPath } from "@/lib/seo-url";
 import { INDUSTRIES } from "@/lib/industries";
 import { marketplaceEvidenceForPost } from "@/lib/editorial-evidence";
 import { SeoPriorityLinks } from "@/components/seo-priority-links";
+import { AnswerFirst } from "@/components/answer-first";
+import { articleAnswerQuestion, editorialQuestionHeading, editorialQuickAnswer } from "@/lib/answer-first";
 import { seoPriorityLinksForBlog } from "@/lib/seo-priority-links";
 import { getSoftwarePage } from "@/lib/software-pages";
 
@@ -230,6 +232,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const marketplaceEvidence = post.fieldNotes?.length ? marketplaceEvidenceForPost(post) : null;
   const relatedIndustries = post.serviceSlug ? INDUSTRIES.filter((industry) => industry.serviceSlugs.includes(post.serviceSlug!)).slice(0, 3) : [];
   const topic = BLOG_TOPICS[post.topic];
+  const quickAnswer = post.quickAnswer?.trim() || editorialQuickAnswer(post.description, post.keyTakeaways);
   const service = post.serviceSlug ? servicePageBySlug(post.serviceSlug) : undefined;
   const software = post.softwareSlug ? getSoftwarePage(post.softwareSlug) : undefined;
   const serviceHref = service ? `/service/${service.slug}` : "/services";
@@ -238,8 +241,9 @@ export function BlogArticle({ post }: { post: BlogPost }) {
     ? `/find-talent?category=${encodeURIComponent(service.directoryCategory)}`
     : "/find-talent";
   const headings = [
+    { id: "quick-answer", label: "Quick answer" },
     { id: "key-takeaways-heading", label: "Key takeaways" },
-    ...post.sections.map((section) => ({ id: idFor(section.heading), label: section.heading })),
+    ...post.sections.map((section) => ({ id: idFor(section.heading), label: editorialQuestionHeading(section.heading, section.questionHeading) })),
     { id: "frequently-asked-questions", label: "Frequently asked questions" }
   ];
   const hasMeaningfulUpdate = post.updatedAt !== post.publishedAt;
@@ -316,11 +320,11 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
           {post.reviewNote ? <div className="blog-review-note" role="note"><ShieldCheck size={19} aria-hidden="true"/><div><strong>Editorial note</strong><p>{post.reviewNote}</p></div></div> : null}
 
-          <p className="blog-lead">{post.description}</p>
+          <AnswerFirst question={post.quickAnswerQuestion || articleAnswerQuestion(post.title)} answer={quickAnswer} />
 
           <section className="blog-takeaways" aria-labelledby="key-takeaways-heading">
             <div className="kicker">Key takeaways</div>
-            <h2 id="key-takeaways-heading">What matters most</h2>
+            <h2 id="key-takeaways-heading">What are the key takeaways?</h2>
             <ul>{post.keyTakeaways.map((item, index) => <li key={`${String(item)}-${index}`}><CheckCircle2 size={18} aria-hidden="true"/><span>{item}</span></li>)}</ul>
           </section>
 
@@ -344,7 +348,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </aside> : null}
 
           {post.sections.map((section, index) => <section className="blog-section" id={idFor(section.heading)} key={`${section.heading}-${index}`}>
-            <h2>{section.heading}</h2>
+            <h2>{editorialQuestionHeading(section.heading, section.questionHeading)}</h2>
             {(section.paragraphs || []).map((paragraph, paragraphIndex) => <p key={`${section.heading}-p-${paragraphIndex}`}>{paragraph}</p>)}
             {section.bullets?.length ? <ul>{section.bullets.map((item, itemIndex) => <li key={`${item}-${itemIndex}`}><CheckCircle2 size={17} aria-hidden="true"/><span>{item}</span></li>)}</ul> : null}
             {section.numbered?.length ? <ol>{section.numbered.map((item, itemIndex) => <li key={`${item}-${itemIndex}`}>{item}</li>)}</ol> : null}
@@ -385,7 +389,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
           <section className="blog-faqs" id="frequently-asked-questions" aria-labelledby="faq-heading">
             <div className="kicker">FAQ</div>
-            <h2 id="faq-heading">Frequently asked questions</h2>
+            <h2 id="faq-heading">What do readers ask most often?</h2>
             <div className="blog-faq-list">
               {post.faqs.map((faq) => <details key={faq.question}>
                 <summary>{faq.question}</summary>

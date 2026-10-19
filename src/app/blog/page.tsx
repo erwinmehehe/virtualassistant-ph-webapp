@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Calculator } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AnswerFirst } from "@/components/answer-first";
 import { CompactPageHeader } from "@/components/compact-page-header";
 import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
 import { BLOG_POSTS, BLOG_TOPICS, blogHref } from "@/lib/blog";
@@ -46,6 +47,14 @@ export default function BlogPage() {
       description={<p>Browse role-specific advice on hiring, pricing, delegation, tools, onboarding, and management without wading through a lead form first.</p>}
       actions={<><Link className="btn btn-primary" href="/hire">Get a managed VA <ArrowRight size={16}/></Link><Link className="btn" href="/tools/virtual-assistant-cost-calculator"><Calculator size={16}/>VA cost calculator</Link></>}
     />
+
+    <div className="container">
+      <AnswerFirst
+        id="blog-quick-answer"
+        question="What can you learn from the Virtual Assistant Philippines blog?"
+        answer="The Virtual Assistant Philippines blog covers how to hire, budget for, onboard, and manage Filipino Virtual Assistants. Browse practical guides about role responsibilities, tools, costs, candidate evaluation, communication, and ongoing workflow ownership. The articles help employers plan clearer roles and give applicants context about skills, applications, and remote work expectations."
+      />
+    </div>
 
     <section className="section section-white"><div className="container"><div className="section-head"><div className="kicker">Browse by topic</div><h2>Start with the decision you are trying to make.</h2></div><div className="blog-topic-grid">{Object.entries(BLOG_TOPICS).map(([slug, topic]) => {
       const count = BLOG_POSTS.filter((p) => p.topic === slug).length;

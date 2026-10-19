@@ -1,0 +1,46 @@
+.answer-first {
+  border: 1px solid #cfe8e2;
+  border-left: 4px solid #168b77;
+  border-radius: 14px;
+  background: #f5fcfa;
+  color: #193d38;
+  padding: clamp(18px, 2.5vw, 28px);
+  margin-block: 12px 28px;
+}
+
+.answer-first__label {
+  color: #137763;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.answer-first h2 {
+  color: #193d38;
+  font-size: clamp(1.16rem, 2.2vw, 1.5rem);
+  line-height: 1.32;
+  font-weight: 750;
+  margin: 0 0 10px;
+}
+
+.answer-first p {
+  font-size: 1rem;
+  line-height: 1.75;
+  max-width: 78ch;
+  margin: 0;
+}
+
+.blog-article > .answer-first {
+  margin-top: 12px;
+}
+
+.hs-root .answer-first {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+@media (max-width: 720px) {
+  .answer-first { border-radius: 10px; padding: 18px; }
+}

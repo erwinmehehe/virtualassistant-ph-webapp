@@ -73,9 +73,6 @@
 .hb-card .hb-submit:focus-visible, .hb-card .hb-secondary:focus-visible { outline: 2px solid #444ce7; outline-offset: 2px; }
 .hb-card .hb-submit:disabled { opacity: .7; cursor: progress; }
 .hb-card .hb-foot { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #667085; }
-.hb-public-consent { display: flex; align-items: flex-start; gap: 9px; font-size: 12px; line-height: 1.5; color: #344054; cursor: pointer; }
-.hb-card .hb-public-consent input { flex: none; width: 17px; height: 17px; min-height: 17px; margin: 1px 0 0; accent-color: #444ce7; }
-.hb-public-consent span { flex: 1; min-width: 0; }
 .hb-optional { margin-left: 4px; color: #98a2b3; font-weight: 500; }
 .hb-error { padding: 10px 12px; border-radius: 10px; background: #fef3f2; color: #b42318; font-size: 13px; }
 .hb-success-icon { display: grid; place-items: center; width: 44px; height: 44px; margin-top: 16px; border-radius: 12px; background: #eef0ff; color: #444ce7; }

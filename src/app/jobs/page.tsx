@@ -159,7 +159,7 @@ export default async function PublicJobsPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }}
         />
 
-        <section className="jobs-market-hero">
+        <section className="jobs-market-hero" aria-labelledby="jobs-market-title">
           <div className="jobs-market-glow" aria-hidden="true" />
           <div className="container">
             {params.closed === "1" ? (
@@ -172,24 +172,24 @@ export default async function PublicJobsPage({
           <div className="container jobs-market-hero-grid">
             <div className="jobs-market-copy">
               <span className="jobs-market-eyebrow">
-                <ShieldCheck size={15} /> Hire vetted Filipino Virtual Assistants
+                <Globe2 size={15} aria-hidden="true" /> Remote VA opportunities in the Philippines
               </span>
-              <h1>Virtual Assistant Jobs Philippines</h1>
+              <h1 id="jobs-market-title">Virtual Assistant Jobs Philippines</h1>
               <p>
-                Hiring? Draft a VA role with clear work, pay, weekly hours, and timezone expectations, then submit it for the appropriate review. Looking for work? Explore the published remote opportunities below.
+                Browse published remote Virtual Assistant roles with clear pay, weekly hours, and timezone details. Compare opportunities, find work that matches your skills, and apply with a free VA profile when eligible.
               </p>
               <div className="jobs-market-actions">
-                <Link className="btn btn-primary btn-lg" href={EMPLOYER_POST_HREF}>
-                  Post a VA job <ArrowRight size={16} />
-                </Link>
-                <a className="btn btn-lg" href="#open-jobs">
-                  Browse open jobs <ArrowRight size={16} />
+                <a className="btn btn-primary btn-lg" href="#open-jobs">
+                  Browse open jobs <ArrowRight size={16} aria-hidden="true" />
                 </a>
+                <Link className="btn btn-lg" href={VA_JOIN_HREF}>
+                  Create free VA profile <ArrowRight size={16} aria-hidden="true" />
+                </Link>
               </div>
               <div className="jobs-market-proof" aria-label="Job marketplace benefits">
-                <span><CheckCircle2 size={15} /> Employers submit a hiring request</span>
-                <span><CheckCircle2 size={15} /> VAs browse published roles for free</span>
-                <span><Globe2 size={15} /> Remote hiring across timezones</span>
+                <span><BriefcaseBusiness size={15} aria-hidden="true" /> {total > 0 ? total + " published role" + (total === 1 ? "" : "s") : "Published roles only"}</span>
+                <span><CheckCircle2 size={15} aria-hidden="true" /> Free to browse and apply when eligible</span>
+                <span><Globe2 size={15} aria-hidden="true" /> Remote opportunities with pay and hours</span>
               </div>
             </div>
 

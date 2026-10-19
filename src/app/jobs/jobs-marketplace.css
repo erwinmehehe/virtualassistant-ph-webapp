@@ -2,11 +2,14 @@
   background: #f6f7f9;
 }
 
+/* Candidate-first marketplace hero: left side is the jobs journey, not hiring. */
 .jobs-market-hero {
   position: relative;
-  padding: 58px 0 48px;
+  padding: clamp(46px, 5vw, 72px) 0 clamp(40px, 4vw, 60px);
   border-bottom: 1px solid #e4e7ec;
-  background: #fff;
+  background:
+    radial-gradient(ellipse at 12% 18%, rgba(68, 76, 231, .095), transparent 57%),
+    linear-gradient(135deg, #fff 22%, #f6f8ff 100%);
 }
 
 .jobs-market-glow {
@@ -15,36 +18,48 @@
 
 .jobs-market-hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: clamp(36px, 6vw, 78px);
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 340px);
+  gap: clamp(28px, 4.5vw, 66px);
+  align-items: center;
 }
 
 .jobs-market-copy {
-  max-width: 800px;
+  min-width: 0;
+  max-width: 760px;
 }
 
 .jobs-market-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-bottom: 13px;
-  color: #067647;
+  margin-bottom: 18px;
+  padding: 7px 11px;
+  border: 1px solid #dfe3ff;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3538cd;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1.35;
+}
+
+.jobs-market-eyebrow svg {
+  flex: 0 0 auto;
 }
 
 .jobs-market-copy h1 {
-  max-width: 800px;
+  max-width: 760px;
   margin: 0;
-  font-size: clamp(42px, 5vw, 60px);
-  line-height: 1.01;
-  letter-spacing: -.05em;
+  color: #101828;
+  font-size: clamp(40px, 5vw, 62px);
+  line-height: 1.06;
+  letter-spacing: -.048em;
+  text-wrap: balance;
 }
 
 .jobs-market-copy > p {
-  max-width: 720px;
-  margin: 18px 0 0;
+  max-width: 660px;
+  margin: 20px 0 0;
   color: #475467;
   font-size: 17px;
   line-height: 1.65;
@@ -53,77 +68,104 @@
 .jobs-market-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 11px;
   margin-top: 26px;
+}
+
+.jobs-market-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  border-radius: 11px;
+  font-weight: 750;
+}
+
+.jobs-market-actions .btn:not(.btn-primary) {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #344054;
+}
+
+.jobs-market-actions .btn:not(.btn-primary):hover,
+.jobs-market-actions .btn:not(.btn-primary):focus-visible {
+  border-color: #a5b4fc;
+  background: #eef2ff;
+  color: #3538cd;
 }
 
 .jobs-market-proof {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px 18px;
-  margin-top: 21px;
-  color: #667085;
-  font-size: 11.5px;
+  gap: 10px 20px;
+  margin-top: 23px;
+  color: #475467;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 1.45;
 }
 
 .jobs-market-proof span {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
 .jobs-market-proof svg {
-  color: #12b76a;
+  flex: 0 0 auto;
+  color: #444ce7;
 }
 
+/* Employer action is available but does not dominate the candidate hero. */
 .jobs-employer-card {
   display: grid;
   gap: 12px;
+  min-width: 0;
   padding: 24px;
-  border: 1px solid #d0d5dd;
+  border: 1px solid #dce2ef;
   border-radius: 18px;
-  background: #101828;
-  color: #fff;
-  box-shadow: 0 18px 44px rgba(16,24,40,.12);
+  background: #fff;
+  color: #101828;
+  box-shadow: 0 16px 42px rgba(16, 24, 40, .085);
 }
 
 .jobs-employer-kicker {
-  color: #a5b4fc;
-  font-size: 10px;
+  color: #444ce7;
+  font-size: 11px;
   font-weight: 850;
-  letter-spacing: .08em;
+  letter-spacing: .07em;
   text-transform: uppercase;
 }
 
 .jobs-market-summary-icon {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 12px;
-  background: rgba(255,255,255,.08);
-  color: #c7d2fe;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #dfe3ff;
+  border-radius: 11px;
+  background: #eef2ff;
+  color: #444ce7;
 }
 
 .jobs-employer-card h2 {
   margin: 0;
-  font-size: 25px;
-  line-height: 1.08;
+  font-size: 24px;
+  line-height: 1.15;
   letter-spacing: -.035em;
 }
 
 .jobs-employer-card > p {
   margin: 0;
-  color: #d0d5dd;
-  font-size: 12.5px;
-  line-height: 1.6;
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.62;
 }
 
 .jobs-employer-card ul {
   display: grid;
-  gap: 8px;
+  gap: 9px;
   margin: 2px 0 4px;
   padding: 0;
   list-style: none;
@@ -133,42 +175,46 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #eaecf0;
-  font-size: 11.5px;
+  color: #475467;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .jobs-employer-card li svg {
   flex: 0 0 auto;
-  color: #6ce9a6;
+  color: #12b76a;
 }
 
 .jobs-employer-button {
   width: 100%;
+  min-height: 44px;
   justify-content: center;
 }
 
 .jobs-employer-help {
   display: block;
   padding: 9px 11px;
-  border: 1px solid rgba(255,255,255,.24);
+  border: 1px solid #e4e7ec;
   border-radius: 9px;
-  color: #fff;
+  background: #f9fafb;
+  color: #344054;
   text-align: center;
   text-decoration: none;
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.5;
 }
+
 .jobs-employer-help:hover,
 .jobs-employer-help:focus-visible {
-  background: rgba(255,255,255,.1);
-  color: #fff;
+  border-color: #c7d2fe;
+  background: #eef2ff;
+  color: #3538cd;
 }
 
 .jobs-employer-note {
-  color: #98a2b3;
-  font-size: 10.5px;
+  color: #667085;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1.45;
   text-align: center;
@@ -176,7 +222,7 @@
 }
 
 .jobs-employer-note:hover {
-  color: #fff;
+  color: #3538cd;
 }
 
 .public-jobs-page .jobs-directory {
@@ -688,5 +734,59 @@
 
   .jobs-bottom-actions .btn {
     justify-content: center;
+  }
+}
+
+
+/* Keep the job-seeker CTA above the fold on narrow phones. */
+@media (max-width: 680px) {
+  .jobs-market-hero {
+    padding: 33px 0 30px;
+  }
+
+  .jobs-market-hero-grid {
+    gap: 27px;
+  }
+
+  .jobs-market-copy h1 {
+    font-size: clamp(34px, 9vw, 40px);
+    line-height: 1.08;
+  }
+
+  .jobs-market-copy > p {
+    margin-top: 16px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .jobs-market-actions {
+    margin-top: 21px;
+  }
+
+  .jobs-market-actions .btn {
+    min-height: 46px;
+  }
+
+  .jobs-market-proof {
+    gap: 8px 15px;
+    margin-top: 18px;
+    font-size: 11.5px;
+  }
+
+  .jobs-employer-card {
+    gap: 10px;
+    padding: 18px;
+  }
+
+  .jobs-employer-card h2 {
+    font-size: 21px;
+  }
+
+  .jobs-employer-card ul {
+    display: none;
+  }
+
+  .jobs-employer-card > p {
+    font-size: 12.5px;
   }
 }

@@ -31,11 +31,14 @@ async function login(page: Page, email: string, destination: string) {
   await expect(page).toHaveURL((url) => url.pathname === destination, { timeout: 30000 });
 }
 
-async function postChat(page: Page, route: string, message: string, alter?: (page: Page) => Promise<void>) {
+async function postChat(page: Page, route: string, message: string, alter?: (page: Page) => Promise<void>, afterFill?: (page: Page) => Promise<void>) {
   await page.goto(route, { waitUntil: "domcontentloaded" });
   await expect(page.locator('textarea[name="body"]')).toBeVisible();
   if (alter) await alter(page);
   await page.locator('textarea[name="body"]').fill(message);
+  // Hidden React form values can be restored during the preceding input event.
+  // For ownership probes, tamper AFTER filling and inspect real submitted form data.
+  if (afterFill) await afterFill(page);
   const [response] = await Promise.all([
     page.waitForResponse(
       (r) => r.request().method() === "POST" && new URL(r.url()).pathname === new URL(route, BASE).pathname,
@@ -229,10 +232,14 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
   test("forged conversation and oversize message are rejected before a database write", async ({ browser }) => {
     test.setTimeout(120000);
     await withPage(browser, fromClient("repeat"), async (page) => {
-      await postChat(page, "/workspace/client/messages", "Forbidden cross-client thread", async (p) => {
-        await p.locator('input[name="thread_id"]').evaluate((el, id) => {
-          (el as HTMLInputElement).value = id;
-        }, clients.burst.threadId!);
+      await postChat(page, "/workspace/client/messages", "Forbidden cross-client thread", undefined, async (p) => {
+        const forgedThread = clients.burst.threadId!;
+        const actual = await p.locator('input[name="thread_id"]').evaluate((el, id) => {
+          const input = el as HTMLInputElement;
+          input.value = id;
+          return new FormData(input.form!).get("thread_id");
+        }, forgedThread);
+        expect(actual).toBe(forgedThread);
       });
       await expect.poll(() => messageCount("repeat")).toBe(2);
       const { data: borrowed, error: borrowedError } = await admin.from("client_recruiter_messages")

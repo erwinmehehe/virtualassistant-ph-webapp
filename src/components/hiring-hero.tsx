@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CalendarCheck, Check, Clock3, ShieldCheck } from "lucide-react";
 import { PublicAvatar } from "@/components/public-avatar";
+import { PublicTalentProof } from "@/components/public-talent-proof";
+import type { PublicTalentProof as PublicTalentProofData } from "@/lib/public-talent-proof";
 
 /**
  * Shared hero for the service and industry hiring pages: copy and delegation
@@ -23,6 +25,7 @@ export function HiringHero({
   tools = [],
   talent = [],
   talentLabel,
+  talentProof,
   primary,
   secondary,
   note,
@@ -39,6 +42,7 @@ export function HiringHero({
   tools?: string[];
   talent?: TalentPreview[];
   talentLabel?: string;
+  talentProof?: PublicTalentProofData;
   primary: { href: string; label: string; track?: string };
   secondary?: { href: string; label: string };
   note?: ReactNode;
@@ -84,7 +88,7 @@ export function HiringHero({
               {secondary ? <a className="hh-link" href={secondary.href}>{secondary.label}</a> : null}
             </div>
 
-            {faces.length >= 2 ? (
+            {talentProof ? <PublicTalentProof proof={talentProof} /> : faces.length >= 2 ? (
               <div className="hh-talent">
                 <div className="hh-faces">{faces.map((va) => <PublicAvatar key={va.user_id} name={va.full_name} src={va.avatar_url} size="sm" />)}</div>
                 <span>{talentLabel || "Approved Filipino VAs available to interview"}</span>

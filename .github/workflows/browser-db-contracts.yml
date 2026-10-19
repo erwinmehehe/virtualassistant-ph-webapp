@@ -112,7 +112,8 @@ jobs:
           psql "$LOCAL_SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c "DELETE FROM public.action_rate_limits WHERE action_key IN ('auth_login:ip', 'auth_login:email')"
 
       - name: Run browser journeys
-        run: npx playwright test --grep-invert "PR #919 real chat and Auth-ban acceptance"
+        run: |
+          npx playwright test --grep-invert "PR #919 real chat and Auth-ban acceptance"
 
       - name: Upload all-roles smoke evidence
         if: always()

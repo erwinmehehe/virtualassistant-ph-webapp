@@ -72,7 +72,10 @@ test("free-only coaching refuses paid model fallback and the isolated real-model
     read("src/app/api/training/coach/route.ts"),
     read(".github/workflows/training-coach-real-model-acceptance.yml"),
   ]);
-  assert.match(route, /AI_TRAINING_COACH_FREE_ONLY === "true"/);
+  assert.match(route, /AI_TRAINING_COACH_FREE_ONLY !== "true"/);
+  assert.ok(route.indexOf('AI_TRAINING_COACH_FREE_ONLY !== "true"') < route.indexOf("AI_GATEWAY_API_KEY?.trim()"),
+    "the zero-spend guard must run before provider credentials");
+  assert.doesNotMatch(route, /\|\| "openai\/gpt-5\.4"/);
   assert.match(route, /model !== "reflection\/beam-free"/);
   assert.match(route, /currentlyZeroPricedGatewayModel\(model\)/);
   assert.match(route, /if \(!response\.ok\) return false/);

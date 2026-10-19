@@ -21,7 +21,7 @@ Extend the approved answer-first editorial format from PRs #940 and #942 to **12
 
 ## Content changes
 
-- Every article gets a unique editor-written 45–85-word `quickAnswer` and relevant `quickAnswerQuestion`.
+- Every article gets a unique, individually drafted 45–85-word `quickAnswer` and relevant `quickAnswerQuestion`.
 - All existing sections gain contextual `questionHeading` text. Original `heading` values and canonical anchor IDs remain **unchanged**.
 - Two specific, practical paragraphs per article (24 in total), one extra reader-facing FAQ per article (12), and one relevant contextual internal link per article (12).
 - Removed an existing duplicate `/service/ecommerce` link from the ecommerce tasks guide.

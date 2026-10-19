@@ -240,27 +240,41 @@ function CourseCard({
     </form>
   );
 
+  const stateControls = (
+    <div className="training-course-v2-cover-actions">
+      <TrainingSaveCourseButton courseId={course.id} initialSaved={saved}/>
+      <span className={`training-course-state is-${mode}`}>
+        {mode === "completed" ? <CheckCircle2 size={12}/> : null}
+        {courseStateLabel(mode)}
+      </span>
+    </div>
+  );
+
   return (
     <article className={`training-course-card training-course-card-v2 tone-${visual.tone}${hasArtwork ? " has-illustration" : ""}`}>
       <div className={`training-course-v2-cover${hasArtwork ? " has-artwork" : ""}`}>
-        {hasArtwork ? <TrainingCourseArtwork slug={course.slug} title={course.title} /> : null}
-        <div className="training-course-v2-cover-top">
-          <span className="training-course-kind">{course.category === "skill" ? "Role skill" : course.category}</span>
-          <div className="training-course-v2-cover-actions">
-            <TrainingSaveCourseButton courseId={course.id} initialSaved={saved}/>
-            <span className={`training-course-state is-${mode}`}>
-              {mode === "completed" ? <CheckCircle2 size={12}/> : null}
-              {courseStateLabel(mode)}
-            </span>
-          </div>
-        </div>
-        <div className="training-course-v2-cover-bottom">
-          {!hasArtwork ? <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span> : null}
-          {course.country_focus ? <span className="training-course-market">{course.country_focus}</span> : <span className="training-course-market">Global</span>}
-        </div>
+        {hasArtwork ? <TrainingCourseArtwork slug={course.slug} title={course.title} /> : (
+          <>
+            <div className="training-course-v2-cover-top">
+              <span className="training-course-kind">{course.category === "skill" ? "Role skill" : course.category}</span>
+              {stateControls}
+            </div>
+            <div className="training-course-v2-cover-bottom">
+              <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span>
+              <span className="training-course-market">{course.country_focus || "Global"}</span>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="training-course-v2-body">
+        {hasArtwork ? (
+          <div className="training-course-v2-toolbar">
+            <span className="training-course-market">{course.country_focus || "Global"}</span>
+            <span className="sr-only">{course.category === "skill" ? "Role skill" : course.category}</span>
+            {stateControls}
+          </div>
+        ) : null}
         <div className="training-course-card-copy">
           <h3>{course.title}</h3>
           <p>{course.summary || "Practical training with realistic examples, exercises, handoffs, and QA checks."}</p>

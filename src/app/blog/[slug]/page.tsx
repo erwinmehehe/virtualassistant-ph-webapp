@@ -9,6 +9,7 @@ import { ARCHIVE_POSTS, archivePostBySlug, archivePublishedIso, archiveUpdatedIs
 import { ArchiveArticle } from "@/components/archive-article";
 import { organizationId, websiteId } from "@/lib/organization";
 import { socialMetadata } from "@/lib/og";
+import { faqSchema } from "@/lib/faq-schema";
 
 export function generateStaticParams() {
   return [
@@ -199,6 +200,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         } : {}),
         publisher: { "@id": orgId }
       },
+      ...(post.faqs.length ? [faqSchema(url, post.faqs)] : []),
       {
         "@type": "BreadcrumbList",
         "@id": breadcrumbId,

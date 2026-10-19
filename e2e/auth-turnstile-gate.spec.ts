@@ -105,14 +105,43 @@ test.describe("isolated Turnstile authentication release gate", () => {
       return (String(data.get("cf-turnstile-response") || "").length > 10) &&
         (form as HTMLFormElement).checkValidity();
     }), { timeout: 20_000 }).toBe(true);
-    // Wait for the actual Server Action POST, not just the stale ?confirm=1 URL.
-    const [submission] = await Promise.all([
-      page.waitForResponse((response) =>
-        response.request().method() === "POST" &&
-        new URL(response.url()).pathname === "/auth/login",
-      { timeout: 30_000 }),
-      resendForm.locator('button[type="submit"]').click(),
-    ]);
+    // Watch the *actual* submit event and POST paths. Never capture a token,
+    // email, request body, cookie or action ID in diagnostic evidence.
+    const postPaths: string[] = [];
+    page.on("request", (request) => {
+      if (request.method() === "POST") postPaths.push(new URL(request.url()).pathname);
+    });
+    await resendForm.evaluate((form) => {
+      const element = form as HTMLFormElement;
+      element.dataset.e2eSubmit = "not-fired";
+      element.addEventListener("submit", (event) => {
+        element.dataset.e2eSubmit = event.defaultPrevented ? "cancelled" : "fired";
+      }, { capture: true, once: true });
+    });
+    let submission;
+    try {
+      [submission] = await Promise.all([
+        page.waitForResponse((response) =>
+          response.request().method() === "POST" &&
+          new URL(response.url()).pathname === "/auth/login",
+        { timeout: 20_000 }),
+        resendForm.locator('button[type="submit"]').click(),
+      ]);
+    } catch {
+      const diagnostic = await resendForm.evaluate((form) => {
+        const element = form as HTMLFormElement;
+        const action = element.getAttribute("action") || "";
+        return {
+          submitEvent: element.dataset.e2eSubmit || "form-replaced",
+          nativeValid: element.checkValidity(),
+          hasToken: String(new FormData(element).get("cf-turnstile-response") || "").length > 10,
+          actionProtocol: action.split(":")[0],
+          submitButtonDisabled: (element.querySelector('button[type="submit"]') as HTMLButtonElement | null)?.disabled ?? null,
+        };
+      }).catch(() => ({ submitEvent: "form-unmounted" }));
+      throw new Error("Resend produced no /auth/login POST; diagnostic=" +
+        JSON.stringify({ ...diagnostic, postPaths: postPaths.slice(0, 10) }));
+    }
     expect(submission.status()).toBeLessThan(500);
     // The earlier unconfirmed-login URL already has confirm=1/next. Await the
     // *new server-action result* visible to learners and retain next intent,

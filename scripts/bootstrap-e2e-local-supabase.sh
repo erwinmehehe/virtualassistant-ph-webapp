@@ -132,10 +132,7 @@ for file in "$MIGRATION_STASH"/*.sql; do
   printf '%s\t%s\n' "$sortable" "$file" >> "$migration_order_file"
 done
 
-sort -k1,1 -k2,2 "$migration_order_file" | while IFS=
-
-echo "Local Supabase baseline + all repository migrations are ready."
-\t' read -r _ file; do
+sort -k1,1 -k2,2 "$migration_order_file" | while read -r _ file; do
   name="$(basename "$file")"
   echo "Applying repository migration $name..."
   if [ "$name" = "20260922005659_move_pg_net_extension_out_of_public.sql" ]; then

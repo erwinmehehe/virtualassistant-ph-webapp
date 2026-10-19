@@ -33,6 +33,8 @@ import { uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata, serviceOgCategory } from "@/lib/og";
 import { organizationId, websiteId } from "@/lib/organization";
+import { AnswerFirst } from "@/components/answer-first";
+import { faqSchema } from "@/lib/faq-schema";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { localizeContent, localizeEnglish, preserveAcronyms, titleCaseWithAcronyms } from "@/lib/content-language";
@@ -674,6 +676,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
           itemListElement: serviceCapabilities,
         },
       },
+      faqSchema(pageUrl, faqs.map((faq) => ({ question: faq.q, answer: faq.a }))),
       {
         "@type": "BreadcrumbList",
         "@id": breadcrumbId,
@@ -714,6 +717,16 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
       />
 
       <div className="hs-root sp-root">
+        <Band tone="white">
+          <AnswerFirst
+            id="service-quick-answer"
+            question={`What does ${article} ${s.name} do?`}
+            answer={localizeEnglish(
+              `A ${s.name} in the Philippines can help with ${s.tasks.slice(0, 3).join(", ")} and other documented recurring work. Before hiring, define the systems, schedule, handoffs, quality checks, and approval boundaries. Compare candidates using practical examples relevant to your workflow, and keep regulated decisions or sensitive approvals with the responsible internal team.`,
+              s.locale,
+            )}
+          />
+        </Band>
         <Band tone="soft" id="talent">
           <SectionHead
             kicker="Approved talent"

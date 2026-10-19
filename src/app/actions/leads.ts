@@ -410,8 +410,8 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       timezone: timeZone,
       message: briefMessage,
       budget: parsed.data.budget,
-      publicListingConsent: formData.get("public_listing_consent") === "yes",
-      publicBrief: parsed.data.message
+      // All free VA matching forms create private, pending roles.
+      publicListingConsent: false
     });
 
     await recordLeadAnalytics(admin, {
@@ -575,8 +575,8 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       timezone: timeZone,
       message: combinedMessage,
       budget: parsed.data.budget,
-      publicListingConsent: formData.get("public_listing_consent") === "yes",
-      publicBrief: parsed.data.message
+      // All free VA matching forms create private, pending roles.
+      publicListingConsent: false
     });
 
     await recordLeadAnalytics(admin, {
@@ -790,8 +790,8 @@ export async function submitRoleBriefAction(formData: FormData) {
       budget: parsed.data.budget,
       tools,
       requestedVaId,
-      publicListingConsent: formData.get("public_listing_consent") === "yes" && !parsed.data.talent && !parsed.data.shortlist,
-      publicBrief: parsed.data.message
+      // All free VA matching forms create private, pending roles.
+      publicListingConsent: false
     });
   } catch {
     await admin.from("lead_intake").update({ status: "new" }).eq("id", lead.id);

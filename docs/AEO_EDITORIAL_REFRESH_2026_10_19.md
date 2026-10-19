@@ -26,7 +26,7 @@ An attempted Semrush organic report was unavailable due to account API unit bala
 ## Changes made
 
 - Each guide has an editor-written approximately 50-60 word `quickAnswer` and a natural, guide-specific `quickAnswerQuestion`, instead of reusing an automatically combined meta description.
-- Each section of each of the 12 guides has an explicit, reviewed `questionHeading`. The original `heading` value remains untouched because it also determines stable section anchor IDs.
+- Each section of each of the 12 guides has an explicit, reviewed `questionHeading`. The original `heading` value remains untouched because it also determines stable section anchor IDs. For other unreviewed guides, the heading helper keeps the original phrasing when it cannot infer a natural question rather than emitting a boilerplate question.
 - Two substantive, practical paragraphs were added to each guide (24 total), plus one new visible FAQ question and answer per guide (12 total). Existing material, author attribution, internal links, meta titles, descriptions, dates, schema and canonical URLs are retained.
 - The shared blog template already renders these editor overrides; its FAQ JSON-LD uses the same published FAQ answers displayed in the page. No new unsupported rankings, customer outcomes, platform pricing promises or fake sources have been introduced.
 - `tests/aeo-editorial-priority.test.mjs` enforces the authored answers, question headings, concrete examples, distinct FAQs, internal links and metadata limits.

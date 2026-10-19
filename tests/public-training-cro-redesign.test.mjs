@@ -35,7 +35,7 @@ test("public catalogue is driven by published LMS courses and keeps one public t
   assert.match(page, /Recommended first/);
   assert.match(page, /CourseCard course=\{course\}/);
   assert.match(page, /training_course_interest_click/);
-  assert.match(page, /Start this course/);
+  assert.match(page, /Explore course/);
   assert.match(page, /View all \{globalCourseCount\} global courses/);
   assert.doesNotMatch(page, /href=\{?["'`]\/training\/courses\//);
   assert.match(helper, /lesson_count/);
@@ -118,9 +118,12 @@ test("public course cards use illustrated covers, accessible metadata and origin
 
   assert.match(artwork, /aria-hidden="true"/);
   assert.match(artwork, /if \(!art\) return null/);
-  assert.match(artworkCss, /\.tr-course-art-window/);
+  assert.match(artworkCss, /\.tr-course-art-approved-image/);
+  assert.match(artwork, /\/training\/approved-covers\//);
   assert.match(page, /training-course-artwork\.css/);
   assert.match(css, /\.tr-course-card-v2 \.tr-course-card-meta/);
+  assert.match(css, /aspect-ratio: 690 \/ 197/);
+  assert.match(css, /grid-template-columns: minmax\(0, 1\.21fr\)/);
   assert.match(css, /\.tr-course-card-v2 \.tr-course-cta:focus-visible/);
   assert.match(css, /prefers-reduced-motion: reduce/);
 });

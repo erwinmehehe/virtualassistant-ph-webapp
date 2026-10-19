@@ -1,22 +1,26 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
-
-const config = [
-  { ignores: [".next/**", "node_modules/**", "artifacts/**", "supabase/**", "next-env.d.ts"] },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+const config = defineConfig([
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     rules: {
-      // ~700 existing `any` annotations (mostly Supabase rows in recruiter pages) are
-      // reported as warnings so new code is flagged without blocking on the backlog.
+      // Keep the existing Supabase any-annotation backlog visible but nonblocking.
       "@typescript-eslint/no-explicit-any": "warn",
-      // Plain apostrophes in JSX text render correctly; escaping them only adds noise.
       "react/no-unescaped-entities": "off",
+      // Next 16 adds React Compiler advisory rules across legacy screens.
+      // Keep all findings visible as warnings while migrating existing code;
+      // the core Rules of Hooks, dependency checks and security gates remain enabled.
+      "react-hooks/purity": "warn",
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/error-boundaries": "warn",
+      "react-hooks/static-components": "warn",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true }],
     },
   },
-];
+  globalIgnores([".next/**", "node_modules/**", "artifacts/**", "supabase/**", "next-env.d.ts"]),
+]);
 
 export default config;

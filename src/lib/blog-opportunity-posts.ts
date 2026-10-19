@@ -155,6 +155,11 @@ export const BLOG_OPPORTUNITY_POSTS: BlogPost[] = [
         "label": "Virtual Assistant skills guide",
         "href": "/blog/virtual-assistant-skills",
         "description": "Identify practical skills and the evidence employers can verify."
+      },
+      {
+        "label": "Build a job-ready VA profile",
+        "href": "/blog/how-to-create-the-best-va-profile",
+        "description": "Prepare truthful experience, skills, and portfolio proof before the interview."
       }
     ]
   },

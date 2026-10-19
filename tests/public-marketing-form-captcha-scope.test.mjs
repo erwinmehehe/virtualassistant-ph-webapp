@@ -61,6 +61,6 @@ test("login, signup, recovery and confirmation still require real server-side Tu
     assert.ok(auth.includes('verifyTurnstile(formData, "' + action + '")'), action + " protection removed");
   }
   assert.match(resend, /verifyTurnstile\(formData, "resend_confirmation"\)/);
-  assert.match(turnstile, /challenges\.cloudflare\.com\/turnstile\/v0\/siteverify/);
+  assert.ok(\n    turnstile.includes(\'fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify"\'),\n    "server-side Turnstile must call the exact official Siteverify endpoint",\n  );
   assert.match(turnstile, /result\.action !== expectedAction/);
 });

@@ -17,6 +17,8 @@ import { getBusinessSettings } from "@/lib/business-settings";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { jobPublicHref } from "@/lib/public-routing";
 import { socialMetadata } from "@/lib/og";
+import { AnswerFirst } from "@/components/answer-first";
+import { faqSchema } from "@/lib/faq-schema";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
@@ -134,6 +136,7 @@ export default async function PublicJobsPage({
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
+    "@id": `${canonicalUrl("/jobs")}#webpage`,
     name: "Virtual Assistant Jobs Philippines",
     url: canonicalUrl("/jobs"),
     description:
@@ -150,13 +153,21 @@ export default async function PublicJobsPage({
     },
   };
 
+  const pageSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      collectionSchema,
+      faqSchema(canonicalUrl("/jobs"), jobFaqs.map(([question, answer]) => ({ question, answer }))),
+    ],
+  };
+
   return (
     <>
       <SiteHeader />
       <main id="main-content" className="public-jobs-page">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema).replace(/</g, "\\u003c") }}
         />
 
         <section className="jobs-market-hero">
@@ -175,9 +186,11 @@ export default async function PublicJobsPage({
                 <ShieldCheck size={15} /> Hire vetted Filipino Virtual Assistants
               </span>
               <h1>Virtual Assistant Jobs Philippines</h1>
-              <p>
-                Hiring? Draft a VA role with clear work, pay, weekly hours, and timezone expectations, then submit it for the appropriate review. Looking for work? Explore the published remote opportunities below.
-              </p>
+              <AnswerFirst
+                id="jobs-quick-answer"
+                question="Where can Filipino Virtual Assistants find remote VA jobs?"
+                answer="VirtualAssistant.com.ph lists published remote Virtual Assistant jobs for Filipino applicants. Compare responsibilities, required skills, weekly hours, pay, and timezone expectations before applying. Employers submit structured job requests for publication or review, and eligible vetted Virtual Assistants can apply to published opportunities. Training is free and optional; applying does not guarantee employment."
+              />
               <div className="jobs-market-actions">
                 <Link className="btn btn-primary btn-lg" href={EMPLOYER_POST_HREF}>
                   Post a VA job <ArrowRight size={16} />
@@ -314,7 +327,7 @@ export default async function PublicJobsPage({
         <section className="jobs-candidate-guide" aria-labelledby="jobs-candidate-guide-title">
           <div className="container">
             <span className="kicker">For Virtual Assistants</span>
-            <h2 id="jobs-candidate-guide-title">How to apply for a remote VA job</h2>
+            <h2 id="jobs-candidate-guide-title">How do you apply for a remote VA job?</h2>
             <div className="jobs-candidate-guide-grid">
               <div><strong>Review the role</strong><p>Check tasks, weekly hours, pay, timezone, and required tools before applying.</p></div>
               <div><strong>Build your free VA profile</strong><p>Share your relevant experience and complete the platform's recruiter vetting process.</p></div>

@@ -135,19 +135,22 @@ export async function POST(request: Request) {
     }, { headers: RESPONSE_HEADERS });
   }
 
+  // External provider requests are free-only by default. A missing flag, a
+  // different model, or unverifiable catalog pricing fails closed; the local
+  // synthetic fixture above remains available for isolated CI.
+  if (process.env.AI_TRAINING_COACH_FREE_ONLY !== "true") {
+    return failure("External coaching requires approved free-only configuration.", 503);
+  }
+  const model = process.env.AI_TRAINING_COACH_MODEL?.trim();
+  if (model !== "reflection/beam-free") {
+    return failure("The free coaching model is not configured.", 503);
+  }
+  if (!(await currentlyZeroPricedGatewayModel(model))) {
+    return failure("Free coaching is unavailable until zero-cost pricing is verified.", 503);
+  }
+
   const apiKey = process.env.AI_GATEWAY_API_KEY?.trim() || process.env.VERCEL_OIDC_TOKEN?.trim();
   if (!apiKey) return failure("The coach is not configured yet.", 503);
-
-  const model = process.env.AI_TRAINING_COACH_MODEL?.trim() || "openai/gpt-5.4";
-  // Optional free-only gate: never silently fall back to a billable model.
-  if (process.env.AI_TRAINING_COACH_FREE_ONLY === "true") {
-    if (model !== "reflection/beam-free") {
-      return failure("The free coaching model is not configured.", 503);
-    }
-    if (!(await currentlyZeroPricedGatewayModel(model))) {
-      return failure("Free coaching is unavailable until zero-cost pricing is verified.", 503);
-    }
-  }
 
   const messages = buildTrainingCoachMessages({
     request: input,

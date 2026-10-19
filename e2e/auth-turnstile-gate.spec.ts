@@ -103,13 +103,49 @@ test.describe("isolated Turnstile authentication release gate", () => {
     // A ready challenge does not prove React dispatched the server action.
     // Observe the POST rather than extending a wait for a possibly inert click.
     // The request is to the local login page only; never record submitted data.
+    // Diagnose the actual browser submission without recording credentials
+    // or challenge tokens. A successful click alone does not prove submit.
+    const localPosts: string[] = [];
+    page.on("request", (request) => {
+      if (request.method() === "POST" && new URL(request.url()).hostname === "127.0.0.1") {
+        localPosts.push(new URL(request.url()).pathname);
+      }
+    });
+    await resendForm.evaluate((form) => {
+      (window as Window & { __resendSubmitCount?: number; __resendInvalidNames?: string[] }).__resendSubmitCount = 0;
+      (window as Window & { __resendInvalidNames?: string[] }).__resendInvalidNames = [];
+      form.addEventListener("submit", () => {
+        (window as Window & { __resendSubmitCount?: number }).__resendSubmitCount! += 1;
+      }, true);
+      form.addEventListener("invalid", (event) => {
+        const invalid = event.target as HTMLInputElement;
+        (window as Window & { __resendInvalidNames?: string[] }).__resendInvalidNames!.push(invalid.name || "unnamed");
+      }, true);
+    });
     const resendRequest = page.waitForRequest(
-      (request) =>
-        request.method() === "POST" && new URL(request.url()).pathname === "/auth/login",
+      (request) => request.method() === "POST" && new URL(request.url()).hostname === "127.0.0.1",
       { timeout: 30_000 },
     );
     await resendForm.locator('button[type="submit"]').click();
-    await resendRequest;
+    try {
+      const dispatched = await resendRequest;
+      expect(new URL(dispatched.url()).pathname).toBe("/auth/login");
+    } catch {
+      const state = await resendForm.evaluate((form) => {
+        const win = window as Window & { __resendSubmitCount?: number; __resendInvalidNames?: string[] };
+        const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+        return {
+          submitted: win.__resendSubmitCount || 0,
+          invalidNames: win.__resendInvalidNames || [],
+          currentlyValid: (form as HTMLFormElement).checkValidity(),
+          buttonIsAssociated: button?.form === form,
+          buttonDisabled: button?.disabled,
+          actionIsBound: form.hasAttribute("action"),
+        };
+      });
+      throw new Error("Resend did not issue a loopback POST; safe form diagnostics: " + JSON.stringify(state) +
+        "; POST paths: " + JSON.stringify(localPosts));
+    }
     // The earlier unconfirmed-login URL already has confirm=1/next. Await the
     // *new server-action result* visible to learners and retain next intent,
     // rather than wait for a full document 'load' during an RSC redirect.

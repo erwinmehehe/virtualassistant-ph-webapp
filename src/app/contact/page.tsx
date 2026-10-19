@@ -16,7 +16,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { submitContactAction } from "@/app/actions/leads";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
-import { TurnstileWidget } from "@/components/turnstile-widget";
 import { BrowserTimeZoneField } from "@/components/browser-timezone-field";
 import "./contact.css";
 
@@ -143,8 +142,6 @@ export default async function ContactPage({
             <small>Minimum 20 characters.</small>
           </div>
         </div>
-
-        <TurnstileWidget action="contact" />
 
         <div className="contact-form-actions">
           <button className="contact-primary-button" type="submit">

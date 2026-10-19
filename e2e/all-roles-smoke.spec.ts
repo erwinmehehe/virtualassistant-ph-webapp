@@ -278,7 +278,13 @@ async function auditRoute(page: Page, route: Route, screenshotPath: string): Pro
   } finally {
     // Errors raised while taking the screenshot should not hide navigation findings.
     try {
-      await page.screenshot({ path: screenshotPath, animations: "disabled", timeout: 15_000 });
+      await page.screenshot({
+        path: screenshotPath,
+        animations: "disabled",
+        timeout: 30_000,
+        // Capture the actual course cards below the hero for public and learner visual QA.
+        fullPage: route.path === "/training" || route.path === "/workspace/training",
+      });
     } catch (error) {
       findings.push("Could not capture screenshot: " + safeMessage(error instanceof Error ? error.message : error));
     }

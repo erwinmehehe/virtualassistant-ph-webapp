@@ -13,7 +13,6 @@ import { looksLikeVaApplication, VA_APPLICANT_SOURCE_PAGE } from "@/lib/va-appli
 import { DISCOVERY_DURATION_MINUTES, formatDiscoverySlot, isAllowedDiscoverySlot } from "@/lib/discovery-booking";
 import { bookingManageUrl, cancelGoogleMeetDiscoveryMeeting, createBookingManageToken, createGoogleMeetDiscoveryMeeting, updateGoogleMeetDiscoveryMeeting } from "@/lib/booking-operations";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
-import { verifyTurnstile } from "@/lib/turnstile";
 import { uploadContentsMatch } from "@/lib/upload-file-signatures";
 import { shouldSilentlyDropContactSubmission } from "@/lib/contact-spam";
 import { createSignedCapability } from "@/lib/public-capability";
@@ -348,7 +347,6 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
     return { status: "error", message: label ? `Please fill in: ${label}` : "Please complete the required fields so we can match the role accurately." };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
-  if (!(await verifyTurnstile(formData, "service_match"))) return { status: "error", message: "Please complete the security check." };
   try { await enforceEmailAndIpRateLimit("public_service_match", parsed.data.email, 4, 12, 60); }
   catch { return { status: "error", message: "Too many requests. Please try again later." }; }
   const timeZone = safeVisitorTimeZone(parsed.data.timezone);
@@ -412,8 +410,8 @@ export async function submitServiceMatchAction(_previousState: ServiceMatchState
       timezone: timeZone,
       message: briefMessage,
       budget: parsed.data.budget,
-      publicListingConsent: formData.get("public_listing_consent") === "yes",
-      publicBrief: parsed.data.message
+      // All free VA matching forms create private, pending roles.
+      publicListingConsent: false
     });
 
     await recordLeadAnalytics(admin, {
@@ -512,7 +510,6 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
     return { status: "error", message };
   }
   if (parsed.data.website) return { status: "success", message: "Your request has been received." };
-  if (!(await verifyTurnstile(formData, "industry_match"))) return { status: "error", message: "Please complete the security check." };
   try { await enforceEmailAndIpRateLimit("public_industry_match", parsed.data.email, 4, 12, 60); }
   catch { return { status: "error", message: "Too many requests. Please try again later." }; }
   const timeZone = safeVisitorTimeZone(parsed.data.timezone);
@@ -578,8 +575,8 @@ export async function submitIndustryMatchAction(_previousState: ServiceMatchStat
       timezone: timeZone,
       message: combinedMessage,
       budget: parsed.data.budget,
-      publicListingConsent: formData.get("public_listing_consent") === "yes",
-      publicBrief: parsed.data.message
+      // All free VA matching forms create private, pending roles.
+      publicListingConsent: false
     });
 
     await recordLeadAnalytics(admin, {
@@ -697,7 +694,6 @@ export async function submitRoleBriefAction(formData: FormData) {
     redirect(`${returnTo}?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect(`${returnTo}?sent=1`);
-  if (!(await verifyTurnstile(formData, "role_brief"))) redirect(`${returnTo}?error=${encodeURIComponent("Please complete the security check.")}`);
   try { await enforceEmailAndIpRateLimit("public_role_brief", parsed.data.email, 4, 10, 60); }
   catch { redirect(`${returnTo}?error=${encodeURIComponent("Too many requests. Please try again later.")}`); }
   const timeZone = safeVisitorTimeZone(parsed.data.timezone);
@@ -794,8 +790,8 @@ export async function submitRoleBriefAction(formData: FormData) {
       budget: parsed.data.budget,
       tools,
       requestedVaId,
-      publicListingConsent: formData.get("public_listing_consent") === "yes" && !parsed.data.talent && !parsed.data.shortlist,
-      publicBrief: parsed.data.message
+      // All free VA matching forms create private, pending roles.
+      publicListingConsent: false
     });
   } catch {
     await admin.from("lead_intake").update({ status: "new" }).eq("id", lead.id);
@@ -871,7 +867,6 @@ export async function submitContactAction(formData: FormData) {
     topic: parsed.data.topic,
     message: parsed.data.message,
   })) redirect("/contact?sent=1");
-  if (!(await verifyTurnstile(formData, "contact"))) redirect("/contact?error=Please%20complete%20the%20security%20check");
   try { await enforceEmailAndIpRateLimit("public_contact", parsed.data.email, 3, 8, 60); }
   catch { redirect("/contact?error=Too%20many%20requests.%20Please%20try%20again%20later."); }
   const timeZone = safeVisitorTimeZone(parsed.data.timezone);
@@ -958,7 +953,6 @@ export async function submitDiscoveryBookingAction(formData: FormData) {
     redirect(`/book-client-call?error=${encodeURIComponent(message)}`);
   }
   if (parsed.data.website) redirect("/book-client-call?booked=1");
-  if (!(await verifyTurnstile(formData, "discovery_booking"))) redirect("/book-client-call?error=Please%20complete%20the%20security%20check");
   try { await enforceEmailAndIpRateLimit("public_discovery_booking", parsed.data.email, 3, 6, 60); }
   catch { redirect("/book-client-call?error=Too%20many%20booking%20attempts.%20Please%20try%20again%20later."); }
   if (!isAllowedDiscoverySlot(parsed.data.scheduled_at)) {

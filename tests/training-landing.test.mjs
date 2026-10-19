@@ -35,7 +35,9 @@ test("the public course library comes from the LMS, not a second static catalogu
 
 test("the landing page only promotes currently published LMS courses", () => {
   assert.match(page, /publishedCourses = courses\.filter\(\(course\) => course\.status === "published"\)/);
-  assert.match(page, /Available/);
+  assert.match(page, /tr-course-live/);
+  assert.match(page, /Free training/);
+  assert.doesNotMatch(page, /<\/span> Available/);
   assert.match(page, /Recommended first/);
   assert.doesNotMatch(page, /In development/);
   assert.doesNotMatch(page, /courses mapped/);

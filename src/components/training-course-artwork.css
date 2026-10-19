@@ -1,0 +1,25 @@
+/* Approved course cover images (cropped from the accepted course-card mockups).
+   Shared by /training, /workspace/training, and the four Australian paths.
+   Text, learning stats and all actions remain native and dynamic. */
+.tr-course-art {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  background: #e8faf4;
+  pointer-events: none;
+}
+
+.tr-course-art-approved-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tr-course-art-approved-image {
+    transition: none;
+  }
+}

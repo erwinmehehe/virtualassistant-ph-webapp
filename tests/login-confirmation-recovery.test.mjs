@@ -30,3 +30,19 @@ test("resend confirmation preserves intended destination instead of forcing VA o
   assert.doesNotMatch(action,/workspace\/va\/onboarding/);
   assert.match(action,/new URLSearchParams\(\{ confirm: "1" \}\)/);
 });
+
+test("conditional resend form hydrates with its own protected server action", async () => {
+  const login = await read("src/app/auth/login/page.tsx");
+  const form = await read("src/components/resend-confirmation-form.tsx");
+  const action = await read("src/app/actions/resend-confirmation.ts");
+  assert.match(login, /<ResendConfirmationForm next=\{next\} lead=\{lead\}\/>/);
+  assert.match(form, /^"use client";/);
+  assert.match(form, /action=\{resendSignupConfirmationAction\}/);
+  assert.match(form, /TurnstileWidget action="resend_confirmation"/);
+  assert.match(form, /useFormStatus\(\)/);
+  assert.match(form, /disabled=\{pending\}/);
+  assert.match(form, /name="next" value=\{next\}/);
+  assert.match(form, /name="email"/);
+  assert.match(action, /verifyTurnstile\(formData, "resend_confirmation"\)/);
+  assert.match(action, /enforceActionRateLimit\("auth_resend_confirmation"/);
+});

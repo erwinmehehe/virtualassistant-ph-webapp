@@ -26,6 +26,8 @@ import { DashHeader } from "@/components/dash-ui";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { TrainingNextSteps } from "@/components/training-next-steps";
 import { TrainingSaveCourseButton } from "@/components/training-save-course-button";
+import { getTrainingCourseArtwork, TrainingCourseArtwork } from "@/components/training-course-artwork";
+import "@/components/training-course-artwork.css";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { confirmedTrainingCertificateName } from "@/lib/training-certificate-identity";
@@ -34,7 +36,7 @@ import { chooseTrainingResumeCourse } from "@/lib/training-learning-priority";
 import { vaCategoryLabel } from "@/lib/constants";
 import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
 import { chooseOAuthRoleAction } from "@/app/actions/auth";
-import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES } from "@/lib/training-specializations";
+import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES, type AustraliaSpecializationSlug } from "@/lib/training-specializations";
 import {
   getSpecialtyTrainingPath,
   recommendNextTrainingCourses,
@@ -110,7 +112,15 @@ function nextCourseLabel(course: TrainingCourseSummary) {
   return "Open course";
 }
 
-function AustraliaSpecializationIcon({ slug }: { slug: (typeof AUSTRALIA_SPECIALIZATIONS)[number]["slug"] }) {
+/** Each path gets a representative illustration from the same 26-course artwork system. */
+const SPECIALIZATION_COVER_COURSES: Record<AustraliaSpecializationSlug, string> = {
+  "tradie-operations": "australian-trades-administration",
+  "property-management": "property-management-administration-australia",
+  "ndis-allied-health": "ndis-administration-fundamentals",
+  "mortgage-broking": "mortgage-broking-administration-australia",
+};
+
+function AustraliaSpecializationIcon({ slug }: { slug: AustraliaSpecializationSlug }) {
   if (slug === "tradie-operations") return <Wrench size={19} />;
   if (slug === "property-management") return <Building2 size={19} />;
   if (slug === "ndis-allied-health") return <HeartPulse size={19} />;
@@ -207,6 +217,7 @@ function CourseCard({
   saved: boolean;
 }) {
   const visual = courseVisual(course);
+  const hasArtwork = Boolean(getTrainingCourseArtwork(course.slug, course.title));
   const action = mode === "active" ? (
     <Link
       className="btn btn-sm btn-primary"
@@ -229,26 +240,41 @@ function CourseCard({
     </form>
   );
 
+  const stateControls = (
+    <div className="training-course-v2-cover-actions">
+      <TrainingSaveCourseButton courseId={course.id} initialSaved={saved}/>
+      <span className={`training-course-state is-${mode}`}>
+        {mode === "completed" ? <CheckCircle2 size={12}/> : null}
+        {courseStateLabel(mode)}
+      </span>
+    </div>
+  );
+
   return (
-    <article className={`training-course-card training-course-card-v2 tone-${visual.tone}`}>
-      <div className="training-course-v2-cover">
-        <div className="training-course-v2-cover-top">
-          <span className="training-course-kind">{course.category === "skill" ? "Role skill" : course.category}</span>
-          <div className="training-course-v2-cover-actions">
-            <TrainingSaveCourseButton courseId={course.id} initialSaved={saved}/>
-            <span className={`training-course-state is-${mode}`}>
-              {mode === "completed" ? <CheckCircle2 size={12}/> : null}
-              {courseStateLabel(mode)}
-            </span>
-          </div>
-        </div>
-        <div className="training-course-v2-cover-bottom">
-          <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span>
-          {course.country_focus ? <span className="training-course-market">{course.country_focus}</span> : <span className="training-course-market">Global</span>}
-        </div>
+    <article className={`training-course-card training-course-card-v2 tone-${visual.tone}${hasArtwork ? " has-illustration" : ""}`}>
+      <div className={`training-course-v2-cover${hasArtwork ? " has-artwork" : ""}`}>
+        {hasArtwork ? <TrainingCourseArtwork slug={course.slug} title={course.title} /> : (
+          <>
+            <div className="training-course-v2-cover-top">
+              <span className="training-course-kind">{course.category === "skill" ? "Role skill" : course.category}</span>
+              {stateControls}
+            </div>
+            <div className="training-course-v2-cover-bottom">
+              <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span>
+              <span className="training-course-market">{course.country_focus || "Global"}</span>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="training-course-v2-body">
+        {hasArtwork ? (
+          <div className="training-course-v2-toolbar">
+            <span className="training-course-market">{course.country_focus || "Global"}</span>
+            <span className="sr-only">{course.category === "skill" ? "Role skill" : course.category}</span>
+            {stateControls}
+          </div>
+        ) : null}
         <div className="training-course-card-copy">
           <h3>{course.title}</h3>
           <p>{course.summary || "Practical training with realistic examples, exercises, handoffs, and QA checks."}</p>
@@ -623,7 +649,11 @@ export default async function TrainingDashboardPage({
             const pathMinutes = published.reduce((total, course) => total + course.estimated_minutes, 0);
 
             return (
-              <article className={`training-specialization specialization-${specialization.slug} is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
+              <article className={`training-specialization has-artwork specialization-${specialization.slug} is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
+                <div className="training-specialization-cover">
+                  <TrainingCourseArtwork slug={SPECIALIZATION_COVER_COURSES[specialization.slug]} title={specialization.title} />
+                  <span className="training-specialization-cover-label">Australian learning path</span>
+                </div>
                 <div className="training-specialization-header">
                   <span className={`training-specialization-icon specialization-icon-${specialization.slug}`} aria-hidden="true">
                     <AustraliaSpecializationIcon slug={specialization.slug} />

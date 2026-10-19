@@ -32,6 +32,8 @@ import { trainingCourseDestination, trainingJoinHref } from "@/lib/training-inte
 import { AUSTRALIA_SPECIALIZATIONS } from "@/lib/training-specializations";
 import { getSessionProfile } from "@/lib/auth";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
+import { getTrainingCourseArtwork, TrainingCourseArtwork } from "@/components/training-course-artwork";
+import "@/components/training-course-artwork.css";
 import "../training-landing.css";
 
 export const dynamic = "force-dynamic";
@@ -113,18 +115,22 @@ function CourseCard({ course, position, signedIn }: { course: PublicTrainingCour
   const { tone } = courseVisual(course);
   const recommended = course.slug === "virtual-assistant-foundations";
   const courseHref = signedIn ? trainingCourseDestination(course.slug) : trainingJoinHref(course.slug);
+  const hasArtwork = Boolean(getTrainingCourseArtwork(course.slug, course.title));
 
   return (
-    <article id={`course-${course.slug}`} className={`tr-course-card tr-course-card-v2 tr-course-tone-${tone} ${recommended ? "is-recommended" : ""}`}>
-      <div className="tr-course-cover">
+    <article id={`course-${course.slug}`} className={"tr-course-card tr-course-card-v2 tr-course-tone-" + tone + (recommended ? " is-recommended" : "")}>
+      <div className={"tr-course-cover" + (hasArtwork ? " has-artwork" : "")}>
+        {hasArtwork ? <TrainingCourseArtwork slug={course.slug} title={course.title} /> : null}
         <div className="tr-course-cover-top">
           <span className="tr-course-type">{categoryLabel(course.category)}</span>
-          <span className="tr-course-live"><CheckCircle2 size={12}/> Available</span>
+          <span className="tr-course-live"><GraduationCap size={13} aria-hidden="true" /> Free training</span>
         </div>
-        <div className="tr-course-cover-main">
-          <span className="tr-course-mark" aria-hidden="true">{courseMark(course)}</span>
-          <span className="tr-course-cover-note">{courseDescriptor(course)}</span>
-        </div>
+        {!hasArtwork ? (
+          <div className="tr-course-cover-main">
+            <span className="tr-course-mark" aria-hidden="true">{courseMark(course)}</span>
+            <span className="tr-course-cover-note">{courseDescriptor(course)}</span>
+          </div>
+        ) : null}
       </div>
 
       <div className="tr-course-card-body">
@@ -135,9 +141,10 @@ function CourseCard({ course, position, signedIn }: { course: PublicTrainingCour
         </div>
 
         <div className="tr-course-card-meta">
-          <span><BookOpenCheck size={13}/>{course.lesson_count} lessons</span>
-          <span><Clock3 size={13}/>{duration(course.estimated_minutes)}</span>
-          <span><Award size={13}/>Certificate</span>
+          <span><BookOpenCheck size={14}/>{course.lesson_count} lessons</span>
+          <span><Clock3 size={14}/>{duration(course.estimated_minutes)}</span>
+          <span><CheckCircle2 size={14}/>Self-paced</span>
+          <span><Award size={14}/>Certificate included</span>
         </div>
 
         <Link
@@ -147,7 +154,7 @@ function CourseCard({ course, position, signedIn }: { course: PublicTrainingCour
           data-course-slug={course.slug}
           data-cta-position={position}
         >
-          {signedIn ? "Open course" : recommended ? "Start Foundations" : "Start this course"} <ArrowRight size={13}/>
+          {signedIn ? "Open course" : recommended ? "Start Foundations" : "Explore course"} <ArrowRight size={15}/>
         </Link>
       </div>
     </article>

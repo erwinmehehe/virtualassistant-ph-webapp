@@ -17,7 +17,6 @@ import { PublicAvatar } from "@/components/public-avatar";
 import { FormDraftPersistence } from "@/components/form-draft-persistence";
 import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
 import { indefiniteArticleFor } from "@/lib/content-language";
-import { TurnstileWidget } from "@/components/turnstile-widget";
 import { BrowserTimeZoneField } from "@/components/browser-timezone-field";
 
 /**
@@ -167,7 +166,7 @@ function Success({ message, category, leadId, jobId, clientLinked, feedbackToken
   );
 }
 
-function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget = "", allowPublicListing = true }: { id: string; messageMin: number; placeholder: string; defaultHours?: string; defaultBudget?: string; allowPublicListing?: boolean }) {
+function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget = "" }: { id: string; messageMin: number; placeholder: string; defaultHours?: string; defaultBudget?: string }) {
   return (
     <>
       <div className="hb-row">
@@ -205,12 +204,6 @@ function Fields({ id, messageMin, placeholder, defaultHours = "", defaultBudget 
         <textarea id={`${id}-message`} name="message" rows={3} required minLength={messageMin} maxLength={3000} placeholder={placeholder} />
         {messageMin >= 40 ? <small className="hb-field-hint">Minimum 40 characters.</small> : null}
       </div>
-      {allowPublicListing ? (
-      <label className="hb-public-consent">
-        <input type="checkbox" name="public_listing_consent" value="yes" />
-        <span>I consent to VAPH considering this opening for its public jobs page after role, pay, and safety review. My company name and job description may be shown publicly. Publication is not guaranteed; eligible requests may appear as soon as checks pass. Leave unchecked for a private matching request.</span>
-      </label>
-      ) : null}
       <div className="honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     </>
   );
@@ -227,7 +220,7 @@ function Head({ title, sub }: { title: string; sub: string }) {
 }
 
 function Foot() {
-  return <p className="hb-foot"><LockKeyhole size={13} />Private by default · Public listing only if you opt in · No obligation</p>;
+  return <p className="hb-foot"><LockKeyhole size={13} />Private matching request · No obligation</p>;
 }
 
 function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" }>) {
@@ -255,7 +248,6 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
         <BrowserTimeZoneField />
         {state.status === "error" ? <div className="hb-error" role="alert">{state.message}</div> : null}
         <Fields id={id} messageMin={10} placeholder={props.example} />
-        <TurnstileWidget action={props.variant === "service" ? "service_match" : "industry_match"} />
         <button className="hb-submit" type="submit" disabled={pending} data-track={`${props.variant}_${props.slug.replaceAll("-", "_")}_match`}>
           {pending ? "Matching..." : <>Get your free virtual assistant match <ArrowRight size={16} /></>}
         </button>
@@ -299,8 +291,7 @@ function GeneralVariant({ sourcePath, title = "Get your free virtual assistant m
             {VA_CATEGORIES.map((c, i) => <option key={`${c}-${i}`}>{c}</option>)}
           </select>
         </div>
-        <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} allowPublicListing={!talent && !shortlist} />
-        <TurnstileWidget action="role_brief" />
+        <Fields id={id} messageMin={sourcePath === "/" ? 40 : 15} placeholder="e.g. Inbox and calendar management, CRM updates, customer follow-up in HubSpot." defaultHours={defaultHours} defaultBudget={defaultBudget} />
         <button className="hb-submit" type="submit" data-track="role_brief_submit">Get your free virtual assistant match <ArrowRight size={16} /></button>
         <FormDraftPersistence formId={id} storageKey={sourcePath} />
         <Foot />

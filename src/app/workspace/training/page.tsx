@@ -26,6 +26,8 @@ import { DashHeader } from "@/components/dash-ui";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
 import { TrainingNextSteps } from "@/components/training-next-steps";
 import { TrainingSaveCourseButton } from "@/components/training-save-course-button";
+import { getTrainingCourseArtwork, TrainingCourseArtwork } from "@/components/training-course-artwork";
+import "@/components/training-course-artwork.css";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { confirmedTrainingCertificateName } from "@/lib/training-certificate-identity";
@@ -207,6 +209,7 @@ function CourseCard({
   saved: boolean;
 }) {
   const visual = courseVisual(course);
+  const hasArtwork = Boolean(getTrainingCourseArtwork(course.slug, course.title));
   const action = mode === "active" ? (
     <Link
       className="btn btn-sm btn-primary"
@@ -230,8 +233,9 @@ function CourseCard({
   );
 
   return (
-    <article className={`training-course-card training-course-card-v2 tone-${visual.tone}`}>
-      <div className="training-course-v2-cover">
+    <article className={`training-course-card training-course-card-v2 tone-${visual.tone}${hasArtwork ? " has-illustration" : ""}`}>
+      <div className={`training-course-v2-cover${hasArtwork ? " has-artwork" : ""}`}>
+        {hasArtwork ? <TrainingCourseArtwork slug={course.slug} title={course.title} /> : null}
         <div className="training-course-v2-cover-top">
           <span className="training-course-kind">{course.category === "skill" ? "Role skill" : course.category}</span>
           <div className="training-course-v2-cover-actions">
@@ -243,7 +247,7 @@ function CourseCard({
           </div>
         </div>
         <div className="training-course-v2-cover-bottom">
-          <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span>
+          {!hasArtwork ? <span className="training-course-mark" aria-hidden="true">{courseMark(course)}</span> : null}
           {course.country_focus ? <span className="training-course-market">{course.country_focus}</span> : <span className="training-course-market">Global</span>}
         </div>
       </div>

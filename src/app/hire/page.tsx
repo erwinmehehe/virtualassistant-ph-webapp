@@ -123,7 +123,7 @@ export default async function HirePage({
                 <a href={HIRING_CALL_URL} data-track="booking_click">Book a call <ArrowRight size={14} /></a>
               </div>
 
-              <div className="pvh-private-note"><ShieldCheck size={14} /> No account required. Your hiring brief stays private unless you choose the optional public listing.</div>
+              <div className="pvh-private-note"><ShieldCheck size={14} /> No account required. Your hiring brief stays private with our recruiting team.</div>
 
               {selectedShortlist.length ? (
                 <div className="pvh-requested-talent" style={{display:"block"}}>

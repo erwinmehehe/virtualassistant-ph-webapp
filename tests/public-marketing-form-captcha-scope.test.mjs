@@ -17,7 +17,8 @@ test("public matching forms never show or load the Cloudflare Turnstile widget",
   assert.match(source, /<Fields id=\{id\}/);
   assert.match(source, /name="website"/);
   assert.match(source, /Get your free virtual assistant match/);
-  assert.match(source, /public_listing_consent/);
+  assert.doesNotMatch(source, /public_listing_consent|hb-public-consent|allowPublicListing/);
+  assert.match(source, /Private matching request/);
 });
 
 test("contact and discovery booking avoid the Cloudflare widget but keep honeypots", async () => {
@@ -66,4 +67,20 @@ test("login, signup, recovery and confirmation still require real server-side Tu
     "server-side Turnstile must call the exact official Siteverify endpoint",
   );
   assert.match(turnstile, /result\.action !== expectedAction/);
+});
+
+test("all three public VA matching endpoints always create private roles", async () => {
+  const [source, helper] = await Promise.all([
+    read("src/app/actions/leads.ts"),
+    read("src/lib/lead-role.ts"),
+  ]);
+  for (const name of ["submitServiceMatchAction", "submitIndustryMatchAction", "submitRoleBriefAction"]) {
+    const action = publicAction(source, name);
+    assert.match(action, /ensurePendingRoleForLead\(/, name + " should keep creating a recruitable role");
+    assert.match(action, /publicListingConsent:\s*false/, name + " must always create a private role");
+    assert.doesNotMatch(action, /formData\.get\("public_listing_consent"\)/, name + " must ignore forged or stale opt-in");
+    assert.match(action, /enforceEmailAndIpRateLimit\(/, name + " should keep rate limiting");
+  }
+  assert.match(helper, /optedIn:\s*args\.publicListingConsent === true/);
+  assert.match(helper, /status:\s*publishNow \? "published" : "pending"/);
 });

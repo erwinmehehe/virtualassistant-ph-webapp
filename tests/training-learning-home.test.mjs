@@ -108,7 +108,10 @@ test("dashboard cards reuse the public course artwork with a safe fallback and r
   assert.match(page, /getTrainingCourseArtwork\(course\.slug, course\.title\)/);
   assert.match(page, /<TrainingCourseArtwork slug=\{course\.slug\} title=\{course\.title\}/);
   assert.match(page, /hasArtwork \? " has-illustration" : ""/);
-  assert.match(page, /!\s*hasArtwork \? <span className="training-course-mark"/);
+  assert.match(page, /hasArtwork \? <TrainingCourseArtwork/);
+  assert.match(page, /training-course-mark" aria-hidden="true"/);
+  assert.match(page, /training-course-v2-toolbar/);
+  assert.match(page, /const stateControls = \(/);
   assert.match(page, /training-course-market/);
   assert.match(page, /TrainingSaveCourseButton courseId=\{course\.id\}/);
   assert.match(page, /training-course-state is-\$\{mode\}/);
@@ -119,9 +122,12 @@ test("dashboard cards reuse the public course artwork with a safe fallback and r
   assert.match(page, /training_course_start_click/);
   assert.match(page, /training-course-artwork\.css/);
   assert.match(artwork, /aria-hidden="true"/);
-  assert.match(artworkCss, /\.tr-course-art-window/);
+  assert.match(artworkCss, /\.tr-course-art-approved-image/);
+  assert.match(artwork, /\/training\/approved-covers\//);
 
   assert.match(css, /training-course-v2-cover\.has-artwork/);
+  assert.match(css, /training-course-v2-toolbar/);
+  assert.match(css, /aspect-ratio: 690 \/ 197/);
   assert.match(css, /training-course-v2-cover-actions/);
   assert.match(css, /has-illustration \.training-course-progress/);
   assert.match(css, /has-illustration \.training-course-meta-item\.is-final/);

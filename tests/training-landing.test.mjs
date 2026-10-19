@@ -70,7 +70,9 @@ test("training social metadata is page-specific and Course schema follows produc
   assert.match(publicTraining, /getPublicTrainingOverview/);
   assert.match(publicTraining, /status === "published"/);
   assert.match(publicTraining, /revalidate: 300/);
-  assert.match(trainingAdmin, /revalidateTag\("public-training"\)/);
+  // Next.js 16 invalidates this tagged cache immediately from server actions.
+  assert.match(trainingAdmin, /updateTag\("public-training"\)/);
+  assert.doesNotMatch(trainingAdmin, /revalidateTag\("public-training"\)/);
   const og = source("src/app/training/opengraph-image.tsx");
   assert.match(og, /Learn the work\./);
   assert.match(og, /Show what you can do\./);

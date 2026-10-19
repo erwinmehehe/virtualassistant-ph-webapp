@@ -46,7 +46,7 @@ function family(url) {
   return url ? "Other" : "Unmapped";
 }
 function escapeCell(value) {
-  return clean(value).replace(/\|/g, "\\|").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return clean(value).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 function rowTable(rows) {
   const lines = ["| Query | Page | Impressions | Clicks | Position | Segment |", "| --- | --- | ---: | ---: | ---: | --- |"];

@@ -151,6 +151,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
+      - name: Retain public talent proof hero screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: public-talent-proof-${{ github.run_id }}
+          path: artifacts/public-talent-proof/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload browser failure artifacts
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

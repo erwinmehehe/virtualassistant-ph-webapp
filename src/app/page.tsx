@@ -11,6 +11,8 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getHomepageFeaturedVas } from "@/lib/homepage-data";
+import { getPublicTalentProof } from "@/lib/public-talent-proof";
+import { PublicTalentProof } from "@/components/public-talent-proof";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import {
@@ -130,7 +132,7 @@ function safeJson(value: unknown) {
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const featured = await getHomepageFeaturedVas();
+  const [featured, talentProof] = await Promise.all([getHomepageFeaturedVas(), getPublicTalentProof()]);
 
   const featuredWithPhotos = featured
     .filter((va: any) => typeof va.avatar_url === "string" && va.avatar_url.trim())
@@ -278,6 +280,8 @@ export default async function HomePage() {
                   <span className="pva-call-icon"><PhoneCall size={14} /></span> Discuss your VA needs
                 </a>
               </div>
+
+              <PublicTalentProof proof={talentProof} />
 
               <div className="pva-proof-row" aria-label="Candidate screening checks">
                 <span><ClipboardCheck size={15} /> Skills tested</span>

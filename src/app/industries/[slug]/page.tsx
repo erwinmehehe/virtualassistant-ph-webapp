@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
+import { getPublicTalentProof } from "@/lib/public-talent-proof";
 import { Band, CheckList, CtaBand, FaqBlock, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { INDUSTRIES, industryBySlug } from "@/lib/industries";
 import {
@@ -24,6 +25,9 @@ import { organizationId, websiteId } from "@/lib/organization";
 import { localizeContent, localizeEnglish, titleCaseWithAcronyms } from "@/lib/content-language";
 import { industryTalentFilters } from "@/lib/industry-talent-mappings";
 import { socialMetadata } from "@/lib/og";
+
+// Refresh published-directory social proof without changing public page URLs.
+export const revalidate = 300;
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -59,6 +63,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const industry = industryBySlug(slug);
   if (!industry) notFound();
   const page = industry!;
+  const talentProof = await getPublicTalentProof();
   const isAu = page.locale === "en-AU";
   const loc = (value: string) => localizeEnglish(value, page.locale);
   const services = localizeContent(page.serviceSlugs.map(servicePageBySlug).filter(Boolean), page.locale);
@@ -168,6 +173,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       titleAccent={titleParts[1]}
       titleTail={titleParts[2]}
       lede={loc(industryHeroIntro(page))}
+      talentProof={talentProof}
       tasks={page.workflows.slice(0, 6).map(titleCase)}
       tools={page.tools}
       primary={{ href: talentHref, label: "Browse Virtual Assistants" }}

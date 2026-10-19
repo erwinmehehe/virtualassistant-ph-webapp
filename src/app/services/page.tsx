@@ -4,6 +4,8 @@ import { ArrowRight, Briefcase, ChevronRight, Search } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompactPageHeader } from "@/components/compact-page-header";
+import { PublicTalentProof } from "@/components/public-talent-proof";
+import { getPublicTalentProof } from "@/lib/public-talent-proof";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
@@ -53,7 +55,7 @@ async function liveAvailability() {
 }
 
 export default async function ServicesPage() {
-  const availability = await liveAvailability();
+  const [availability, talentProof] = await Promise.all([liveAvailability(), getPublicTalentProof()]);
   return <>
     <SiteHeader />
     <main id="main-content" className="premium-services-directory">
@@ -61,6 +63,7 @@ export default async function ServicesPage() {
         eyebrow={<span><Briefcase size={14}/> {SERVICE_PAGES.length} role hiring guides</span>}
         title={<h1>Find the Virtual Assistant role that matches the work you need done.</h1>}
         description={<p>Compare Filipino Virtual Assistant services by role, workload, tools, industry context, interview evidence, and approved talent. Use one canonical service page per specialty, then go deeper with role-specific resources.</p>}
+        meta={<PublicTalentProof proof={talentProof} />}
         actions={<><Link className="btn btn-primary" href="/hire">Hire a Virtual Assistant <ArrowRight size={16}/></Link><Link className="btn" href="/find-talent">Browse Virtual Assistants</Link></>}
       />
 

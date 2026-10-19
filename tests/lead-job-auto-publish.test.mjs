@@ -48,7 +48,7 @@ test("only opted-in complete roles qualify for publication after the rollout swi
   assert.equal(canAutoPublishLeadJob({ ...complete, publicBrief: "Requested talent profile: Alice. " + complete.publicBrief }), false);
 });
 
-test("the anonymous job workflow requires consent and enforces moderation", async () => {
+test("free VA matching stays private while publication rules retain their safeguards", async () => {
   const [form, leads, role, schema, applications] = await Promise.all([
     read("src/components/hiring-brief-form.tsx"),
     read("src/app/actions/leads.ts"),
@@ -56,11 +56,13 @@ test("the anonymous job workflow requires consent and enforces moderation", asyn
     read("supabase/migrations/20261003210000_recruiter_managed_public_jobs.sql"),
     read("src/app/actions/applications.ts"),
   ]);
-  assert.match(form, /name="public_listing_consent"/);
-  assert.match(form, /Leave unchecked for a private matching request/);
-  assert.match(form, /allowPublicListing=\{!talent && !shortlist\}/);
-  assert.match(leads, /publicListingConsent: formData.get\("public_listing_consent"\) === "yes" && !parsed.data.talent && !parsed.data.shortlist/);
-  assert.match(form, /Private by default/);
+  // Free VA matching must never offer public-job posting, including talent/shortlist variants.
+  assert.doesNotMatch(form, /name="public_listing_consent"|allowPublicListing|hb-public-consent/);
+  assert.match(form, /Private matching request/);
+  assert.doesNotMatch(leads, /formData\.get\("public_listing_consent"\)/);
+  assert.equal((leads.match(/publicListingConsent:\s*false/g) || []).length, 3);
+  assert.match(form, /name="website"/);
+  assert.match(leads, /enforceEmailAndIpRateLimit\(/);
   const card = await read("src/components/job-card.tsx");
   assert.match(card, /Open position/);
   assert.doesNotMatch(card, /Reviewed role/);
@@ -68,8 +70,8 @@ test("the anonymous job workflow requires consent and enforces moderation", asyn
   assert.doesNotMatch(jobs, /recruiter-reviewed/i);
   assert.match(jobs, /Recruiter support throughout hiring/);
   const hire = await read("src/app/hire/page.tsx");
-  assert.match(hire, /stays private unless you choose the optional public listing/);
-  assert.match(leads, /publicListingConsent: formData.get\("public_listing_consent"\) === "yes"/);
+  assert.match(hire, /hiring brief stays private with our recruiting team/);
+  assert.doesNotMatch(hire, /optional public listing/);
   assert.match(role, /canAutoPublishLeadJob/);
   assert.match(role, /publicListingChallengeConfigured = process\.env\.NODE_ENV !== "production"/);
   assert.match(role, /NEXT_PUBLIC_TURNSTILE_SITE_KEY/);

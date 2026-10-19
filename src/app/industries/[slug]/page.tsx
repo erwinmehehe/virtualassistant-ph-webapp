@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
+import { getPublicTalentProof } from "@/lib/public-talent-proof";
 import { Band, CheckList, CtaBand, FaqBlock, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { INDUSTRIES, industryBySlug } from "@/lib/industries";
 import {
@@ -21,9 +22,14 @@ import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationId, websiteId } from "@/lib/organization";
+import { AnswerFirst } from "@/components/answer-first";
+import { faqSchema } from "@/lib/faq-schema";
 import { localizeContent, localizeEnglish, titleCaseWithAcronyms } from "@/lib/content-language";
 import { industryTalentFilters } from "@/lib/industry-talent-mappings";
 import { socialMetadata } from "@/lib/og";
+
+// Refresh published-directory social proof without changing public page URLs.
+export const revalidate = 300;
 
 export function generateStaticParams() { return INDUSTRIES.map((industry) => ({ slug: industry.slug })); }
 
@@ -59,6 +65,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
   const industry = industryBySlug(slug);
   if (!industry) notFound();
   const page = industry!;
+  const talentProof = await getPublicTalentProof();
   const isAu = page.locale === "en-AU";
   const loc = (value: string) => localizeEnglish(value, page.locale);
   const services = localizeContent(page.serviceSlugs.map(servicePageBySlug).filter(Boolean), page.locale);
@@ -145,6 +152,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
         provider: { "@id": orgId },
         areaServed: serviceAreas
       },
+      faqSchema(pageUrl, faqs.map((faq) => ({ question: faq.q, answer: faq.a }))),
       {
         "@type": "BreadcrumbList",
         "@id": breadcrumbId,
@@ -168,6 +176,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
       titleAccent={titleParts[1]}
       titleTail={titleParts[2]}
       lede={loc(industryHeroIntro(page))}
+      talentProof={talentProof}
       tasks={page.workflows.slice(0, 6).map(titleCase)}
       tools={page.tools}
       primary={{ href: talentHref, label: "Browse Virtual Assistants" }}
@@ -176,6 +185,15 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
     />
 
     <div className="hs-root sp-root">
+      <Band tone="white">
+        <AnswerFirst
+          id="industry-quick-answer"
+          question={loc(`What can a Virtual Assistant do for ${page.audience}?`)}
+          answer={loc(
+            `A Virtual Assistant can support ${page.audience} with ${page.workflows.slice(0, 3).join(", ")} and other repeatable administrative workflows. Start by documenting the actual tasks, tools, hours, review steps, and escalation rules. Compare candidates based on relevant examples and availability, while keeping regulated work and high-risk decisions with qualified internal professionals.`,
+          )}
+        />
+      </Band>
       <Band id="industry-workflows">
         <SectionHead kicker="Common workflows" title={`What a Virtual Assistant can handle for ${page.audience}`} lede={`For ${page.audience}, start with recurring work that is easy to document and review. Give each workflow a clear source of truth, expected output, review rule, and escalation path.`}/>
         <div className="sp-cards-4">

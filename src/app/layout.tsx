@@ -17,8 +17,10 @@ import "./public-foundation.css";
 import "./service-match-form-final.css";
 import "./blog-editorial.css";
 import "./blog-featured-visual.css";
+import "./answer-first.css";
 import "./cro-density-fixes.css";
 import "./hiring-brief-form.css";
+import "./public-talent-proof.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;

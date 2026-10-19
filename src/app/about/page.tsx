@@ -4,7 +4,8 @@ import { ArrowRight, CheckCircle2, Eye, ExternalLink, LockKeyhole, Scale, Shield
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketingHero } from "@/components/marketing-hero";
-import { canonicalPath } from "@/lib/seo-url";
+import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
+import { ORGANIZATION_ALTERNATE_NAME, ORGANIZATION_NAME, ORGANIZATION_SAME_AS, organizationId, websiteId } from "@/lib/organization";
 import { socialMetadata } from "@/lib/og";
 
 export const metadata: Metadata = {
@@ -22,7 +23,48 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const base = canonicalUrl("/").replace(/\/$/, "");
+  const aboutUrl = canonicalUrl("/about");
+  const orgId = organizationId(base);
+  const founderId = `${aboutUrl}#founder`;
+
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AboutPage",
+        "@id": `${aboutUrl}#webpage`,
+        url: aboutUrl,
+        name: "About VirtualAssistant.com.ph",
+        description: "How Virtual Assistant Philippines recruits, screens, matches, and supports Filipino Virtual Assistant placements.",
+        isPartOf: { "@id": websiteId(base) },
+        about: { "@id": orgId },
+        mainEntity: { "@id": orgId },
+        publisher: { "@id": orgId },
+      },
+      {
+        "@type": ["Organization", "EmploymentAgency"],
+        "@id": orgId,
+        name: ORGANIZATION_NAME,
+        alternateName: ORGANIZATION_ALTERNATE_NAME,
+        url: `${base}/`,
+        sameAs: ORGANIZATION_SAME_AS,
+        founder: { "@id": founderId },
+      },
+      {
+        "@type": "Person",
+        "@id": founderId,
+        name: "Erwin Valles",
+        url: `${aboutUrl}#founder`,
+        jobTitle: "Founder & Head of SEO, Web Design & Development",
+        sameAs: ["https://www.linkedin.com/in/seo-expert-ph/"],
+        worksFor: { "@id": orgId },
+      },
+    ],
+  };
+
   return <><SiteHeader/><main id="main-content">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema).replace(/</g, "\\u003c") }} />
     <MarketingHero
       eyebrow="Philippines-focused Virtual Assistant hiring"
       title={<h1 className="public-page-title">A recruiting team for businesses hiring Filipino Virtual Assistants.</h1>}
@@ -70,7 +112,7 @@ export default function AboutPage() {
           <div className="kicker">Founder &amp; site leadership</div>
           <h2>Building VirtualAssistant.com.ph around better hiring, useful training, and sustainable organic growth.</h2>
         </div>
-        <article className="card" style={{maxWidth:720}}>
+        <article id="founder" className="card" style={{maxWidth:720}}>
           <h3 style={{marginBottom:6}}>Erwin Valles</h3>
           <p style={{margin:"0 0 10px",fontWeight:700}}>Founder &amp; Head of SEO, Web Design &amp; Development</p>
           <p className="muted" style={{margin:"0 0 16px"}}>Leads organic search strategy, website experience, design direction, technical development, and ongoing product growth across VirtualAssistant.com.ph.</p>

@@ -13,9 +13,10 @@ const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "ut
 
 test("jobs landing provides distinct employer posting and candidate browsing paths", () => {
   assert.match(page, /title: \{ absolute: "Virtual Assistant Jobs Philippines" \}/);
-  assert.match(page, /<h1>Virtual Assistant Jobs Philippines<\/h1>/);
-  assert.match(page, /Hire vetted Filipino Virtual Assistants/);
+  assert.match(page, /<h1 id="jobs-market-title">Virtual Assistant Jobs Philippines<\/h1>/);
+  assert.match(page, /Remote VA opportunities in the Philippines/);
   assert.match(page, /Browse open jobs/);
+  assert.match(page, /Create free VA profile/);
   assert.match(page, /Create free VA profile/);
   assert.match(page, /const VA_JOIN_HREF = "\/auth\/join\/va"/);
   assert.match(page, /Only published roles appear here/);

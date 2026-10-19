@@ -56,25 +56,29 @@ test("llms.txt surfaces the candidate application journey without private routes
 });
 
 
-test("public templates keep visible FAQs but never emit FAQPage structured data", async () => {
-  const publicTemplates = [
-    "src/app/page.tsx",
-    "src/app/[legacy]/page.tsx",
-    "src/app/service/[slug]/page.tsx",
-    "src/app/blog/[slug]/page.tsx",
-    "src/app/resources/[slug]/page.tsx",
-    "src/app/software/[slug]/page.tsx",
-    "src/app/industries/[slug]/page.tsx",
-    "src/app/jobs/page.tsx",
-    "src/app/training/page.tsx",
-  ];
+test("FAQ structured data only mirrors publicly visible Q&As", async () => {
+  const helper = await read("src/lib/faq-schema.ts");
+  assert.match(helper, /"@type": "FAQPage"/);
+  assert.match(helper, /question: string; answer: string/);
+  assert.match(helper, /acceptedAnswer/);
 
-  for (const path of publicTemplates) {
-    const page = await read(path);
-    assert.doesNotMatch(page, /FAQPage/, `${path} must not emit FAQPage schema`);
+  const withVisibleFaqs = [
+    ["src/app/blog/[slug]/page.tsx", /faqSchema\(url, post\.faqs\)/],
+    ["src/app/service/[slug]/page.tsx", /faqSchema\(pageUrl, faqs\.map/],
+    ["src/app/industries/[slug]/page.tsx", /faqSchema\(pageUrl, faqs\.map/],
+    ["src/app/training/page.tsx", /faqSchema\(trainingUrl, FAQS\.map/],
+    ["src/app/jobs/page.tsx", /faqSchema\(canonicalUrl\("\/jobs"\), jobFaqs\.map/],
+    ["src/app/jobs/[id]/page.tsx", /faqSchema\(pageUrl, jobFaqs\)/],
+  ];
+  for (const [path, pattern] of withVisibleFaqs) {
+    assert.match(await read(path), pattern, `${path}: FAQs must be generated from visible content`);
+  }
+
+  // Do not add an empty or invented FAQ just to check a schema box.
+  for (const path of ["src/app/about/page.tsx", "src/app/resources/[slug]/page.tsx", "src/app/software/[slug]/page.tsx"]) {
+    assert.doesNotMatch(await read(path), /faqSchema\(|"@type": "FAQPage"/);
   }
 });
-
 
 test("public schema templates converge on the canonical VAPH website and organization IDs", async () => {
   const organization = await read("src/lib/organization.ts");

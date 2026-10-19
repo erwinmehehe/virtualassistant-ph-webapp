@@ -12,6 +12,8 @@ export type BlogTopic =
 
 export type BlogSection = {
   heading: string;
+  /** Optional editor-reviewed question displayed as this section heading. */
+  questionHeading?: string;
   paragraphs?: string[];
   bullets?: string[];
   numbered?: string[];
@@ -39,6 +41,9 @@ export type BlogPost = {
   title: string;
   metaTitle: string;
   description: string;
+  /** Optional editor-reviewed answer-first text; otherwise derived from reviewed summary and takeaways. */
+  quickAnswer?: string;
+  quickAnswerQuestion?: string;
   excerpt: string;
   topic: BlogTopic;
   clusterLabel: string;

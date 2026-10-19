@@ -46,6 +46,23 @@ async function postChat(page: Page, route: string, message: string, alter?: (pag
     ),
     page.getByRole("button", { name: /^Send$/ }).click(),
   ]);
+
+  // A response to a Next.js Server Action can arrive before its client-side
+  // redirect and RSC refresh finish. Without waiting, the next page.goto in
+  // this burst test races the preceding ?sent=1 navigation and flakes.
+  // Only successful sends should redirect; rejected/blocked submissions must
+  // remain subject to the existing database-count and rate-limit assertions.
+  if (response.status() >= 200 && response.status() < 400) {
+    const expectedPath = new URL(route, BASE).pathname;
+    await expect(page).toHaveURL(
+      (url) => url.pathname === expectedPath && url.searchParams.get("sent") === "1",
+      { timeout: 30000 },
+    );
+    // Verify the refreshed server-owned transcript, not just the URL. This
+    // prevents a later send from interrupting the previous redirect.
+    await expect(page.locator('textarea[name="body"]')).toBeVisible();
+    await expect(page.getByText(message, { exact: true })).toBeVisible();
+  }
   return response.status();
 }
 

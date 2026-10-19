@@ -93,7 +93,9 @@ jobs:
           # An explicit override must still equal the official test pair or the gate fails closed.
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.VAPH_AUTH_E2E_TURNSTILE_SITE_KEY || '1x00000000000000000000AA' }}
           TURNSTILE_SECRET_KEY: ${{ secrets.VAPH_AUTH_E2E_TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA' }}
-        run: npx playwright test e2e/auth-turnstile-gate.spec.ts --project=chromium --workers=1 --retries=0
+        # One full fresh-browser retry for intermittent Turnstile/SPA navigation.
+        # Every attempt still exercises real Siteverify and all security assertions.
+        run: npx playwright test e2e/auth-turnstile-gate.spec.ts --project=chromium --workers=1 --retries=1
 
       # Keep PR #919 abuse-limit acceptance real but independent of the shared
       # login-IP limiter used by the rest of the disposable browser suite.

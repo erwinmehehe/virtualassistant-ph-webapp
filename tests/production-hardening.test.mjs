@@ -4,17 +4,17 @@ import { readFile } from "node:fs/promises";
 
 const read=(path)=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 
-test("production runtime and Next maintenance LTS are pinned to the hardened versions",async()=>{
+test("production Node and matching Next/ESLint release versions are pinned and locked",async()=>{
   const [pkg,lock]=await Promise.all([read("package.json"),read("package-lock.json")]);
   const packageJson=JSON.parse(pkg);
   const packageLock=JSON.parse(lock);
   assert.equal(packageJson.engines.node,"22.x");
-  assert.equal(packageJson.dependencies.next,"15.5.27");
-  assert.equal(packageJson.devDependencies["eslint-config-next"],"15.5.27");
-  assert.equal(packageLock.packages["node_modules/next"].version,"15.5.27");
-  assert.equal(packageLock.packages["node_modules/eslint-config-next"].version,"15.5.27");
-  assert.equal(packageLock.packages["node_modules/@next/env"].version,"15.5.27");
-  assert.equal(packageLock.packages["node_modules/@next/eslint-plugin-next"].version,"15.5.27");
+  assert.equal(packageJson.dependencies.next,"16.4.2");
+  assert.equal(packageJson.devDependencies["eslint-config-next"],"16.4.2");
+  assert.equal(packageLock.packages["node_modules/next"].version,"16.4.2");
+  assert.equal(packageLock.packages["node_modules/eslint-config-next"].version,"16.4.2");
+  assert.equal(packageLock.packages["node_modules/@next/env"].version,"16.4.2");
+  assert.equal(packageLock.packages["node_modules/@next/eslint-plugin-next"].version,"16.4.2");
 });
 
 test("production backup is daily, encrypted, retained off-provider, and restore-tested",async()=>{

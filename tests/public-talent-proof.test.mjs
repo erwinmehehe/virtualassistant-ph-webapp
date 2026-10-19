@@ -28,8 +28,8 @@ test("proof only counts public directory rows and reuses approved public photos"
 test("proof displays a verified dynamic number or an honest no-number fallback", () => {
   assert.match(component, /Number\.isSafeInteger\(count\) && count > 0/);
   assert.match(component, /count\.toLocaleString\("en-US"\)/);
-  assert.match(component, /approved Filipino VA profiles/);
-  assert.match(component, /Meet approved Filipino VAs/);
+  assert.match(component, /vetted Filipino VA profiles/);
+  assert.match(component, /Meet vetted Filipino VAs/);
   assert.match(component, /proof\.avatars\.slice\(0, 5\)/);
   assert.match(component, /<PublicAvatar/);
   assert.match(component, /<UsersRound/);

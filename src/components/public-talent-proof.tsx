@@ -18,8 +18,8 @@ export function PublicTalentProof({
       href="/find-talent"
       className={["va-public-proof", className].filter(Boolean).join(" ")}
       aria-label={hasVerifiedCount
-        ? count.toLocaleString("en-US") + " approved Filipino VA profiles in our public directory. Browse candidates."
-        : "Browse approved Filipino Virtual Assistant profiles"}
+        ? count.toLocaleString("en-US") + " vetted Filipino VA profiles in our public directory. Browse candidates."
+        : "Browse vetted Filipino Virtual Assistant profiles"}
     >
       {proof.avatars.length > 0 ? (
         <div className="va-public-proof-faces" aria-hidden="true">
@@ -34,11 +34,11 @@ export function PublicTalentProof({
         {hasVerifiedCount ? (
           <>
             <strong>{count.toLocaleString("en-US")}</strong>
-            <span> approved Filipino VA profiles</span>
+            <span> vetted Filipino VA profiles</span>
           </>
         ) : (
           <>
-            <strong>Meet approved Filipino VAs</strong>
+            <strong>Meet vetted Filipino VAs</strong>
             <span> in our public directory</span>
           </>
         )}

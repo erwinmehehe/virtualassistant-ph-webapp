@@ -30,13 +30,13 @@ for (const viewport of viewports) {
       await expect(proof).toHaveAttribute("href", "/find-talent");
 
       const actualCopy = ((await proof.textContent()) || "").trim();
-      expect(actualCopy).toMatch(/approved Filipino VA profiles|Meet approved Filipino VAs/);
+      expect(actualCopy).toMatch(/vetted Filipino VA profiles|Meet vetted Filipino VAs/);
       const strongText = ((await proof.locator("strong").textContent()) || "").trim();
       if (/^[\d,]+$/.test(strongText)) {
         expect(Number(strongText.replaceAll(",", ""))).toBeGreaterThan(0);
-        expect(actualCopy).toContain("approved Filipino VA profiles");
+        expect(actualCopy).toContain("vetted Filipino VA profiles");
       } else {
-        expect(strongText).toBe("Meet approved Filipino VAs");
+        expect(strongText).toBe("Meet vetted Filipino VAs");
       }
 
       const bounds = await proof.boundingBox();

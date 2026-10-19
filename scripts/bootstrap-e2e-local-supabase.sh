@@ -72,6 +72,52 @@ source .supabase-e2e.env
 set +a
 : "${DB_URL:?Local Supabase DB_URL is required}"
 
+# E2E schema replay is destructive by design: accept only the fixed loopback
+# ports from the disposable Supabase process. Never replay migrations or clear
+# a pg_net queue against a remote or production database.
+assert_isolated_supabase_db() {
+  case "$DB_URL" in
+    postgresql://*@127.0.0.1:54322/*|postgresql://*@localhost:54322/*|postgres://*@127.0.0.1:54322/*|postgres://*@localhost:54322/*)
+      ;;
+    *)
+      echo "Refusing migration replay: DB_URL must point to disposable loopback port 54322." >&2
+      exit 1
+      ;;
+  esac
+  case "${API_URL:-}" in
+    http://127.0.0.1:54321|http://localhost:54321)
+      ;;
+    *)
+      echo "Refusing migration replay: API_URL must point to disposable loopback port 54321." >&2
+      exit 1
+      ;;
+  esac
+}
+assert_isolated_supabase_db
+
+# Historic migrations may schedule HTTP requests against the snapshot.
+# pg_net correctly refuses to reinstall while requests are queued. Discard
+# only synthetic requests in this disposable local E2E database before the
+# exact historical migration that reinstalls the extension. The production
+# migration retains its no-data-loss guard.
+clear_disposable_pg_net_queue() {
+  assert_isolated_supabase_db
+
+  local pending
+  pending="$(psql "$DB_URL" -v ON_ERROR_STOP=1 -At -c 'select count(*) from net.http_request_queue' | tr -d '[:space:]')"
+  case "$pending" in
+    ''|*[!0-9]*)
+      echo "Unable to confirm isolated pg_net queue length; refusing migration replay." >&2
+      exit 1
+      ;;
+  esac
+
+  if [ "$pending" -gt 0 ]; then
+    echo "Disposable E2E only: clearing $pending queued pg_net request(s) before pg_net migration."
+    psql "$DB_URL" -v ON_ERROR_STOP=1 -c 'truncate table net.http_request_queue'
+  fi
+}
+
 echo "Replaying every repository migration with psql in deterministic chronological order..."
 migration_order_file="$(mktemp)"
 trap 'rm -f "$migration_order_file"; restore_migrations' EXIT
@@ -86,8 +132,15 @@ for file in "$MIGRATION_STASH"/*.sql; do
   printf '%s\t%s\n' "$sortable" "$file" >> "$migration_order_file"
 done
 
-sort -k1,1 -k2,2 "$migration_order_file" | while IFS=$'\t' read -r _ file; do
-  echo "Applying repository migration $(basename "$file")..."
+sort -k1,1 -k2,2 "$migration_order_file" | while IFS=
+
+echo "Local Supabase baseline + all repository migrations are ready."
+\t' read -r _ file; do
+  name="$(basename "$file")"
+  echo "Applying repository migration $name..."
+  if [ "$name" = "20260922005659_move_pg_net_extension_out_of_public.sql" ]; then
+    clear_disposable_pg_net_queue
+  fi
   psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$file"
 done
 

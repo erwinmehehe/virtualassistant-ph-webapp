@@ -51,3 +51,20 @@ test("training art is decorative and does not hardcode learning facts", async ()
   assert.match(page, /course\.title/);
   assert.match(page, /courseHref = signedIn \? trainingCourseDestination/);
 });
+
+test("every approved mockup cover exists as a small, valid WebP header asset", async () => {
+  const source = await readFile("src/components/training-course-artwork.tsx", "utf8");
+  assert.match(source, /from "next\/image"/);
+  assert.match(source, /\/training\/approved-covers\/\$\{art.key\}\.webp/);
+  assert.match(source, /className="tr-course-art-approved-image"/);
+  assert.match(source, /unoptimized/);
+  assert.match(source, /alt=""/);
+
+  for (const slug of expectedArtworkKeys) {
+    const file = await readFile("public/training/approved-covers/" + slug + ".webp");
+    assert.equal(file.subarray(0, 4).toString("ascii"), "RIFF", slug + ": must be WebP RIFF");
+    assert.equal(file.subarray(8, 12).toString("ascii"), "WEBP", slug + ": missing WebP signature");
+    assert.ok(file.length > 4_000 && file.length < 35_000,
+      slug + ": approved hero image must be valid and optimized");
+  }
+});

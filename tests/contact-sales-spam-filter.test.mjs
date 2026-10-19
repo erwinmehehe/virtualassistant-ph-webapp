@@ -27,7 +27,7 @@ test("contact spam filter also catches obvious linked outbound sales pitches", a
   assert.match(source, /return score >= 5/);
 });
 
-test("public contact form silently drops spam before Turnstile, storage, and email", async () => {
+test("public contact form silently drops spam before rate limits, storage, and email", async () => {
   const source = await readFile("src/app/actions/leads.ts", "utf8");
   const start = source.indexOf("export async function submitContactAction");
   const end = source.indexOf("const discoveryBookingSchema", start);
@@ -35,14 +35,15 @@ test("public contact form silently drops spam before Turnstile, storage, and ema
   const action = source.slice(start, end);
 
   const filterIndex = action.indexOf("shouldSilentlyDropContactSubmission");
-  const turnstileIndex = action.indexOf("verifyTurnstile");
+  const rateLimitIndex = action.indexOf("enforceEmailAndIpRateLimit");
   const insertIndex = action.indexOf('.from("lead_intake").insert');
   const notifyIndex = action.indexOf("sendLeadNotificationEmail");
   const acknowledgementIndex = action.indexOf("sendLeadAcknowledgementEmail");
 
   assert.ok(filterIndex >= 0);
   assert.match(action, /redirect\("\/contact\?sent=1"\)/);
-  assert.ok(filterIndex < turnstileIndex);
+  assert.ok(filterIndex < rateLimitIndex);
+  assert.doesNotMatch(action, /verifyTurnstile/);
   assert.ok(filterIndex < insertIndex);
   assert.ok(filterIndex < notifyIndex);
   assert.ok(filterIndex < acknowledgementIndex);

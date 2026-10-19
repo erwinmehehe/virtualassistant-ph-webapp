@@ -78,7 +78,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
   }
 
   test("signup-to-login client navigation mounts independent security challenges", async ({ page }) => {
-    test.setTimeout(90_000); // Real server-action redirect and sandbox email delivery may be slow.
+    test.setTimeout(180_000); // Local dev compilation plus real server actions can be slow in CI.
     await page.goto("/auth/join/training");
     await expect(page.getByRole("heading", { name: "Create your free training account" })).toBeVisible();
     await expectToken(page, "training_join");
@@ -97,10 +97,52 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await expectToken(page, "resend_confirmation");
     await page.locator('.auth-confirmation-form input[name="email"]').fill(learnerEmail);
     const resendForm = page.locator(".auth-confirmation-form");
-    // Check browser-native validity before submitting. Playwright click() alone
-    // does not prove a form submitted if HTML validation prevents dispatch.
-    expect(await resendForm.evaluate((form) => (form as HTMLFormElement).checkValidity())).toBe(true);
-    await resendForm.locator('button[type="submit"]').click();
+    // Verify the native form will submit an actual, populated Turnstile token.
+    // A visible Cloudflare challenge alone is insufficient evidence: React can
+    // replace hidden form values during the login -> confirmation transition.
+    await expect.poll(async () => resendForm.evaluate((form) => {
+      const data = new FormData(form as HTMLFormElement);
+      return (String(data.get("cf-turnstile-response") || "").length > 10) &&
+        (form as HTMLFormElement).checkValidity();
+    }), { timeout: 20_000 }).toBe(true);
+    // Watch the *actual* submit event and POST paths. Never capture a token,
+    // email, request body, cookie or action ID in diagnostic evidence.
+    const postPaths: string[] = [];
+    page.on("request", (request) => {
+      if (request.method() === "POST") postPaths.push(new URL(request.url()).pathname);
+    });
+    await resendForm.evaluate((form) => {
+      const element = form as HTMLFormElement;
+      element.dataset.e2eSubmit = "not-fired";
+      element.addEventListener("submit", (event) => {
+        element.dataset.e2eSubmit = event.defaultPrevented ? "cancelled" : "fired";
+      }, { capture: true, once: true });
+    });
+    let submission;
+    try {
+      [submission] = await Promise.all([
+        page.waitForResponse((response) =>
+          response.request().method() === "POST" &&
+          new URL(response.url()).pathname === "/auth/login",
+        { timeout: 20_000 }),
+        resendForm.locator('button[type="submit"]').click(),
+      ]);
+    } catch {
+      const diagnostic = await resendForm.evaluate((form) => {
+        const element = form as HTMLFormElement;
+        const action = element.getAttribute("action") || "";
+        return {
+          submitEvent: element.dataset.e2eSubmit || "form-replaced",
+          nativeValid: element.checkValidity(),
+          hasToken: String(new FormData(element).get("cf-turnstile-response") || "").length > 10,
+          actionProtocol: action.split(":")[0],
+          submitButtonDisabled: (element.querySelector('button[type="submit"]') as HTMLButtonElement | null)?.disabled ?? null,
+        };
+      }).catch(() => ({ submitEvent: "form-unmounted" }));
+      throw new Error("Resend produced no /auth/login POST; diagnostic=" +
+        JSON.stringify({ ...diagnostic, postPaths: postPaths.slice(0, 10) }));
+    }
+    expect(submission.status()).toBeLessThan(500);
     // The earlier unconfirmed-login URL already has confirm=1/next. Await the
     // *new server-action result* visible to learners and retain next intent,
     // rather than wait for a full document 'load' during an RSC redirect.
@@ -116,7 +158,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
         visibleSuccess: await page.locator(".success-banner").isVisible(),
         staleAlert: await page.locator(".auth-alert").count() > 0,
       };
-    }, { timeout: 45_000 }).toEqual({
+    }, { timeout: 90_000 }).toEqual({
       onLogin: true,
       confirmation: true,
       trainingIntent: true,

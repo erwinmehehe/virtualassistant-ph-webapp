@@ -154,7 +154,7 @@ function CourseCard({ course, position, signedIn }: { course: PublicTrainingCour
           data-course-slug={course.slug}
           data-cta-position={position}
         >
-          {signedIn ? "Open course" : recommended ? "Start Foundations" : "Start this course"} <ArrowRight size={15}/>
+          {signedIn ? "Open course" : recommended ? "Start Foundations" : "Explore course"} <ArrowRight size={15}/>
         </Link>
       </div>
     </article>

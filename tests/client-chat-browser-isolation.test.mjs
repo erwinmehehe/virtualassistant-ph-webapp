@@ -9,6 +9,7 @@ test("real chat and ban security acceptance is isolated without disabling produc
   const journeys = workflow.indexOf("Run browser journeys");
   assert.ok(isolated > 0 && isolated < reset && reset < journeys);
   assert.match(workflow, /npx playwright test e2e\/client-chat-auth-ban-acceptance\.spec\.ts --project=chromium --workers=1 --retries=0/);
+  assert.match(workflow, /auth-turnstile-gate\.spec\.ts --project=chromium --workers=1 --retries=1/);
   assert.match(workflow, /@127\.0\.0\.1:54322/);
   assert.match(workflow, /action_key IN \('auth_login:ip', 'auth_login:email'\)/);
   // The shell command must be in a YAML block scalar: otherwise #919 becomes a YAML comment.

@@ -10,7 +10,7 @@ const files = {
   },
   "src/lib/blog-opportunity-posts.ts": {
     "virtual-assistant-jobs-for-students-philippines": "source url",
-    "virtual-assistant-tools": "approved communication",
+    "virtual-assistant-tools": "shared mailbox",
   },
   "src/lib/blog-keyword-support-guides.ts": {
     "gohighlevel-virtual-assistant-tasks": "20 contact records",

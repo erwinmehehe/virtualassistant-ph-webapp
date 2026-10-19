@@ -30,6 +30,8 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
   test.skip(
     process.env.VAPH_COACH_LIVE_MODEL_UAT !== "operator-approved" ||
     process.env.AI_TRAINING_COACH_ENABLED !== "true" ||
+    process.env.AI_TRAINING_COACH_FREE_ONLY !== "true" ||
+    process.env.AI_TRAINING_COACH_MODEL !== "reflection/beam-free" ||
     process.env.AI_TRAINING_COACH_E2E_MOCK === "true" ||
     !process.env.AI_GATEWAY_API_KEY ||
     !loopback(process.env.NEXT_PUBLIC_SUPABASE_URL) ||
@@ -43,7 +45,9 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
   test.beforeAll(async () => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!loopback(url) || !key || process.env.AI_TRAINING_COACH_E2E_MOCK === "true") {
+    if (!loopback(url) || !key || process.env.AI_TRAINING_COACH_E2E_MOCK === "true" ||
+        process.env.AI_TRAINING_COACH_FREE_ONLY !== "true" ||
+        process.env.AI_TRAINING_COACH_MODEL !== "reflection/beam-free") {
       throw new Error("Local Supabase and REAL model are mandatory for this operator test");
     }
     const admin = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -73,6 +77,23 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
       .eq("is_published", true).order("position").limit(1).single();
     if (lessonError || !lesson) throw lessonError || new Error("Missing published lesson");
     lessonId = lesson.id;
+    // A free/discounted model may have different training and retention terms.
+    // Replace the lesson ONLY in the disposable loopback database with fictional
+    // material before any external provider requests. Never send client/student data.
+    const fictionalLessonContent = [
+      { type: "heading", title: "Fictional client work handoff" },
+      { type: "paragraph", text: "Practice scenario: a fictional client requests a project update. The virtual assistant must confirm the client's time zone, summarize completed tasks, identify blockers and ask for approval before sending any final message. Use placeholder people and organizations only." },
+      { type: "checklist", title: "Safe handoff checklist", items: [
+        "Confirm the recipient's time zone and deadline",
+        "Summarize the fictional work completed",
+        "Identify open blockers and next steps",
+        "Request client approval before sending an external update"
+      ] },
+    ];
+    const { error: fictionalContentError } = await admin.from("training_lessons")
+      .update({ title: "Fictional client handoff exercise", content: fictionalLessonContent })
+      .eq("id", lessonId);
+    if (fictionalContentError) throw fictionalContentError;
     await mkdir(OUTPUT, { recursive: true });
   });
 
@@ -107,6 +128,14 @@ test.describe("P1 VAPH Coach: real AI Gateway on disposable local learners", () 
       expect(result.reply.length).toBeGreaterThan(30);
       expect(result.reply).not.toContain("LOCAL TEST COACH");
       expect(result.testOnly).not.toBe(true);
+      if (scenario.mode === "explain") {
+        // The fictional lesson's central learning point must appear in the reply.
+        expect(result.reply).toMatch(/handoff|time[ -]?zone|approval/i);
+      }
+      if (scenario.mode === "review") {
+        // Feedback must engage with the fictional mistake, not offer generic praise.
+        expect(result.reply).toMatch(/time[ -]?zone|approval|handoff/i);
+      }
       results.push({ mode: scenario.mode, latencyMs: Date.now() - started,
         reply: result.reply, status: response.status() });
     }

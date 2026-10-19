@@ -21,6 +21,8 @@ import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import "../../homepage-sections.css";
 import "../../hiring-pages.css";
 import { organizationId, websiteId } from "@/lib/organization";
+import { AnswerFirst } from "@/components/answer-first";
+import { faqSchema } from "@/lib/faq-schema";
 import { localizeContent, localizeEnglish, titleCaseWithAcronyms } from "@/lib/content-language";
 import { industryTalentFilters } from "@/lib/industry-talent-mappings";
 import { socialMetadata } from "@/lib/og";
@@ -145,6 +147,7 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
         provider: { "@id": orgId },
         areaServed: serviceAreas
       },
+      faqSchema(pageUrl, faqs.map((faq) => ({ question: faq.q, answer: faq.a }))),
       {
         "@type": "BreadcrumbList",
         "@id": breadcrumbId,
@@ -176,6 +179,15 @@ export default async function IndustryPage({ params }: { params: Promise<{slug:s
     />
 
     <div className="hs-root sp-root">
+      <Band tone="white">
+        <AnswerFirst
+          id="industry-quick-answer"
+          question={loc(`What can a Virtual Assistant do for ${page.audience}?`)}
+          answer={loc(
+            `A Virtual Assistant can support ${page.audience} with ${page.workflows.slice(0, 3).join(", ")} and other repeatable administrative workflows. Start by documenting the actual tasks, tools, hours, review steps, and escalation rules. Compare candidates based on relevant examples and availability, while keeping regulated work and high-risk decisions with qualified internal professionals.`,
+          )}
+        />
+      </Band>
       <Band id="industry-workflows">
         <SectionHead kicker="Common workflows" title={`What a Virtual Assistant can handle for ${page.audience}`} lede={`For ${page.audience}, start with recurring work that is easy to document and review. Give each workflow a clear source of truth, expected output, review rule, and escalation path.`}/>
         <div className="sp-cards-4">

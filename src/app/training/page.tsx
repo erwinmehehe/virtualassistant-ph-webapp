@@ -302,6 +302,11 @@ export default async function TrainingPage() {
 
               <h1>Virtual Assistant Training Philippines</h1>
               <p className="tr-hero-value">Learn practical VA skills. Earn verifiable certificates.</p>
+              <p className="tr-hero-lede">
+                Learn practical virtual assistant skills at your own pace with free online courses,
+                realistic exercises, and certificates you can share after passing the final check
+                and confirming your name.
+              </p>
               <AnswerFirst
                 id="training-quick-answer"
                 question="Where can you get free Virtual Assistant training in the Philippines?"

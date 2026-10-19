@@ -12,6 +12,8 @@ import { isUuid, jobPublicHref } from "@/lib/public-routing";
 import { mergeUniqueStrings, uniqueStrings } from "@/lib/collections";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
+import { AnswerFirst } from "@/components/answer-first";
+import { faqSchema } from "@/lib/faq-schema";
 import { isPublishableCompanyName } from "@/lib/job-publication";
 import { organizationId, websiteId } from "@/lib/organization";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
@@ -129,6 +131,21 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   const orgId = organizationId(base);
   const siteId = websiteId(base);
 
+  const jobFaqs = [
+    {
+      question: `Is the ${job.title} position remote?`,
+      answer: "Yes. This is a remote Virtual Assistant opportunity for applicants based in the Philippines.",
+    },
+    {
+      question: `What hours and timezone apply to the ${job.title} role?`,
+      answer: `The listing specifies ${job.hours_per_week ? `${job.hours_per_week} hours per week` : "flexible weekly hours"} and ${job.timezone || "a flexible timezone"}. Check the working setup and discuss any required overlap before applying.`,
+    },
+    {
+      question: `How can I apply for the ${job.title} position?`,
+      answer: "Create a free Virtual Assistant profile, complete platform vetting, and apply when eligible. Recruiters review new applications before any client presentation; applying does not guarantee employment.",
+    },
+  ];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -179,6 +196,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
           }
         } : undefined
       },
+      faqSchema(pageUrl, jobFaqs),
       {
         "@type": "BreadcrumbList",
         "@id": breadcrumbId,
@@ -234,6 +252,12 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                 </div>
 
                 {job.summary ? <p className="job-hero-summary">{job.summary}</p> : null}
+
+                <AnswerFirst
+                  id="job-quick-answer"
+                  question={`What should applicants know about the ${job.title} role?`}
+                  answer={`${job.title} is a remote Virtual Assistant opportunity for applicants in the Philippines. ${employerLabel} lists ${job.hours_per_week ? `${job.hours_per_week} hours per week` : "flexible weekly hours"} with compensation of ${rateText}. Read the responsibilities, required skills, and working arrangements below before applying. Applications go through the platform's recruiter-supported review process.`}
+                />
 
                 <div className="job-detail-facts">
                   <div>
@@ -329,6 +353,17 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                   <div><span>2</span><strong>Recruiter review</strong><p>VAPH checks role fit and your vetted profile before client presentation.</p></div>
                   <div><span>3</span><strong>Employer review</strong><p>Approved candidates move into the client interview and decision flow.</p></div>
                 </div>
+              </section>
+
+              <section className="job-detail-section job-faq-section" id="job-faq">
+                <span className="job-section-kicker">Common questions</span>
+                <h2>What should you check before applying?</h2>
+                {jobFaqs.map((faq) => (
+                  <details key={faq.question}>
+                    <summary>{faq.question}</summary>
+                    <p>{faq.answer}</p>
+                  </details>
+                ))}
               </section>
             </article>
 

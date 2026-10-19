@@ -7926,3 +7926,366 @@
     transform: none;
   }
 }
+
+
+/* Australian specialisation paths share the course illustration system.
+   This is visual treatment only: progress and actions remain LMS-driven. */
+.training-home .training-specialization.has-artwork {
+  min-height: 388px;
+  padding: 0;
+  overflow: hidden;
+  border-color: #dceae6;
+  background: #fff;
+  box-shadow: 0 10px 30px -26px rgba(6, 92, 81, .28);
+}
+
+.training-home .training-specialization.has-artwork:hover {
+  border-color: #8ccfbe;
+  box-shadow: 0 17px 36px -26px rgba(6, 92, 81, .34);
+}
+
+.training-home .training-specialization.has-artwork.is-progress,
+.training-home .training-specialization.has-artwork.is-selected {
+  border-color: #8dbecf;
+}
+
+.training-home .training-specialization.has-artwork.is-complete {
+  border-color: #8bd4b0;
+}
+
+.training-home .training-specialization-cover {
+  position: relative;
+  flex: 0 0 164px;
+  height: 164px;
+  overflow: hidden;
+  border-bottom: 1px solid #d0ebe2;
+  background: #e5f8f1;
+}
+
+.training-home .training-specialization-cover .tr-course-art {
+  pointer-events: none;
+}
+
+.training-home .training-specialization-cover-label {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  left: 13px;
+  max-width: calc(100% - 26px);
+  padding: 6px 10px;
+  border: 1px solid #bce7da;
+  border-radius: 999px;
+  color: #086c5e;
+  background: rgba(255, 255, 255, .96);
+  font-size: 10px;
+  font-weight: 780;
+  letter-spacing: .04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-header {
+  gap: 12px;
+  padding: 16px 16px 0;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-top h3 {
+  min-width: 0;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-copy p {
+  max-width: 100%;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-meta {
+  padding: 0 16px;
+  margin-top: 14px;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-progress {
+  margin: 12px 16px 0;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-next {
+  gap: 12px;
+  padding: 16px;
+  margin-top: auto;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-next > div:first-child {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-next strong {
+  overflow: visible;
+  max-width: 34ch;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-actions {
+  flex: 0 0 auto;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-actions .btn {
+  min-height: 42px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-start {
+  border-color: #b8dfd2;
+  color: #096c5d;
+  background: #effaf5;
+}
+
+.training-home .training-specialization.has-artwork .training-specialization-start:hover {
+  border-color: #8ccfbe;
+  color: #075344;
+  background: #dff5ec;
+}
+
+.training-home .training-specialization.has-artwork :is(.btn, button):focus-visible {
+  outline: 3px solid #51c6aa;
+  outline-offset: 3px;
+}
+
+@media (max-width: 620px) {
+  .training-home .training-specialization.has-artwork .training-specialization-next {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 11px;
+  }
+
+  .training-home .training-specialization.has-artwork .training-specialization-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .training-home .training-specialization.has-artwork .training-specialization-actions > .btn,
+  .training-home .training-specialization.has-artwork .training-specialization-actions > form {
+    flex: 1 1 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .training-home .training-specialization.has-artwork {
+    min-height: 0;
+  }
+
+  .training-home .training-specialization-cover {
+    flex-basis: 156px;
+    height: 156px;
+  }
+
+  .training-home .training-specialization-cover .tr-course-art-window {
+    top: 36px;
+  }
+
+  .training-home .training-specialization-cover-label {
+    top: 9px;
+    left: 10px;
+    font-size: 9px;
+  }
+
+  .training-home .training-specialization.has-artwork .training-specialization-header {
+    gap: 9px;
+    padding: 13px 13px 0;
+  }
+
+  .training-home .training-specialization.has-artwork .training-specialization-top {
+    flex-wrap: wrap;
+  }
+
+  .training-home .training-specialization.has-artwork .training-specialization-meta {
+    gap: 7px 9px;
+    margin-top: 13px;
+    padding: 0 13px;
+  }
+
+  .training-home .training-specialization.has-artwork .training-specialization-progress {
+    margin: 11px 13px 0;
+  }
+
+  .training-home .training-specialization.has-artwork .training-specialization-next {
+    padding: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .training-home .training-specialization.has-artwork:hover,
+  .training-home .training-specialization.has-artwork:hover .training-specialization-icon {
+    transform: none;
+  }
+}
+
+
+/* Approved mockup art: path and course images have a 690:197 ratio, not the
+   old 164px-tall vector canvas. Bookmark, state, progress, and path actions
+   stay native interactive UI below the purely decorative header. */
+.training-home .training-course-v2-cover.has-artwork,
+.training-home .training-specialization-cover {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  flex: 0 0 auto;
+  aspect-ratio: 690 / 197;
+  padding: 0;
+  border-bottom: 1px solid #daeee7;
+}
+
+.training-home .training-specialization-cover {
+  background: #e9faf4;
+}
+
+.training-home .training-specialization-cover-label {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.training-home .training-course-card-v2.has-illustration .training-course-v2-body {
+  min-height: 268px;
+  padding: 15px 16px 16px;
+}
+
+.training-home .training-course-v2-toolbar {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.training-home .training-course-v2-toolbar .training-course-v2-cover-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.training-home .training-course-v2-toolbar .training-course-market,
+.training-home .training-course-v2-toolbar .training-course-state {
+  min-height: 27px;
+  padding: 6px 9px;
+  border: 1px solid #cfe8e0;
+  color: #076e60;
+  background: #eefaf5;
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.training-home .training-course-v2-toolbar .training-course-state.is-active {
+  border-color: #cadcfd;
+  color: #3556ae;
+  background: #edf4ff;
+}
+
+.training-home .training-course-v2-toolbar .training-course-state.is-completed {
+  border-color: #b5ebcf;
+  color: #076946;
+  background: #e8fbf0;
+}
+
+.training-home .training-course-v2-toolbar .training-course-save {
+  border-color: #c7e8dc;
+  background: #fff;
+  color: #087b6b;
+}
+
+.training-home .training-course-card-v2.has-illustration .training-course-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .72fr) minmax(0, 1.6fr);
+  align-items: center;
+  gap: 0;
+  margin-top: 14px;
+}
+
+.training-home .training-course-card-v2.has-illustration .training-course-meta-item,
+.training-home .training-course-card-v2.has-illustration .training-course-meta-item.is-final {
+  display: flex;
+  min-width: 0;
+  min-height: 40px;
+  padding: 3px 7px;
+  gap: 6px;
+  grid-column: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #30445b;
+  font-size: 10px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.training-home .training-course-card-v2.has-illustration .training-course-meta-item:first-child {
+  padding-left: 0;
+}
+
+.training-home .training-course-card-v2.has-illustration .training-course-meta-item + .training-course-meta-item {
+  border-left: 1px solid #dce8e8;
+}
+
+.training-home .training-course-card-v2.has-illustration .training-course-meta-item svg {
+  box-sizing: border-box;
+  width: 27px;
+  height: 27px;
+  min-width: 27px;
+  padding: 5px;
+  border-radius: 50%;
+  background: #e0f9ef;
+  color: #088771;
+}
+
+.training-home .training-course-card-v2.has-illustration .training-course-card-action .btn {
+  min-height: 44px;
+}
+
+.training-home .training-course-v2-toolbar :is(.btn, .training-course-save, button):focus-visible {
+  outline: 3px solid #55c6a9;
+  outline-offset: 3px;
+}
+
+@media (max-width: 430px) {
+  .training-home .training-course-v2-cover.has-artwork,
+  .training-home .training-specialization-cover {
+    height: auto;
+    min-height: 0;
+    flex-basis: auto;
+    aspect-ratio: 690 / 197;
+  }
+
+  .training-home .training-course-card-v2.has-illustration .training-course-v2-body {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .training-home .training-course-v2-toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .training-home .training-course-card-v2.has-illustration .training-course-meta-item {
+    font-size: 9.6px;
+  }
+}
+
+@media (max-width: 345px) {
+  .training-home .training-course-card-v2.has-illustration .training-course-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 5px;
+  }
+
+  .training-home .training-course-card-v2.has-illustration .training-course-meta-item.is-final {
+    grid-column: 1 / -1;
+    border-left: 0;
+    padding-left: 0;
+  }
+}

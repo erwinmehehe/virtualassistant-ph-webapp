@@ -100,6 +100,15 @@ jobs:
       - name: Isolated chat and Auth-ban acceptance
         run: npx playwright test e2e/client-chat-auth-ban-acceptance.spec.ts --project=chromium --workers=1 --retries=0
 
+      - name: Retain isolated chat and Auth-ban acceptance summary
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: isolated-chat-auth-acceptance-${{ github.run_id }}
+          path: artifacts/chat-auth-uat/
+          if-no-files-found: warn
+          retention-days: 14
+
       # This resets only LOCAL auth-login counters after the security acceptance.
       # All chat throttling rows and production protections remain untouched.
       - name: Reset disposable auth-login counters before browser journeys

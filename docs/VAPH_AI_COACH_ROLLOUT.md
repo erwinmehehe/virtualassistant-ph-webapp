@@ -84,3 +84,22 @@ The isolated development-only browser fixture permits local test accounts with
 a loopback Supabase URL and is not available in a production runtime.
 Keep this allowlist limited to a small group until real AI answer quality and
 operational support are established.
+
+## October 17, 2026 — free-only model pilot preparation
+
+- Vercel Preview has `AI_TRAINING_COACH_MODEL=reflection/beam-free`; it is still **disabled** (`AI_TRAINING_COACH_ENABLED=false`). **Production remains disabled**.
+- The operator-gated isolated GitHub real-model acceptance workflow proposes `reflection/beam-free` instead of the paid GPT model. It uses disposable loopback Supabase users only, a secret restricted to the `vaph-ai-coach-sandbox` environment, and four controlled real requests at most.
+- `AI_TRAINING_COACH_FREE_ONLY=true` makes the API reject any model other than `reflection/beam-free`; this guard is also configured in Vercel Preview only, with the feature still OFF. There is no paid-model fallback in the request body. If the free offer ends or the model becomes unavailable, return an error instead of substituting a paid model.
+- The Vercel Preview environment currently has no distinct sandbox Supabase credentials, so **do not enable Preview** until a separate disposable non-production Supabase project/branch and protected deployment access are confirmed.
+- AI Gateway authentication and billing eligibility still require separate verification, even for a model currently advertised at zero token price. Do not assume a zero-priced model removes provider authorization, verification, or other platform charges.
+- Before any model credentials are used, the sandbox workflow fetches the live AI Gateway model catalog and verifies the selected model still exists as a language model with exactly zero input and output token pricing. An error or pricing change aborts the workflow.
+- In free-only API mode, each model request also rechecks the current catalog pricing before sending any learner message. Missing prices, empty prices, nonzero prices, or catalog outages return HTTP 503 without a model request. This is a conservative cost gate; third-party fees and provider terms still require separate approval.
+- Preserve `VAPH_COACH_LIVE_MODEL_UAT_ALLOWED` and `VAPH_AI_GATEWAY_BUDGET_CONFIRMED` dispatch gates, require the approved operator key, confirm the live model catalog at runtime, inspect provider logs, and document human acceptance before any production activation.
+- Local fixture `LOCAL TEST COACH` passes do not prove live-model operation. No learner traffic or model inference is activated by this preparation.
+
+## Free-model provider data-use review (October 17, 2026)
+
+- Reflection's [Commercial Terms](https://reflection.ai/legal/commercial-terms-of-service) distinguish Standard from Discounted Services. Discounted Services permit provider use of content for training and model improvement. **Do not assume** the free Beam service is excluded from that category without confirmation of the actual provider terms for the AI Gateway route.
+- Reflection's [API safety information](https://reflection.ai/legal/how-we-keep-our-api-safe) describes content retention for abuse and safety monitoring. Absence of VAPH-side chat persistence does **not** mean no external retention.
+- The real-model test replaces the lesson title/content in the **disposable local Supabase instance only** with a fictional work-handoff exercise, and uses fictional test users and placeholder client tasks. This prevents the free-model acceptance test from transmitting actual learner content or VAPH proprietary lessons by accident.
+- **Do not turn this free provider on for real learners** until its route-specific training, retention, processing and learner-notice terms have been reviewed and approved. A future pilot may need a provider with verified non-training and acceptable retention guarantees, even if the free provider works well for synthetic testing.

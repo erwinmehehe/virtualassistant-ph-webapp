@@ -3,6 +3,11 @@ import { UsersRound } from "lucide-react";
 import { PublicAvatar } from "@/components/public-avatar";
 import type { PublicTalentProof as PublicTalentProofData } from "@/lib/public-talent-proof";
 
+// User-confirmed total across VA profiles as of 2026-10-19.
+// This is NOT the number of vetted or publicly listed directory profiles.
+// Update this figure when the confirmed total changes.
+const VA_PROFILE_TOTAL = 700;
+
 export function PublicTalentProof({
   proof,
   className = "",
@@ -10,16 +15,11 @@ export function PublicTalentProof({
   proof: PublicTalentProofData;
   className?: string;
 }) {
-  const count = proof.directoryCount;
-  const hasVerifiedCount = typeof count === "number" && Number.isSafeInteger(count) && count > 0;
-
   return (
     <Link
       href="/find-talent"
       className={["va-public-proof", className].filter(Boolean).join(" ")}
-      aria-label={hasVerifiedCount
-        ? count.toLocaleString("en-US") + " vetted Filipino VA profiles in our public directory. Browse candidates."
-        : "Browse vetted Filipino Virtual Assistant profiles"}
+      aria-label={VA_PROFILE_TOTAL.toLocaleString("en-US") + " VA profiles. Browse publicly listed Filipino virtual assistants."}
     >
       {proof.avatars.length > 0 ? (
         <div className="va-public-proof-faces" aria-hidden="true">
@@ -31,17 +31,8 @@ export function PublicTalentProof({
         <span className="va-public-proof-icon" aria-hidden="true"><UsersRound size={17} /></span>
       )}
       <span className="va-public-proof-copy">
-        {hasVerifiedCount ? (
-          <>
-            <strong>{count.toLocaleString("en-US")}</strong>
-            <span> vetted Filipino VA profiles</span>
-          </>
-        ) : (
-          <>
-            <strong>Meet vetted Filipino VAs</strong>
-            <span> in our public directory</span>
-          </>
-        )}
+        <strong>{VA_PROFILE_TOTAL.toLocaleString("en-US")}</strong>
+        <span> VA profiles</span>
       </span>
     </Link>
   );

@@ -14,27 +14,26 @@ const serviceHub = read("src/app/services/page.tsx");
 const industryHub = read("src/app/industries/page.tsx");
 const hiringHero = read("src/components/hiring-hero.tsx");
 
-test("proof only counts public directory rows and reuses approved public photos", () => {
-  assert.match(data, /getHomepageFeaturedVas/);
-  assert.match(data, /createPublicClient/);
-  assert.match(data, /from\("public_va_directory"\)/);
-  assert.match(data, /select\("user_id", \{ count: "exact", head: true \}\)/);
-  assert.match(data, /directoryCount: null/);
-  assert.match(data, /revalidate: 300/);
-  assert.match(data, /tags: \["public-va-directory"\]/);
-  assert.doesNotMatch(data + component, /52[,\s]?328|registered Filipino VAs|createAdminClient|from\("profiles"\)/i);
+test("hero uses the user-confirmed 700 VA profile total, not the public-directory subset", () => {
+  assert.match(component, /const VA_PROFILE_TOTAL = 700;/);
+  assert.match(component, /VA_PROFILE_TOTAL\.toLocaleString\("en-US"\)/);
+  assert.match(component, /<span> VA profiles<\/span>/);
+  assert.match(component, /Browse publicly listed Filipino virtual assistants/);
+  assert.doesNotMatch(component, /vetted Filipino VA profiles|approved Filipino VA profiles|registered Filipino VAs/);
+  assert.doesNotMatch(data + component, /52[,\s]?328|createAdminClient|from\("profiles"\)/i);
+  assert.doesNotMatch(data, /from\("public_va_directory"\)|directoryCount|select\("user_id", \{ count:/);
 });
 
-test("proof displays a verified dynamic number or an honest no-number fallback", () => {
-  assert.match(component, /Number\.isSafeInteger\(count\) && count > 0/);
-  assert.match(component, /count\.toLocaleString\("en-US"\)/);
-  assert.match(component, /vetted Filipino VA profiles/);
-  assert.match(component, /Meet vetted Filipino VAs/);
+test("public profile avatars remain consent-gated, with an honest icon fallback", () => {
+  assert.match(data, /getHomepageFeaturedVas/);
+  assert.match(data, /return \{ avatars \}/);
+  assert.match(data, /revalidate: 300/);
+  assert.match(data, /tags: \["public-va-directory"\]/);
   assert.match(component, /proof\.avatars\.slice\(0, 5\)/);
   assert.match(component, /<PublicAvatar/);
   assert.match(component, /<UsersRound/);
   assert.match(component, /href="\/find-talent"/);
-  assert.doesNotMatch(component, /"52,328"|"50,000"|fake-avatar/);
+  assert.doesNotMatch(component, /fake-avatar|sample faces|stock photo/i);
 });
 
 test("homepage, service/industry detail heroes, and both hubs reuse the same component", () => {

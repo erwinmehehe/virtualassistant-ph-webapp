@@ -134,6 +134,52 @@ test("dashboard cards reuse the public course artwork with a safe fallback and r
   }
 });
 
+test("all four Australian paths reuse distinct published-course cover art without changing learner actions", async () => {
+  const [page, css, artwork, paths] = await Promise.all([
+    readFile(pagePath, "utf8"),
+    readFile(cssPath, "utf8"),
+    readFile("src/components/training-course-artwork.tsx", "utf8"),
+    readFile("src/lib/training-specializations.ts", "utf8"),
+  ]);
+
+  const pairings = [
+    ["tradie-operations", "australian-trades-administration"],
+    ["property-management", "property-management-administration-australia"],
+    ["ndis-allied-health", "ndis-administration-fundamentals"],
+    ["mortgage-broking", "mortgage-broking-administration-australia"],
+  ];
+
+  assert.match(page, /SPECIALIZATION_COVER_COURSES: Record<AustraliaSpecializationSlug, string>/);
+  assert.match(page, /training-specialization has-artwork specialization-\$\{specialization.slug\}/);
+  assert.match(page, /<div className="training-specialization-cover">/);
+  assert.match(page, /<TrainingCourseArtwork slug=\{SPECIALIZATION_COVER_COURSES\[specialization.slug\]\} title=\{specialization.title\}/);
+  assert.match(page, /Australian learning path/);
+  for (const [specializationSlug, courseSlug] of pairings) {
+    assert.match(paths, new RegExp('slug: "' + specializationSlug + '"'));
+    assert.match(page, new RegExp('"' + specializationSlug + '": "' + courseSlug + '"'));
+    assert.match(artwork, new RegExp('key: "' + courseSlug + '"'));
+  }
+
+  // Illustration is decorative, not a replacement for dynamic LMS information.
+  assert.match(artwork, /aria-hidden="true"/);
+  assert.match(page, /published\.length} courses/);
+  assert.match(page, /duration\(pathMinutes\)/);
+  assert.match(page, /training-specialization-status is-\$\{state\}/);
+  assert.match(page, /completedCount \/ Math.max\(published.length, 1\)/);
+  assert.match(page, /selectAustraliaSpecializationAction/);
+  assert.match(page, /href=\{nextCourseHref\(next\)\}/);
+  assert.match(page, /\/workspace\/training\/paths\/\$\{specialization.slug\}/);
+
+  assert.match(css, /\.training-home \.training-specialization\.has-artwork/);
+  assert.match(css, /\.training-home \.training-specialization-cover \.tr-course-art/);
+  assert.match(css, /\.training-home \.training-specialization-cover-label/);
+  assert.match(css, /\.training-home \.training-specialization\.has-artwork \.training-specialization-progress/);
+  assert.match(css, /\.training-home \.training-specialization\.has-artwork :is\(\.btn, button\):focus-visible/);
+  assert.match(css, /@media \(max-width: 620px\)/);
+  assert.match(css, /@media \(max-width: 430px\)/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+});
+
 test("Australian specialisation icons use distinct restrained color treatments", async () => {
   const [page, css] = await Promise.all([
     readFile(pagePath, "utf8"),

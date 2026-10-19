@@ -78,7 +78,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
   }
 
   test("signup-to-login client navigation mounts independent security challenges", async ({ page }) => {
-    test.setTimeout(90_000); // Real server-action redirect and sandbox email delivery may be slow.
+    test.setTimeout(180_000); // Local dev compilation plus real server actions can be slow in CI.
     await page.goto("/auth/join/training");
     await expect(page.getByRole("heading", { name: "Create your free training account" })).toBeVisible();
     await expectToken(page, "training_join");
@@ -100,7 +100,16 @@ test.describe("isolated Turnstile authentication release gate", () => {
     // Check browser-native validity before submitting. Playwright click() alone
     // does not prove a form submitted if HTML validation prevents dispatch.
     expect(await resendForm.evaluate((form) => (form as HTMLFormElement).checkValidity())).toBe(true);
+    // A ready challenge does not prove React dispatched the server action.
+    // Observe the POST rather than extending a wait for a possibly inert click.
+    // The request is to the local login page only; never record submitted data.
+    const resendRequest = page.waitForRequest(
+      (request) =>
+        request.method() === "POST" && new URL(request.url()).pathname === "/auth/login",
+      { timeout: 30_000 },
+    );
     await resendForm.locator('button[type="submit"]').click();
+    await resendRequest;
     // The earlier unconfirmed-login URL already has confirm=1/next. Await the
     // *new server-action result* visible to learners and retain next intent,
     // rather than wait for a full document 'load' during an RSC redirect.
@@ -116,7 +125,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
         visibleSuccess: await page.locator(".success-banner").isVisible(),
         staleAlert: await page.locator(".auth-alert").count() > 0,
       };
-    }, { timeout: 45_000 }).toEqual({
+    }, { timeout: 90_000 }).toEqual({
       onLogin: true,
       confirmation: true,
       trainingIntent: true,

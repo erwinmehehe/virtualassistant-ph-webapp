@@ -24,6 +24,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { PublicAvatar } from "@/components/public-avatar";
 import { HiringBriefForm } from "@/components/hiring-brief-form";
 import { HiringHero } from "@/components/hiring-hero";
+import { getPublicTalentProof } from "@/lib/public-talent-proof";
 import { Band, CheckList, CtaBand, FaqBlock, JumpNav, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { SERVICE_PAGES, serviceMetaDescription, serviceMetaTitle, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
@@ -578,7 +579,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
   const guides = localizeContent(serviceBlogPosts(s.slug, 6), s.locale);
   const seoResources = localizeContent(serviceSeoResources(s.slug).slice(0, 5), s.locale);
   const priorityGuides = localizeContent(seoPriorityLinksForService(s.slug), s.locale);
-  const talent = await getTalent(s);
+  const [talent, talentProof] = await Promise.all([getTalent(s), getPublicTalentProof()]);
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";
   const pageUrl = `${base}/service/${s.slug}`;
   const regulated = localizeContent(complianceNote(s.slug, s.group), s.locale);
@@ -700,6 +701,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         tasks={s.tasks.slice(0, 6).map(toTitle)}
         tools={s.tools}
         talent={talent}
+        talentProof={talentProof}
         talentLabel={`Approved ${roleName(s.name)} VAs you can interview`}
         primary={{ href: "#talent", label: `Browse ${roleName(s.name)} VAs`, track: `service_${s.slug.replaceAll("-", "_")}_browse` }}
         secondary={{ href: "#responsibilities", label: "See what you can delegate" }}

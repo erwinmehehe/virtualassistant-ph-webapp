@@ -1,0 +1,48 @@
+.socialLinks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.facebookLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.facebookLink:hover {
+  border-color: rgba(255, 255, 255, 0.48);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.facebookLink:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.facebookIcon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .facebookLink {
+    transition: none;
+  }
+}

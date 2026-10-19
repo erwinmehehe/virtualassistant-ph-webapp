@@ -104,7 +104,8 @@ clear_disposable_pg_net_queue() {
   assert_isolated_supabase_db
 
   local pending
-  pending="$(psql "$DB_URL" -v ON_ERROR_STOP=1 -At -c 'select count(*) from net.http_request_queue' | tr -d '[:space:]')"
+  pending=$(psql "$DB_URL" -v ON_ERROR_STOP=1 -At -c "select count(*) from net.http_request_queue")
+  pending="${pending//[[:space:]]/}"
   case "$pending" in
     ''|*[!0-9]*)
       echo "Unable to confirm isolated pg_net queue length; refusing migration replay." >&2

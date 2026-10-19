@@ -171,6 +171,11 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
         "label": "What is a Virtual Assistant?",
         "href": "/blog/what-is-a-virtual-assistant",
         "description": "Understand the role before choosing a specialization."
+      },
+      {
+        "label": "Compare free VA job websites",
+        "href": "/blog/free-virtual-assistant-job-websites-philippines",
+        "description": "Choose job channels based on actual application terms, fees, and role fit."
       }
     ]
   },
@@ -378,6 +383,11 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
         "label": "Browse Virtual Assistant jobs",
         "href": "/jobs",
         "description": "See which specializations employers are hiring for."
+      },
+      {
+        "label": "Position your niche in a VA profile",
+        "href": "/blog/how-to-create-the-best-va-profile",
+        "description": "Make the selected specialty, tools, and proof of work clear to employers."
       }
     ]
   },
@@ -793,6 +803,11 @@ export const BLOG_DEMAND_GUIDES: BlogPost[] = [
         "label": "Hire a Virtual Assistant",
         "href": "/hire",
         "description": "Share the work, schedule, systems and outcomes you need."
+      },
+      {
+        "label": "Delegate email using a documented SOP",
+        "href": "/blog/virtual-assistant-email-management-tasks-sops",
+        "description": "See concrete inbox categories, escalation rules, and quality checks."
       }
     ]
   },

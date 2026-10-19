@@ -34,7 +34,8 @@ export function articleAnswerQuestion(title: string): string {
   if (cleaned.endsWith("?")) return cleaned;
   if (/^how to\s+/i.test(cleaned)) return `How can you ${cleaned.slice(7).replace(/^./, (x) => x.toLowerCase())}?`;
   if (/^(what|how|why|when|where|which|who|can|is|are|does|do|should|will)\b/i.test(cleaned)) return `${cleaned}?`;
-  return `What should you know about ${cleaned.replace(/^./, (x) => x.toLowerCase())}?`;
+  // Prefer an accurate editorial heading over a generic question generated from an unknown phrase.
+  return cleaned;
 }
 
 /** Keep the stored heading and its anchor intact; render a question for readers. */

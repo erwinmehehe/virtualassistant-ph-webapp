@@ -151,6 +151,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
+      - name: Retain public Jobs navigation and hero screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: jobs-hero-qa-${{ github.run_id }}
+          path: artifacts/jobs-hero-qa/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload browser failure artifacts
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

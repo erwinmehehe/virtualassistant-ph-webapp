@@ -59,6 +59,7 @@ function TrainingNav({
           <Link className="training-section-link" data-section="how-training-works" href="/training#how-training-works">How it works</Link>
           <Link className="training-section-link" data-section="certificate" href="/training#certificate">Certificates</Link>
           <Link className="training-section-link" data-section="faq" href="/training#faq">FAQ</Link>
+          <Link href="/jobs" className="training-nav-jobs">Jobs</Link>
         </nav>
         <TrainingSectionObserver />
 
@@ -109,6 +110,7 @@ function TrainingNav({
               <Link href="/training#how-training-works">How it works</Link>
               <Link href="/training#certificate">Certificates</Link>
               <Link href="/training#faq">FAQ</Link>
+              <Link href="/jobs">Browse VA jobs</Link>
               {!isJoin && !isLogin ? (
                 <>
                   <span className="va-mobile-panel-label">Account</span>
@@ -188,6 +190,7 @@ export async function SiteNav({
           </details>
 
           <Link href="/software">Software</Link>
+          <Link className="va-nav-jobs-link" href="/jobs">Jobs</Link>
           <Link href="/training">Training</Link>
           <Link href="/for-virtual-assistants">For VAs</Link>
         </nav>
@@ -243,14 +246,12 @@ export async function SiteNav({
               <Link href="/services">Services</Link>
               <Link href="/industries">Industries</Link>
               <Link href="/software">Software</Link>
+              <Link className="va-mobile-jobs-link" href="/jobs">Jobs</Link>
               <span className="va-mobile-panel-label">Virtual Assistants</span>
               <Link href="/training">Free VA Training</Link>
               <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
-              {!isTrainingContext ? (
-                <>
-                  <Link href="/jobs">Browse Virtual Assistant jobs</Link>
-                  {!user ? <Link href="/auth/join/va">Apply as a Virtual Assistant</Link> : null}
-                </>
+              {!isTrainingContext && !user ? (
+                <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
               ) : null}
               <span className="va-mobile-panel-label">Account</span>
               {isTrainingContext ? (

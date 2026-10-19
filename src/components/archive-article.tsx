@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CalendarDays } from "lucide-react";
 import { BlogFeaturedVisual } from "@/components/blog-featured-visual";
+import { AnswerFirst } from "@/components/answer-first";
+import { articleAnswerQuestion, editorialQuickAnswer } from "@/lib/answer-first";
 import type { ArchivePost } from "@/lib/archive-types";
 import { SeoPriorityLinks } from "@/components/seo-priority-links";
 import { seoPriorityLinksForArchive } from "@/lib/seo-priority-links";
@@ -50,6 +52,7 @@ export function ArchiveArticle({ post }: { post: ArchivePost }) {
     <section className="blog-editorial-body archive-editorial-body">
       <div className="container archive-editorial-layout">
         <article className="archive-body">
+          <AnswerFirst question={articleAnswerQuestion(post.title)} answer={editorialQuickAnswer(post.excerpt || "", post.fieldNotes || [])} />
           {post.fieldNotes?.length ? <aside className="blog-field-notes" aria-label={candidate ? "Applicant readiness notes" : "Recruiter field notes"}>
             <div className="kicker">{candidate ? "Applicant readiness" : "Recruiter field notes"}</div>
             <h2>{candidate ? "What makes the next step easier" : "What we would verify before shortlisting"}</h2>

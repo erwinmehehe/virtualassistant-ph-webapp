@@ -36,7 +36,7 @@ import { chooseTrainingResumeCourse } from "@/lib/training-learning-priority";
 import { vaCategoryLabel } from "@/lib/constants";
 import { selectAustraliaSpecializationAction, startTrainingCourseAction } from "@/app/actions/training";
 import { chooseOAuthRoleAction } from "@/app/actions/auth";
-import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES } from "@/lib/training-specializations";
+import { AUSTRALIA_SPECIALIZATIONS, SHARED_AUSTRALIA_COURSES, type AustraliaSpecializationSlug } from "@/lib/training-specializations";
 import {
   getSpecialtyTrainingPath,
   recommendNextTrainingCourses,
@@ -112,7 +112,15 @@ function nextCourseLabel(course: TrainingCourseSummary) {
   return "Open course";
 }
 
-function AustraliaSpecializationIcon({ slug }: { slug: (typeof AUSTRALIA_SPECIALIZATIONS)[number]["slug"] }) {
+/** Each path gets a representative illustration from the same 26-course artwork system. */
+const SPECIALIZATION_COVER_COURSES: Record<AustraliaSpecializationSlug, string> = {
+  "tradie-operations": "australian-trades-administration",
+  "property-management": "property-management-administration-australia",
+  "ndis-allied-health": "ndis-administration-fundamentals",
+  "mortgage-broking": "mortgage-broking-administration-australia",
+};
+
+function AustraliaSpecializationIcon({ slug }: { slug: AustraliaSpecializationSlug }) {
   if (slug === "tradie-operations") return <Wrench size={19} />;
   if (slug === "property-management") return <Building2 size={19} />;
   if (slug === "ndis-allied-health") return <HeartPulse size={19} />;
@@ -627,7 +635,11 @@ export default async function TrainingDashboardPage({
             const pathMinutes = published.reduce((total, course) => total + course.estimated_minutes, 0);
 
             return (
-              <article className={`training-specialization specialization-${specialization.slug} is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
+              <article className={`training-specialization has-artwork specialization-${specialization.slug} is-${state}${pathSelected ? " is-selected" : ""}`} key={specialization.slug}>
+                <div className="training-specialization-cover">
+                  <TrainingCourseArtwork slug={SPECIALIZATION_COVER_COURSES[specialization.slug]} title={specialization.title} />
+                  <span className="training-specialization-cover-label">Australian learning path</span>
+                </div>
                 <div className="training-specialization-header">
                   <span className={`training-specialization-icon specialization-icon-${specialization.slug}`} aria-hidden="true">
                     <AustraliaSpecializationIcon slug={specialization.slug} />

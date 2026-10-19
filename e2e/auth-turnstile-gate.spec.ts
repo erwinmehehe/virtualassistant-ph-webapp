@@ -78,7 +78,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
   }
 
   test("signup-to-login client navigation mounts independent security challenges", async ({ page }) => {
-    test.setTimeout(90_000); // Real server-action redirect and sandbox email delivery may be slow.
+    test.setTimeout(120_000); // Real server-action redirect and sandbox email delivery may be slow.
     await page.goto("/auth/join/training");
     await expect(page.getByRole("heading", { name: "Create your free training account" })).toBeVisible();
     await expectToken(page, "training_join");
@@ -97,10 +97,23 @@ test.describe("isolated Turnstile authentication release gate", () => {
     await expectToken(page, "resend_confirmation");
     await page.locator('.auth-confirmation-form input[name="email"]').fill(learnerEmail);
     const resendForm = page.locator(".auth-confirmation-form");
-    // Check browser-native validity before submitting. Playwright click() alone
-    // does not prove a form submitted if HTML validation prevents dispatch.
-    expect(await resendForm.evaluate((form) => (form as HTMLFormElement).checkValidity())).toBe(true);
-    await resendForm.locator('button[type="submit"]').click();
+    // Verify the native form will submit an actual, populated Turnstile token.
+    // A visible Cloudflare challenge alone is insufficient evidence: React can
+    // replace hidden form values during the login -> confirmation transition.
+    await expect.poll(async () => resendForm.evaluate((form) => {
+      const data = new FormData(form as HTMLFormElement);
+      return (String(data.get("cf-turnstile-response") || "").length > 10) &&
+        (form as HTMLFormElement).checkValidity();
+    }), { timeout: 20_000 }).toBe(true);
+    // Wait for the actual Server Action POST, not just the stale ?confirm=1 URL.
+    const [submission] = await Promise.all([
+      page.waitForResponse((response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname === "/auth/login",
+      { timeout: 30_000 }),
+      resendForm.locator('button[type="submit"]').click(),
+    ]);
+    expect(submission.status()).toBeLessThan(500);
     // The earlier unconfirmed-login URL already has confirm=1/next. Await the
     // *new server-action result* visible to learners and retain next intent,
     // rather than wait for a full document 'load' during an RSC redirect.

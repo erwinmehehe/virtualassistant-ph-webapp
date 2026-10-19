@@ -9,7 +9,7 @@ export function faqSchema(pageUrl: string, faqs: readonly VisibleFaq[]) {
   return {
     "@type": "FAQPage",
     "@id": `${pageUrl}#faq`,
-    url: `${pageUrl}#faq`,
+    url: pageUrl,
     isPartOf: { "@id": `${pageUrl}#webpage` },
     mainEntity: faqs
       .filter((faq) => faq.question.trim() && faq.answer.trim())

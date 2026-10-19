@@ -2149,3 +2149,142 @@
     transition: none;
   }
 }
+
+
+/* Approved course-card mockup fidelity: real illustrative hero, live SEO HTML.
+   The 690x197 WebP already includes its decorative category/free labels,
+   while the matching live spans remain screen-reader accessible. */
+.tr-course-card-v2 .tr-course-cover.has-artwork {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  flex: 0 0 auto;
+  aspect-ratio: 690 / 197;
+  border-bottom-color: #dbefe9;
+  background: #e8faf4;
+}
+
+.tr-course-card-v2 .tr-course-cover.has-artwork .tr-course-cover-top {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.tr-course-card.tr-course-card-v2 {
+  overflow: hidden;
+  border-color: #dfebe6;
+  border-radius: 19px;
+  background: #fff;
+}
+
+.tr-course-card-v2 .tr-course-card-body {
+  min-height: 246px;
+  padding: 17px 16px 16px;
+}
+
+.tr-course-card-v2 h3 {
+  color: #0d1e31;
+  font-size: 1.14rem;
+  font-weight: 840;
+  line-height: 1.28;
+  letter-spacing: -.022em;
+}
+
+.tr-course-card-v2 .tr-course-summary {
+  color: #64758c;
+  font-size: .76rem;
+  line-height: 1.46;
+}
+
+.tr-course-card-v2 .tr-course-card-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.21fr) minmax(0, .62fr) minmax(0, 1.06fr) minmax(0, 1.33fr);
+  gap: 0;
+  align-items: center;
+  margin: 14px 0 16px;
+}
+
+.tr-course-card-v2 .tr-course-card-meta span {
+  min-width: 0;
+  min-height: 39px;
+  padding: 2px 7px;
+  margin: 0;
+  gap: 5px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #193049;
+  font-size: .61rem;
+  font-weight: 770;
+  line-height: 1.28;
+  overflow-wrap: normal;
+  white-space: normal;
+}
+
+.tr-course-card-v2 .tr-course-card-meta span:first-child {
+  padding-left: 0;
+}
+
+.tr-course-card-v2 .tr-course-card-meta span + span {
+  border-left: 1px solid #dce8e9;
+}
+
+.tr-course-card-v2 .tr-course-card-meta span + span::before {
+  display: none;
+}
+
+.tr-course-card-v2 .tr-course-card-meta svg {
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 5px;
+  border-radius: 50%;
+  color: #038e78;
+  background: #dcfaf0;
+}
+
+.tr-course-card-v2 .tr-course-cta {
+  min-height: 45px;
+  border-radius: 10px;
+  font-size: .79rem;
+  background: linear-gradient(95deg, #008f7d, #007565);
+}
+
+@media (max-width: 640px) {
+  .tr-course-card-v2 .tr-course-cover.has-artwork {
+    min-height: 0;
+    height: auto;
+  }
+
+  .tr-course-card-v2 .tr-course-card-meta {
+    grid-template-columns: minmax(0, 1.21fr) minmax(0, .62fr) minmax(0, 1.06fr) minmax(0, 1.33fr);
+  }
+
+  .tr-course-card-v2 .tr-course-card-meta span {
+    font-size: .64rem;
+  }
+}
+
+@media (max-width: 345px) {
+  .tr-course-card-v2 .tr-course-card-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 6px;
+  }
+
+  .tr-course-card-v2 .tr-course-card-meta span:nth-child(3) {
+    border-left: 0;
+  }
+
+  .tr-course-card-v2 .tr-course-card-meta span:nth-child(3) {
+    padding-left: 0;
+  }
+}

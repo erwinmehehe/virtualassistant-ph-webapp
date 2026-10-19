@@ -19,7 +19,8 @@ test("contact page routes hiring discovery and VA applications before the suppor
 test("contact support form keeps all operational fields and anti-spam protection", async () => {
   const page=await read("src/app/contact/page.tsx");
   assert.match(page,/submitContactAction/);
-  assert.match(page,/TurnstileWidget/);
+  assert.doesNotMatch(page,/TurnstileWidget|cf-turnstile-response/);
+  assert.match(page,/contact-honeypot/);
   for (const field of ["name","email","company","phone","topic","message"]) {
     assert.match(page,new RegExp(`name="${field}"`));
   }

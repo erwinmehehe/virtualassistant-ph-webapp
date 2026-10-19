@@ -97,27 +97,41 @@ test("course cards show learning metadata, assessment state, progress, and one a
   assert.match(training, /"passed"/);
 });
 
-test("course cards use distinct typographic marks and restrained color tones instead of large repeated icons", async () => {
-  const [page, css] = await Promise.all([
+test("dashboard cards reuse the public course artwork with a safe fallback and retain statuses", async () => {
+  const [page, css, artwork, artworkCss] = await Promise.all([
     readFile(pagePath, "utf8"),
     readFile(cssPath, "utf8"),
+    readFile("src/components/training-course-artwork.tsx", "utf8"),
+    readFile("src/components/training-course-artwork.css", "utf8"),
   ]);
 
-  assert.match(page, /function courseVisual\(course: TrainingCourseSummary\)/);
-  assert.match(page, /function courseMark\(course: TrainingCourseSummary\)/);
-  assert.match(page, /training-course-mark/);
-  assert.match(page, /training-course-card-v2/);
-  assert.match(page, /tone-\$\{visual\.tone\}/);
-  assert.doesNotMatch(page, /const CourseIcon = visual\.icon/);
+  assert.match(page, /getTrainingCourseArtwork\(course\.slug, course\.title\)/);
+  assert.match(page, /<TrainingCourseArtwork slug=\{course\.slug\} title=\{course\.title\}/);
+  assert.match(page, /hasArtwork \? " has-illustration" : ""/);
+  assert.match(page, /!\s*hasArtwork \? <span className="training-course-mark"/);
+  assert.match(page, /training-course-market/);
+  assert.match(page, /TrainingSaveCourseButton courseId=\{course\.id\}/);
+  assert.match(page, /training-course-state is-\$\{mode\}/);
+  assert.match(page, /training-course-progress/);
+  assert.match(page, /training-course-card-action/);
+  assert.match(page, /nextCourseHref\(course\)/);
+  assert.match(page, /startTrainingCourseAction/);
+  assert.match(page, /training_course_start_click/);
+  assert.match(page, /training-course-artwork\.css/);
+  assert.match(artwork, /aria-hidden="true"/);
+  assert.match(artworkCss, /\.tr-course-art-window/);
+
+  assert.match(css, /training-course-v2-cover\.has-artwork/);
+  assert.match(css, /training-course-v2-cover-actions/);
+  assert.match(css, /has-illustration \.training-course-progress/);
+  assert.match(css, /has-illustration \.training-course-meta-item\.is-final/);
+  assert.match(css, /has-illustration :is\(\.btn, \.training-course-save\):focus-visible/);
+  assert.match(css, /@media \(max-width: 430px\)/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 
   for (const tone of ["violet", "blue", "cyan", "teal", "emerald", "amber", "orange", "rose", "pink", "sky", "slate"]) {
-    assert.match(css, new RegExp(`training-course-card\\.tone-${tone}`));
+    assert.match(css, new RegExp("training-course-card\\.tone-" + tone));
   }
-
-  assert.match(css, /training-course-v2-cover/);
-  assert.match(css, /training-course-v2-body/);
-  assert.match(css, /training-course-state\.is-active/);
-  assert.match(css, /training-course-state\.is-completed/);
 });
 
 test("Australian specialisation icons use distinct restrained color treatments", async () => {

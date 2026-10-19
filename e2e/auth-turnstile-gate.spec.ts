@@ -78,7 +78,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
   }
 
   test("signup-to-login client navigation mounts independent security challenges", async ({ page }) => {
-    test.setTimeout(120_000); // Real server-action redirect and sandbox email delivery may be slow.
+    test.setTimeout(180_000); // Local dev compilation plus real server actions can be slow in CI.
     await page.goto("/auth/join/training");
     await expect(page.getByRole("heading", { name: "Create your free training account" })).toBeVisible();
     await expectToken(page, "training_join");
@@ -158,7 +158,7 @@ test.describe("isolated Turnstile authentication release gate", () => {
         visibleSuccess: await page.locator(".success-banner").isVisible(),
         staleAlert: await page.locator(".auth-alert").count() > 0,
       };
-    }, { timeout: 45_000 }).toEqual({
+    }, { timeout: 90_000 }).toEqual({
       onLogin: true,
       confirmation: true,
       trainingIntent: true,

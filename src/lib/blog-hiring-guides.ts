@@ -173,6 +173,11 @@ export const BLOG_HIRING_GUIDES: BlogPost[] = [
         "label": "Hire a Virtual Assistant",
         "href": "/hire",
         "description": "Share the role, schedule, systems, and outcomes for recruiter review."
+      },
+      {
+        "label": "Estimate VA hours before onboarding",
+        "href": "/blog/how-many-hours-hire-virtual-assistant",
+        "description": "Calculate a workable weekly workload and coverage plan before the start date."
       }
     ]
   },
@@ -355,6 +360,11 @@ export const BLOG_HIRING_GUIDES: BlogPost[] = [
         "label": "Hire a Virtual Assistant",
         "href": "/hire",
         "description": "Share the workload, hours, timezone, and systems for review."
+      },
+      {
+        "label": "Onboard the role after setting hours",
+        "href": "/blog/virtual-assistant-onboarding-checklist",
+        "description": "Put the agreed scope, access, review points, and 30-day handoff into a practical checklist."
       }
     ]
   }

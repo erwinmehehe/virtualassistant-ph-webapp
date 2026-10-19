@@ -5,7 +5,6 @@ import Link from "next/link";
 import { CalendarCheck2, CalendarDays, CheckCircle2 } from "lucide-react";
 import { submitDiscoveryBookingAction } from "@/app/actions/leads";
 import type { DiscoverySlotDay } from "@/lib/discovery-booking";
-import { TurnstileWidget } from "@/components/turnstile-widget";
 
 function localDateKey(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -112,7 +111,6 @@ export function ClientBookingForm({ days, error }: { days: DiscoverySlotDay[]; e
         <input type="hidden" name="phone" value="" />
         <input type="hidden" name="company_url" value="" />
         <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-        <TurnstileWidget action="discovery_booking" />
 
         {error ? <div className="booking-error" role="alert">{error}</div> : null}
 

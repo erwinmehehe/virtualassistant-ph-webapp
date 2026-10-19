@@ -124,12 +124,13 @@ test("security.txt exposes a responsible disclosure contact", async () => {
 
 
 test("Turnstile fails closed on partial configuration and binds tokens to sensitive auth actions", async () => {
-  const [turnstile, widget, auth, resend, login, join, forgot] = await Promise.all([
+  const [turnstile, widget, auth, resend, login, resendForm, join, forgot] = await Promise.all([
     read("src/lib/turnstile.ts"),
     read("src/components/turnstile-widget.tsx"),
     read("src/app/actions/auth.ts"),
     read("src/app/actions/resend-confirmation.ts"),
     read("src/app/auth/login/page.tsx"),
+    read("src/components/resend-confirmation-form.tsx"),
     read("src/components/join-account-form.tsx"),
     read("src/app/auth/forgot/page.tsx"),
   ]);
@@ -152,7 +153,10 @@ test("Turnstile fails closed on partial configuration and binds tokens to sensit
   assert.match(auth, /verifyTurnstile\(formData, "password_reset"\)/);
   assert.match(resend, /verifyTurnstile\(formData, "resend_confirmation"\)/);
   assert.match(login, /TurnstileWidget action="login"/);
-  assert.match(login, /TurnstileWidget[^>]*action="resend_confirmation"/);
+  assert.match(login, /<ResendConfirmationForm next=\{next\} lead=\{lead\}\/>/);
+  assert.match(resendForm, /<TurnstileWidget action="resend_confirmation"\/>/);
+  assert.match(resendForm, /action=\{resendSignupConfirmationAction\}/);
+  assert.match(resendForm, /disabled=\{pending\}/);
   assert.match(join, /TurnstileWidget action="join"/);
   assert.match(forgot, /TurnstileWidget action="password_reset"/);
 });
@@ -182,7 +186,7 @@ test("lead discovery briefs remain explicitly server-only", async () => {
 });
 
 
-test("all public Turnstile forms bind server validation to a specific action", async () => {
+test("only protected enrollment flows require Turnstile; public enquiries retain anti-spam", async () => {
   const [leads, trainingAuth, contact, booking, hiring, trainingJoin] = await Promise.all([
     read("src/app/actions/leads.ts"),
     read("src/app/actions/training-auth.ts"),
@@ -192,14 +196,18 @@ test("all public Turnstile forms bind server validation to a specific action", a
     read("src/components/training-join-form.tsx"),
   ]);
 
-  for (const action of ["service_match", "industry_match", "role_brief", "contact", "discovery_booking"]) {
-    assert.match(leads, new RegExp(`verifyTurnstile\\(formData, "${action}"\\)`));
+  // Public marketing and matching submissions must not demand tokens when no
+  // widget is mounted. Keep their existing honeypots and IP/email limits.
+  assert.doesNotMatch(leads, /verifyTurnstile\(/);
+  assert.match(leads, /enforceEmailAndIpRateLimit\(/);
+  assert.match(leads, /parsed\.data\.website/);
+  for (const form of [contact, booking, hiring]) {
+    assert.doesNotMatch(form, /TurnstileWidget|cf-turnstile-response/);
+    assert.match(form, /name="website"/);
   }
+
+  // Training registration and confirmation are protected account flows.
   assert.match(trainingAuth, /verifyTurnstile\(formData, "training_join"\)/);
-  assert.match(contact, /TurnstileWidget action="contact"/);
-  assert.match(booking, /TurnstileWidget action="discovery_booking"/);
-  assert.match(hiring, /"service_match"[\s\S]*"industry_match"/);
-  assert.match(hiring, /TurnstileWidget action="role_brief"/);
   assert.match(trainingJoin, /TurnstileWidget[^>]*action="training_join"/);
   assert.match(trainingJoin, /TurnstileWidget action="resend_confirmation"/);
 });

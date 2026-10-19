@@ -31,21 +31,20 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.117.3",
+    "@supabase/supabase-js": "^2.118.0",
     "lucide-react": "^1.53.0",
     "mammoth": "^1.13.0",
     "next": "16.4.2",
     "pdf-parse": "^2.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.3.0",
-    "resend": "^6.32.1",
+    "resend": "^6.33.0",
     "stripe": "^22.4.0",
-    "svix": "^1.99.1",
+    "svix": "^2.8.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.7",
-    "@playwright/test": "1.63.0",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.3.0",
@@ -53,7 +52,8 @@
     "eslint-config-next": "16.4.2",
     "playwright": "^1.63.0",
     "prettier": "3.9.7",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@playwright/test": "1.63.0"
   },
   "engines": {
     "node": "22.x"

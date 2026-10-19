@@ -45,10 +45,11 @@ test("role smoke checks JS failures, browser console, server responses, overflow
     "unnamedControls",
     "frameworkErrorOverlay",
     "errorBoundary",
-    'page.screenshot({ path: screenshotPath',
+    'path: screenshotPath',
   ]) {
     assert.ok(suite.includes(signal), "Missing smoke signal: " + signal);
   }
+  assert.match(suite, /page\.screenshot\(\{[\s\S]*?fullPage: route\.path === "\/training" \|\| route\.path === "\/workspace\/training"/);
 });
 
 test("CI uploads isolated smoke evidence even when Playwright fails", async () => {

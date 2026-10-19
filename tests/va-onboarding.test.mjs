@@ -5,6 +5,7 @@ import fs from "node:fs";
 const auth = fs.readFileSync("src/app/actions/auth.ts", "utf8");
 const resend = fs.readFileSync("src/app/actions/resend-confirmation.ts", "utf8");
 const login = fs.readFileSync("src/app/auth/login/page.tsx", "utf8");
+const resendForm = fs.readFileSync("src/components/resend-confirmation-form.tsx", "utf8");
 const join = fs.readFileSync("src/components/join-account-form.tsx", "utf8");
 const bootstrap = fs.readFileSync("src/lib/profile-bootstrap.ts", "utf8");
 const quickAction = fs.readFileSync("src/app/actions/va-onboarding.ts", "utf8");
@@ -59,8 +60,11 @@ test("Google and Microsoft signup are enabled independently", () => {
 
 test("unconfirmed accounts can request another confirmation without cluttering normal login", () => {
   assert.match(login, /showConfirmationRecovery/);
-  assert.match(login, /resendSignupConfirmationAction/);
-  assert.match(login, /type="submit">Resend<\/button>/);
+  assert.match(login, /<ResendConfirmationForm next=\{next\} lead=\{lead\}\/>/);
+  assert.match(resendForm, /action=\{resendSignupConfirmationAction\}/);
+  assert.match(resendForm, /TurnstileWidget action="resend_confirmation"/);
+  assert.match(resendForm, /<ResendConfirmationSubmit\/>/);
+  assert.match(resendForm, /type="submit" disabled=\{pending\}/);
   assert.doesNotMatch(login, /Didn&apos;t receive your confirmation email\?/);
   assert.match(resend, /type: "magiclink"/);
   assert.match(resend, /sendAccountConfirmationEmail/);

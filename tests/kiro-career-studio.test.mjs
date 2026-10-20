@@ -48,7 +48,7 @@ test("Kiro practice is genuinely browser-only with no provider or database calls
   assert.match(ui, /role="region"/);
   assert.match(css, /@media \(max-width: 640px\)/);
   assert.doesNotMatch(ui + helper, /\bfetch\(|XMLHttpRequest|localStorage|sessionStorage|dangerouslySetInnerHTML|AI_GATEWAY_API_KEY|createClient\(/);
-  assert.match(ui, /vaAccount \? <Link href="\/workspace\/va\/profile/);
+  assert.match(ui, /vaAccount \? <Link[^>]+href="\/workspace\/va\/profile/);
 });
 
 test("specialization prompts are deterministic and topic-specific", async () => {

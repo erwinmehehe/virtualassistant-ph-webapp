@@ -88,20 +88,20 @@ export function KiroCareerStudio({
         <span className="kiro-studio-local"><ShieldCheck size={14}/> Browser-only drafts</span>
       </div>
 
-      <div className="kiro-studio-tabs" role="tablist" aria-label="Career practice tools">
-        <button id="kiro-tab-resume" role="tab" aria-selected={tab === "resume"} aria-controls="kiro-panel-resume" className={tab === "resume" ? "is-current" : ""} type="button" onClick={() => switchTab("resume")}>
+      <div className="kiro-studio-tabs" role="group" aria-label="Career practice tools">
+        <button id="kiro-tab-resume" aria-pressed={tab === "resume"} className={tab === "resume" ? "is-current" : ""} type="button" onClick={() => switchTab("resume")}>
           <FileText size={17}/> Resume lab
         </button>
-        <button id="kiro-tab-portfolio" role="tab" aria-selected={tab === "portfolio"} aria-controls="kiro-panel-portfolio" className={tab === "portfolio" ? "is-current" : ""} type="button" onClick={() => switchTab("portfolio")}>
+        <button id="kiro-tab-portfolio" aria-pressed={tab === "portfolio"} className={tab === "portfolio" ? "is-current" : ""} type="button" onClick={() => switchTab("portfolio")}>
           <BookOpenText size={17}/> Portfolio builder
         </button>
-        <button id="kiro-tab-interview" role="tab" aria-selected={tab === "interview"} aria-controls="kiro-panel-interview" className={tab === "interview" ? "is-current" : ""} type="button" onClick={() => switchTab("interview")}>
+        <button id="kiro-tab-interview" aria-pressed={tab === "interview"} className={tab === "interview" ? "is-current" : ""} type="button" onClick={() => switchTab("interview")}>
           <MessageCircle size={17}/> Interview practice
         </button>
       </div>
 
       {tab === "resume" ? (
-        <section className="kiro-studio-panel" id="kiro-panel-resume" role="tabpanel" aria-labelledby="kiro-tab-resume">
+        <section className="kiro-studio-panel" id="kiro-panel-resume" role="region" aria-labelledby="kiro-tab-resume">
           <div className="kiro-studio-intro">
             <span>01 / RESUME LAB</span>
             <h4>Turn an actual task or a practice exercise into a truthful example.</h4>
@@ -134,7 +134,7 @@ export function KiroCareerStudio({
       ) : null}
 
       {tab === "portfolio" ? (
-        <section className="kiro-studio-panel" id="kiro-panel-portfolio" role="tabpanel" aria-labelledby="kiro-tab-portfolio">
+        <section className="kiro-studio-panel" id="kiro-panel-portfolio" role="region" aria-labelledby="kiro-tab-portfolio">
           <div className="kiro-studio-intro">
             <span>02 / PORTFOLIO BUILDER</span>
             <h4>Show your process with a clearly labeled sample project.</h4>
@@ -164,7 +164,7 @@ export function KiroCareerStudio({
       ) : null}
 
       {tab === "interview" ? (
-        <section className="kiro-studio-panel" id="kiro-panel-interview" role="tabpanel" aria-labelledby="kiro-tab-interview">
+        <section className="kiro-studio-panel" id="kiro-panel-interview" role="region" aria-labelledby="kiro-tab-interview">
           <div className="kiro-studio-intro">
             <span>03 / MOCK INTERVIEW</span>
             <h4>Practice explaining how you'd handle a real-world VA task.</h4>

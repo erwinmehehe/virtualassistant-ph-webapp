@@ -8,7 +8,7 @@
 ## Start here
 
 1. [Full curriculum blueprint](./CURRICULUM_BLUEPRINT.md) — 10 modules, 40 lessons, learning evidence, capstone specification, marking scheme, QA and release requirements.
-2. [Completed pilot lesson: Inbox triage and ownership](./LESSON_03_01_INBOX_TRIAGE.md) — learner-ready teaching narrative, scripted worked demonstration, independent work, model communications, feedback, visual storyboard and scoring guidance.
+2. [Full draft lesson for pilot testing: Inbox triage and ownership](./LESSON_03_01_INBOX_TRIAGE.md) — learner-ready teaching narrative, scripted worked demonstration, independent work, model communications, feedback, visual storyboard and scoring guidance.
 3. [Fictional inbox dataset](./inbox-case-messages.csv) — 12 synthetic messages (4 modeled, 8 independent), suitable for spreadsheet practice.
 4. [Blank triage tracker](./inbox-triage-blank.csv) — a learner work product.
 5. [Original decision-flow visual](./assets/inbox-triage-flow.svg) — illustrative workflow, not a screenshot of Gmail/Outlook.
@@ -23,7 +23,7 @@
 
 ## Important safety / transition rules
 
-The current course is the published **Virtual Assistant Foundations** with 10 consolidated lessons. Preserve its identifiers, published content, learner progress, existing assessment results and issued credentials.
+The repository's 14 October audit describes the published **Virtual Assistant Foundations** as having 10 consolidated lessons. Preserve its identifiers, published content, learner progress, existing assessment results and issued credentials.
 
 If V2 is approved, build it as a versioned curriculum with a distinct enrollment, progress and assessment identity. Never automatically substitute V2 learning evidence for existing training completions. Offer a clear migration or optional bridge path only after product and learner-consent review.
 

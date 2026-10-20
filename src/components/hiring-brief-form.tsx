@@ -59,8 +59,8 @@ function Steps({ done }: { done: boolean }) {
 type TopMatchesResponse = { matches?: TopMatch[]; total?: number; exact?: boolean };
 
 /**
- * A sample of the approved pool, shown the moment a brief lands. These are
- * a small selection from the pool rather than the recruiter\'s final shortlist.
+ * Show a small selection of approved VAs after a brief is submitted.
+ * The recruiting team builds the final shortlist separately.
  */
 function TopMatches({ category }: { category?: string }) {
   const [pool, setPool] = useState<TopMatchesResponse | null>(null);

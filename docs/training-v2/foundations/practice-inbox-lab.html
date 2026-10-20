@@ -114,7 +114,7 @@ footer{max-width:1250px;margin:0 auto;padding:15px 16px 32px;font-size:12px;colo
     </section>
     <section class="sources" aria-labelledby="sources-title">
       <h2 id="sources-title">Inspect the fictional source records</h2>
-      <p class="note">This is an on-screen simulation of the files provided in the downloadable case pack. You are expected to cite specific record IDs, not just say “I would check.” For the full CSVs, use the links in the operating guide.</p>
+      <p class="note">This source viewer displays excerpts from the fictional records. Always consult the linked full source documents for your submitted work; this viewer does not replace them. Cite specific record IDs, not just “I would check.”</p>
       <div class="doc-actions">
         <label for="doc">Source file to inspect</label>
         <select id="doc">
@@ -230,7 +230,7 @@ function selectMessage(id){
  $("#doc").value=docFor;showDoc();$("#status").textContent="";
 }
 function showDoc(){$("#sourceView").textContent=documents[$("#doc").value];}
-function quoteCsv(v){v=String(v??"");return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function quoteCsv(v){v=String(v??"");if(/^[\s]*[=+\-@]/.test(v))v="'"+v;return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
 function saveCsv(){
  saveCurrent();
  const cols=["message_id",...fields];const lines=[cols];
@@ -238,7 +238,7 @@ function saveCsv(){
  const csv=lines.map(line=>line.map(quoteCsv).join(",")).join("\r\n")+"\r\n";
  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="vaph-foundations-v2-inbox-triage-draft.csv";document.body.append(a);a.click();a.remove();
- URL.revokeObjectURL(url);$("#status").textContent="Saved a CSV to your device. A reviewer must still check whether your decisions are correct.";
+ window.setTimeout(()=>URL.revokeObjectURL(url),5000);$("#status").textContent="Saved a CSV to your device. A reviewer must still check whether your decisions are correct.";
 }
 function checkFields(){
  saveCurrent();const v=all.get(current)||{};const required=["priority","impact_or_risk","verified_facts","unknown_or_conflicting_information","source_reference","next_safe_action","owner","hard_deadline_aedt","next_checkpoint_aedt","status"];

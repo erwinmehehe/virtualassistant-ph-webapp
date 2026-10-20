@@ -696,7 +696,20 @@ async function runClientClaimFollowups(admin: ReturnType<typeof createAdminClien
       lead: String(lead.id),
       next: `/workspace/client/jobs/${job.id}`,
     });
-    const claimUrl = `${appUrl}/auth/join/client?${params.toString()}`;
+    const { data: existingUserId, error: lookupError } = await admin
+      .rpc("find_auth_user_id_by_email", { p_email: String(lead.email).trim().toLowerCase() });
+    if (lookupError) {
+      console.error("[client-shortlist-claim-followup] account lookup failed", { jobId: job.id });
+      continue;
+    }
+    let existingClient = false;
+    if (existingUserId) {
+      const { data: profile, error: profileError } = await admin
+        .from("profiles").select("role").eq("id", existingUserId).maybeSingle();
+      if (profileError || (profile?.role && profile.role !== "client")) continue;
+      existingClient = true;
+    }
+    const claimUrl = `${appUrl}${existingClient ? "/auth/login" : "/auth/join/client"}?${params.toString()}`;
     const firstName = String(lead.name || "there").trim().split(/\s+/)[0] || "there";
 
     let delivery;
@@ -704,11 +717,11 @@ async function runClientClaimFollowups(admin: ReturnType<typeof createAdminClien
       delivery = await sendTransactionalEventEmail({
         to: lead.email,
         firstName,
-        subject: `Your VA shortlist is ready when you are: ${job.title}`,
-        heading: "Your recruiter shortlist is waiting",
-        body: "We have recruiter-reviewed Virtual Assistants ready for you. Create or link your Client account with the same email address to open the private shortlist and choose your next step.",
+        subject: `Next step for your ${job.title} hiring request`,
+        heading: "Access your VA hiring workspace",
+        body: `We have potential VA matches in recruiter review. ${existingClient ? "Log in" : "Create or link your Client account"} with the same email address to track your hiring request. Selected VA profiles will be available after role approval, accepted service terms and candidate access are complete.`,
         href: claimUrl,
-        hrefLabel: "Review my shortlist",
+        hrefLabel: existingClient ? "Log in to hiring workspace" : "Activate hiring workspace",
         senderName: "VirtualAssistant.com.ph Hiring Team",
         teamLabel: "Hiring team",
         footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support.",

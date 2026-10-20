@@ -31,6 +31,10 @@
 .kiro-career-recommendations li strong { display: block; font-size: 13px; color: #1f2a44; line-height: 1.45; }
 .kiro-career-recommendations li small { display: block; margin-top: 3px; color: #64748b; font-size: 11px; }
 .kiro-career-recommendations li a { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%; background: #eef2ff; color: #4338ca; }
+.kiro-career-opportunity { margin-top: 12px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+.kiro-career-opportunity > strong { display: block; color: #1e293b; font-size: 13px; margin-bottom: 6px; }
+.kiro-career-opportunity .kiro-career-text-link { margin-top: 9px; }
+
 .kiro-career-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; margin-bottom: 18px; }
 .kiro-career-section-heading h2 { margin: 8px 0 0; max-width: 590px; color: #0f172a; font-size: clamp(20px, 2.5vw, 29px); line-height: 1.24; letter-spacing: -.02em; }
 .kiro-career-section-heading p { margin: 0; max-width: 350px; color: #64748b; font-size: 12px; line-height: 1.6; }

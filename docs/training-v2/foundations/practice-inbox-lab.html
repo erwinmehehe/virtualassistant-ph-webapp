@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations V2 — Fictional Inbox Practice Lab | VAPH</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18243e;background:#f4f7fc;line-height:1.55}
+*{box-sizing:border-box}
+body{margin:0}
+a{color:#2448a7}
+.skip{position:absolute;top:-60px;left:10px;padding:12px;background:white;z-index:5}
+.skip:focus{top:10px}
+header{background:#132955;color:white;padding:22px clamp(16px,4vw,40px)}
+header p{max-width:800px;color:#d8e4fd}
+header h1{font-size:clamp(22px,3.5vw,32px);margin:6px 0}
+.kicker{text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:.12em;color:#c4d6ff}
+.intro{max-width:1250px;margin:18px auto 0;padding:0 16px}
+.notice{border:1px solid #b5c9f5;border-left:5px solid #375bc0;border-radius:9px;background:#edf2ff;padding:13px 16px;margin-bottom:15px}
+.notice p{margin:6px 0}
+.layout{max-width:1250px;margin:0 auto;padding:0 16px 25px;display:grid;grid-template-columns:minmax(210px,270px) minmax(0,1fr);gap:16px;align-items:start}
+section,aside{min-width:0}
+.sidebar,.workspace,.sources,.response,.introcard{background:white;border:1px solid #d5ddeb;border-radius:14px;box-shadow:0 3px 15px #152d5910}
+.sidebar{position:sticky;top:8px;padding:16px}
+.sidebar h2{margin:0 0 10px;font-size:18px}
+.sidebar h3{font-size:14px;margin:18px 0 6px}
+.case-list{display:grid;gap:7px}
+.case-button{border:1px solid #d7ddeb;background:#f8faff;border-radius:9px;padding:10px;display:flex;gap:10px;text-align:left;align-items:flex-start;color:#1e2d4a;cursor:pointer;width:100%}
+.case-button:hover{border-color:#7392d2}
+.case-button[aria-current="true"]{border:2px solid #3d5bc2;background:#eaf0ff}
+.case-button strong{font-size:13px;display:block}
+.case-button small{color:#53617a;display:block;line-height:1.3;margin-top:2px}
+.case-id{font-size:12px;font-weight:800;color:#294e9c;min-width:38px}
+.maincol{display:grid;gap:15px;min-width:0}
+.workspace,.sources,.response{padding:19px}
+.workspace h2,.sources h2,.response h2{margin:0 0 12px;font-size:19px}
+.byline{background:#f5f8fd;border-radius:10px;padding:12px;display:grid;gap:4px;margin-bottom:12px;overflow-wrap:anywhere}
+.byline dt{font-size:12px;color:#526176}
+.byline dd{margin:0;font-weight:600}
+.byline dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:2px 8px;margin:0}
+.mail-body{white-space:pre-wrap;overflow-wrap:anywhere}
+.subline{font-size:13px;color:#556783}
+.pill{display:inline-block;font-size:12px;border-radius:999px;padding:3px 8px;background:#e6f4f0;color:#0e5348;font-weight:700}
+.pill.demo{background:#eef0ff;color:#353d8c}
+.step{margin:10px 0 0;padding:12px;border-left:3px solid #b8c6ed;background:#f6f8ff}
+.step strong{display:block}
+details summary{cursor:pointer;font-weight:700;padding:6px 0}
+summary:focus-visible,button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #6285e2;outline-offset:2px}
+.doc-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+select,input,textarea{font:inherit;background:#fff;border:1px solid #9eafc8;border-radius:8px;padding:9px;width:100%;min-width:0;color:#18243e}
+button{font:inherit}
+label{font-size:13px;font-weight:700;display:block}
+label span{font-size:12px;font-weight:400;color:#64728a}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.field{display:grid;gap:4px}
+.field.wide{grid-column:1/-1}
+.field textarea{min-height:72px;resize:vertical}
+pre.source-view{max-height:310px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f8fb;padding:14px;border-radius:10px;border:1px solid #d9e3f0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.btnbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.btn{background:#284ab1;border:1px solid #284ab1;color:#fff;padding:10px 15px;border-radius:9px;font-weight:700;cursor:pointer}
+.btn.secondary{background:#fff;color:#2749aa}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.note{font-size:13px;color:#4e5e75}
+#status{padding:10px 0;min-height:36px}
+.checklist{font-size:14px;padding-left:22px}
+footer{max-width:1250px;margin:0 auto;padding:15px 16px 32px;font-size:12px;color:#58667e}
+[hidden]{display:none!important}
+@media(max-width:800px){.layout{display:block}.sidebar{position:static;margin-bottom:14px}.case-list{grid-template-columns:repeat(2,minmax(0,1fr))}.maincol{gap:12px}.workspace,.sources,.response{padding:14px}.formgrid{grid-template-columns:1fr}.byline dl{grid-template-columns:85px minmax(0,1fr)}}
+@media(max-width:420px){.case-list{grid-template-columns:1fr}.btn{width:100%}.btnbar{display:grid}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#selected">Skip to selected message</a>
+<header>
+  <div class="kicker">VAPH · Virtual Assistant Foundations V2 · Pilot simulation</div>
+  <h1>Practice Inbox: decide, verify, hand off</h1>
+  <p>A fictional customer-support inbox you can practice with offline. Follow the four instructor demonstrations, then handle eight new messages and export a work tracker. All information is synthetic.</p>
+</header>
+<div class="intro">
+  <div class="notice">
+    <strong>Before starting</strong>
+    <p>Case date: <strong>4 November 2026, AEDT</strong>. Client service coverage starts at 08:00; your shift starts at 09:00. Read the <a href="./CLIENT_OPERATING_GUIDE.md">client operating guide</a>. Work here is fictional. Nothing is sent to a real customer, finance system or AI provider.</p>
+    <p><strong>Privacy:</strong> practice entries stay in this tab's memory, are not automatically saved, and disappear when the tab closes or reloads. Use the Export button to keep your work. No network connection is required.</p>
+  </div>
+</div>
+<main class="layout">
+  <aside class="sidebar" aria-label="Inbox list">
+    <h2>Inbox · 12 messages</h2>
+    <p class="note">Choose a message. Green means a task you decide; purple means a modeled demonstration.</p>
+    <h3>Watch the demonstration</h3>
+    <nav id="demoList" class="case-list" aria-label="Worked examples"></nav>
+    <h3>Independent exercise</h3>
+    <nav id="practiceList" class="case-list" aria-label="Practice messages"></nav>
+    <p class="note">Eight practice messages. You can switch between them without losing work until you reload.</p>
+  </aside>
+  <div class="maincol">
+    <section class="workspace" id="selected" aria-labelledby="mail-title">
+      <span id="stage" class="pill demo">Worked example</span>
+      <h2 id="mail-title">Choose a message</h2>
+      <p class="subline" id="meta"></p>
+      <div class="byline"><dl>
+        <dt>From</dt><dd id="sender"></dd>
+        <dt>Source ID</dt><dd id="record"></dd>
+        <dt>Received</dt><dd id="received"></dd>
+      </dl></div>
+      <p class="mail-body" id="body"></p>
+      <section id="worked" class="step" aria-labelledby="worked-title">
+        <h3 id="worked-title">Instructor demonstration</h3>
+        <p id="worked-note"></p>
+        <details><summary>Reveal modeled action and reasoning</summary><p id="worked-answer"></p></details>
+        <p class="note">Watch why a decision is safe. Then switch to M05–M12 and apply the same procedure without an answer prompt.</p>
+      </section>
+    </section>
+    <section class="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title">Inspect the fictional source records</h2>
+      <p class="note">This source viewer displays excerpts from the fictional records. Always consult the linked full source documents for your submitted work; this viewer does not replace them. Cite specific record IDs, not just “I would check.”</p>
+      <div class="doc-actions">
+        <label for="doc">Source file to inspect</label>
+        <select id="doc">
+          <option value="bookings">Booking register</option>
+          <option value="finance">Finance source records</option>
+          <option value="directory">Customer directory</option>
+          <option value="weekly">Weekly jobs log</option>
+          <option value="approvals">Approval register</option>
+          <option value="rates">Published rates / release rules</option>
+          <option value="meeting">Meeting MN-22</option>
+        </select>
+      </div>
+      <pre id="sourceView" class="source-view" tabindex="0" aria-label="Selected fictional source record"></pre>
+    </section>
+    <section class="response" aria-labelledby="response-title">
+      <h2 id="response-title">Your decision record</h2>
+      <p id="demo-message" class="note">Select any PRACTICE message M05–M12 to create your own response. The demonstrated cases cannot be submitted.</p>
+      <form id="practiceForm" hidden>
+        <div class="formgrid">
+          <div class="field"><label for="priority">Priority <span>Why does it matter now?</span></label><select id="priority" name="priority"><option value="">Select...</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select></div>
+          <div class="field"><label for="statusField">Current status</label><select id="statusField" name="status"><option value="">Select...</option><option>New</option><option>Working</option><option>Waiting for verification</option><option>Waiting for approval</option><option>Ready for reply</option><option>Resolved</option><option>Reference</option></select></div>
+          <div class="field wide"><label for="impact">Impact or risk</label><textarea name="impact_or_risk" id="impact"></textarea></div>
+          <div class="field wide"><label for="facts">Verified facts from a source record</label><textarea name="verified_facts" id="facts"></textarea></div>
+          <div class="field wide"><label for="unknown">Unknown facts or conflicting information</label><textarea name="unknown_or_conflicting_information" id="unknown"></textarea></div>
+          <div class="field wide"><label for="sourceRef">Specific record ID and file <span>For example, bookings.csv:B-104</span></label><input name="source_reference" id="sourceRef"></div>
+          <div class="field wide"><label for="safeAction">Next safe action</label><textarea name="next_safe_action" id="safeAction"></textarea></div>
+          <div class="field"><label for="escalation">Approval or escalation needed</label><input name="approval_or_escalation" id="escalation"></div>
+          <div class="field"><label for="owner">Named owner or team role</label><input name="owner" id="owner"></div>
+          <div class="field"><label for="deadline">Actual hard deadline (AEDT) <span>Full date/time; use NONE when there is no deadline</span></label><input name="hard_deadline_aedt" id="deadline" placeholder="2026-11-04 10:00 AEDT or NONE"></div>
+          <div class="field"><label for="checkpoint">Your next follow-up/checkpoint (AEDT) <span>May differ from hard deadline</span></label><input name="next_checkpoint_aedt" id="checkpoint" placeholder="2026-11-04 09:30 AEDT or NONE"></div>
+          <div class="field wide"><label for="handoff">Handoff and evidence notes</label><textarea name="handoff_and_evidence_notes" id="handoff"></textarea></div>
+        </div>
+      </form>
+      <div class="btnbar">
+        <button class="btn" id="checkButton" type="button" disabled>Check required fields</button>
+        <button class="btn secondary" id="exportButton" type="button">Export all eight practice records as CSV</button>
+      </div>
+      <p class="note" id="status" role="status" aria-live="polite"></p>
+      <details><summary>What this checker can and cannot do</summary>
+        <p>The checker flags empty required fields only. It cannot validate that your priority, evidence, dates, recipient or action is correct. A trained reviewer must assess those decisions against the provided fictional source documents and the public rubric. The Export button includes incomplete records so you can resume later.</p>
+      </details>
+    </section>
+  </div>
+</main>
+<footer>
+This is an original, deliberately simplified VAPH practice interface. It is not a screenshot or functional copy of Gmail, Outlook or any paid CRM. All records are fictional, and nothing is posted or sent to the VAPH website.
+</footer>
+<script>
+"use strict";
+const messages=[
+ ["M01","DEMO","08:58","operations@harbourlane.example","Unrequested scheduler password reset","Staff received an unsolicited password-reset link for the shared scheduling account. They have not clicked it.","SECURITY-07"],
+ ["M02","DEMO","08:12","dispatch@harbourlane.example","Today's B-104 technician visit / address check","Booking B-104 is showing a 10:00 visit today, but dispatch cannot find the confirmed service address. Please flag before the 09:20 exception cut-off.","B-104"],
+ ["M03","DEMO","08:18","billing@northquay-supply.example","Change bank details for INV-812","Please use the new bank account for INV-812. Payment is scheduled for today. Call the mobile in my signature if you need to verify.","INV-812"],
+ ["M04","DEMO","08:22","customer.a@example.test","Refund for yesterday's late technician","Yesterday's technician arrived late; I want the full AUD 295 refunded. Please confirm it today.","B-097"],
+ ["M05","PRACTICE","08:27","julia.m@example.test","Can today's 11am appointment be moved?","I can't make 11:00 for booking B-109 today. Could you move it later this afternoon? I'm free after lunch but need to leave for another appointment.","B-109"],
+ ["M06","PRACTICE","08:31","billing@harbourlane.example","Why do we have two versions of INV-219?","I found two supplier PDFs both referencing INV-219 with different filenames and upload times. The payment register still shows a scheduled item. Please examine this before the 13:00 reconciliation.","INV-219"],
+ ["M07","PRACTICE","08:35","manager@harbourlane.example","Weekly service summary needed by 13:00","Prepare this week's service status using the approved jobs tracker. Include counts of completed visits, open work and any case needing an owner's attention. Do not guess missing evidence.","W45"],
+ ["M08","PRACTICE","08:37","insights@newsletter.example","November service desk ideas","This month's industry newsletter covers customer service trends. Browse the links when you have time. No reply needed.","Newsletter digest"],
+ ["M09","PRACTICE","08:40","chief-of-staff@harbourlane.example","Supplier meeting / follow-ups","Please extract next steps from yesterday's supplier discussion in MN-22. Separate confirmed actions from ideas needing owners. Prepare a handoff by 16:00.","MN-22"],
+ ["M10","PRACTICE","08:45","lead.b@example.test","Price for a commercial service bundle","We'd like a weekly commercial visit plus after-hours callout support at two buildings. Could you quote an all-in price this week? This bundle wasn't on your rate sheet.","Q-060"],
+ ["M11","PRACTICE","08:51","marketing@harbourlane.example","Please publish the new service special before noon","Publish campaign CMP-12 on the website and social pages by noon. I'm not sure which price/headline version Riley signed off on.","CMP-12"],
+ ["M12","PRACTICE","08:56","sam.c@example.test","Invoice copy marked paid","Please email my paid copy of INV-407 today for expenses. My usual inbox isn't working; reply to this address.","INV-407"]
+];
+const demos={
+ M01:["Security boundary: the message requests an action that could expose access. First verify the report through the authorized incident route.","Classify P0 under this fictitious SOP, alert Morgan immediately at shift intake, do not click the link or change credentials, and record the 09:10 follow-up. Status is waiting for verification, not resolved."],
+ M02:["Operational deadline: dispatch has a service visit soon, but the system address is unverified.","Classify P1, cite bookings.csv:B-104, send Avery a precise verification request before the 09:20 dispatch cut-off, and avoid confirming a visit without an approved address. Document an earlier follow-up."],
+ M03:["An apparent supplier email is not independent proof that banking details should change.","Classify P1, preserve the message, hold the change, and refer Casey to the vendor contact already approved in the finance register. Do not release payment or use a phone number only provided by the change email."],
+ M04:["Customer sentiment and a paid service do not prove an approved refund.","Cite bookings.csv:B-097 and approval-register.csv:APP-097; acknowledge the concern within the two-business-hour target and request Riley's decision. Do not promise a refund or timeline not backed by policy."]
+};
+const documents={
+ bookings:"B-104 | 10:00 AEDT | address UNVERIFIED | dispatch PENDING_ROUTE | owner Avery\nB-109 | 11:00 AEDT | original slot confirmed | no later same-day slot approved in notes | owner Avery\nB-097 | previous day visit | late arrival logged | no refund decision\nB-110 | 15:30 AEDT | separate customer, unrelated to B-109\n\nSource: records/bookings.csv",
+ finance:"FIN-201 | INV-219 | Harbour Parts | AUD 450.00 | PDF A uploaded 3 Nov\nFIN-202 | INV-219 | Harbour Parts | AUD 450.00 | PDF B uploaded 4 Nov\nFIN-203 | INV-219 | payment register PENDING_APPROVAL; no payment release recorded\nFIN-204 | INV-407 | CUST-407 | AUD 138.00 | ledger PAID, receipt R-407\nFIN-205 | INV-812 | North Quay Supply | payment review scheduled 15:00; bank change not verified\nFIN-206 | INV-812 | approved vendor contact in master file (not email signature)\n\nSource: records/finance-records.csv",
+ directory:"CUST-109 | account email julia.m@example.test | booking B-109\nCUST-097 | account email customer.a@example.test | booking B-097\nCUST-407 | account email samuel.c@example.test | no authorized alternate address | verification pending\n\nSource: records/customer-directory.csv",
+ weekly:"JOB-001 | COMPLETED | PHOTO-001\nJOB-002 | COMPLETED | PHOTO-002\nJOB-003 | COMPLETED | PHOTO-003\nJOB-004 | COMPLETED | PHOTO-004\nJOB-005 | COMPLETED | missing completion evidence\nJOB-006 | COMPLETED | PHOTO-006\nJOB-007 | COMPLETED | missing completion evidence\nJOB-008 | SCHEDULED\nJOB-009 | BLOCKED | address check\nJOB-010 | SCHEDULED\nJOB-011 | NEEDS_REVIEW | latest state not verified\nJOB-012 | SCHEDULED\n\nSource: records/weekly-jobs.csv",
+ approvals:"APP-060 | Q-060 custom quote | Riley | PENDING\nAPP-120 | CMP-12 campaign price | Riley | NOT_RECORDED\nAPP-121 | CMP-12 public claim | Riley | NOT_RECORDED\nAPP-122 | CMP-12 asset permission | Taylor | NOT_RECORDED\nAPP-123 | CMP-12 publication date | Taylor | PENDING\nAPP-097 | B-097 refund request | Riley | PENDING\n\nSource: records/approval-register.csv",
+ rates:"Single standard home visit: AUD 295 (subject to booking policy)\nRoutine commercial visit: AUD 460 per site for normal hours\nAfter-hours support: no standalone price approved\nTwo-site weekly bundle: no approved bundle price recorded\n\nRefund, custom price, campaign publication and financial document release each require the designated verification or approval. See records/rates-and-policies.md.",
+ meeting:"3 Nov, 15:05 Avery: I can review dispatch queue in the morning.\n15:07 Riley: Send me morning count and any decisions needed.\n15:10 Taylor: Possible promotional campaign; price and image approval missing.\n15:12 Riley: We haven't signed off publishing.\n15:16 Jordan: Duplicate supplier invoice PDFs occur.\n15:19 Riley: Admin can log; Casey to confirm finance decision ownership.\n15:21 Riley: Compile actions, proposals and unclear owners.\n\nSource: records/meeting-MN-22.md"
+};
+const fields=["priority","impact_or_risk","verified_facts","unknown_or_conflicting_information","source_reference","next_safe_action","approval_or_escalation","owner","hard_deadline_aedt","next_checkpoint_aedt","status","handoff_and_evidence_notes"];
+const all=new Map();
+let current="M01";
+const form=document.querySelector("#practiceForm");
+const $=s=>document.querySelector(s);
+function fillNavigation(){
+ for(const m of messages){
+  const b=document.createElement("button");
+  b.type="button";b.className="case-button";b.dataset.id=m[0];b.setAttribute("aria-current",String(current===m[0]));
+  const id=document.createElement("span");id.className="case-id";id.textContent=m[0];
+  const label=document.createElement("span");const strong=document.createElement("strong");strong.textContent=m[4];
+  const small=document.createElement("small");small.textContent=m[1]==="DEMO"?"Watch instructor":"Practice · "+m[2]+" AEDT";
+  label.append(strong,small);b.append(id,label);b.addEventListener("click",()=>selectMessage(m[0]));
+  $(m[1]==="DEMO"?"#demoList":"#practiceList").append(b);
+ }
+}
+function saveCurrent(){
+ if(!current||messages.find(m=>m[0]===current)[1]!=="PRACTICE")return;
+ const v={};for(const name of fields){v[name]=form.elements.namedItem(name).value.trim();}all.set(current,v);
+}
+function selectMessage(id){
+ saveCurrent();
+ current=id;const m=messages.find(v=>v[0]===id),isDemo=m[1]==="DEMO";
+ document.querySelectorAll(".case-button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.id===id)));
+ $("#mail-title").textContent=m[4];$("#meta").textContent="Fictional client inbox | Message "+id;
+ $("#sender").textContent=m[3];$("#record").textContent=m[6];$("#received").textContent="4 Nov 2026 "+m[2]+" AEDT";
+ $("#body").textContent=m[5];
+ $("#stage").textContent=isDemo?"Instructor demonstration":"Independent practice";
+ $("#stage").className=isDemo?"pill demo":"pill";
+ $("#worked").hidden=!isDemo;$("#practiceForm").hidden=isDemo;$("#demo-message").hidden=!isDemo;
+ $("#checkButton").disabled=isDemo;
+ if(isDemo){$("#worked-note").textContent=demos[id][0];$("#worked-answer").textContent=demos[id][1];$("#worked").querySelector("details").open=false;}
+ else{const saved=all.get(id)||{};for(const name of fields){form.elements.namedItem(name).value=saved[name]||"";}}
+ const docFor={M01:"rates",M02:"bookings",M03:"finance",M04:"approvals",M05:"bookings",M06:"finance",M07:"weekly",M08:"rates",M09:"meeting",M10:"approvals",M11:"approvals",M12:"directory"}[id];
+ $("#doc").value=docFor;showDoc();$("#status").textContent="";
+}
+function showDoc(){$("#sourceView").textContent=documents[$("#doc").value];}
+function quoteCsv(v){v=String(v??"");if(/^[\s]*[=+\-@]/.test(v))v="'"+v;return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function saveCsv(){
+ saveCurrent();
+ const cols=["message_id",...fields];const lines=[cols];
+ for(const id of messages.filter(m=>m[1]==="PRACTICE").map(m=>m[0])){const v=all.get(id)||{};lines.push([id,...fields.map(name=>v[name]||"")]);}
+ const csv=lines.map(line=>line.map(quoteCsv).join(",")).join("\r\n")+"\r\n";
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="vaph-foundations-v2-inbox-triage-draft.csv";document.body.append(a);a.click();a.remove();
+ window.setTimeout(()=>URL.revokeObjectURL(url),5000);$("#status").textContent="Saved a CSV to your device. A reviewer must still check whether your decisions are correct.";
+}
+function checkFields(){
+ saveCurrent();const v=all.get(current)||{};const required=["priority","impact_or_risk","verified_facts","unknown_or_conflicting_information","source_reference","next_safe_action","owner","hard_deadline_aedt","next_checkpoint_aedt","status"];
+ const missing=required.filter(name=>!v[name]);$("#status").textContent=missing.length
+  ?"Missing fields: "+missing.map(s=>s.replaceAll("_"," ")).join(", ")+". Use NONE when a deadline does not exist."
+  :"All required fields are filled for "+current+". This is a completeness check ONLY. The decisions have not been graded.";
+}
+fillNavigation();$("#doc").addEventListener("change",showDoc);$("#checkButton").addEventListener("click",checkFields);$("#exportButton").addEventListener("click",saveCsv);form.addEventListener("input",saveCurrent);form.addEventListener("change",saveCurrent);selectMessage("M01");
+</script>
+</body>
+</html>
+

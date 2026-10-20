@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import { Sparkles, UsersRound } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { matchAssessment } from "@/lib/matching";
 import { hideShortlistCandidateAction, prepareTopMatchesForReviewAction, saveJobShortlistAction } from "@/app/actions/matching";
 import { saveClientRecommendationAction } from "@/app/actions/client-shortlist";
-import { prepareStandardPlacementTermsAction } from "@/app/actions/agency-role";
 import { MatchingCandidateTable } from "@/components/matching-candidate-table";
 import { candidateAccessUnlocked } from "@/lib/candidate-access";
 import { isTalentAgencyCertified, talentReadinessActions } from "@/lib/talent-operations";
@@ -76,25 +75,14 @@ export async function StaffJobMatching({job,viewerRole,returnTo}:Props){
     !candidateAccessReady ? "Activate candidate access" : null,
   ].filter((item): item is string => Boolean(item));
 
-  const missing:string[]=[];
-  if(!job.title||String(job.title).trim().length<3)missing.push("role title");
-  if(!job.summary||String(job.summary).trim().length<20)missing.push("role outcome / summary");
-  if(!Array.isArray(job.responsibilities)||!job.responsibilities.length)missing.push("responsibilities");
-  if(!Array.isArray(job.required_skills)||job.required_skills.length<2)missing.push("2+ required skills");
-  if(!job.hours_per_week)missing.push("weekly hours");
-  if(!job.timezone)missing.push("timezone / working region");
-  if(job.min_hourly_rate==null)missing.push("VA budget");
-  if(!job.start_timing)missing.push("start timing");
-  const roleReady=!missing.length;
 
   return <section className="card staff-matching-card unified-role-matching">
     <div className="row-between wrap staff-matching-head"><div><div className="row wrap"><Sparkles size={18}/><h2>Matching & shortlist builder</h2></div><p className="muted">Review recruiter-only match suggestions and VA interest, build the shortlist, preview the client experience, then release only candidates you are willing to stand behind.</p></div><div className="row wrap"><span className="badge badge-success">{clientReadyCount} client-ready</span><span className="badge">{pool.length} vetted VAs assessed</span><span className="badge">{interested.length} expressed interest</span>{viewerRole==="recruiter"&&awaitingClientCount?<a className="btn btn-sm" href="#client-handoff">Client feedback · {awaitingClientCount} waiting</a>:null}</div></div>
 
     {viewerRole==="recruiter"&&releasedCount===0&&proposedCount<3&&recommended.length?<div className="info-banner quick-shortlist-banner"><div><strong>Fast path: prepare the strongest matches for review</strong><p className="small muted" style={{margin:"5px 0 0"}}>This only builds an internal recruiter shortlist. Nothing is emailed or shown to the client until you review the candidates and explicitly send them.</p></div><form action={prepareTopMatchesForReviewAction}><input type="hidden" name="job_id" value={job.id}/><input type="hidden" name="return_to" value={returnTo}/><button className="btn btn-primary" type="submit">Prepare top {Math.min(3,recommended.length)} matches</button></form></div>:null}
 
-    <div className="matching-workflow-steps"><span className={roleReady?"done":"current"}>1. Qualify role</span><span className={roleReady?"current":""}>2. Recruiter review</span><span>3. Client shortlist</span><span>4. Interview & offer</span></div>
+    <div className="matching-workflow-steps"><span className="current">1. Recruiter review</span><span>2. Client shortlist</span><span>3. Interview & offer</span></div>
 
-    <section className="card" style={{margin:"14px 0"}}><div className="row-between wrap"><div><div className="row"><ShieldCheck size={17}/><strong>Role quality & commercial gate</strong></div><p className="small muted" style={{margin:"5px 0 0"}}>Standard curated-placement roles can be moved forward by the recruiter. Managed-service pricing and unusual commercial exceptions stay with Admin.</p></div><span className={`badge ${roleReady?"badge-success":"badge-warning"}`}>{roleReady?"Brief ready":`${missing.length} item${missing.length===1?"":"s"} missing`}</span></div>{missing.length?<div className="alert" style={{marginTop:12}}><strong>Complete before quoting:</strong> {missing.join(", ")}.</div>:null}{commercial?.commercial_status?<div className="info-banner" style={{marginTop:12}}><strong>Commercial status:</strong> {String(commercial.commercial_status).replaceAll("_"," ")}{commercial.placement_fee!=null?` · USD ${Number(commercial.placement_fee).toFixed(2)} placement fee`:commercial.managed_markup_percent!=null?` · ${Number(commercial.managed_markup_percent).toFixed(2)}% managed-service margin`:""}.</div>:viewerRole==="recruiter"&&job.status==="pending"&&job.service_model!=="managed_service"&&job.client_id&&roleReady?<form action={prepareStandardPlacementTermsAction} style={{marginTop:12}}><input type="hidden" name="job_id" value={job.id}/><button className="btn btn-primary" type="submit">Prepare standard terms for client</button></form>:job.service_model==="managed_service"&&!commercial?<div className="info-banner" style={{marginTop:12}}><strong>Admin exception:</strong> Managed-service margin must be reviewed by Admin before the client can approve terms.</div>:null}</section>
 
     {interested.length?<div className="info-banner" style={{marginBottom:14}}><strong>{interested.length} vetted VA{interested.length===1?" has":"s have"} expressed interest</strong><p style={{margin:"5px 0 8px"}}>Interest is internal. Review their evidence and fit before adding them to the recruiter shortlist.</p><div className="row wrap">{interested.slice(0,8).map((row:any)=><Link className="badge" key={row.va.user_id} href={`/workspace/recruiter/candidates/${row.va.user_id}`}>{row.account?.full_name||"VA candidate"} · {row.score}% internal match</Link>)}</div></div>:null}
 

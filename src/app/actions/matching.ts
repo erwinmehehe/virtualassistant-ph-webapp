@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessUnlocked, type CandidateAccessStatus } from "@/lib/candidate-access";
+import { releaseInvitedShortlistWhenReady } from "@/lib/client-shortlist-release";
 import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { publicationMissingDetails } from "@/lib/job-publication";
@@ -87,6 +88,16 @@ export async function updateCandidateAccessAction(formData: FormData) {
   if (status === "requested") payload.requested_at = new Date().toISOString();
   const { error } = await admin.from("job_candidate_access").upsert(payload, { onConflict: "job_id" });
   if (error) throw error;
+
+  if (active && job.client_id) {
+    try {
+      await releaseInvitedShortlistWhenReady(admin, job.client_id, jobId);
+    } catch (error) {
+      console.error("[candidate-access] deferred shortlist release failed", {
+        jobId, error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 
   if (job.client_id) {
     const copy = active
@@ -271,12 +282,25 @@ export async function saveJobShortlistAction(formData: FormData) {
   if (mode === "release" && commercial?.commercial_status !== "accepted") return fail("Client-approved service terms are required before sending candidates.");
 
   let inviteLead: { id: string; name?: string | null; email: string } | null = null;
+  let existingClientAccount = false;
   if (mode === "invite") {
     if (job.client_id) return fail("This client account is already linked. Use Send selected for client review instead.");
     if (!job.lead_id) return fail("No client lead is attached to this role, so an invite cannot be sent.");
     const { data: lead } = await admin.from("lead_intake").select("id,name,email,client_id").eq("id", job.lead_id).maybeSingle();
     if (!lead?.email) return fail("No client email is attached to this lead. Add a valid client email before inviting them.");
     if (lead.client_id) return fail("This lead is already linked to a client account. Refresh the page and send the shortlist normally.");
+    // Never invite a VA account to claim a client hiring role.
+    const { data: existingAccountId, error: lookupError } = await admin
+      .rpc("find_auth_user_id_by_email", { p_email: lead.email.trim().toLowerCase() });
+    if (lookupError) return fail("Could not confirm the client account type. Please retry before sending the invite.");
+    if (existingAccountId) {
+      const { data: existingProfile, error: profileError } = await admin
+        .from("profiles").select("role").eq("id", existingAccountId).maybeSingle();
+      if (profileError) return fail("Could not confirm the existing client account type.");
+      if (existingProfile?.role === "va") return fail("This address belongs to a VA account. Confirm the hiring client email before sending an invitation.");
+      if (existingProfile?.role && existingProfile.role !== "client") return fail("This address is not a client account. Confirm the hiring contact before inviting.");
+      existingClientAccount = true;
+    }
     const cooldownCutoff = new Date(Date.now() - CLIENT_INVITE_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
     const { data: recentInvite } = await admin.from("recruiter_activity")
       .select("id")
@@ -345,7 +369,7 @@ export async function saveJobShortlistAction(formData: FormData) {
   }
 
   await recordProductEvent(
-    mode === "release" || mode === "invite" ? "shortlist_sent" : "shortlist_internal_ready",
+    mode === "release" ? "shortlist_sent" : mode === "invite" ? "client_shortlist_invited" : "shortlist_internal_ready",
     {
       userId: user.id,
       path: returnTo,
@@ -356,12 +380,13 @@ export async function saveJobShortlistAction(formData: FormData) {
   const { writeRecruiterActivity } = await import("@/lib/recruiter-activity");
 
   let inviteEmailUnavailable = false;
+  let releaseEmailUnavailable = false;
 
   if (mode === "invite" && inviteLead) {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
     const nextPath = `/workspace/client/jobs/${jobId}`;
     const params = new URLSearchParams({ lead: inviteLead.id, next: nextPath });
-    const claimUrl = `${appUrl}/auth/join/client?${params.toString()}`;
+    const claimUrl = `${appUrl}${existingClientAccount ? "/auth/login" : "/auth/join/client"}?${params.toString()}`;
     const firstName = String(inviteLead.name || "there").trim().split(/\s+/)[0] || "there";
     const { sendTransactionalEventEmail } = await import("@/lib/email");
     let delivery: Awaited<ReturnType<typeof sendTransactionalEventEmail>>;
@@ -369,11 +394,11 @@ export async function saveJobShortlistAction(formData: FormData) {
       delivery = await sendTransactionalEventEmail({
         to: inviteLead.email,
         firstName,
-        subject: `Your VA shortlist is ready to review: ${job.title}`,
-        heading: "Your recruiter has a shortlist ready",
-        body: `We reviewed Virtual Assistants for ${job.title} and selected ${selected.length} candidate${selected.length === 1 ? "" : "s"} for your review. Create or link your Client account using this same email address to open the private shortlist. The selected candidates will become available for client review automatically after your account is linked.`,
+        subject: `Next step for your ${job.title} hiring request`,
+        heading: "Continue your VA hiring request",
+        body: `Our team selected ${selected.length} potential VA match${selected.length === 1 ? "" : "es"} for ${job.title}. ${existingClientAccount ? "Log in" : "Create your client workspace"} with the same email address to continue. Candidate profiles become available only after the role is approved, service terms are accepted, and candidate access is activated. Your recruiter will guide the remaining steps.`,
         href: claimUrl,
-        hrefLabel: "Review my shortlist",
+        hrefLabel: existingClientAccount ? "Log in to my hiring request" : "Activate my hiring workspace",
         senderName: "VirtualAssistant.com.ph Hiring Team",
         teamLabel: "Hiring team",
         footerText: "You are receiving this because you contacted VirtualAssistant.com.ph about hiring support.",
@@ -395,7 +420,7 @@ export async function saveJobShortlistAction(formData: FormData) {
         subjectType: "job",
         subjectId: jobId,
         action: "client_review_invited",
-        description: `Client invited to claim their account and review ${selected.length} selected VA${selected.length === 1 ? "" : "s"}`,
+        description: `Client invited to activate their hiring workspace; ${selected.length} candidate${selected.length === 1 ? "" : "s"} saved internally until review is enabled`,
         actorId: user.id,
         metadata: { va_ids: selected, lead_id: inviteLead.id, invite_sent_at: now }
       });
@@ -476,17 +501,18 @@ export async function saveJobShortlistAction(formData: FormData) {
     });
 
     const recipient = clientAuth.user?.email?.trim();
+    let emailFailure = recipient ? "provider_error" : "missing_recipient";
     if (recipient) {
       const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
       const { sendTransactionalEventEmail } = await import("@/lib/email");
       try {
-        await sendTransactionalEventEmail({
+        const delivery = await sendTransactionalEventEmail({
           to: recipient,
           firstName: clientProfile?.full_name || null,
           subject: `Your VA shortlist is ready: ${job.title}`,
           heading: "Your recruiter selected VAs for you",
           body: `${selected.length} recruiter-reviewed Virtual Assistant${selected.length === 1 ? " is" : "s are"} ready for your review.`,
-          href: `${appUrl}/workspace/client/jobs/${jobId}`,
+          href: `${appUrl}/workspace/client/candidates?role=${encodeURIComponent(jobId)}`,
           hrefLabel: "Review my VA shortlist",
           senderName: "VirtualAssistant.com.ph Hiring Team",
           teamLabel: "VA shortlist",
@@ -495,18 +521,34 @@ export async function saveJobShortlistAction(formData: FormData) {
           idempotencyKey: `client-shortlist-delivery-${jobId}-${now.slice(0, 10)}`,
           priority: "critical",
         });
+        releaseEmailUnavailable = !delivery.sent;
+        if (!delivery.sent) emailFailure = String(delivery.reason || "provider_error");
       } catch (emailError) {
-        console.error("[client-shortlist-delivery] email failed", {
-          jobId,
-          error: emailError instanceof Error ? emailError.message : String(emailError),
-        });
+        releaseEmailUnavailable = true;
+        emailFailure = emailError instanceof Error ? emailError.message : "provider_error";
       }
+    } else {
+      releaseEmailUnavailable = true;
+    }
+    if (releaseEmailUnavailable) {
+      console.error("[client-shortlist-delivery] email unavailable", { jobId, reason: emailFailure });
+      await writeRecruiterActivity({
+        subjectType: "job",
+        subjectId: jobId,
+        action: "client_shortlist_delivery_failed",
+        description: "The shortlist is released in the client workspace, but its email notification was not delivered.",
+        actorId: user.id,
+        metadata: { reason: emailFailure },
+      });
     }
   }
 
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath(`/workspace/client/jobs/${jobId}`);
+  if (releaseEmailUnavailable) {
+    redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_released=1&client_shortlist_email_unavailable=1`);
+  }
   if (inviteEmailUnavailable) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}shortlist_saved=1&client_invite_email_unavailable=1`);
   }

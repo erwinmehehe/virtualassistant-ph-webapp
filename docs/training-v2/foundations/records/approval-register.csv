@@ -1,0 +1,8 @@
+approval_id,related_record,record_type,recorded_at_aedt,requested_action,required_approver,request_status,approval_reference,comments
+APP-060,Q-060,CUSTOM_QUOTE,2026-11-04 08:41 AEDT,All-in multi-site commercial services bundle,Riley,PENDING,,No authorized price for bundle in current rate card
+APP-120,CMP-12,CAMPAIGN_PRICE,2026-11-04 08:35 AEDT,Advertised service special price,Riley,NOT_RECORDED,,Discussion noted but no final signed-off price
+APP-121,CMP-12,CAMPAIGN_CLAIM,2026-11-04 08:35 AEDT,Headline and promotional claims,Riley,NOT_RECORDED,,Draft has not been independently approved
+APP-122,CMP-12,ASSET_PERMISSION,2026-11-04 08:35 AEDT,Social/web image use,Taylor,NOT_RECORDED,,License or client sign-off not attached
+APP-123,CMP-12,PUBLICATION_DATE,2026-11-04 08:35 AEDT,Campaign go-live date,Taylor,PENDING,,Requested before 12:00 AEDT; publishing authority has not been granted
+APP-097,B-097,REFUND_REVIEW,2026-11-04 08:45 AEDT,Customer request for AUD 295 refund,Riley,PENDING,,No refund decision recorded as of this timestamp
+

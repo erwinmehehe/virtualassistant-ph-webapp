@@ -32,8 +32,29 @@ async function login(page: Page, email: string, destination: string) {
 }
 
 async function postChat(page: Page, route: string, message: string, alter?: (page: Page) => Promise<void>, afterFill?: (page: Page) => Promise<void>) {
-  await page.goto(route, { waitUntil: "domcontentloaded" });
-  await expect(page.locator('textarea[name="body"]')).toBeVisible();
+  const target = new URL(route, BASE);
+  const matchesTarget = (url: URL) =>
+    url.pathname === target.pathname &&
+    [...target.searchParams].every(([key, value]) => url.searchParams.get(key) === value);
+  const composer = page.locator('textarea[name="body"]');
+
+  // A successful server action or an auth refresh can already be navigating to
+  // this same route. Starting a second page.goto races that transition.
+  // Reuse a visible composer on the intended route; otherwise navigate once.
+  if (!matchesTarget(new URL(page.url())) || !(await composer.isVisible())) {
+    try {
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+    } catch (error) {
+      // Playwright can report that a same-route RSC redirect interrupted goto.
+      // Only tolerate that narrow race; the URL and visible-composer checks
+      // below must still succeed before the test submits anything.
+      if (!(error instanceof Error) || !error.message.includes("is interrupted by another navigation to")) {
+        throw error;
+      }
+    }
+  }
+  await expect(page).toHaveURL(matchesTarget, { timeout: 30000 });
+  await expect(composer).toBeVisible({ timeout: 30000 });
   if (alter) await alter(page);
   await page.locator('textarea[name="body"]').fill(message);
   // Hidden React form values can be restored during the preceding input event.
@@ -155,6 +176,9 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
       try {
         const page = await context.newPage();
         await login(page, clients[kind].email, "/workspace/client/messages");
+        // The URL can update before the server component finishes creating its
+        // chat thread. Wait for the actual composer before checking the DB.
+        await expect(page.locator('textarea[name="body"]')).toBeVisible({ timeout: 30000 });
         const { data: thread, error } = await admin.from("client_recruiter_threads")
           .select("id").eq("client_id", clients[kind].id).is("job_id", null).single();
         if (error || !thread) throw error || new Error("Synthetic client thread missing");

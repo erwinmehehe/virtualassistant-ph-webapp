@@ -16,7 +16,8 @@ test("public match feedback requires a signed, expiring capability and is replay
   assert.match(action, /enforceActionRateLimit\("public_match_feedback"/);
   assert.match(action, /\.is\("match_feedback_at", null\)/);
   assert.doesNotMatch(action, /formData\.get\("lead"\)/);
-  assert.match(form, /name="token" value=\{token\}/);
+  assert.doesNotMatch(form, /name="token" value=\{token\}/);
+  assert.doesNotMatch(form, /<MatchFeedback|submitMatchFeedbackAction|matchFeedbackToken/);
   assert.doesNotMatch(form, /name="lead" value=\{leadId\}/);
   assert.match(leads, /scope: "match_feedback"/);
   assert.match(leads, /#feedback=/);

@@ -287,13 +287,19 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
         .select("id").eq("thread_id", clients.burst.threadId!).eq("sender_id", clients.repeat.id);
       if (borrowedError) throw borrowedError;
       expect(borrowed).toHaveLength(0);
+    });
 
+    // Forged-thread rejection deliberately throws from a server action and
+    // can put Next.js in an error boundary. Use a fresh authenticated browser
+    // page for the independent size-limit probe; never treat the error page
+    // as a valid chat composer or weaken the database non-write assertion.
+    await withPage(browser, fromClient("repeat"), async (page) => {
       await postChat(page, "/workspace/client/messages", "x".repeat(4001), async (p) => {
         await p.locator('textarea[name="body"]').evaluate((el) => el.removeAttribute("maxlength"));
       });
       await expect.poll(() => messageCount("repeat")).toBe(2);
-      evidence.push({ case: "thread ownership and 4000-character boundary", result: "passed" });
     });
+    evidence.push({ case: "thread ownership and 4000-character boundary", result: "passed" });
   });
 
   test("a recruiter can still reply when client sends are rate-limited", async ({ browser }) => {

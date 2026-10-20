@@ -1,8 +1,8 @@
 record_id,record_type,invoice_id,recorded_at_aedt,supplier_or_customer,amount_aud,source_status,source_reference,related_evidence,notes
-FIN-201,INVOICE_PDF,INV-219,2026-11-03 15:30 AEDT,Harbour Parts Pty Ltd,450.00,RECEIVED,AP/INV-219-original.pdf,Supplier name+invoice number+amount shown,First uploaded PDF
-FIN-202,INVOICE_PDF,INV-219,2026-11-04 08:13 AEDT,Harbour Parts Pty Ltd,450.00,RECEIVED,AP/INV-219-new.pdf,Supplier name+invoice number+amount shown,Second PDF different filename; no verified reason for second upload
+FIN-201,INVOICE_PDF,INV-219,2026-11-03 15:30 AEDT,Harbour Parts Pty Ltd,450.00,RECEIVED,records/invoices/INV-219-original.md,Supplier name+invoice number+amount shown,First uploaded PDF
+FIN-202,INVOICE_PDF,INV-219,2026-11-04 08:13 AEDT,Harbour Parts Pty Ltd,450.00,RECEIVED,records/invoices/INV-219-resend.md,Supplier name+invoice number+amount shown,Second PDF different filename; no verified reason for second upload
 FIN-203,PAYMENT_REGISTER,INV-219,2026-11-04 08:20 AEDT,Harbour Parts Pty Ltd,450.00,PENDING_APPROVAL,FIN/PAY-219,Linked invoice INV-219,No payment release has been recorded
-FIN-204,INVOICE_LEDGER,INV-407,2026-11-04 07:50 AEDT,CUST-407,138.00,PAID,AR/INV-407,Receipt R-407 matched on 2026-11-03 16:10 AEDT,Ledger status is paid; document release still requires recipient identity check
+FIN-204,INVOICE_LEDGER,INV-407,2026-11-04 07:50 AEDT,CUST-407,138.00,PAID,records/invoices/INV-407-customer-copy.md,Receipt R-407 matched on 2026-11-03 16:10 AEDT,Ledger status is paid; document release still requires recipient identity check
 FIN-205,INVOICE_LEDGER,INV-812,2026-11-04 08:10 AEDT,North Quay Supply,860.00,SCHEDULED_FOR_REVIEW,AP/INV-812,Vendor bank record reviewed last 2026-10-29,Payment batch target 15:00 AEDT; proposed new details not independently verified
 FIN-206,VENDOR_DIRECTORY,INV-812,2026-10-29 10:00 AEDT,North Quay Supply,,EXISTING_APPROVED_CONTACT,VENDOR/NORTH-QUAY,Approved office contact on vendor master,Do not use a replacement phone number only supplied in the change email
 

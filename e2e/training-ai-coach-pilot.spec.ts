@@ -17,7 +17,7 @@ function isLocal(raw: string) {
   } catch { return false; }
 }
 
-function payload(message: string, mode: "explain" | "practice" | "review" = "explain") {
+function payload(message: string, mode: "explain" | "practice" | "review" | "plan" = "explain") {
   return { courseSlug: SLUG, lessonId, mode, messages: [{ role: "user", content: message }] };
 }
 
@@ -84,7 +84,9 @@ test.describe("VAPH Coach - isolated learner pilot", () => {
 
     for (const activity of [
       { name: "Explain this lesson", distinctive: "what is the first practical step" },
+      { name: "15-minute practice plan", distinctive: "3-minute recap" },
       { name: "Practice with a client", distinctive: "Fictional client:" },
+      { name: "Mock interview", distinctive: "Fictional interviewer:" },
       { name: "Review my work", distinctive: "Paste a fictional practice draft" },
     ]) {
       const responses = coach.locator(".training-ai-coach-message.is-coach");
@@ -94,6 +96,7 @@ test.describe("VAPH Coach - isolated learner pilot", () => {
       await expect(responses.last()).toContainText("LOCAL TEST COACH");
       await expect(responses.last()).toContainText(activity.distinctive);
     }
+    await expect(coach).toContainText("Foundation lessons completed");
     await expect(coach).toContainText("Based on: " + lessonTitle);
     await expect(coach).toContainText("does not affect your grades or certificates");
     await page.screenshot({ path: path.join(OUTPUT, "coach-desktop.png"), animations: "disabled" });

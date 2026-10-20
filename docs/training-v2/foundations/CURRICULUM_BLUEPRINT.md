@@ -1,9 +1,9 @@
 # Virtual Assistant Foundations V2 — Complete Curriculum Blueprint
 
-**Version:** proposal 1.0 (20 October 2026)  
+**Version:** proposal 1.1 (20 October 2026)  
 **Product:** VirtualAssistant.com.ph (VAPH) self-paced training  
 **Learning level:** absolute beginner to supervised junior VA practice  
-**Nominal duration:** **34 hours 30 minutes**, excluding optional coaching, repeat attempts and real-world on-the-job supervision  
+**Nominal duration:** **35 hours 15 minutes**, excluding optional coaching, repeat attempts and real-world on-the-job supervision  
 **Scope:** complete instructional design specification, **not** proof of accreditation or production publication.
 
 ## Decision in one paragraph
@@ -54,7 +54,7 @@ Each lesson should have **one assessable action**, not just a topic title. Its s
 ### Lesson formats
 
 - **Teaching unit:** usually 45–60 minutes of combined instruction and practice, broken into 5–15-minute sections.
-- **Deep-work lab:** 75–105 minutes with a pause/resume point and a checkable artifact. The first pilot lesson is a 105-minute lab.
+- **Deep-work lab:** typically 75–150 minutes with a pause/resume point and a checkable artifact. The first pilot lesson is a 150-minute practice lab with verifiable source records.
 - **Integration unit:** 60–90 minutes involving multiple earlier skills, a client brief and a clear handoff.
 - Every module closes with a compact portfolio-ready fictional work sample. Clearly label practice work as simulated and not paid employment.
 
@@ -64,7 +64,7 @@ Each lesson should have **one assessable action**, not just a topic title. Its s
 | --- | --- | ---: | ---: | --- |
 | M01 | VA role, trust and operating boundaries | 4 | 180 | Scope and access charter |
 | M02 | Client communication and escalation | 4 | 180 | Communications and issue log |
-| M03 | Inbox and customer message operations | 4 | 255 | Triage board, drafted replies and inbox handoff |
+| M03 | Inbox and customer message operations | 4 | 300 | Triage board, drafted replies and inbox handoff |
 | M04 | Calendar, time zones and meetings | 4 | 195 | Verified meeting coordination packet |
 | M05 | Files, documents and spreadsheets | 4 | 210 | Controlled shared-folder and cleaned data sample |
 | M06 | Task management and reliable delivery | 4 | 195 | Work plan, dependency board and SOP |
@@ -72,7 +72,7 @@ Each lesson should have **one assessable action**, not just a topic title. Its s
 | M08 | Responsible AI and data stewardship | 4 | 180 | Verified AI-assisted draft and disclosure log |
 | M09 | Working from briefs and complex workflows | 4 | 210 | Multi-step client operations case |
 | M10 | Integrated simulation and practical assessment | 4 | 285 | Assessed fictional client-day portfolio |
-| **Total** | | **40** | **2,070 = 34h 30m** | |
+| **Total** | | **40** | **2,115 = 35h 15m** | |
 
 These are **planning estimates**, not fixed seat time, continuing-education credits or proof of competence. Allow progress to resume between sections.
 
@@ -114,12 +114,12 @@ These are **planning estimates**, not fixed seat time, continuing-education cred
 
 **Module checkpoint:** reviewer can trace every stated fact to a source and every pending item to an owner. No promises beyond documented policy.
 
-### M03 — Inbox and customer message operations (255 min)
+### M03 — Inbox and customer message operations (300 min)
 
 **Module decision skill:** Turn incoming messages into safe, prioritized actions with verifiable ownership and follow-up.
 
-**M03-L01 · Inbox triage and ownership lab · 105 min — COMPLETE PILOT LESSON**  
-**Outcome:** classify and process 12 fictional incoming messages by consequence, deadline, approval boundary and next action. **Teach/model:** security, spending, customer and scheduling risks; worked demonstration of four records and an original decision-flow diagram. **Do:** independently process eight further records, draft replies, record escalations and create a handoff. **Evidence:** completed CSV board, two message drafts, one escalation and handoff. **Full learner-ready lesson:** [LESSON_03_01_INBOX_TRIAGE.md](./LESSON_03_01_INBOX_TRIAGE.md).
+**M03-L01 · Inbox triage and ownership lab · 150 min — PRACTICAL PILOT DRAFT**  
+**Outcome:** classify and process 12 fictional incoming messages using real-looking source records and approval boundaries. **Teach/model:** four detailed worked cases plus original desktop/mobile diagrams and a functional offline practice inbox. **Do:** independently inspect evidence across booking, finance, customer, campaign, meeting and jobs records for eight other messages, produce a decision tracker, two reply drafts, escalation, handoff and a weekly status summary. **Evidence:** exported CSV with citations and five checkable artifacts. **Pilot lesson:** [LESSON_03_01_INBOX_TRIAGE.md](./LESSON_03_01_INBOX_TRIAGE.md); [offline inbox simulator](./practice-inbox-lab.html); [assessment rubric](./ASSESSMENT_RUBRIC_AND_FEEDBACK.md).
 
 **M03-L02 · Inbox organization and search · 60 min**  
 **Outcome:** find supporting messages and maintain categories/labels/statuses without hiding required follow-ups. **Teach/model:** annotated Gmail/Outlook test-account views, threads, search operators, delegated-access constraints and a simple “waiting for” tracker. **Do:** organize a fictional inbox export; distinguish archive from closure. **Evidence:** categories and a documented waiting-for queue.

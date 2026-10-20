@@ -188,6 +188,7 @@ export default async function RoleControlCenter({
     (job.dealbreakers?.length || 0);
   const publication = publicationBlocker(job, commercial);
   const clientViewedAt = activity.find((row) => row.action === "client_shortlist_viewed")?.created_at || null;
+  const latestClientInviteAt = activity.find((row) => row.action === "client_review_invited")?.created_at || null;
   const lastClientFollowupAt = activity.find((row) => row.action === "client_shortlist_followup")?.created_at || null;
   const latestMoreOptions = activity.find((row) => row.action === "client_more_options_requested") || null;
   const releasedTimes = released.map((row) => row.released_at).filter((value): value is string => Boolean(value)).sort();
@@ -206,7 +207,11 @@ export default async function RoleControlCenter({
   const clientStatus = moreOptionsOpen
     ? "Needs more options"
     : !released.length
-      ? "Not sent"
+      ? latestClientInviteAt && !job.client_id
+        ? "Invite sent, account not linked"
+        : latestClientInviteAt && job.client_id
+          ? "Client linked, awaiting review access"
+          : "Not sent"
       : allPassed
       ? "Needs replacement matches"
       : feedbackCount === released.length
@@ -251,9 +256,9 @@ export default async function RoleControlCenter({
       {query.quick_shortlist_prepared ? <div className="success-banner" role="status">Prepared {Number(query.quick_shortlist_prepared) || 0} top match{Number(query.quick_shortlist_prepared) === 1 ? "" : "es"} for internal recruiter review. Nothing was sent to the client.</div> : null}
       {query.quick_shortlist_existing ? <div className="info-banner" role="status">This role already has at least three recruiter-selected candidates. Review them below before sending anything to the client.</div> : null}
       {query.shortlist_saved ? <div className="success-banner">Internal shortlist saved.</div> : null}
-      {query.shortlist_released ? <div className="success-banner">Shortlist released to the client and the VA shortlist email was triggered.</div> : null}
+      {query.shortlist_released && !query.client_shortlist_email_unavailable ? <div className="success-banner">Shortlist released to the client workspace. The email provider accepted the notification; check Email Health for delivery.</div> : null}
       {query.client_shortlist_email_unavailable ? <div className="alert" role="alert">The VA shortlist is live in the client workspace, but the shortlist email could not be delivered. Do not send a generic follow-up email; verify the client address and retry shortlist delivery only if needed.</div> : null}
-      {query.client_invited ? <div className="success-banner">Shortlist saved. The client received the VA shortlist invitation because candidates are ready to review.</div> : null}
+      {query.client_invited ? <div className="success-banner">Hiring workspace invitation sent. VA profiles stay internal until the client account, service terms and candidate access are ready.</div> : null}
       {query.recommendation_saved ? <div className="success-banner">Client recommendation saved.</div> : null}
       {query.followup_sent ? <div className="success-banner">Shortlist reminder added to the client workspace. No email was sent.</div> : null}
       {query.offer_sent ? <div className="success-banner">Placement offer sent to the VA. Waiting for VA acceptance before the client confirms the placement.</div> : null}
@@ -563,7 +568,7 @@ export default async function RoleControlCenter({
             ) : null}
           </>
         ) : (
-          <div className="empty">No shortlist has been released yet. Build and preview it above.</div>
+          <div className="empty">{latestClientInviteAt ? `Client workspace invitation sent ${eventAgeLabel(latestClientInviteAt)}. The client must link their account and complete required service terms/access before any VAs are visible.` : "No shortlist has been released yet. Build and preview it above."}</div>
         )}
       </section>
 

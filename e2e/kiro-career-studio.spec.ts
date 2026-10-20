@@ -75,7 +75,7 @@ test.describe("Kiro Career Studio - isolated learner experience", () => {
       const leakedDrafts = outboundWrites.filter(({ payload }) => {
         // Encoded form bodies must not hide draft content from the assertion.
         let body = payload;
-        try { body = decodeURIComponent(payload.replace(/\\+/g, " ")); } catch { /* keep original */ }
+        try { body = decodeURIComponent(payload.replace(/\+/g, " ")); } catch { /* keep original */ }
         return draftMarkers.some((marker) => body.includes(marker));
       });
       expect(leakedDrafts, "No resume, portfolio or interview draft can leave the browser").toEqual([]);

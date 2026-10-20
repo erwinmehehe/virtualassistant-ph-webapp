@@ -9,8 +9,6 @@ import {
   submitRoleBriefWithAiAction,
   submitServiceMatchWithAiAction
 } from "@/app/actions/ai-leads";
-import { submitMatchFeedbackAction, type MatchFeedbackState } from "@/app/actions/match-feedback";
-import { MATCH_FEEDBACK_OPTIONS } from "@/lib/match-feedback";
 import { type TopMatch } from "@/lib/talent-preview";
 import { AttributionFields } from "@/components/attribution-fields";
 import { PublicAvatar } from "@/components/public-avatar";
@@ -31,7 +29,6 @@ const BOOKING_URL = "/book-client-call";
 const HOURS = ["Under 10 hours/week", "10 to 20 hours/week", "20 to 30 hours/week", "30 to 40 hours/week", "40+ hours/week", "Not sure yet"];
 const BUDGETS = [`USD ${MIN_HOURLY_RATE} to 8/hour`, "USD 8 to 12/hour", "USD 12 to 18/hour", "USD 18 to 25/hour", "USD 25+/hour", "Not sure yet"];
 const initialState: ServiceMatchState = { status: "idle" };
-const initialFeedbackState: MatchFeedbackState = { status: "idle" };
 
 type Variant =
   | { variant: "service"; slug: string; category: string; roleLabel: string; example: string; talentHref: string; sourcePath?: string }
@@ -62,40 +59,10 @@ function Steps({ done }: { done: boolean }) {
 type TopMatchesResponse = { matches?: TopMatch[]; total?: number; exact?: boolean };
 
 /**
- * One tap to say why the sampled profiles missed. A client who does not warm
- * to them would otherwise leave without telling anyone; this reaches the
- * recruiter before the first call. Each chip submits on click.
- */
-function MatchFeedback({ token }: { token: string }) {
-  const [state, formAction, pending] = useActionState(submitMatchFeedbackAction, initialFeedbackState);
-
-  if (state.status === "saved") {
-    return <p className="hb-feedback-done"><Check size={13} strokeWidth={3} />Got it. Your recruiter will factor that in.</p>;
-  }
-
-  return (
-    <form action={formAction} className="hb-feedback">
-      <input type="hidden" name="token" value={token} />
-      <span>Not quite right?</span>
-      <div className="hb-feedback-chips">
-        {MATCH_FEEDBACK_OPTIONS.map((option) => (
-          <button key={option.value} type="submit" name="reason" value={option.value} disabled={pending} data-track={`match_feedback_${option.value}`}>
-            {option.label}
-          </button>
-        ))}
-      </div>
-      {state.status === "error" ? <p className="hb-feedback-error" role="alert">{state.message}</p> : null}
-    </form>
-  );
-}
-
-/**
  * A sample of the approved pool, shown the moment a brief lands. These are
- * deliberately framed as examples with a pool size next to them: the recruiter
- * still builds the real shortlist, so three faces the client does not warm to
- * cannot read as "that is all you have".
+ * a small selection from the pool rather than the recruiter\'s final shortlist.
  */
-function TopMatches({ category, feedbackToken }: { category?: string; feedbackToken?: string }) {
+function TopMatches({ category }: { category?: string }) {
   const [pool, setPool] = useState<TopMatchesResponse | null>(null);
 
   useEffect(() => {
@@ -114,7 +81,6 @@ function TopMatches({ category, feedbackToken }: { category?: string; feedbackTo
   // Only name the specialty when all three really came from it.
   const scope = pool?.exact && category ? `${category.toLowerCase()} ` : "";
   const total = Number(pool?.total || 0);
-  const browseHref = pool?.exact && category ? `/find-talent?category=${encodeURIComponent(category)}` : "/find-talent";
 
   return (
     <div className="hb-matches">
@@ -136,16 +102,11 @@ function TopMatches({ category, feedbackToken }: { category?: string; feedbackTo
           </li>
         ))}
       </ul>
-      <p className="hb-matches-note">Examples only. Your recruiter builds your shortlist from the brief you just sent.</p>
-      {feedbackToken ? <MatchFeedback token={feedbackToken} /> : null}
-      <Link className="hb-matches-all" href={browseHref}>
-        {total > matches.length ? `Browse all ${total} approved profiles` : "Browse approved profiles"} <ArrowRight size={14} />
-      </Link>
     </div>
   );
 }
 
-function Success({ message, category, leadId, jobId, clientLinked, feedbackToken }: { message?: string; category?: string; leadId?: string; jobId?: string; clientLinked?: boolean; feedbackToken?: string }) {
+function Success({ message, category, leadId, jobId, clientLinked }: { message?: string; category?: string; leadId?: string; jobId?: string; clientLinked?: boolean }) {
   const next = jobId ? `/workspace/client/jobs/${jobId}` : "/workspace/client";
   const joinParams = new URLSearchParams(leadId ? { lead: leadId, next } : { next });
   const accountHref = clientLinked ? `${next}?created_from_match=1` : `/auth/join/client?${joinParams.toString()}`;
@@ -156,7 +117,7 @@ function Success({ message, category, leadId, jobId, clientLinked, feedbackToken
       <div className="hb-success-icon"><Check size={22} strokeWidth={3} /></div>
       <h2>Brief received.</h2>
       <p>{message || "Our recruiting team is reviewing your brief and will confirm availability before presenting anyone to you."}</p>
-      <TopMatches category={category} feedbackToken={feedbackToken} />
+      <TopMatches category={category} />
       <a className="hb-submit" href={accountHref} data-track={clientLinked ? "portal_click" : "join_client_click"}>
         {clientLinked ? "Open your Client Portal" : "Create my account"} <ArrowRight size={16} />
       </a>
@@ -228,7 +189,7 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
   const [state, formAction, pending] = useActionState(action, initialState);
 
   if (state.status === "success") {
-    return <Success message={state.message} category={props.variant === "service" ? props.category : undefined} leadId={state.leadId} jobId={state.jobId} clientLinked={state.clientLinked} feedbackToken={state.matchFeedbackToken} />;
+    return <Success message={state.message} category={props.variant === "service" ? props.category : undefined} leadId={state.leadId} jobId={state.jobId} clientLinked={state.clientLinked} />;
   }
 
   const base = (props.variant === "service" ? props.roleLabel : props.industryLabel).replace(/\s+(virtual assistants?|VAs?)$/i, "").trim();
@@ -258,19 +219,18 @@ function MatchVariant(props: Extract<Variant, { variant: "service" | "industry" 
 }
 
 function GeneralVariant({ sourcePath, title = "Get your free virtual assistant match", defaultCategory = "", defaultHours, defaultBudget, talent, shortlist, defaultStartTime }: { sourcePath: string } & GeneralOptions) {
-  const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string; category?: string; feedback?: string }>({ sent: false });
+  const [url, setUrl] = useState<{ sent: boolean; error?: string; lead?: string; category?: string }>({ sent: false });
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setUrl({
       sent: params.get("sent") === "1",
       error: params.get("error") || undefined,
       lead: params.get("lead") || undefined,
-      category: params.get("cat") || undefined,
-      feedback: new URLSearchParams(window.location.hash.replace(/^#/, "")).get("feedback") || undefined
+      category: params.get("cat") || undefined
     });
   }, []);
 
-  if (url.sent) return <Success category={url.category} leadId={url.lead} feedbackToken={url.feedback} />;
+  if (url.sent) return <Success category={url.category} leadId={url.lead} />;
 
   const id = `hb-general-${sourcePath.replace(/[^a-z0-9]+/gi, "-")}`;
   const categories: readonly string[] = VA_CATEGORIES;

@@ -102,6 +102,13 @@ export default async function KiroCareerStudioPage() {
               ))}
             </ul>
           ) : <p>You've explored the available course suggestions. Browse the full catalog for more options.</p>}
+          <div className="kiro-career-opportunity">
+            <strong>Explore the work you're preparing for</strong>
+            <p>Use real job descriptions to identify skills to practice. Training and sample projects do not guarantee job access or employment.</p>
+            <Link href={profile?.role === "va" ? "/workspace/va/jobs" : "/jobs"} className="kiro-career-text-link">
+              Browse VA opportunities <ArrowRight size={15}/>
+            </Link>
+          </div>
         </section>
       </div>
 

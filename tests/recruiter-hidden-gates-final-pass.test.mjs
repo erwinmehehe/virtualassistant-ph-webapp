@@ -39,3 +39,22 @@ test("client release readiness includes candidate access instead of failing afte
   assert.match(server,/commercial\?\.commercial_status==="accepted"&&candidateAccessReady/);
   assert.match(server,/Candidate access is not active yet/);
 });
+
+test("matching view omits the redundant role-quality panel without weakening real release checks",async()=>{
+  const [staff,rolePage,terms,publication]=await Promise.all([
+    read("src/components/staff-job-matching.tsx"),
+    read("src/app/workspace/recruiter/roles/[id]/page.tsx"),
+    read("src/app/actions/agency-role.ts"),
+    read("src/lib/job-publication.ts")
+  ]);
+
+  assert.match(staff,/Matching & shortlist builder/);
+  assert.match(staff,/1\. Recruiter review/);
+  assert.doesNotMatch(staff,/Role quality & commercial gate|Complete before quoting|Brief ready|2\+ required skills|start timing/);
+  assert.doesNotMatch(staff,/roleReady|ShieldCheck|prepareStandardPlacementTermsAction/);
+  // The real client handoff and commercial approvals are still enforced.
+  assert.match(staff,/commercial\?\.commercial_status==="accepted"&&candidateAccessReady/);
+  assert.match(rolePage,/action=\{prepareStandardPlacementTermsAction\}/);
+  assert.match(terms,/publicationMissingDetails\(job\)/);
+  assert.match(publication,/export function publicationMissingDetails/);
+});

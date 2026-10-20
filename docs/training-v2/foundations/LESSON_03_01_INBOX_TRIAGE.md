@@ -163,7 +163,7 @@ Download or open [inbox-case-messages.csv](./inbox-case-messages.csv). Filter th
 2. Identify the immediate harm: an access compromise could disrupt scheduling or expose client information.
 3. Mark **P0** for rapid containment under this scenario's SOP. Avoid claiming the account *is* compromised; only a suspicious event has been reported.
 4. Record what you can do: preserve the report in the internal incident path, alert Morgan via the approved internal channel and document the time. You cannot reset credentials or pronounce the account safe.
-5. Set **owner: Morgan / Security**. Set **next checkpoint: 09:10 AEDT**, an exercise target within 10 minutes of the 09:00 intake, or earlier if the approved incident procedure says so.
+5. Set **owner: Morgan / Security**. **Alert Morgan immediately at the 09:00 intake** using the approved internal channel; **09:10 AEDT is a follow-up checkpoint, not permission to delay the initial alert**. If the fictional incident policy sets an earlier deadline, follow that deadline.
 6. Status: **Waiting for verification** after the handoff. This is **not resolved** until authorized staff confirm next steps.
 
 **Example internal note:**

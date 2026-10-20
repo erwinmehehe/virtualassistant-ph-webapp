@@ -155,6 +155,9 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
       try {
         const page = await context.newPage();
         await login(page, clients[kind].email, "/workspace/client/messages");
+        // The login URL can change before the destination Server Component finishes.
+        // Its chat form renders only after the database thread has been created.
+        await expect(page.locator('textarea[name="body"]')).toBeVisible({ timeout: 30000 });
         const { data: thread, error } = await admin.from("client_recruiter_threads")
           .select("id").eq("client_id", clients[kind].id).is("job_id", null).single();
         if (error || !thread) throw error || new Error("Synthetic client thread missing");

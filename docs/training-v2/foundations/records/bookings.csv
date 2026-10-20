@@ -1,0 +1,6 @@
+booking_id,record_as_of_aedt,service_date,service_start_aedt,customer_reference,service_type,address_status,approved_service_address,dispatch_status,dispatch_owner,visit_evidence_status,internal_note
+B-104,2026-11-04 08:05 AEDT,2026-11-04,10:00 AEDT,CUST-104,Technician visit,UNVERIFIED,,PENDING_ROUTE,Avery,NOT_DUE,Address absent from approved booking record; earlier invoice address not confirmed
+B-109,2026-11-04 08:15 AEDT,2026-11-04,11:00 AEDT,CUST-109,Home appliance visit,VERIFIED,18 Fictional Road Sydney NSW,CONFIRMED_ORIGINAL_SLOT,Avery,NOT_DUE,No later same-day slot approved in dispatch notes as of record time
+B-097,2026-11-03 18:00 AEDT,2026-11-03,14:00 AEDT,CUST-097,Maintenance callout,VERIFIED,27 Example Street Sydney NSW,VISIT_CLOSED,Avery,LATE_ARRIVAL_LOGGED,Original arrival window changed; no refund decision in booking record
+B-110,2026-11-04 08:20 AEDT,2026-11-04,15:30 AEDT,CUST-110,Preventive service,VERIFIED,6 Sample Lane Sydney NSW,CONFIRMED_ORIGINAL_SLOT,Avery,NOT_DUE,Visit is unrelated to B-109 change request
+

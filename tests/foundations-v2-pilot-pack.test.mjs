@@ -105,7 +105,7 @@ test("public reviewer scorecard adds to 100 and protects critical safety decisio
   assert.equal(weights.length, 12);
   assert.equal(weights.reduce((a, b) => a + b, 0), 100);
   assert.match(s, /Critical safety gate/);
-  assert.match(s, /independent case answer keys must not live in the public repository/i);
+  assert.match(s, /do not upload a hidden case-specific answer key to this public repository/i);
   assert.match(s, /Needs revision/);
 });
 

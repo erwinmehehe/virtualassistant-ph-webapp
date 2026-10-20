@@ -47,7 +47,10 @@ export default async function KiroCareerStudioPage() {
 
   const completedCount = courses.filter((course) => Boolean(course.completedAt)).length;
   const activeCount = courses.filter((course) => course.enrolled && !course.completedAt).length;
-  const lessonCount = courses.reduce((total, course) => total + (course.enrolled ? course.completedLessons : 0), 0);
+  let lessonCount = 0;
+  for (const course of courses) {
+    if (course.enrolled) lessonCount += course.completedLessons;
+  }
   const nextHref = active?.nextLesson
     ? `/workspace/training/courses/${active.slug}/lessons/${active.nextLesson.id}`
     : active?.nextAssessment

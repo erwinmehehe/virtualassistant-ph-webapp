@@ -86,10 +86,19 @@ test("fictional supporting records and open cases are available for real cross-c
 test("offline lab is parseable JavaScript without external persistence or model calls", async () => {
   const s = await read("practice-inbox-lab.html");
   assert.match(s, /<html lang="en">/);
-  const scripts = [...s.matchAll(/<script>([\s\S]*?)<\/script>/g)];
-  assert.equal(scripts.length, 1);
-  assert.doesNotThrow(() => new Script(scripts[0][1]));
-  assert.doesNotMatch(scripts[0][1], /\bfetch\s*\(|XMLHttpRequest|localStorage|sessionStorage|WebSocket/);
+  // This is a repository-owned, fixed HTML test fixture, not arbitrary HTML.
+  // Locate the sole inline script with literal tags rather than an HTML-filter
+  // regex (which CodeQL correctly warns would miss uppercase tags).
+  const startTag = "<script>";
+  const endTag = "</script>";
+  const start = s.indexOf(startTag);
+  const end = s.indexOf(endTag, start + startTag.length);
+  assert.ok(start !== -1 && end > start, "expected an inline script");
+  assert.equal(s.indexOf(startTag, start + startTag.length), -1, "expected one inline script");
+  assert.equal(s.indexOf(endTag, end + endTag.length), -1, "expected one closing script tag");
+  const code = s.slice(start + startTag.length, end);
+  assert.doesNotThrow(() => new Script(code));
+  assert.doesNotMatch(code, /\bfetch\s*\(|XMLHttpRequest|localStorage|sessionStorage|WebSocket/);
   assert.match(s, /max-width:800px/);
   assert.match(s, /aria-live="polite"/);
   assert.match(s, /Export all eight practice records as CSV/);

@@ -53,9 +53,9 @@ Use the following fictional policies throughout the lesson. They are *part of th
 
 | Rule | Harbour Lane instruction |
 | --- | --- |
-| Work hours | Client support shift 09:00–17:00 **AEDT**. Use the message's explicitly stated zone; do not treat “local time” as self-explanatory. |
+| Work hours | Client support coverage 08:00–17:00 **AEDT**; **your** VA shift begins at 09:00 AEDT, so earlier messages still have live response deadlines. Use the message's explicitly stated zone; do not treat “local time” as self-explanatory. |
 | Customer acknowledgements | Draft an acknowledgment within **two business hours** where possible. Acknowledging a request does not mean approving or resolving it. |
-| Security issue | If a staff member reports an unrequested reset or suspicious link, **do not click it**. Open an internal security incident, alert the designated security owner promptly (exercise target: within 10 minutes), and record the report. |
+| Security issue | If a staff member reports an unrequested reset or suspicious link, **do not click it**. Open an internal security incident, alert the designated security owner promptly (exercise target: within 10 minutes of discovering the report at shift intake), and record the report. |
 | Same-day bookings | Missing service addresses, unavailable technicians or timing changes that affect today's appointment must reach the dispatch owner **before 09:20 AEDT** in this scenario. Do not promise a slot until dispatch confirms it. |
 | Payment details | **Never change supplier bank details or release a payment based only on an email**. Hold the pending change; finance must verify via the contact channel already recorded in its approved system. |
 | Refunds, pricing and credits | The VA may locate policies, gather evidence and draft replies. Only the authorized manager can approve a refund, price or credit. |
@@ -155,7 +155,7 @@ Download or open [inbox-case-messages.csv](./inbox-case-messages.csv). Filter th
 
 ### M01 — An unrequested account reset
 
-**Message:** Operations reports an unrequested reset notification for the scheduling account. An email contains a reset link.
+**Message:** Operations reports an unrequested reset notification for the scheduling account shortly before you begin at 09:00 AEDT. An email contains a reset link.
 
 **Walkthrough:**
 

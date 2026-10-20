@@ -490,6 +490,19 @@ export default async function TrainingDashboardPage({
           : <>Continue your current lesson, follow a recommended path, or choose one course from the library. Training remains separate from hiring and certificates are free.</>}
       />
 
+      <section className="card dashboard-section-card training-kiro-career-intro" aria-labelledby="training-kiro-career-title">
+        <div className="dashboard-section-head">
+          <div>
+            <span className="small"><Sparkles size={14} aria-hidden="true"/> Meet Kiro Career Coach</span>
+            <h2 id="training-kiro-career-title">Practice the next step beyond your lessons.</h2>
+            <p>Get course suggestions from your real training progress, draft truthful resume and sample portfolio examples, and try fictional VA interview questions. Free, optional, and separate from hiring decisions.</p>
+          </div>
+          <Link className="btn btn-primary" href="/workspace/training/coach" data-track="training_career_coach_open">
+            Open Career Studio <ArrowRight size={15}/>
+          </Link>
+        </div>
+      </section>
+
       {!certificateNameConfirmed ? (
         <section className="card dashboard-section-card" aria-labelledby="certificate-name-notice-title">
           <div className="dashboard-section-head">

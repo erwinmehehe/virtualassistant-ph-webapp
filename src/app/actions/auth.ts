@@ -395,6 +395,16 @@ export async function chooseOAuthRoleAction(formData: FormData) {
 
   const existingProfile = await getOrBootstrapProfile(user);
   if (existingProfile) {
+    if (existingProfile.role === "client" && lead && user.email) {
+      try {
+        const linkedJobId = await claimClientHiringRequests({ userId: user.id, email: user.email, leadId: lead });
+        if (linkedJobId) redirect(`/workspace/client/jobs/${linkedJobId}?claimed=1`);
+      } catch (error) {
+        // A failed claim cannot break valid authentication.
+        console.error("[client-claim] existing OAuth account could not link hiring role",
+          error instanceof Error ? error.message : String(error));
+      }
+    }
     const fallback = `/workspace/${existingProfile.role}`;
     const requested = safePath(next, fallback);
     redirect(requested.startsWith("/workspace/") && !requested.startsWith(fallback) ? fallback : requested);

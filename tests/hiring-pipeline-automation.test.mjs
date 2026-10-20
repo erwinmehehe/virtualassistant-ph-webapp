@@ -6,14 +6,14 @@ const read = (path) =>
   readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("shortlist release queues a durable client-review clock", async () => {
-  const [matching, claims, trigger] = await Promise.all([
+  const [matching, gatedRelease, trigger] = await Promise.all([
     read("src/app/actions/matching.ts"),
-    read("src/lib/lead-claims.ts"),
+    read("src/lib/client-shortlist-release.ts"),
     read("src/lib/trigger-automation.ts"),
   ]);
 
   assert.match(matching, /queueShortlistReviewAutomation\(jobId, now\)/);
-  assert.match(claims, /queueShortlistReviewAutomation\(jobId, releasedAt\)/);
+  assert.match(gatedRelease, /queueShortlistReviewAutomation\(jobId, releasedAt\)/);
   assert.match(trigger, /vaph-shortlist-review/);
   assert.match(
     trigger,

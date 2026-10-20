@@ -61,5 +61,5 @@ test("role matching explains that quick preparation never sends candidates to th
 test("shortlist funnel records internal-ready and sent milestones", async () => {
   const matching=await read("src/app/actions/matching.ts");
   assert.match(matching,/recordProductEvent\("shortlist_internal_ready"/);
-  assert.match(matching,/mode === "release" \|\| mode === "invite" \? "shortlist_sent" : "shortlist_internal_ready"/);
+  assert.match(matching,/mode === "release" \? "shortlist_sent" : mode === "invite" \? "client_shortlist_invited" : "shortlist_internal_ready"/);
 });

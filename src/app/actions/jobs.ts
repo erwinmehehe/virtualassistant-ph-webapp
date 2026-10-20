@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { releaseInvitedShortlistWhenReady } from "@/lib/client-shortlist-release";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { normalizeTimeZone } from "@/lib/timezones";
 import { slugifyJobTitle } from "@/lib/public-routing";
@@ -376,6 +377,15 @@ export async function acceptCommercialTermsAction(formData: FormData) {
     } catch {
       // Auto-matching is a convenience layer -- staff can still curate a
       // shortlist manually, so a failure here must never block publishing.
+    }
+    // The invited shortlist can only be released after the client has
+    // explicitly accepted terms and candidate access is paid/comped.
+    try {
+      await releaseInvitedShortlistWhenReady(admin, user.id, jobId);
+    } catch (error) {
+      console.error("[client-terms] deferred shortlist release failed", {
+        jobId, error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 

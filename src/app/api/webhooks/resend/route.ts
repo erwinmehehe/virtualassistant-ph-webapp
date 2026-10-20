@@ -294,6 +294,45 @@ export async function POST(request: Request) {
   }
 
   const providerId = event.data?.email_id;
+  if ((event.type === "email.opened" || event.type === "email.clicked") && providerId) {
+    // These are signals, not proof that a human read the message. Mail clients
+    // and security scanners may prefetch open pixels and links.
+    const admin = createAdminClient();
+    const { data: sent, error: lookupError } = await admin
+      .from("outbound_email_events")
+      .select("event_type,idempotency_key")
+      .eq("provider_id", providerId)
+      .maybeSingle();
+    if (lookupError) return Response.json({ error: "Email lookup failed" }, { status: 500 });
+    if (sent && ["client_shortlist_invite", "client_shortlist_delivery", "client_shortlist_claim_followup"].includes(String(sent.event_type))) {
+      const match = String(sent.idempotency_key || "").match(/^client-shortlist-(?:invite|delivery|claim-followup)-([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})-/i);
+      if (match) {
+        const jobId = match[1];
+        const action = event.type === "email.clicked" ? "client_shortlist_email_clicked" : "client_shortlist_email_opened";
+        const { count, error: countError } = await admin
+          .from("recruiter_activity")
+          .select("id", { count: "exact", head: true })
+          .eq("subject_type", "job")
+          .eq("subject_id", jobId)
+          .eq("action", action)
+          .contains("metadata", { provider_id: providerId });
+        if (countError) return Response.json({ error: "Email engagement lookup failed" }, { status: 500 });
+        if (!count) {
+          const { error: insertError } = await admin.from("recruiter_activity").insert({
+            subject_type: "job",
+            subject_id: jobId,
+            action,
+            description: event.type === "email.clicked" ? "Resend reported a link click" : "Resend reported an email open signal",
+            actor_id: null,
+            metadata: { provider_id: providerId, email_event_type: sent.event_type },
+          });
+          if (insertError) return Response.json({ error: "Email engagement write failed" }, { status: 500 });
+          revalidatePath("/workspace/recruiter/roles/" + jobId);
+        }
+      }
+    }
+    return Response.json({ received: true });
+  }
   if (event.type === "email.received" && providerId) {
     const admin = createAdminClient();
     await recordInboundClientReply(admin, event, providerId);

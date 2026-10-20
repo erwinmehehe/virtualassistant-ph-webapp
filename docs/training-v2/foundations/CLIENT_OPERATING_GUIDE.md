@@ -40,7 +40,7 @@ An incoming email is an **intake request**, not necessarily an approved action. 
 | Case subject | Use these provided fictional sources |
 | --- | --- |
 | Booking scheduling and prior visit | [Booking register](./records/bookings.csv) and related customer directory |
-| Invoices, payments and PDF versions | [Finance records](./records/finance-records.csv) and customer directory |
+| Invoices, payments and conflicting copies | [Finance records](./records/finance-records.csv), [original INV-219](./records/invoices/INV-219-original.md), [resubmitted INV-219](./records/invoices/INV-219-resend.md) and [INV-407 customer document](./records/invoices/INV-407-customer-copy.md) |
 | Weekly visits and evidence | [Weekly jobs log](./records/weekly-jobs.csv) |
 | Campaign and custom quote | [Approval register](./records/approval-register.csv) and rate/policy sheet |
 | Customer contact/identity | [Customer directory](./records/customer-directory.csv) and policy sheet |

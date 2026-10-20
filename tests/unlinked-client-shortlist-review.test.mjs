@@ -6,6 +6,7 @@ const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const matchingUi = fs.readFileSync("src/components/staff-job-matching.tsx", "utf8");
 const matchingTable = fs.readFileSync("src/components/matching-candidate-table.tsx", "utf8");
 const leadClaims = fs.readFileSync("src/lib/lead-claims.ts", "utf8");
+const gatedRelease = fs.readFileSync("src/lib/client-shortlist-release.ts", "utf8");
 const recruiterPage = fs.readFileSync("src/app/workspace/recruiter/roles/[id]/page.tsx", "utf8");
 
 test("unlinked lead roles offer an invite path instead of a dead client-release button", () => {
@@ -19,9 +20,9 @@ test("invite mode saves the exact selected VAs and sends a secure claim link", (
   assert.match(matchingAction, /\["save", "release", "invite"\]/);
   assert.match(matchingAction, /client_review_invited/);
   assert.match(matchingAction, /metadata: \{ va_ids: selected, lead_id: inviteLead\.id,/);
-  assert.match(matchingAction, /\/auth\/join\/client\?/);
+  assert.match(matchingAction, /"\/auth\/join\/client"/);
   assert.match(matchingAction, /firstName,/);
-  assert.match(matchingAction, /Review my shortlist/);
+  assert.match(matchingAction, /Activate my hiring workspace/);
   assert.match(matchingAction, /invite_sent_at: now/);
   assert.match(matchingAction, /email_reason: delivery\.reason \|\| "email_unavailable"/);
   assert.match(matchingAction, /teamLabel: "Hiring team"/);
@@ -31,12 +32,14 @@ test("invite mode saves the exact selected VAs and sends a secure claim link", (
   assert.match(recruiterPage, /client_invited/);
 });
 
-test("client claim only releases candidates from a recorded client-review invite", () => {
-  assert.match(leadClaims, /client_review_invited/);
-  assert.match(leadClaims, /invite\.metadata\.va_ids/);
-  assert.match(leadClaims, /shortlist_status: "released"/);
-  assert.match(leadClaims, /shortlist_released_after_client_claim/);
-  assert.match(leadClaims, /eq\("shortlist_status", "proposed"\)/);
+test("client claim defers release until role, terms, and candidate access are approved", () => {
+  assert.match(leadClaims, /releaseInvitedShortlistWhenReady/);
+  assert.match(gatedRelease, /client_review_invited/);
+  assert.match(gatedRelease, /invite\.metadata\.va_ids/);
+  assert.match(gatedRelease, /commercial_status !== "accepted"/);
+  assert.match(gatedRelease, /candidateAccessUnlocked/);
+  assert.match(gatedRelease, /shortlist_status: "released"/);
+  assert.match(gatedRelease, /eq\("shortlist_status", "proposed"\)/);
 });
 
 test("recruiter matcher uses page scrolling instead of clipping candidate rows", () => {

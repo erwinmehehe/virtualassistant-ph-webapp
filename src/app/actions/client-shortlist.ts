@@ -8,6 +8,7 @@ import { matchAssessment } from "@/lib/matching";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recordProductEvent } from "@/lib/product-events";
+import { emailRecruiterAboutClientFeedback } from "@/lib/client-feedback-email";
 import { queueInterviewSchedulingAutomation } from "@/lib/trigger-automation";
 import { resolveInterviewSchedulingIfClear, resolveShortlistReviewIfComplete } from "@/lib/hiring-pipeline-automation";
 
@@ -353,6 +354,19 @@ export async function clientShortlistDecisionAction(formData: FormData) {
     })));
   }
 
+  // Client feedback is already saved; a failed email must not undo it.
+  try {
+    await emailRecruiterAboutClientFeedback({
+      admin,
+      job,
+      kind: "decision",
+      summary: notificationTitle,
+      eventId: "decision-" + shortlist.id + "-" + now,
+      urgent: decision === "interview",
+    });
+  } catch (emailError) {
+    console.error("[client-shortlist] recruiter feedback email failed", emailError);
+  }
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   revalidatePath("/workspace/client/candidates");
   revalidatePath("/workspace/client/interviews");
@@ -468,6 +482,18 @@ export async function clientRequestMoreOptionsAction(formData: FormData) {
     });
   }
 
+  try {
+    await emailRecruiterAboutClientFeedback({
+      admin,
+      job,
+      kind: "more_options",
+      summary: "Client requested more VA options",
+      eventId: "more-options-" + jobId + "-" + now,
+      urgent: true,
+    });
+  } catch (emailError) {
+    console.error("[client-shortlist] more-options recruiter email failed", emailError);
+  }
   revalidatePath("/workspace/client/candidates");
   revalidatePath(`/workspace/client/jobs/${jobId}`);
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);
@@ -533,6 +559,17 @@ export async function clientShortlistMessageAction(formData: FormData) {
     metadata: { job_id: jobId, va_id: vaId },
   });
 
+  try {
+    await emailRecruiterAboutClientFeedback({
+      admin,
+      job,
+      kind: "message",
+      summary: "Client sent candidate feedback",
+      eventId: "message-" + jobId + "-" + vaId + "-" + new Date().toISOString(),
+    });
+  } catch (emailError) {
+    console.error("[client-shortlist] message recruiter email failed", emailError);
+  }
   revalidatePath("/workspace/client/candidates");
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   redirectWithFlag(returnTo, "message_sent");

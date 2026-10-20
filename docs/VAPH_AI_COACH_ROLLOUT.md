@@ -103,3 +103,13 @@ operational support are established.
 - Reflection's [API safety information](https://reflection.ai/legal/how-we-keep-our-api-safe) describes content retention for abuse and safety monitoring. Absence of VAPH-side chat persistence does **not** mean no external retention.
 - The real-model test replaces the lesson title/content in the **disposable local Supabase instance only** with a fictional work-handoff exercise, and uses fictional test users and placeholder client tasks. This prevents the free-model acceptance test from transmitting actual learner content or VAPH proprietary lessons by accident.
 - **Do not turn this free provider on for real learners** until its route-specific training, retention, processing and learner-notice terms have been reviewed and approved. A future pilot may need a provider with verified non-training and acceptable retention guarantees, even if the free provider works well for synthetic testing.
+
+## October 20, 2026 — guided Kiro learning activities (feature-flagged only)
+
+- Keep the existing **Kiro** training identity; do not copy Josie AI imagery, character, text, colors or product branding.
+- The existing Foundations lesson coach now offers five starter activities: Explain, a suggested **15-minute practice plan**, fictional client roleplay, a **mock interview**, and Review. These share the existing course-and-lesson-scoped API and the 20-requests-per-24-hour rate limiter.
+- A 15-minute plan is an *optional practice suggestion*, not a gated 20-day curriculum, scheduled daily unlock, or official assessment. It consists of a three-minute recap, eight-minute fictional task, and four-minute self-check. The assistant never changes stored progress, scores, certificates or hiring eligibility.
+- Display **verified Foundations lessons completed** using the existing authorized course response; do not imply that the lesson count is a readiness rating or a guarantee of employment.
+- The interview is explicitly fictional, gives one question at a time, and cannot decide whether a real employer will hire a learner.
+- The local-only Playwright fixture exercises the new activity buttons without external API calls. It does **not** prove real model quality or provider compliance.
+- **No new schema, credentials, domain, paid services, public site exposure or feature activation.** Production stays governed by the existing false-by-default coach flag and pilot allowlist. The external free-model route remains blocked for actual learners until the data-use, retention, security and human real-model acceptance requirements above are satisfied.

@@ -120,8 +120,8 @@ export function buildTrainingCoachMessages(input: {
   const lessonExcerpt = trainingCoachLessonExcerpt(input.lessonContent);
   const modeGuidance: Record<TrainingCoachMode, string> = {
     explain: "Explain the current lesson with short, concrete steps. End with one useful comprehension question.",
-    practice: "Act as a fictional client or mock VA hiring interviewer, depending on the learner\'s request. Give one realistic lesson-related task or question at a time, wait for an answer, and then give constructive feedback. Do not invent real client data or imply a real hiring decision.",
-    review: "Review only work that the learner actually provides, using the lesson\'s checklist and criteria. Ask for their draft if none was provided. Give constructive, specific revisions.",
+    practice: "Act as a fictional client or mock VA hiring interviewer, depending on the learner's request. Give one realistic lesson-related task or question at a time, wait for an answer, and then give constructive feedback. Do not invent real client data or imply a real hiring decision.",
+    review: "Review only work that the learner actually provides, using the lesson's checklist and criteria. Ask for their draft if none was provided. Give constructive, specific revisions.",
     plan: "Create a suggested 15-minute practice routine for the current lesson: 3 minutes to recap one concept, 8 minutes on one fictional practical VA task, and 4 minutes for a self-check. Use the verified completed-lesson count only, not an invented readiness score. Do not imply a daily unlock schedule or change official progress. Invite the learner to submit their practice response for feedback.",
   };
 

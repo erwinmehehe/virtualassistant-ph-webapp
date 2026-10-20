@@ -8,6 +8,7 @@ const clientCandidates = fs.readFileSync("src/app/workspace/client/candidates/pa
 const clientHiringRoomMigration = fs.readFileSync("supabase/migrations/20260924172000_client_hiring_room_summary.sql", "utf8");
 const matchingAction = fs.readFileSync("src/app/actions/matching.ts", "utf8");
 const leadClaims = fs.readFileSync("src/lib/lead-claims.ts", "utf8");
+const gatedRelease = fs.readFileSync("src/lib/client-shortlist-release.ts", "utf8");
 const clientActions = fs.readFileSync("src/app/actions/client-shortlist.ts", "utf8");
 
 test("recruiter preview and client Hiring Room use the same candidate card", () => {
@@ -33,14 +34,15 @@ test("shared client card exposes useful shortlist facts but not recruiter-only o
   assert.doesNotMatch(clientCard, /match-percent|match-meter/);
 });
 
-test("invite handoff persists exactly the selected VA ids and releases only that recorded invite after claim", () => {
+test("invite handoff persists recruiter-selected VAs but requires client-approved access to release", () => {
   assert.match(matchingAction, /const selected = \[\.\.\.new Set\(formData\.getAll\("va_id"\)/);
   assert.match(matchingAction, /metadata: \{ va_ids: selected, lead_id: inviteLead\.id,/);
-  assert.match(leadClaims, /invite\.metadata\.va_ids/);
-  assert.match(leadClaims, /\.eq\("shortlist_status", "proposed"\)/);
-  assert.match(leadClaims, /\.in\("va_id", invitedIds\)/);
-  assert.match(leadClaims, /shortlist_status: "released"/);
-  assert.match(leadClaims, /shortlist_released_after_client_claim/);
+  assert.match(leadClaims, /releaseInvitedShortlistWhenReady/);
+  assert.match(gatedRelease, /invite\.metadata\.va_ids/);
+  assert.match(gatedRelease, /\.eq\("shortlist_status", "proposed"\)/);
+  assert.match(gatedRelease, /\.in\("va_id", newlySelected\)/);
+  assert.match(gatedRelease, /shortlist_status: "released"/);
+  assert.match(gatedRelease, /candidateAccessUnlocked/);
 });
 
 test("client shortlist remains account-scoped, released-only, access-gated, and feeds decisions back to recruiters", () => {

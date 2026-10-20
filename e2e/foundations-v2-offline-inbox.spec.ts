@@ -45,6 +45,10 @@ test.describe("Foundations V2 pilot — offline fictional inbox", () => {
     await page.getByRole("button", { name: "Check required fields" }).click();
     await expect(page.locator("#status")).toContainText("Missing fields:");
     await expect(page.locator("#status")).not.toContainText("passed");
+    await test.info().attach("foundations-v2-desktop-review", {
+      body: await page.screenshot({ fullPage: true, animations: "disabled" }),
+      contentType: "image/png",
+    });
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -72,6 +76,10 @@ test.describe("Foundations V2 pilot — offline fictional inbox", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(overflow).toBeLessThanOrEqual(2);
+    await test.info().attach("foundations-v2-mobile-review", {
+      body: await page.screenshot({ fullPage: true, animations: "disabled" }),
+      contentType: "image/png",
+    });
     await expect(page.getByRole("button", { name: /Export all eight practice records/ })).toBeVisible();
   });
 });

@@ -22,7 +22,9 @@
 | File | What it provides |
 | --- | --- |
 | [Bookings](./records/bookings.csv) | Scheduled visits, status, dispatch/availability and missing booking evidence |
-| [Finance records](./records/finance-records.csv) | Invoice PDFs, pending payment, approved vendor source and matched receipt |
+| [Finance records](./records/finance-records.csv) | Pending payment, approved vendor source, matched receipt and three sample invoice documents linked below |
+| [Two comparable INV-219 copies](./records/invoices/INV-219-original.md) / [resubmitted copy](./records/invoices/INV-219-resend.md) | Invoice content for a real comparison, including a differing invoice date and no confirmed reason for change |
+| [INV-407 customer copy](./records/invoices/INV-407-customer-copy.md) | Document content and payment status that must not be released to an unverified requester |
 | [Customer directory](./records/customer-directory.csv) | Account reference email versus potentially unauthorized recipient |
 | [Weekly jobs](./records/weekly-jobs.csv) | Twelve fictional jobs with recorded and verifiable completion differences |
 | [Approval register](./records/approval-register.csv) | Pricing, campaign, document approval states and owners |

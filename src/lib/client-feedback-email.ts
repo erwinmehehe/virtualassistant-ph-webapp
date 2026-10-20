@@ -17,13 +17,14 @@ export async function emailRecruiterAboutClientFeedback(args: {
   urgent?: boolean;
 }) {
   // Email only an active recruiter, never the client's email or a VA account.
-  let { data: recruiters, error } = await args.admin
+  const { data: activeAssigned, error } = await args.admin
     .from("profiles")
     .select("id")
     .eq("role", "recruiter")
     .eq("account_status", "active")
     .eq("id", args.job.recruiter_id || "00000000-0000-0000-0000-000000000000")
     .limit(1);
+  let recruiters = activeAssigned;
   if (error) throw error;
   if (!recruiters?.length) {
     const fallback = await args.admin.from("profiles")

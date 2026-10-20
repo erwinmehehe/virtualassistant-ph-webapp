@@ -32,8 +32,29 @@ async function login(page: Page, email: string, destination: string) {
 }
 
 async function postChat(page: Page, route: string, message: string, alter?: (page: Page) => Promise<void>, afterFill?: (page: Page) => Promise<void>) {
-  await page.goto(route, { waitUntil: "domcontentloaded" });
-  await expect(page.locator('textarea[name="body"]')).toBeVisible();
+  const target = new URL(route, BASE);
+  const matchesTarget = (url: URL) =>
+    url.pathname === target.pathname &&
+    [...target.searchParams].every(([key, value]) => url.searchParams.get(key) === value);
+  const composer = page.locator('textarea[name="body"]');
+
+  // A successful server action or an auth refresh can already be navigating to
+  // this same route. Starting a second page.goto races that transition.
+  // Reuse a visible composer on the intended route; otherwise navigate once.
+  if (!matchesTarget(new URL(page.url())) || !(await composer.isVisible())) {
+    try {
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+    } catch (error) {
+      // Playwright can report that a same-route RSC redirect interrupted goto.
+      // Only tolerate that narrow race; the URL and visible-composer checks
+      // below must still succeed before the test submits anything.
+      if (!(error instanceof Error) || !error.message.includes("is interrupted by another navigation to")) {
+        throw error;
+      }
+    }
+  }
+  await expect(page).toHaveURL(matchesTarget, { timeout: 30000 });
+  await expect(composer).toBeVisible({ timeout: 30000 });
   if (alter) await alter(page);
   await page.locator('textarea[name="body"]').fill(message);
   // Hidden React form values can be restored during the preceding input event.

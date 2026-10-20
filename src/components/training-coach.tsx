@@ -5,18 +5,35 @@ import { BookOpenCheck, MessageCircle, RotateCcw, Send, Sparkles, X } from "luci
 import type { TrainingCoachMode, TrainingCoachMessage } from "@/lib/training-coach";
 import "./training-coach.css";
 
-const STARTERS: Array<{ mode: TrainingCoachMode; label: string; prompt: string }> = [
+type CoachActivity = "explain" | "plan" | "client" | "interview" | "review";
+
+const STARTERS: Array<{ id: CoachActivity; mode: TrainingCoachMode; label: string; prompt: string }> = [
   {
+    id: "explain",
     mode: "explain",
     label: "Explain this lesson",
     prompt: "Explain the main idea of this lesson in simple steps and ask me a short comprehension question.",
   },
   {
+    id: "plan",
+    mode: "plan",
+    label: "15-minute practice plan",
+    prompt: "Make a suggested 15-minute study and practice plan for this lesson based on my verified lesson progress. Include one small fictional VA task. Do not grade me.",
+  },
+  {
+    id: "client",
     mode: "practice",
     label: "Practice with a client",
     prompt: "Play a fictional client and give me one realistic VA task based on this lesson. Wait for my response.",
   },
   {
+    id: "interview",
+    mode: "practice",
+    label: "Mock interview",
+    prompt: "Act as a fictional VA hiring interviewer. Ask one beginner interview question related to this lesson, wait for my answer, then give practical feedback. Do not imply this is a real hiring decision.",
+  },
+  {
+    id: "review",
     mode: "review",
     label: "Review my work",
     prompt: "Help me improve my work using the lesson checklist. Ask me to paste my draft first.",
@@ -29,14 +46,22 @@ export function TrainingCoach({
   courseSlug,
   lessonId,
   lessonTitle,
+  completedLessons,
+  lessonCount,
 }: {
   courseSlug: string;
   lessonId: string;
   lessonTitle: string;
+  completedLessons: number;
+  lessonCount: number;
 }) {
+  // Display only verified course data; this is lesson progress, not job readiness.
+  const totalLessons = Math.max(0, Math.trunc(lessonCount));
+  const finishedLessons = Math.max(0, Math.min(totalLessons, Math.trunc(completedLessons)));
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [mode, setMode] = useState<TrainingCoachMode>("explain");
+  const [activeActivity, setActiveActivity] = useState<CoachActivity | null>(null);
   const [question, setQuestion] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +72,8 @@ export function TrainingCoach({
     abortRef.current?.abort();
     abortRef.current = null;
     setMessages([]);
+    setMode("explain");
+    setActiveActivity(null);
     setQuestion("");
     setError(null);
     setBusy(false);
@@ -111,8 +138,8 @@ export function TrainingCoach({
       <div className="training-ai-coach-head">
         <span className="training-ai-coach-mark" aria-hidden="true"><Sparkles size={18}/></span>
         <div className="training-ai-coach-title">
-          <strong>VAPH AI Coach</strong>
-          <small>Lesson help · Virtual Assistant Foundations</small>
+          <strong>Kiro · VAPH AI Coach</strong>
+          <small>Your Virtual Assistant Foundations companion</small>
         </div>
         {open ? (
           <button type="button" className="training-ai-coach-icon-button" aria-label="Close AI Coach" onClick={() => setOpen(false)}>
@@ -120,9 +147,18 @@ export function TrainingCoach({
           </button>
         ) : null}
       </div>
+      <div className="training-ai-coach-progress">
+        <div className="training-ai-coach-progress-label">
+          <span>Foundation lessons completed</span>
+          <strong>{finishedLessons} of {totalLessons}</strong>
+        </div>
+        <progress aria-label="Virtual Assistant Foundations lessons completed" value={finishedLessons} max={Math.max(1, totalLessons)}>
+          {finishedLessons} of {totalLessons}
+        </progress>
+      </div>
       {!open ? (
         <>
-          <p>Ask questions, practice client tasks, or get feedback while you learn.</p>
+          <p>Ask Kiro for a short practice plan, try a fictional client task or mock interview, or get feedback on your work. Coaching is optional and not graded.</p>
           <button type="button" className="btn btn-primary training-ai-coach-start" onClick={() => setOpen(true)}>
             <MessageCircle size={15}/> Ask your coach
           </button>
@@ -136,11 +172,15 @@ export function TrainingCoach({
           <div className="training-ai-coach-starters" aria-label="Coach activities">
             {STARTERS.map((starter) => (
               <button
-                key={starter.mode}
+                key={starter.id}
                 type="button"
-                className={mode === starter.mode ? "is-active" : ""}
+                className={activeActivity === starter.id ? "is-active" : ""}
+                aria-pressed={activeActivity === starter.id}
                 disabled={busy}
-                onClick={() => { void sendMessage(starter.prompt, starter.mode); }}
+                onClick={() => {
+                  setActiveActivity(starter.id);
+                  void sendMessage(starter.prompt, starter.mode);
+                }}
               >
                 {starter.label}
               </button>
@@ -154,7 +194,7 @@ export function TrainingCoach({
                 key={message.id}
                 className={"training-ai-coach-message " + (message.role === "assistant" ? "is-coach" : "is-learner")}
               >
-                <strong>{message.role === "assistant" ? "VAPH Coach" : "You"}</strong>
+                <strong>{message.role === "assistant" ? "Kiro" : "You"}</strong>
                 <p>{message.content}</p>
               </div>
             ))}
@@ -174,7 +214,7 @@ export function TrainingCoach({
               value={question}
               maxLength={800}
               disabled={busy}
-              placeholder="Ask about this lesson or paste a short practice draft..."
+              placeholder="Ask Kiro about this lesson or paste a short fictional practice draft..."
               rows={3}
               onChange={(event) => setQuestion(event.target.value)}
             />
@@ -188,7 +228,7 @@ export function TrainingCoach({
             </div>
           </form>
           <p className="training-ai-coach-privacy">
-            Your messages are sent to an AI provider to generate replies. VAPH does not save this chat to your training account. Never share passwords or real client details. Coach advice does not affect your grades or certificates.
+            Your messages are sent to an AI provider to generate replies. VAPH does not save this chat to your training account, and the conversation clears when you leave the lesson. Never share passwords or real client details. Coach advice does not affect your grades or certificates.
           </p>
         </div>
       )}

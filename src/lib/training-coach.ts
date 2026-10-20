@@ -20,7 +20,7 @@ export function isTrainingCoachPilotLearner(userId: string) {
   }
 }
 
-export type TrainingCoachMode = "explain" | "practice" | "review";
+export type TrainingCoachMode = "explain" | "practice" | "review" | "plan";
 export type TrainingCoachMessage = { role: "user" | "assistant"; content: string };
 
 export type TrainingCoachRequest = {
@@ -31,7 +31,7 @@ export type TrainingCoachRequest = {
 };
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const MODES: TrainingCoachMode[] = ["explain", "practice", "review"];
+const MODES: TrainingCoachMode[] = ["explain", "practice", "review", "plan"];
 
 export function parseTrainingCoachRequest(value: unknown): TrainingCoachRequest | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -120,8 +120,9 @@ export function buildTrainingCoachMessages(input: {
   const lessonExcerpt = trainingCoachLessonExcerpt(input.lessonContent);
   const modeGuidance: Record<TrainingCoachMode, string> = {
     explain: "Explain the current lesson with short, concrete steps. End with one useful comprehension question.",
-    practice: "Act as a fictional client in one realistic VA scenario relevant to the lesson. Let the learner respond before evaluating; do not invent real client data.",
+    practice: "Act as a fictional client or mock VA hiring interviewer, depending on the learner's request. Give one realistic lesson-related task or question at a time, wait for an answer, and then give constructive feedback. Do not invent real client data or imply a real hiring decision.",
     review: "Review only work that the learner actually provides, using the lesson's checklist and criteria. Ask for their draft if none was provided. Give constructive, specific revisions.",
+    plan: "Create a suggested 15-minute practice routine for the current lesson: 3 minutes to recap one concept, 8 minutes on one fictional practical VA task, and 4 minutes for a self-check. Use the verified completed-lesson count only, not an invented readiness score. Do not imply a daily unlock schedule or change official progress. Invite the learner to submit their practice response for feedback.",
   };
 
   const instructions = [

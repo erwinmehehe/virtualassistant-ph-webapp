@@ -43,6 +43,10 @@ test("Coach grounds itself in published lesson material and does not disclose gr
   assert.match(lib, /trainingCoachLessonExcerpt\(input\.lessonContent\)/);
   assert.match(lib, /Course: /);
   assert.match(lib, /Verified lesson progress: /);
+  assert.match(lib, /"plan"/);
+  assert.match(lib, /suggested 15-minute practice routine/);
+  assert.match(lib, /fictional client or mock VA hiring interviewer/);
+  assert.match(lib, /Do not imply a daily unlock schedule or change official progress/);
 });
 
 test("Learner coach has explain, roleplay and review choices with an explicit privacy notice", async () => {
@@ -53,11 +57,22 @@ test("Learner coach has explain, roleplay and review choices with an explicit pr
   assert.match(ui, /"explain"/);
   assert.match(ui, /"practice"/);
   assert.match(ui, /"review"/);
+  assert.match(ui, /"plan"/);
+  assert.match(ui, /15-minute practice plan/);
+  assert.match(ui, /Mock interview/);
+  assert.match(ui, /Kiro · VAPH AI Coach/);
+  assert.match(ui, /aria-pressed={activeActivity === starter.id}/);
+  assert.match(ui, /Foundation lessons completed/);
+  assert.match(ui, /Math\.min\(totalLessons, Math\.trunc\(completedLessons\)\)/);
   assert.match(ui, /Your messages are sent to an AI provider/);
   assert.match(ui, /VAPH does not save this chat to your training account/);
   assert.match(ui, /Never share passwords or real client details/);
   assert.match(ui, /role="log"/);
   assert.match(css, /@media \(max-width: 600px\)/);
+  assert.match(css, /training-ai-coach-progress progress/);
+  const lesson = await read("src/app/workspace/training/courses/[slug]/lessons/[lessonId]/page.tsx");
+  assert.match(lesson, /completedLessons={course\.completedLessons}/);
+  assert.match(lesson, /lessonCount={course\.lessonCount}/);
 });
 
 test("Rollback instructions record an immutable original commit and no required database migration", async () => {

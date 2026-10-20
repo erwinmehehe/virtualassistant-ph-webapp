@@ -1,10 +1,10 @@
 # Foundations V2 · M03-L01 — Inbox Triage and Ownership
 
-**Complete teaching pilot / draft for human review** · 105 nominal minutes of learning and practice  
+**Complete practical teaching draft for human pilot review** · 150 nominal minutes of learning and practice  
 **Skill demonstrated:** turn an inbox into a safe, ordered work queue with ownership, evidence and follow-up  
 **Audience:** beginner VA working remotely for an international small business  
 **Case:** Harbour Lane Services — completely fictional Sydney-based service company  
-**Materials:** [12-message case CSV](./inbox-case-messages.csv), [blank action tracker](./inbox-triage-blank.csv), [original decision-flow diagram](./assets/inbox-triage-flow.svg). No paid software or live client account required.
+**Materials:** [Fictional client operating guide](./CLIENT_OPERATING_GUIDE.md), [offline interactive inbox lab](./practice-inbox-lab.html), [12-message raw inbox CSV](./inbox-case-messages.csv), [fictional source records](./records/bookings.csv), [blank decision tracker](./inbox-triage-blank.csv), [full-size process diagram](./assets/inbox-triage-flow.svg), [mobile process diagram](./assets/inbox-triage-flow-mobile.svg), and [public grading rubric](./ASSESSMENT_RUBRIC_AND_FEEDBACK.md). All materials are synthetic; no paid software or client access required.
 
 > **Important:** This is a training simulation. All names, records, messages and domains are invented. Do not enter real customer information, payment instructions, access credentials or patient records into training files, shared AI tools or personal mailboxes. Draft replies; do not actually send them.
 
@@ -20,12 +20,13 @@ By the end, you will be able to:
 
 ### What you will submit
 
-**Four items**, all using fictional data:
+**Five artifacts**, all using fictional data:
 
-1. The filled [inbox triage tracker](./inbox-triage-blank.csv), containing the eight **independent** messages M05–M12. The first four messages are demonstrated below and may be added as separate practice rows.
-2. **Two draft replies** for messages you choose from M05, M10 and M12.
-3. **One internal escalation note** for a message involving an approval/risk boundary.
-4. **One end-of-shift handoff** summarizing completed, open, blocked, owner and next checkpoint.
+1. A completed [decision tracker](./inbox-triage-blank.csv) for the eight independent messages **M05–M12**, citing actual provided source records, with **hard deadlines separate from next checkpoints**. You may use the [offline interactive lab](./practice-inbox-lab.html) to create and export this CSV.
+2. **Two draft customer replies** for any two of M05, M10 and M12. Do not actually send them.
+3. **One internal escalation request** identifying a specific decision and authorized owner.
+4. **One end-of-shift handoff** summarizing completed, open and blocked work, assigned owners, hard deadlines and next checkpoints.
+5. **One short weekly service status report**, prepared by inspecting the [12-row jobs log](./records/weekly-jobs.csv). Report what the log says and which completion claims lack supporting evidence.
 
 You are not being assessed on speed-typing or decorative formatting. You are assessed on whether another teammate can safely continue the work without guessing.
 
@@ -33,13 +34,13 @@ You are not being assessed on speed-typing or decorative formatting. You are ass
 
 | Section | Nominal minutes | What happens |
 | --- | ---: | --- |
-| Orientation and case setup | 10 | Read the client SOP and open the two CSV files |
-| Learn the inbox decision framework | 15 | Watch the logic and examine the original flow graphic |
-| Worked walkthrough (M01–M04) | 20 | Follow four complete examples, including risk and approval |
-| Independent triage lab (M05–M12) | 35 | Prioritize eight records and fill the work tracker |
-| Draft and handoff | 15 | Create two customer drafts, one escalation and one shift update |
-| Self-review and learning check | 10 | Find errors, correct weak records and use the rubric |
-| **Total** | **105** | |
+| Orientation and source files | 15 | Open the fictional policy, source registers and simulation |
+| Decision framework | 15 | Study consequence, authorization and the process diagram |
+| Four fully modeled decisions | 25 | Compare messages with evidence and draft proper handoffs |
+| Independent lab: M05–M12 | 50 | Inspect records, document facts and uncertainty, export tracker |
+| Work products | 30 | Create two replies, one escalation, handoff and mini weekly report |
+| Self-review and correction | 15 | Apply the published rubric, identify unsupported claims and revise |
+| **Total** | **150** | |
 
 Pause and resume whenever needed. The time budget is an estimate, not an eligibility threshold. A beginner may need a second session.
 
@@ -49,7 +50,7 @@ Pause and resume whenever needed. The time budget is an estimate, not an eligibi
 
 You have just started an administrative shift at **09:00 AEDT on 4 November 2026**. Harbour Lane Services schedules home-service visits, communicates with customers and coordinates suppliers. Your job is to keep messages moving and make problems visible; **you are not a finance approver, refund approver, security administrator, or marketing publisher**.
 
-Use the following fictional policies throughout the lesson. They are *part of this exercise*, not advice about what every real business does.
+Read the **[Harbour Lane operating guide](./CLIENT_OPERATING_GUIDE.md)** before you start. It tells you the agreed roles, deadlines and approval boundaries, and links to the actual fictional system-of-record files. The table below is a reminder, not a replacement for inspecting the evidence. These policies exist for the exercise, not for any real business.
 
 | Rule | Harbour Lane instruction |
 | --- | --- |
@@ -78,6 +79,8 @@ Use the following fictional policies throughout the lesson. They are *part of th
 ## A visual overview: from message to tracked work
 
 ![Fictional inbox processing flow: capture message, verify evidence, classify impact, check authority, create an owned action and verify handoff.](./assets/inbox-triage-flow.svg)
+
+**On a narrow mobile screen:** use the [same decision process in a readable vertical diagram](./assets/inbox-triage-flow-mobile.svg). Both graphics have descriptive text alternatives. The [offline inbox simulation](./practice-inbox-lab.html) also works in a single-column layout.
 
 **Read the visual from left to right:**
 
@@ -242,66 +245,72 @@ These are **examples** for the four demonstration messages. The independent eigh
 
 ---
 
-## Practical tool walkthrough — use a test dataset, not a real inbox
+## Guided tool demonstration — practice the work, not just read about it
 
-The same reasoning works in Gmail, Outlook or a helpdesk tool. Interface wording changes over time, so this lesson teaches the transferable process first.
+The original [fictional inbox simulator](./practice-inbox-lab.html) is a downloadable HTML page that works in a modern browser **without a login or network request**. It is a deliberately simplified training environment, **not** an authentic Gmail, Outlook or CRM screen. Learners can open messages, inspect system-of-record excerpts, make decisions in labeled fields and export their own CSV file. It checks that fields have been completed, **not** that the choices are correct.
 
-### Option A — Google Sheets (free practice workflow)
+### Walk through one complete action (M02 — already demonstrated)
 
-1. Open a new **fictional training-only** spreadsheet.
-2. Import the **case CSV**. In Google Sheets, the import flow is generally available from **File → Import**; if that interface changes, use the current Sheets help. Do not overwrite a live client spreadsheet.
-3. Keep the original case tab as **Read-only source** (or use a duplicate tab). Don't rewrite incoming messages in the source.
-4. Import the blank tracker CSV into a second tab, or copy its header row.
-5. Turn on a filter. Sort or filter by **stage** and **received_aedt**, but keep each row's unique ID.
-6. For each message, add **priority, evidence, safe action, approval/owner, next check and status**.
-7. Review missing owners, dates and P0/P1 items. No real emails are sent during the lesson.
-8. Export your completed tracker as CSV, or retain the editable spreadsheet for assessor review.
+1. Download the linked HTML file and open it in your browser. No accounts or real customer data are needed. Read the case date: **4 November 2026, AEDT**.
+2. In the left inbox, select **M02 — the unverified technician-visit address**. Read the entire message before selecting a priority.
+3. In the source panel, choose **Booking register**. Locate **B-104**, then compare the booking's address status, dispatch owner and meeting time to the email claim. Name what the record still does not establish.
+4. In the **Instructor demonstration** section, read why this is a P1 operational issue and reveal the modeled safe action. Note that 09:20 AEDT is a **dispatch deadline**, while 09:15 AEDT is an earlier **follow-up checkpoint**.
+5. Open the [blank decision tracker CSV](./inbox-triage-blank.csv) in Sheets or Excel. As a **separate trial row**, enter M02, its source file/reference, safe action, approval, owner and the two separate time fields. Do **not** replace one with the other. Compare against the demonstration table above.
+6. Return to the inbox and repeat for **M01, M03 and M04**. Notice that the safest action can be a documented hold or escalation, **not** a rushed reply.
+7. Check what your colleague could do next using only your record. If your note lacks an owner, an approval boundary or evidence, refine it before moving on.
 
-### Option B — Microsoft Excel (desktop or supported web edition)
+### Independent practice with the simulator
 
-1. Open the practice CSV using Excel's available CSV import/open workflow; preserve the original as a separate sheet or file.
-2. Apply a table/filter to the header row so IDs, dates and messages remain together.
-3. Fill the same tracker columns; don't use formula results to overwrite the source data.
-4. Use a simple count or filter to find records with **blank owner**, **blank next check** or **unresolved P0/P1**.
-5. Save or export an editable copy of the tracker and leave the source message CSV unchanged.
+1. Choose **M05**, then inspect the relevant source records in the right-hand panel before filling anything in.
+2. Select a priority and write **verified facts**, **unverified facts**, **specific file/record IDs**, **next safe action**, **approval/owner**, **actual deadline**, **next follow-up checkpoint**, **status** and **handoff evidence**.
+3. Select another message. The current answers are retained **only in the current open tab**; refreshing or closing will lose them.
+4. Complete M05–M12. The button **Check required fields** identifies missing form fields only. Do not interpret “complete” as a passed skill assessment.
+5. Choose **Export all eight practice records as CSV** and keep the download somewhere you control. Use the [transparent marking rubric](./ASSESSMENT_RUBRIC_AND_FEEDBACK.md) to self-review, but wait for actual human review before claiming proficiency.
 
-### How the same steps map to actual client software
+### Investigate the original source documents, too
 
-| Action | Typical Gmail concept | Typical Outlook concept | What matters more than the UI |
-| --- | --- | --- | --- |
-| Flag risk / organize | Label, star or supported priority marker | Category, flag or supported priority marker | Is the case also logged in the agreed task system? |
-| Defer with a checkpoint | Snooze / task reminder | Follow-up / task reminder | Is there a named owner and exact check date? |
-| Keep context | Thread search and related references | Conversation search and related references | Is the right source record verified? |
-| Draft for review | Draft / delegated send approval | Draft / approved send flow | Does the content avoid unapproved promises? |
-| Close the item | Archive when genuinely complete | Archive or move when genuinely complete | Was the outcome confirmed and recorded? |
+The simulator contains excerpts for ease of practice. The authoritative **full fictional training files** are linked below. They contain detail that a real VA would need to reconcile across systems:
 
-**Instructor production note:** Build optional annotated screenshots and captions from a permissioned **test account** for the current release. The provided SVG is an original training illustration; it does **not** pretend to be an exact Gmail or Outlook screenshot. The full CSV-based lesson is usable independently of branded screenshots.
+- [Booking records](./records/bookings.csv) and [customer directory](./records/customer-directory.csv).
+- [Supplier invoice, ledger and payment register](./records/finance-records.csv).
+- [Weekly jobs tracker](./records/weekly-jobs.csv).
+- [Price and campaign approval register](./records/approval-register.csv) plus the [approved rate and identity policy](./records/rates-and-policies.md).
+- [Full supplier meeting notes](./records/meeting-MN-22.md).
+
+**An actual task uses evidence.** For instance, M02 cannot be resolved by paraphrasing the message. The learner must read bookings.csv:B-104, recognize that its service address is unverified, ask Avery for the missing decision and leave that item open until Dispatch confirms it.
+
+### Alternative: train directly in a free spreadsheet
+
+If offline HTML is unavailable, open the two CSVs in Google Sheets, Excel or an accessible spreadsheet application. Preserve the inbox source sheet and use the blank tracker as the work product. Filter to stage PRACTICE, then inspect the linked evidence files. Each tracker row must include a specific source ID and separate hard deadline and follow-up time.
+
+**Software mapping:** Gmail may use labels, stars, drafts and snooze; Outlook may use flags, categories and follow-up tasks. Those labels do **not** replace an owned task record or proof that an external action was approved. Later production modules should add current permissioned test-account screencasts with captions and transcripts. No branded interface screenshot is claimed to have been created here.
 
 ---
 
 ## Independent simulation — now you make the decisions
 
-Filter the message dataset to **PRACTICE**, records **M05–M12**.
+Select **M05–M12** in the [offline practice inbox](./practice-inbox-lab.html) or filter the [raw message CSV](./inbox-case-messages.csv) to PRACTICE. **The case CSV has no answer or priority column.** Investigate the fictional client records rather than guessing; a real-world case may remain pending until an authorized person verifies it.
 
 ### Your assignment
 
 1. **Read all eight messages first.** Don't start sending or closing tasks based only on the subject.
 2. For each, choose **P0/P1/P2/P3** based on the supplied SOP, time and consequence. Explain *why* in the “impact_or_risk” column.
-3. Record **what evidence must be checked**. “I would verify it” is insufficient: name the booking, invoice, policy, task or approved source.
-4. Record one **next safe action**. Where approval is required, do not mark it resolved.
-5. Name **the specific team/role owner**, a next checkpoint in **AEDT**, and the current status. If no action is required, use **Reference** and explain why.
-6. Check for a duplicate invoice, incomplete booking, unapproved customer quote or campaign asset. **Do not guess the missing outcome**.
-7. Draft **two responses** (choose two of M05, M10, M12). Your words should match what has actually been verified.
-8. Draft **one internal escalation note** for any P1/P0 approval-risk item.
-9. Create a **five-part handoff**: done, open, blocked, owner, next check. Include the two highest-priority outstanding items.
+3. For every actionable message, **open the supporting fictional source files** and record at least one **verified fact with a file and record ID**. List unresolved questions and conflicts separately. “I would verify it” is not a substitute for reading the evidence provided.
+4. Choose one **next safe action**, and record what is on hold pending verification or approval. Do not treat forwarding a message as completed work.
+5. Name the **specific authorized owner**, a **hard deadline** (full date and AEDT, or NONE), a **separate follow-up checkpoint**, and the current status. For a reference-only message, explain why no action is due.
+6. Look for conflicts across related records and preserve them rather than silently changing the source files. Explain the source that makes each conclusion defensible.
+7. Prepare **two draft customer replies** (choose two of M05, M10, M12). Include what can safely be stated today and who will own the next verified action.
+8. Write **one internal escalation** that asks for a *specific decision* and names the authorized approver and timing.
+9. Write an **end-of-shift handoff**: done with evidence, open, blocked, owner and next checkpoint. Include every unresolved high-priority issue and the coverage route if it cannot wait.
+10. From [weekly-jobs.csv](./records/weekly-jobs.csv), prepare a **short source-based service summary**. Distinguish the number of jobs *marked* complete from those with actual recorded completion evidence; identify records needing owner review instead of falsely reporting closure.
 
-### Mini coaching prompts — use when stuck
+### Non-answer coaching prompts — use when stuck
 
-- If you cannot verify an old invoice is paid, what can you **truthfully acknowledge** without sending it or changing paid status?
-- Is the Friday newsletter a task, or reference material? How would you know?
-- Can “publish before noon” override the requirement for approved claims and assets?
-- If a customer says “later today,” what date, local time, slot and dispatch policy must be checked before confirmation?
-- How do you show that an invoice looks duplicated without deleting either record?
+- Which **specific source record** establishes the fact you wrote down? Give its filename and ID.
+- Which **decision belongs to an authorized owner**, rather than to you as a VA?
+- What is the difference between the item's **business deadline** and the next time you personally check it?
+- If your colleague reads only your tracker, can they determine the current state and what remains unverified?
+- Which statuses, facts or dates in the available records might have changed since the message was sent?
 
 ### Template: safe reply draft
 
@@ -343,9 +352,11 @@ Your completed tracker should let an assessor follow the chain:
 
 Good entries are concrete enough to audit.
 
-**Too vague:** “M10 — Urgent; respond quickly; manager; today.”
+**Too vague (already demonstrated M02):** “Urgent — email dispatch — done.”
 
-**Stronger structure (illustrative; not an answer to the practice message):** “Client requested a nonstandard price; quote not approved in the attached policy; do not offer a figure; ask Riley to confirm an approved price or permitted range; acknowledgment due 10:45 AEDT; waiting for approval; link to Mxx.”
+**Stronger version of that *demonstration*:** “M02 / bookings.csv:B-104: 10:00 AEDT technician visit has no verified service address. Dispatch cut-off is 09:20 AEDT. Ask Avery to verify address and confirm routing; do not notify the customer that arrival is certain. Next checkpoint 09:15 AEDT. Status: Waiting for verification.”
+
+*Notice:* only a modeled instructor case is shown here. The correct next actions for independent M05–M12 are intentionally **not** provided in a public answer sheet.
 
 **Common failure patterns to correct:**
 
@@ -378,34 +389,25 @@ Answer *before* reading the explanation.
 **Question: The supplier's email contains a phone number for verifying a new bank account. What should you do?**  
 **Practice answer:** Do not use the number in the change email as the sole verification source. Hold the change, tell Casey and verify using previously approved vendor contact information. **Why:** a fraudulent email can also contain a fraudulent callback number.
 
-**Question: A booking customer says “move my visit later today.” Can you confirm a new time?**  
-**Practice answer:** Not yet. Confirm the booking and available slots with dispatch, clarify the intended local time if necessary, then communicate within the granted authority. **Why:** an acknowledgment is not a verified new booking.
+**Question: Your worked example M02 is waiting for Dispatch, but its 09:20 deadline is approaching. What should the tracker show?**  
+**Practice answer:** List Avery as decision owner, 09:20 AEDT as the actual dispatch deadline, an earlier follow-up checkpoint, bookings.csv:B-104 as evidence and a waiting status until verification. **Why:** a reminder alone does not establish that a deadline was met.
 
 **Question: A request was forwarded to a manager, who has not replied. Is it finished?**  
 **Practice answer:** No. Record “waiting for approval”, the approving owner and the next checkpoint. **Why:** forwarded work still carries customer or operational risk.
 
-## Assessor rubric for this lesson — 100 points
+## Assessor rubric and resubmission
 
-The rubric scores the **submitted files**, not a minimum word count, read-time percentage or multiple-choice selection.
+The **[criterion-by-criterion 100-point rubric](./ASSESSMENT_RUBRIC_AND_FEEDBACK.md)** defines scoring anchors, critical safety errors, required submissions, feedback wording and a fair correction pathway. Review the **five actual artifacts**, not reading time, minimum character count or a quiz answer pattern.
 
-| Dimension | Weight | Strong evidence | Partial / missing evidence |
-| --- | ---: | --- | --- |
-| **Safe authority and incident handling** | **25** | Unapproved money/marketing/customer-commitment/security actions are held or escalated, with exact owner and verified sources | Claims authority without evidence; unsafe action is a critical failure |
-| **Priority and time management** | **20** | Eight records ordered by consequence and deadline, with coherent AEDT checkpoints | Uses arrival order or vague “ASAP”; misses near-term booking/customer needs |
-| **Verification and audit trail** | **15** | Each record names the source, uncertainty, safe next action and status | Guesses data, loses source ID, labels forward-only work “resolved” |
-| **Two customer reply drafts** | **20** | Accurate facts, respectful tone, clear next step and no unauthorized outcome promised | Generic apology, unsupported time/price or missing decision request |
-| **Escalation and handoff** | **20** | One actionable approval note and a complete end-of-shift record with owners/check times | Generic “passed to manager” or orphaned pending issue |
-| **Total** | **100** | | |
+**Proposed pilot threshold:** 80/100, all five deliverables present, no unresolved critical safety error and a human review. The offline lab's required-field check is **not a pass** and this draft **does not issue a production V2 certificate**.
 
-**Suggested passing standard:** 80/100 **with no safety-critical action**. This is a proposed **human/rubric review policy** for V2; it is not the current production automated quiz or a live certificate rule. Examples of critical failures are: clicking an unexpected reset link to “verify,” independently changing supplier bank details, authorizing a refund without delegation, sending customer records without verification, or claiming an unconfirmed appointment is booked. Stop, explain, fix and reassess the impacted decision before marking the practical skill verified.
-
-**Useful assessor feedback pattern:** “In Mxx you recorded the right urgency, but there is no confirmation source for the new slot. Add the booking record and dispatch owner, move the status to Waiting for verification, and replace the promise in Draft 1.” This is better than “Needs more detail.”
+The repository is public. The learner-facing rubric is public, but **independent case answer keys must be kept in restricted assessor storage**, not in this course folder or its Git history. Where different decisions are equally defensible, reviewers should mark the evidence and reasoning rather than requiring one exact private answer string.
 
 ## Instructor delivery and pilot notes
 
-This lesson is **fully authored for text, diagrams, CSV-based practice, demonstrations and criterion-based review**. Before it becomes a polished production lesson, the training team must:
+This lesson now has a **self-contained offline fictional inbox interface, a source evidence pack, a written walkthrough, case CSVs, two accessible diagrams and a proposed criterion-based rubric**. It is still **a pilot**, not a verified production course. Before publishing, the team must:
 
-- Add optional current, permissioned Gmail and Outlook **sandbox** screenshots or 2–4 short captioned demonstrations; do not invent third-party interface screenshots.
+- Add **current, permissioned Gmail and Outlook test-account walkthroughs** (including video captions or text alternatives) if the final course claims real software proficiency; the original simulation does not substitute for third-party software training.
 - Review the scenario and rubric with a working VA, a client-service lead and a data-security reviewer.
 - Test screen readers, keyboard navigation, CSV import on mobile, color-independent diagram labels and print/export alternatives.
 - Ensure learner drafts are stored only in a deliberately designed training submission system with clear retention and review rules; the existing 80-character practical-note form is not an adequate replacement for this lesson's artifacts.

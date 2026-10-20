@@ -272,7 +272,7 @@ The original [fictional inbox simulator](./practice-inbox-lab.html) is a downloa
 The simulator contains excerpts for ease of practice. The authoritative **full fictional training files** are linked below. They contain detail that a real VA would need to reconcile across systems:
 
 - [Booking records](./records/bookings.csv) and [customer directory](./records/customer-directory.csv).
-- [Supplier invoice, ledger and payment register](./records/finance-records.csv).
+- [Supplier invoice, ledger and payment register](./records/finance-records.csv), with [INV-219 original](./records/invoices/INV-219-original.md), [INV-219 resubmitted](./records/invoices/INV-219-resend.md), and [INV-407 customer copy](./records/invoices/INV-407-customer-copy.md) to inspect.
 - [Weekly jobs tracker](./records/weekly-jobs.csv).
 - [Price and campaign approval register](./records/approval-register.csv) plus the [approved rate and identity policy](./records/rates-and-policies.md).
 - [Full supplier meeting notes](./records/meeting-MN-22.md).
@@ -295,7 +295,7 @@ Select **M05–M12** in the [offline practice inbox](./practice-inbox-lab.html) 
 
 1. **Read all eight messages first.** Don't start sending or closing tasks based only on the subject.
 2. For each, choose **P0/P1/P2/P3** based on the supplied SOP, time and consequence. Explain *why* in the “impact_or_risk” column.
-3. For every actionable message, **open the supporting fictional source files** and record at least one **verified fact with a file and record ID**. List unresolved questions and conflicts separately. “I would verify it” is not a substitute for reading the evidence provided.
+3. For every actionable message, **open the supporting fictional source files** and record at least one **verified fact with a file and record ID**. For an apparent duplicate invoice, compare both provided fictional invoice copies rather than relying only on filenames. List unresolved questions and conflicts separately. “I would verify it” is not a substitute for reading the evidence provided.
 4. Choose one **next safe action**, and record what is on hold pending verification or approval. Do not treat forwarding a message as completed work.
 5. Name the **specific authorized owner**, a **hard deadline** (full date and AEDT, or NONE), a **separate follow-up checkpoint**, and the current status. For a reference-only message, explain why no action is due.
 6. Look for conflicts across related records and preserve them rather than silently changing the source files. Explain the source that makes each conclusion defensible.

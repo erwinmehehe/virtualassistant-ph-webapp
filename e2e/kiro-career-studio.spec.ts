@@ -31,10 +31,16 @@ test.describe("Kiro Career Studio - isolated learner experience", () => {
       await expect(page.getByText("Courses completed", { exact: true })).toBeVisible();
       await expect(page.getByRole("link", { name: /Update my VA profile/ })).toBeVisible();
 
-      const editorRequests: string[] = [];
+      // The site's normal analytics POSTs can occur while a learner types.
+      // Audit bodies as well as destinations: never permit draft content to
+      // leave the browser, and reject any new non-analytics write requests.
+      const outboundWrites: Array<{ url: string; payload: string }> = [];
       page.on("request", (request) => {
         if (["POST", "PUT", "PATCH"].includes(request.method())) {
-          editorRequests.push(request.url());
+          outboundWrites.push({
+            url: request.url(),
+            payload: request.postData() || "",
+          });
         }
       });
 
@@ -55,7 +61,24 @@ test.describe("Kiro Career Studio - isolated learner experience", () => {
       await page.getByLabel("Your answer").fill("I would first confirm the dates, check Search Console, and ask the SEO lead to approve any changes.");
       await page.getByRole("button", { name: /Review my answer/ }).click();
       await expect(page.getByText("Compare with the scenario checklist")).toBeVisible();
-      expect(editorRequests, "Practice text must not be submitted to an API").toEqual([]);
+      const unexpectedWrites = outboundWrites.filter(({ url }) =>
+        new URL(url).pathname !== "/api/analytics"
+      );
+      expect(unexpectedWrites, "Practice tools must not create API writes").toEqual([]);
+
+      const draftMarkers = [
+        "Sorted a fictional client inbox",
+        "Fictional task handoff",
+        "A daily task status update",
+        "I would first confirm the dates",
+      ];
+      const leakedDrafts = outboundWrites.filter(({ payload }) => {
+        // Encoded form bodies must not hide draft content from the assertion.
+        let body = payload;
+        try { body = decodeURIComponent(payload.replace(/\\+/g, " ")); } catch { /* keep original */ }
+        return draftMarkers.some((marker) => body.includes(marker));
+      });
+      expect(leakedDrafts, "No resume, portfolio or interview draft can leave the browser").toEqual([]);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await expect(page.getByRole("heading", { name: /Turn your VA training into confident next steps/i })).toBeVisible();

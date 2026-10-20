@@ -6,18 +6,16 @@ function source(path) {
   return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 }
 
-test("success screen captures why the sampled profiles missed", () => {
+test("success screen omits feedback UI while legacy feedback writes remain protected", () => {
   const form = source("src/components/hiring-brief-form.tsx");
   const action = source("src/app/actions/match-feedback.ts");
   const vocabulary = source("src/lib/match-feedback.ts");
   const migration = source("supabase/migrations/20260919160000_lead_match_feedback.sql");
   const crm = source("src/app/workspace/recruiter/leads/page.tsx");
 
-  // One tap per reason, only when a signed feedback capability is present.
-  assert.match(form, /<MatchFeedback token=\{feedbackToken\} \/>/);
-  assert.match(form, /feedbackToken \? <MatchFeedback/);
-  assert.match(form, /type="submit" name="reason" value=\{option\.value\}/);
-  assert.match(form, /Got it\. Your recruiter will factor that in\./);
+  // The confirmation screen intentionally no longer offers feedback chips.
+  assert.match(form, /<TopMatches category=\{category\} \/>/);
+  assert.doesNotMatch(form, /MatchFeedback|MATCH_FEEDBACK_OPTIONS|feedbackToken|matchFeedbackToken|submitMatchFeedbackAction/);
 
   // The screen is public, so the action requires a signed, expiring capability,
   // rate limits submissions, and only writes once.
@@ -31,9 +29,8 @@ test("success screen captures why the sampled profiles missed", () => {
   assert.doesNotMatch(action, /formData\.get\("lead"\)/);
   assert.doesNotMatch(action, /formData\.get\("note"\)/);
 
-  // One vocabulary for the form, the action, and the CRM.
+  // Preserve the action and CRM vocabulary for any already-issued capabilities.
   assert.match(vocabulary, /more_experience/);
-  assert.match(form, /MATCH_FEEDBACK_OPTIONS\.map/);
   assert.match(crm, /matchFeedbackLabel\(reason\)/);
 
   // The recruiter cannot see it unless the column exists.

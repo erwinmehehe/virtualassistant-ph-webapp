@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { candidateAccessUnlocked, type CandidateAccessStatus } from "@/lib/candidate-access";
+import { releaseInvitedShortlistWhenReady } from "@/lib/client-shortlist-release";
 import { matchAssessment, matchLabel } from "@/lib/matching";
 import { recordProductEvent } from "@/lib/product-events";
 import { publicationMissingDetails } from "@/lib/job-publication";
@@ -87,6 +88,16 @@ export async function updateCandidateAccessAction(formData: FormData) {
   if (status === "requested") payload.requested_at = new Date().toISOString();
   const { error } = await admin.from("job_candidate_access").upsert(payload, { onConflict: "job_id" });
   if (error) throw error;
+
+  if (active && job.client_id) {
+    try {
+      await releaseInvitedShortlistWhenReady(admin, job.client_id, jobId);
+    } catch (error) {
+      console.error("[candidate-access] deferred shortlist release failed", {
+        jobId, error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 
   if (job.client_id) {
     const copy = active

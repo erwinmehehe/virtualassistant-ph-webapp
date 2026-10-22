@@ -109,7 +109,7 @@ test("successful signup shows a dedicated confirmation state and keeps the inten
   assert.match(action, /courseTitle,/);
 });
 
-test("training acquisition analytics support training-only auth users and confirmation milestones", async () => {
+test("training signup/confirmation works without custom training clickstream traffic", async () => {
   const [analytics, route, action, confirm, callback, migration] = await Promise.all([
     readFile(analyticsPath, "utf8"),
     readFile(analyticsRoute, "utf8"),
@@ -121,17 +121,18 @@ test("training acquisition analytics support training-only auth users and confir
 
   assert.match(analytics, /course_slug: clicked\.dataset\.courseSlug/);
   assert.match(analytics, /cta_position: clicked\.dataset\.ctaPosition/);
-  assert.match(route, /training_course_interest_click/);
-  assert.match(route, /training_signup_submit_click/);
-  assert.match(route, /training_account_created/);
-  assert.match(route, /training_confirmation_sent/);
-  assert.match(route, /training_email_confirmed/);
+  assert.match(analytics, /!isTrainingPath\(pathname\)/);
+  assert.doesNotMatch(route, /"training_[a-z_]+"/);
+  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
   assert.match(action, /recordProductEvent\("training_account_created"/);
   assert.match(action, /recordProductEvent\("training_confirmation_sent"/);
   assert.match(confirm, /recordProductEvent\("training_email_confirmed"/);
   assert.match(callback, /recordProductEvent\("training_email_confirmed"/);
   assert.match(migration, /references auth\.users\(id\)/i);
   assert.match(migration, /on delete set null/i);
+  const recorder = await readFile("src/lib/product-events.ts", "utf8");
+  assert.match(recorder, /eventName\.startsWith\("training_"\)/);
+  assert.match(recorder, /eventName !== "training_checkpoint_attempt"/);
 });
 
 test("mobile training CTA only appears after the hero and before the final CTA", async () => {

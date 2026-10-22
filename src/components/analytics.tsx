@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useReportWebVitals } from "next/web-vitals";
 import { getBrowserSessionId } from "@/lib/browser-session";
 
 const endpoint = "/api/analytics";
@@ -30,9 +29,9 @@ function trackablePath(pathname: string) {
  * read by channel and country.
  *
  * page_view is left out: GA4's enhanced measurement already records it,
- * including client-side navigation. web_vital is left out as noise.
+ * including client-side navigation. Custom Web Vitals collection is disabled.
  */
-const GA4_SKIPPED_EVENTS = new Set(["page_view", "web_vital"]);
+const GA4_SKIPPED_EVENTS = new Set(["page_view"]);
 
 /** GA4 accepts letters, digits and underscores, starting with a letter, max 40. */
 function ga4EventName(event: string) {
@@ -92,49 +91,8 @@ function send(event: string, metadata?: Record<string, unknown>) {
   }
 }
 
-type WebVitalMetric = {
-  id: string;
-  name: string;
-  value: number;
-  rating?: string;
-  navigationType?: string;
-};
-
-// Real-user performance metrics are sampled per visitor session, not per
-// individual measurement, preserving representative CLS/LCP/INP distributions.
-// Conversion and onboarding analytics remain at 100% fidelity.
-function includeWebVitalSample(): boolean {
-  const sessionId = getBrowserSessionId();
-  const finalHexDigit = sessionId.replace(/-/g, "").slice(-1);
-  const sampleIndex = Number.parseInt(finalHexDigit, 16);
-  return Number.isFinite(sampleIndex) && sampleIndex % 4 === 0;
-}
-
-function reportWebVital(metric: WebVitalMetric) {
-  if (!includeWebVitalSample()) return;
-  const pathname = window.location.pathname;
-  if (pathname.startsWith("/api")) return;
-
-  // CLS is a small unitless number, while LCP/INP/TTFB/FCP are measured in ms.
-  // Preserve enough precision to make production field data useful.
-  const value = metric.name === "CLS"
-    ? Math.round(metric.value * 1000) / 1000
-    : Math.round(metric.value);
-
-  send("web_vital", {
-    sample_rate: 0.25,
-    id: metric.id,
-    name: metric.name,
-    value,
-    rating: metric.rating || null,
-    navigation_type: metric.navigationType || null,
-    surface: pathname.startsWith("/workspace") ? "workspace" : "public"
-  });
-}
-
 export function Analytics() {
   const pathname = usePathname();
-  useReportWebVitals(reportWebVital);
 
   useEffect(() => {
     if (!trackablePath(pathname)) return;

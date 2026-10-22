@@ -13,13 +13,17 @@ declare global {
 }
 
 function isTrainingPath(pathname: string) {
-  return pathname === "/training" || pathname.startsWith("/workspace/training");
+  return pathname === "/training"
+    || pathname.startsWith("/training/")
+    || pathname.startsWith("/workspace/training")
+    || pathname.startsWith("/auth/join/training");
 }
 
 function trackablePath(pathname: string) {
+  // Business conversions remain tracked, but training browsing is not
+  // sent to our analytics API or GA4 as custom activity events.
   return pathname === "/workspace/va/onboarding"
-    || isTrainingPath(pathname)
-    || (!pathname.startsWith("/workspace") && !pathname.startsWith("/api"));
+    || (!isTrainingPath(pathname) && !pathname.startsWith("/workspace") && !pathname.startsWith("/api"));
 }
 
 /**
@@ -40,7 +44,7 @@ function ga4EventName(event: string) {
 }
 
 function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
-  if (GA4_SKIPPED_EVENTS.has(event)) return;
+  if (event.startsWith("training_") || GA4_SKIPPED_EVENTS.has(event)) return;
   const gtag = typeof window !== "undefined" ? window.gtag : undefined;
   if (typeof gtag !== "function") return;
 
@@ -64,6 +68,8 @@ function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
 
 function send(event: string, metadata?: Record<string, unknown>) {
   forwardToGa4(event, metadata);
+  // Retain business conversions, not duplicate learner activity.
+  if (event.startsWith("training_")) return;
   const payload = JSON.stringify({
     event_id: typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : undefined,
     event,
@@ -102,39 +108,7 @@ export function Analytics() {
       return;
     }
 
-    if (pathname.startsWith("/workspace/training")) {
-      if (pathname === "/workspace/training") {
-        send("training_dashboard_view");
-        return;
-      }
-
-      const segments = pathname.split("/").filter(Boolean);
-      const courseIndex = segments.indexOf("courses");
-      const courseSlug = courseIndex >= 0 ? segments[courseIndex + 1] || null : null;
-      const lessonIndex = segments.indexOf("lessons");
-      const assessmentIndex = segments.indexOf("assessments");
-
-      if (assessmentIndex >= 0) {
-        send("training_assessment_view", {
-          course_slug: courseSlug,
-          assessment_id: segments[assessmentIndex + 1] || null,
-        });
-      } else if (lessonIndex >= 0) {
-        send("training_lesson_view", {
-          course_slug: courseSlug,
-          lesson_id: segments[lessonIndex + 1] || null,
-        });
-      } else if (courseSlug) {
-        send("training_course_view", { course_slug: courseSlug });
-      }
-      return;
-    }
-
     send("page_view");
-    if (pathname.startsWith("/training/certificates/")) {
-      send("training_certificate_view");
-    }
-    if (pathname === "/training") send("training_landing_view");
     if (pathname === "/pricing") send("pricing_view");
     if (pathname === "/hire") send("hire_page_view");
     if (pathname.startsWith("/va/")) send("candidate_view");
@@ -149,15 +123,6 @@ export function Analytics() {
       if (!form || startedForms.has(form)) return;
       startedForms.add(form);
       send("form_start", {
-        form_id: form.id || null,
-        action: form.getAttribute("action") || window.location.pathname
-      });
-    };
-
-    const handleSubmit = (event: SubmitEvent) => {
-      const form = event.target instanceof HTMLFormElement ? event.target : null;
-      if (!form) return;
-      send("form_submit_attempt", {
         form_id: form.id || null,
         action: form.getAttribute("action") || window.location.pathname
       });
@@ -188,11 +153,9 @@ export function Analytics() {
     };
 
     document.addEventListener("focusin", handleFocus);
-    document.addEventListener("submit", handleSubmit);
     document.addEventListener("click", handleClick);
     return () => {
       document.removeEventListener("focusin", handleFocus);
-      document.removeEventListener("submit", handleSubmit);
       document.removeEventListener("click", handleClick);
     };
   }, [pathname]);

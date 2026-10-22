@@ -3,6 +3,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { cookies } from "next/headers";
 
 export async function recordProductEvent(eventName: string, args: { userId?: string | null; path: string; metadata?: Record<string, unknown> }) {
+  // Course enrolments, progress, assessments and certificates are saved in
+  // their own tables. This optional analytics write must not slow training.
+  // Keep checkpoint-attempt audit events for learner-integrity review.
+  if (eventName.startsWith("training_") && eventName !== "training_checkpoint_attempt") return;
   try {
     const store = await cookies();
     const rawSession = store.get("va_ph_session")?.value || "";

@@ -15,7 +15,7 @@ export async function enforceActionRateLimit(actionKey: string, subject: string,
     p_subject_hash: subjectHash,
     p_max_attempts: maxAttempts,
     p_window_seconds: Math.max(1, Math.round(windowMinutes * 60)),
-  });
+  }).abortSignal(AbortSignal.timeout(logInfrastructureFailure ? 8_000 : 5_000));
 
   if (error) {
     if (logInfrastructureFailure) {

@@ -35,3 +35,10 @@ test("analytics limiter infrastructure failures stay out of error-level producti
   assert.match(limiter,/console\.warn\("\[rate-limit\] atomic limiter unavailable"/);
   assert.match(limiter,/if \(logInfrastructureFailure\)[\s\S]*console\.error\("\[rate-limit\] atomic limiter failed"/);
 });
+
+test("anonymous analytics avoids extra session lookup while preserving authenticated attribution",()=> {
+  assert.match(route, /hasSupabaseSession/);
+  assert.match(route, /if \(!hasSupabaseSession\) return null/);
+  assert.match(route, /user_id: userId/);
+  assert.match(route, /dropped: "storage_unavailable"/);
+});

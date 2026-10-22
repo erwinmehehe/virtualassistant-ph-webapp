@@ -35,19 +35,22 @@ test("resume auto-fill bounds untrusted PDF and DOCX processing", async () => {
 });
 
 test("talent directory uses database-side hybrid search without a 200-profile cap", async () => {
-  const [page, service, migration, edge, edgeConfig] = await Promise.all([
+  const [page, service, migration, edge, edgeConfig, maintenance] = await Promise.all([
     read("src/app/find-talent/page.tsx"),
     read("src/lib/talent-search.ts"),
     read("supabase/migrations/20260924204500_public_talent_hybrid_search.sql"),
     read("supabase/functions/talent-embeddings/index.ts"),
     read("supabase/config.toml"),
+    read("src/app/api/cron/maintenance/route.ts"),
   ]);
   assert.match(page, /searchPublicTalent/);
   assert.doesNotMatch(page, /\.limit\(200\)/);
   assert.match(service, /search_public_va_directory_hybrid/);
+  // Search no longer blocks on an AI index refresh or triggers background
+  // writes; the existing authenticated daily maintenance job owns refresh.
   assert.match(service, /syncPublicTalentEmbeddings/);
-  assert.match(service, /await syncPublicTalentEmbeddings\(12\)/);
-  assert.match(service, /page === 1/);
+  assert.doesNotMatch(service.split("export async function syncPublicTalentEmbeddings")[0], /await syncPublicTalentEmbeddings\(12\)/);
+  assert.match(maintenance, /syncPublicTalentEmbeddings\(25\)/);
   assert.match(service, /functions\.invoke\("talent-embeddings"/);
   assert.doesNotMatch(service, /ai-gateway\.vercel\.sh/);
   assert.doesNotMatch(service, /x-vercel-oidc-token/);

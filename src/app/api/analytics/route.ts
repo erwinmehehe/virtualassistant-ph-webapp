@@ -137,8 +137,16 @@ export async function POST(request: Request) {
   }
 
   try {
-    const supabase = await createClient();
-    const { data: claimsData } = await supabase.auth.getClaims();
+    // Anonymous events never need a Supabase auth lookup; only authenticated
+    // sessions require an identity claim. This avoids a redundant auth request
+    // during public traffic spikes without changing signed-in attribution.
+    const hasSupabaseSession = /(?:^|;\s*)sb-[^=;]+-auth-token(?:\.\d+)?=/.test(request.headers.get("cookie") || "");
+    const claimsData = await (async () => {
+      if (!hasSupabaseSession) return null;
+      const supabase = await createClient();
+      const { data: claimsData } = await supabase.auth.getClaims();
+      return claimsData;
+    })();
     const userId = typeof claimsData?.claims?.sub === "string" ? claimsData.claims.sub : null;
     const admin = createAdminClient();
     const payload = {
@@ -152,11 +160,13 @@ export async function POST(request: Request) {
     };
 
     if (parsed.data.event_id) {
-      await admin
+      const { error } = await admin
         .from("analytics_events")
         .upsert(payload, { onConflict: "event_id", ignoreDuplicates: true });
+      if (error) return NextResponse.json({ ok: true, dropped: "storage_unavailable" }, { status: 202 });
     } else {
-      await admin.from("analytics_events").insert(payload);
+      const { error } = await admin.from("analytics_events").insert(payload);
+      if (error) return NextResponse.json({ ok: true, dropped: "storage_unavailable" }, { status: 202 });
     }
   } catch {
     // Never fail a product request because analytics storage is unavailable.

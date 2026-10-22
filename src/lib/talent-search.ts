@@ -62,18 +62,9 @@ export async function searchPublicTalent(params: TalentSearchParams) {
 
   let queryEmbedding: string | null = null;
   if (query) {
-    // First-page searches can repair a small stale semantic batch so a newly
-    // consented/updated public profile does not wait for the maintenance job.
-    if (page === 1) {
-      try {
-        await syncPublicTalentEmbeddings(12);
-      } catch (error) {
-        console.error("[talent-search] semantic index refresh failed", {
-          message: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
+    // The protected daily maintenance job refreshes stale public embeddings.
+    // Search requests must remain read-only; doing an AI refresh on every
+    // first-page query amplified database/API load during the Oct 21 incident.
     // Semantic retrieval is an enhancement. If Edge inference is unavailable,
     // the database RPC continues with full-text and structured filtering.
     try {

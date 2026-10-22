@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
-import { syncPublicTalentEmbeddings } from "@/lib/talent-search";
+import { isPublicTalentSemanticSearchEnabled, syncPublicTalentEmbeddings } from "@/lib/talent-search";
 import { reconcilePaymongoPayments } from "@/lib/payment-reconciliation";
 import { runLeadNurtureAutomation } from "@/lib/lead-nurture-automation";
 import { sendVaTrainingAnnouncementBatch } from "@/lib/va-training-announcement";
@@ -1077,7 +1077,9 @@ export async function GET(request: Request) {
     runMaintenanceTask("client shortlist claim follow-up", () => runClientClaimFollowups(admin)),
     runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
     runMaintenanceTask("lead nurture", () => runLeadNurtureAutomation(20)),
-    runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)),
+    isPublicTalentSemanticSearchEnabled()
+      ? runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25))
+      : { skipped: "semantic_search_disabled" },
     runMaintenanceTask("PayMongo reconciliation", () => reconcilePaymongoPayments(75)),
     runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
   ]);

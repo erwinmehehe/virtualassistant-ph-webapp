@@ -61,16 +61,19 @@ test("dashboard overview payloads use consolidated RPC fast paths", async () => 
   }
 });
 
-test("workspace and public Core Web Vitals are recorded", async () => {
+test("custom Web Vitals reporting stays disabled before database work", async () => {
   const [analytics, route] = await Promise.all([
     read("src/components/analytics.tsx"),
     read("src/app/api/analytics/route.ts")
   ]);
 
-  assert.match(analytics, /useReportWebVitals\(reportWebVital\)/);
-  assert.match(analytics, /startsWith\("\/workspace"\) \? "workspace" : "public"/);
-  assert.match(analytics, /metric\.name === "CLS"/);
-  assert.match(route, /"web_vital"/);
+  assert.doesNotMatch(analytics, /useReportWebVitals|reportWebVital|includeWebVitalSample/);
+  assert.doesNotMatch(analytics, /send\("web_vital"/);
+  assert.doesNotMatch(route, /"web_vital"/);
+  const rejectIndex = route.indexOf("!allowedEvent(parsed.data.event)");
+  const databaseLimiterIndex = route.indexOf('enforceActionRateLimit("public_analytics:ip"');
+  assert.ok(rejectIndex !== -1 && databaseLimiterIndex > rejectIndex,
+    "Unsupported events must be rejected before DB-backed rate limiting");
 });
 
 test("conversion analytics accepts and reports the complete homepage funnel", async () => {

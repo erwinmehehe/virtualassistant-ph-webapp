@@ -83,19 +83,15 @@ test("training learner journey remains connected from signup through verified hi
   assert.match(clientHiringRoomMigration, /c\.status='published'/);
   assert.match(clientHiringRoom, /credentialCode: row\.credential_code/);
 
-  // Funnel events remain accepted and visible to admins.
-  for (const eventName of [
-    "training_landing_view",
-    "training_account_click",
-    "training_course_start",
-    "training_lesson_complete",
-    "training_assessment_submit",
-    "training_course_complete",
-  ]) {
-    assert.match(analyticsRoute, new RegExp(eventName));
-  }
-  assert.match(analyticsRoute, /training_account_created/);
-  assert.match(analyticsRoute, /training_email_confirmed/);
+  // Training clickstream no longer submits browser events or reaches the
+  // analytics API. Signup, assessment, progress and certificates persist
+  // through their dedicated product tables, not optional event logging.
+  assert.doesNotMatch(analyticsRoute, /"training_[a-z_]+"/);
+  const browserAnalytics = await source("src/components/analytics.tsx");
+  assert.match(browserAnalytics, /!isTrainingPath\(pathname\)/);
+  const recorder = await source("src/lib/product-events.ts");
+  assert.match(recorder, /eventName\.startsWith\("training_"\)/);
+  assert.match(recorder, /eventName !== "training_checkpoint_attempt"/);
   assert.match(signup, /recordProductEvent\("training_account_created"/);
   assert.match(adminAnalytics, /Training engagement/);
   assert.match(adminAnalytics, /Assessment submissions|Training engagement/);

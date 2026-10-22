@@ -100,7 +100,18 @@ type WebVitalMetric = {
   navigationType?: string;
 };
 
+// Real-user performance metrics are sampled per visitor session, not per
+// individual measurement, preserving representative CLS/LCP/INP distributions.
+// Conversion and onboarding analytics remain at 100% fidelity.
+function includeWebVitalSample(): boolean {
+  const sessionId = getBrowserSessionId();
+  const finalHexDigit = sessionId.replace(/-/g, "").slice(-1);
+  const sampleIndex = Number.parseInt(finalHexDigit, 16);
+  return Number.isFinite(sampleIndex) && sampleIndex % 4 === 0;
+}
+
 function reportWebVital(metric: WebVitalMetric) {
+  if (!includeWebVitalSample()) return;
   const pathname = window.location.pathname;
   if (pathname.startsWith("/api")) return;
 
@@ -111,6 +122,7 @@ function reportWebVital(metric: WebVitalMetric) {
     : Math.round(metric.value);
 
   send("web_vital", {
+    sample_rate: 0.25,
     id: metric.id,
     name: metric.name,
     value,

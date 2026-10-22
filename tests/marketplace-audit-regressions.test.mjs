@@ -49,8 +49,12 @@ test("talent directory uses database-side hybrid search without a 200-profile ca
   // Search no longer blocks on an AI index refresh or triggers background
   // writes; the existing authenticated daily maintenance job owns refresh.
   assert.match(service, /syncPublicTalentEmbeddings/);
+  assert.match(service, /process\.env\.VA_PH_ENABLE_SEMANTIC_SEARCH === "true"/);
+  assert.match(service, /if \(query && isPublicTalentSemanticSearchEnabled\(\)\)/);
   assert.doesNotMatch(service.split("export async function syncPublicTalentEmbeddings")[0], /await syncPublicTalentEmbeddings\(12\)/);
   assert.match(maintenance, /syncPublicTalentEmbeddings\(25\)/);
+  assert.match(maintenance, /isPublicTalentSemanticSearchEnabled\(\)/);
+  assert.match(maintenance, /semantic_search_disabled/);
   assert.match(service, /functions\.invoke\("talent-embeddings"/);
   assert.doesNotMatch(service, /ai-gateway\.vercel\.sh/);
   assert.doesNotMatch(service, /x-vercel-oidc-token/);

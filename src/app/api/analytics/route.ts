@@ -72,7 +72,6 @@ const fixedEvents = new Set([
   "va_onboarding_step_saved",
   "va_onboarding_validation_error",
   "va_onboarding_complete",
-  "web_vital",
 ]);
 
 const schema = z.object({
@@ -118,6 +117,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, dropped: "invalid_json" }, { status: 202 });
   }
 
+  // Retired events (including old cached Web Vitals beacons) are rejected
+  // before Supabase rate-limit RPCs or analytics storage.
   const parsed = schema.safeParse(body);
   if (
     !parsed.success ||

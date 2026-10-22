@@ -19,17 +19,18 @@ test("default public metadata includes branded Open Graph and Twitter imagery", 
   assert.match(twitter, /OpengraphImage/);
 });
 
-test("public Core Web Vitals are measured without losing CLS precision", async () => {
-  const analytics = await read("src/components/analytics.tsx");
-  assert.match(analytics, /useReportWebVitals\(reportWebVital\)/);
-  assert.match(analytics, /surface: pathname\.startsWith\("\/workspace"\) \? "workspace" : "public"/);
-  assert.match(analytics, /metric\.name === "CLS"/);
-  assert.match(analytics, /includeWebVitalSample\(\)/);
-  assert.match(analytics, /sampleIndex % 4 === 0/);
-  assert.match(analytics, /sample_rate: 0\.25/);
+test("custom Web Vitals are disabled while public conversions remain tracked", async () => {
+  const [analytics, route] = await Promise.all([
+    read("src/components/analytics.tsx"),
+    read("src/app/api/analytics/route.ts"),
+  ]);
+
+  assert.doesNotMatch(analytics, /useReportWebVitals|reportWebVital|includeWebVitalSample|sample_rate/);
+  assert.doesNotMatch(analytics, /send\("web_vital"/);
+  assert.doesNotMatch(route, /"web_vital"/);
+  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
   assert.match(analytics, /send\("form_start"/);
-  assert.match(analytics, /send\("page_view"\)/);
-  assert.doesNotMatch(analytics, /function reportWorkspaceVital/);
+  assert.match(analytics, /send\("page_view"/);
 });
 
 test("public accessibility defaults include keyboard focus and reduced motion", async () => {

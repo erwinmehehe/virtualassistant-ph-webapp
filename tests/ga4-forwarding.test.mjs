@@ -42,6 +42,7 @@ test("tracked events reach GA4 without double-counting pageviews", () => {
 
   // GA4 enhanced measurement already records pageviews.
   assert.match(analytics, /GA4_SKIPPED_EVENTS = new Set\(\["page_view"\]\)/);
+  assert.match(analytics, /event\.startsWith\("training_"\)/);
   assert.doesNotMatch(analytics, /web_vital|useReportWebVitals/);
 
   // Absent or failed gtag must never break the page.

@@ -85,10 +85,12 @@ test("conversion analytics accepts and reports the complete homepage funnel", as
     read("supabase/migrations/20260912231500_lead_response_sla_and_conversion.sql")
   ]);
 
-  for (const event of ["page_view", "form_start", "form_submit_attempt", "booking_click"]) {
+  for (const event of ["page_view", "form_start", "booking_click"]) {
     assert.match(route, new RegExp(`"${event}"`));
   }
   assert.match(analytics, /send\("form_start"/);
+  assert.doesNotMatch(analytics, /send\("form_submit_attempt"/);
+  assert.doesNotMatch(route, /"form_submit_attempt"/);
   assert.match(analytics, /send\("booking_click"/);
   assert.match(sales, /recruiter_conversion_summary/);
   for (const stage of ["Homepage visits", "Form starts", "Form submissions", "Discovery booked", "Qualified", "Proposal sent", "Clients won"]) {

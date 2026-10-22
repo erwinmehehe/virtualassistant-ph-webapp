@@ -14,6 +14,10 @@ test("production browser smoke checks conversion routes without submitting custo
   assert.match(script,/booking-time-grid/);
   assert.match(script,/horizontalOverflow/);
   assert.match(script,/pageerror/);
+  assert.match(script,/\["x-vercel-error"\]/);
+  assert.match(script,/\["x-vercel-id"\]/);
+  assert.match(script,/expectedStatus: route\.status/);
+  assert.match(script,/failureName}\.json/);
   assert.doesNotMatch(script,/\.click\(\)/);
   assert.doesNotMatch(script,/\.fill\(/);
   assert.doesNotMatch(script,/\.press\(/);

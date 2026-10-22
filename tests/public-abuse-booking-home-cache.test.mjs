@@ -96,8 +96,8 @@ test("homepage public data no longer depends on request cookies and is cached", 
   assert.match(data, /revalidate: 300/);
   assert.match(publicClient, /createClient/);
   assert.match(publicClient, /global: \{ fetch: boundedPublicFetch \}/);
-  assert.match(publicClient, /AbortSignal\.timeout\(PUBLIC_DATABASE_TIMEOUT_MS\)/);
-  assert.match(publicClient, /AbortSignal\.any\(signals\)/);
+  assert.match(publicClient, /createBoundedSupabaseFetch\(12_000\)/);
+  assert.match(publicClient, /global: \{ fetch: boundedPublicFetch \}/);
   assert.doesNotMatch(publicClient, /next\/headers|cookies\(/);
   assert.match(page, /homepage-reference-polish\.css/);
   assert.doesNotMatch(layout, /homepage-reference-polish\.css/);

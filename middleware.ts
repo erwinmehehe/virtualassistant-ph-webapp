@@ -1,5 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { createBoundedSupabaseFetch } from "@/lib/supabase/bounded-fetch";
+
+// Authentication refresh must not block routing for 25 seconds.
+const boundedMiddlewareFetch = createBoundedSupabaseFetch(4_000);
 
 
 function normalizeRequestHost(value: string | null) {
@@ -44,6 +48,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: boundedMiddlewareFetch },
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll(cookiesToSet, headers) {
@@ -55,10 +60,15 @@ export async function middleware(request: NextRequest) {
       }
     }
   );
-  await supabase.auth.getClaims();
+  try {
+    await supabase.auth.getClaims();
+  } catch {
+    // This is only a session refresh. Server-side route guards still enforce
+    // authentication and authorization; do not trust this fallback for access.
+  }
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"]
+  matcher: ["/((?!api/analytics|api/errors|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"]
 };

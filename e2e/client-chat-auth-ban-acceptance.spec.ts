@@ -287,7 +287,13 @@ test.describe("PR #919 real chat and Auth-ban acceptance with isolated test iden
         .select("id").eq("thread_id", clients.burst.threadId!).eq("sender_id", clients.repeat.id);
       if (borrowedError) throw borrowedError;
       expect(borrowed).toHaveLength(0);
+    });
 
+    // A rejected server action can put the Next.js route into an error
+    // boundary. Test the next independent validation case in a fresh browser
+    // context, with the same client's saved cookies, so the error UI does not
+    // masquerade as a failed security control.
+    await withPage(browser, fromClient("repeat"), async (page) => {
       await postChat(page, "/workspace/client/messages", "x".repeat(4001), async (p) => {
         await p.locator('textarea[name="body"]').evaluate((el) => el.removeAttribute("maxlength"));
       });

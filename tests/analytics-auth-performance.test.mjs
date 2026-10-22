@@ -42,3 +42,11 @@ test("anonymous analytics avoids extra session lookup while preserving authentic
   assert.match(route, /user_id: userId/);
   assert.match(route, /dropped: "storage_unavailable"/);
 });
+
+
+test("cached training and form-attempt beacons are discarded before any Supabase RPC", () => {
+  assert.doesNotMatch(route, /"training_[a-z_]+"/);
+  assert.doesNotMatch(route, /"form_submit_attempt"/);
+  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
+  assert.ok(route.indexOf("!allowedEvent(parsed.data.event)") < route.indexOf('enforceActionRateLimit("public_analytics:ip"'));
+});

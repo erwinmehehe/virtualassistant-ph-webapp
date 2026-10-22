@@ -8,7 +8,6 @@ import { isExplicitCrossSiteRequest, readRequestJson } from "@/lib/http-security
 const fixedEvents = new Set([
   "page_view",
   "form_start",
-  "form_submit_attempt",
   "booking_click",
   "pricing_view",
   "hire_page_view",
@@ -37,42 +36,10 @@ const fixedEvents = new Set([
   "role_brief_create_account",
   "role_brief_submit",
   "talent_request_intro",
-  "training_landing_view",
-  "training_account_click",
-  "training_learning_paths_click",
-  "training_login_click",
-  "training_course_interest_click",
-  "training_recommendation_click",
-  "training_signup_submit_click",
-  "training_signup_error",
-  "training_account_created",
-  "training_confirmation_sent",
-  "training_email_confirmed",
-  "training_course_request",
-  "training_dashboard_view",
-  "training_course_view",
-  "training_assessment_view",
-  "training_certificate_view",
-  "training_certificate_open",
-  "training_certificate_share",
-  "training_course_start_click",
-  "training_course_start",
-  "training_course_continue",
-  "training_lesson_open",
-  "training_lesson_view",
-  "training_lesson_complete_click",
-  "training_lesson_complete",
-  "training_assessment_open",
-  "training_assessment_submit_click",
-  "training_assessment_submit",
-  "training_assessment_reviewed",
-  "training_course_complete",
-  "training_certificate_issued",
   "va_onboarding_started",
   "va_onboarding_step_saved",
   "va_onboarding_validation_error",
   "va_onboarding_complete",
-  "web_vital",
 ]);
 
 const schema = z.object({
@@ -118,6 +85,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, dropped: "invalid_json" }, { status: 202 });
   }
 
+  // Retired high-volume analytics (Web Vitals, training, form submit attempts)
+  // from older cached clients are rejected before database rate limiting.
   const parsed = schema.safeParse(body);
   if (
     !parsed.success ||

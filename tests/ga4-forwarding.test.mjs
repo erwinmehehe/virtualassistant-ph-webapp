@@ -40,8 +40,10 @@ test("tracked events reach GA4 without double-counting pageviews", () => {
   // Every event already sent to our own store is forwarded from one place.
   assert.match(analytics, /function send\(event: string, metadata\?: Record<string, unknown>\) \{\s*\n\s*forwardToGa4\(event, metadata\);/);
 
-  // GA4 enhanced measurement already records these.
-  assert.match(analytics, /GA4_SKIPPED_EVENTS = new Set\(\["page_view", "web_vital"\]\)/);
+  // GA4 enhanced measurement already records pageviews.
+  assert.match(analytics, /GA4_SKIPPED_EVENTS = new Set\(\["page_view"\]\)/);
+  assert.match(analytics, /event\.startsWith\("training_"\)/);
+  assert.doesNotMatch(analytics, /web_vital|useReportWebVitals/);
 
   // Absent or failed gtag must never break the page.
   assert.match(analytics, /if \(typeof gtag !== "function"\) return;/);

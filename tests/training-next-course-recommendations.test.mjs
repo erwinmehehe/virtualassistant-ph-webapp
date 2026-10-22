@@ -74,13 +74,16 @@ test("post-completion component emphasizes one best next step and two optional a
   assert.match(source, /do not affect hiring, recruiter approval, or job access/);
 });
 
-test("recommendation clicks are accepted by analytics and the layout is phone-safe", async () => {
+test("recommendation links remain phone-safe without optional clickstream tracking", async () => {
   const [route, css] = await Promise.all([
     readFile(analyticsRoute, "utf8"),
     readFile(cssPath, "utf8"),
   ]);
 
-  assert.match(route, /training_recommendation_click/);
+  // Link navigation stays functional; the analytics API no longer stores the click.
+  assert.doesNotMatch(route, /"training_recommendation_click"/);
+  const analytics = await readFile("src/components/analytics.tsx", "utf8");
+  assert.match(analytics, /event\.startsWith\("training_"\)/);
   assert.match(css, /\.training-next-primary/);
   assert.match(css, /\.training-next-alternate-grid/);
   assert.match(css, /@media \(max-width: 720px\)/);

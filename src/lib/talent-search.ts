@@ -4,6 +4,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const EMBEDDING_DIMENSIONS = 768;
 
+// Conserve compute on Hobby: full-text/structured search is the default.
+// Explicitly opt in to semantic inference only after capacity review.
+export function isPublicTalentSemanticSearchEnabled() {
+  return process.env.VA_PH_ENABLE_SEMANTIC_SEARCH === "true";
+}
+
 type TalentSearchParams = {
   query?: string;
   category?: string;
@@ -61,7 +67,7 @@ export async function searchPublicTalent(params: TalentSearchParams) {
   const query = String(params.query || "").trim();
 
   let queryEmbedding: string | null = null;
-  if (query) {
+  if (query && isPublicTalentSemanticSearchEnabled()) {
     // The protected daily maintenance job refreshes stale public embeddings.
     // Search requests must remain read-only; doing an AI refresh on every
     // first-page query amplified database/API load during the Oct 21 incident.

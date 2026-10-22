@@ -140,7 +140,7 @@ export async function POST(request: Request) {
     // Anonymous events never need a Supabase auth lookup; only authenticated
     // sessions require an identity claim. This avoids a redundant auth request
     // during public traffic spikes without changing signed-in attribution.
-    const hasSupabaseSession = /(?:^|;\\s*)sb-[^=;]+-auth-token(?:\\.\\d+)?=/.test(request.headers.get("cookie") || "");
+    const hasSupabaseSession = /(?:^|;\s*)sb-[^=;]+-auth-token(?:\.\d+)?=/.test(request.headers.get("cookie") || "");
     const claimsData = await (async () => {
       if (!hasSupabaseSession) return null;
       const supabase = await createClient();

@@ -1,21 +1,11 @@
 import "server-only";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createBoundedSupabaseFetch } from "@/lib/supabase/bounded-fetch";
 
 let cachedClient: SupabaseClient | null = null;
 
-const PUBLIC_DATABASE_TIMEOUT_MS = 12_000;
-
-// Public-facing pages must render a useful fallback when the database is
-// temporarily slow or unavailable, rather than occupying a serverless
-// function for minutes. Retain the caller's cancellation signal as well.
-const boundedPublicFetch: typeof fetch = (input, init) => {
-  const signals: AbortSignal[] = [AbortSignal.timeout(PUBLIC_DATABASE_TIMEOUT_MS)];
-  if (input instanceof Request) signals.push(input.signal);
-  if (init?.signal) signals.push(init.signal);
-
-  return fetch(input, { ...init, signal: AbortSignal.any(signals) });
-};
+const boundedPublicFetch = createBoundedSupabaseFetch(12_000);
 
 export function createPublicClient(): SupabaseClient | null {
   if (cachedClient) return cachedClient;

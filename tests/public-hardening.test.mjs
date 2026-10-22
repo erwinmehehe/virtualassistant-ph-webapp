@@ -30,6 +30,7 @@ test("custom Web Vitals are disabled while public conversions remain tracked", a
   assert.doesNotMatch(route, /"web_vital"/);
   assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
   assert.match(analytics, /send\("form_start"/);
+  assert.doesNotMatch(analytics, /send\("form_submit_attempt"/);
   assert.match(analytics, /send\("page_view"/);
 });
 

@@ -24,6 +24,11 @@ test("public Core Web Vitals are measured without losing CLS precision", async (
   assert.match(analytics, /useReportWebVitals\(reportWebVital\)/);
   assert.match(analytics, /surface: pathname\.startsWith\("\/workspace"\) \? "workspace" : "public"/);
   assert.match(analytics, /metric\.name === "CLS"/);
+  assert.match(analytics, /includeWebVitalSample\(\)/);
+  assert.match(analytics, /sampleIndex % 4 === 0/);
+  assert.match(analytics, /sample_rate: 0\.25/);
+  assert.match(analytics, /send\("form_start"/);
+  assert.match(analytics, /send\("page_view"\)/);
   assert.doesNotMatch(analytics, /function reportWorkspaceVital/);
 });
 

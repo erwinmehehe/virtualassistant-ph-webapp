@@ -13,31 +13,19 @@ const assessmentPath = "src/app/workspace/training/courses/[slug]/assessments/[a
 const certificateActionsPath = "src/components/training-certificate-actions.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
 
-test("training route analytics distinguish course, lesson, assessment, and certificate views", async () => {
-  const [analytics, api] = await Promise.all([
+test("training navigation and CTA clicks do not send custom activity telemetry", async () => {
+  const [analytics, api, productEvents] = await Promise.all([
     readFile(analyticsPath, "utf8"),
     readFile(analyticsApiPath, "utf8"),
+    readFile("src/lib/product-events.ts", "utf8"),
   ]);
 
-  assert.match(analytics, /training_dashboard_view/);
-  assert.match(analytics, /training_course_view/);
-  assert.match(analytics, /training_lesson_view/);
-  assert.match(analytics, /training_assessment_view/);
-  assert.match(analytics, /training_certificate_view/);
-  assert.match(analytics, /course_slug: courseSlug/);
-  assert.match(analytics, /assessment_id:/);
-  assert.match(analytics, /lesson_id:/);
-
-  for (const event of [
-    "training_assessment_view",
-    "training_assessment_reviewed",
-    "training_certificate_issued",
-    "training_certificate_view",
-    "training_certificate_open",
-    "training_certificate_share",
-  ]) {
-    assert.ok(api.includes(`"${event}"`), "Analytics API must allow " + event);
-  }
+  assert.match(analytics, /!isTrainingPath\(pathname\)/);
+  assert.match(analytics, /event\.startsWith\("training_"\)/);
+  assert.doesNotMatch(analytics, /send\("training_/);
+  assert.doesNotMatch(api, /"training_[a-z_]+"/);
+  assert.match(productEvents, /eventName\.startsWith\("training_"\)/);
+  assert.match(productEvents, /eventName !== "training_checkpoint_attempt"/);
 });
 
 test("automatic assessment scoring closes the learner funnel through certificate issuance", async () => {

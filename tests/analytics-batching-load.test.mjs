@@ -25,8 +25,14 @@ test("analytics API bounds every batch, retains legacy single event and fails cl
   const route = await read("src/app/api/analytics/route.ts");
 
   assert.match(route, /const candidates = Array\.isArray\(body\) \? body : \[body\]/);
-  assert.match(route, /candidates\.length > 4/);
+  assert.match(route, /candidates\.length > 2/);
   assert.match(route, /schema\.safeParse\(candidate\)/);
+  assert.match(route, /if \(events\.length === 2\)/);
+  assert.match(route, /pageView\.event === "page_view"/);
+  assert.match(route, /detail\.path === pageView\.path/);
+  assert.match(route, /pageView\.path === "\/pricing" && detail\.event === "pricing_view"/);
+  assert.match(route, /pageView\.path === "\/hire" && detail\.event === "hire_page_view"/);
+  assert.match(route, /pageView\.path\.startsWith\("\/va\/"\) && detail\.event === "candidate_view"/);
   assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
   assert.match(route, /const sessionIds = new Set\(events\.map\(\(event\) => event\.session_id \?\? ""\)\)/);
   assert.match(route, /sessionIds\.size !== 1/);

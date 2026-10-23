@@ -33,7 +33,7 @@ test("training navigation stays visually connected without shared-response perso
 test("existing signed-in learners retain course intent on the training signup route", async () => {
   const join = await source("src/app/auth/join/training/page.tsx");
   assert.match(join, /safeTrainingCourseSlug\(params\.course\)/);
-  assert.match(join, /match\.status === "published"/);
+  assert.match(join, /item\.status === "published"/);
   assert.match(join, /hasSessionCookie/);
   assert.match(join, /if \(hasSessionCookie\)/);
   assert.match(join, /getFastRoleProfile\(\)/);

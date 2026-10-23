@@ -30,7 +30,7 @@ import {
 } from "@/lib/public-training";
 import { trainingCourseDestination, trainingJoinHref } from "@/lib/training-intent";
 import { AUSTRALIA_SPECIALIZATIONS } from "@/lib/training-specializations";
- import { TrainingMobileCta } from "@/components/training-mobile-cta";
+import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import { getTrainingCourseArtwork, TrainingCourseArtwork } from "@/components/training-course-artwork";
 import "@/components/training-course-artwork.css";
 import "../training-landing.css";

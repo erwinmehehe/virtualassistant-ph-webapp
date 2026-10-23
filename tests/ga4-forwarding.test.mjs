@@ -38,7 +38,8 @@ test("tracked events reach GA4 without double-counting pageviews", () => {
   const analytics = source("src/components/analytics.tsx");
 
   // Every event already sent to our own store is forwarded from one place.
-  assert.match(analytics, /function send\(event: string, metadata\?: Record<string, unknown>\) \{\s*\n\s*forwardToGa4\(event, metadata\);/);
+  assert.match(analytics, /for \(const \{ event, metadata \} of events\) forwardToGa4\(event, metadata\);/);
+  assert.match(analytics, /function send\(event: string, metadata\?: Record<string, unknown>\) \{\s*\n\s*sendMany\(\[\{ event, metadata \}\]\);/);
 
   // GA4 enhanced measurement already records pageviews.
   assert.match(analytics, /GA4_SKIPPED_EVENTS = new Set\(\["page_view"\]\)/);

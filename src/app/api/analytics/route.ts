@@ -85,11 +85,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, dropped: "invalid_json" }, { status: 202 });
   }
 
-  // Keep legacy single-event requests compatible, but batch closely related
-  // navigation events so they share Function startup, auth and limiter work.
-  // Cap the batch strictly; each event uses the same schema.
+  // Keep legacy single-event requests compatible, but only allow the specific
+  // two-event page navigation pairs emitted by our client. Arbitrary batches
+  // would multiply stored events without consuming more rate-limit attempts.
   const candidates = Array.isArray(body) ? body : [body];
-  if (!candidates.length || candidates.length > 4) {
+  if (!candidates.length || candidates.length > 2) {
     return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
   }
   const events: z.infer<typeof schema>[] = [];
@@ -105,6 +105,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
     }
     events.push(parsed.data);
+  }
+
+  // One request can represent a page view and its matching page-specific
+  // event, but never unrelated, repeated, or cross-page analytics events.
+  // This also limits abuse of the request-based IP/session rate limits.
+  if (events.length === 2) {
+    const [pageView, detail] = events;
+    const validNavigationPair = pageView.event === "page_view" &&
+      detail.path === pageView.path &&
+      ((pageView.path === "/pricing" && detail.event === "pricing_view") ||
+        (pageView.path === "/hire" && detail.event === "hire_page_view") ||
+        (pageView.path.startsWith("/va/") && detail.event === "candidate_view"));
+    if (!validNavigationPair) {
+      return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
+    }
   }
 
   // Disallow mixing session identities in a batch to preserve the existing

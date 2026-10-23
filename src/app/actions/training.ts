@@ -186,28 +186,17 @@ export async function recordTrainingLessonEngagementAction(input: {
   if (!lessonId || !courseSlug) return { activeSeconds: 0, maxScrollPercent: 0 };
 
   const admin = createAdminClient();
-  const { data: course } = await admin
-    .from("training_courses")
-    .select("id")
-    .eq("slug", courseSlug)
-    .eq("status", "published")
-    .maybeSingle();
-  if (!course) return { activeSeconds: 0, maxScrollPercent: 0 };
-
-  const { data: modules } = await admin
-    .from("training_modules")
-    .select("id")
-    .eq("course_id", course.id);
-  const moduleIds = (modules || []).map((item) => item.id);
-  if (!moduleIds.length) return { activeSeconds: 0, maxScrollPercent: 0 };
-
-  const { data: lesson } = await admin
+  // Foreign-key joins validate the published course and lesson in one read,
+  // instead of three sequential round trips on every active learner heartbeat.
+  const { data: lesson, error: lessonLookupError } = await admin
     .from("training_lessons")
-    .select("id")
+    .select("id,training_modules!inner(training_courses!inner(slug,status))")
     .eq("id", lessonId)
     .eq("is_published", true)
-    .in("module_id", moduleIds)
+    .eq("training_modules.training_courses.slug", courseSlug)
+    .eq("training_modules.training_courses.status", "published")
     .maybeSingle();
+  if (lessonLookupError) throw new Error("Training progress could not be validated. Please try again.");
   if (!lesson) return { activeSeconds: 0, maxScrollPercent: 0 };
 
   const { data: existing } = await admin

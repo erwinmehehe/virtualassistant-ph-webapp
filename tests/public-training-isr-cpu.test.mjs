@@ -41,6 +41,19 @@ test("existing signed-in learners retain course intent on the training signup ro
   assert.match(join, /<TrainingJoinForm course=\{course\}/);
 });
 
+test("public training and OG bypass cookie refresh but keep canonical redirects", async () => {
+  const middleware = await source("middleware.ts");
+  assert.match(middleware, /const hasLegacyHost =/);
+  assert.match(middleware, /NextResponse\.redirect\(canonicalUrl, 308\)/);
+  assert.match(middleware, /request\.nextUrl\.pathname === "\/training"/);
+  assert.match(middleware, /request\.nextUrl\.pathname === "\/api\/og"/);
+  const publicFastPath = middleware.indexOf('request.nextUrl.pathname === "/training"');
+  const sessionRefresh = middleware.indexOf('const supabase = createServerClient(');
+  assert.ok(publicFastPath > middleware.indexOf("NextResponse.redirect(canonicalUrl, 308)"));
+  assert.ok(publicFastPath < sessionRefresh);
+  assert.match(middleware, /await supabase\.auth\.getClaims\(\)/);
+});
+
 test("contextual social image cache is shared only for deterministic public input", async () => {
   const route = await source("src/app/api/og/route.tsx");
   assert.match(route, /export async function GET\(request: NextRequest\)/);

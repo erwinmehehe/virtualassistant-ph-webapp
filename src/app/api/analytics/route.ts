@@ -85,21 +85,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, dropped: "invalid_json" }, { status: 202 });
   }
 
-  // Retired high-volume analytics (Web Vitals, training, form submit attempts)
-  // from older cached clients are rejected before database rate limiting.
-  const parsed = schema.safeParse(body);
-  if (
-    !parsed.success ||
-    !allowedEvent(parsed.data.event) ||
-    JSON.stringify(parsed.data.metadata ?? {}).length > 8000
-  ) {
+  // Keep legacy single-event requests compatible, but batch closely related
+  // navigation events so they share Function startup, auth and limiter work.
+  // Cap the batch strictly; each event uses the same schema.
+  const candidates = Array.isArray(body) ? body : [body];
+  if (!candidates.length || candidates.length > 4) {
     return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
   }
+  const events: z.infer<typeof schema>[] = [];
+  for (const candidate of candidates) {
+    const parsed = schema.safeParse(candidate);
+    // Retired high-volume analytics from older cached clients are rejected
+    // before any database call, as with the single-event endpoint.
+    if (
+      !parsed.success ||
+      !allowedEvent(parsed.data.event) ||
+      JSON.stringify(parsed.data.metadata ?? {}).length > 8000
+    ) {
+      return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
+    }
+    events.push(parsed.data);
+  }
 
+  // Disallow mixing session identities in a batch to preserve the existing
+  // per-session limiter and avoid confusing authenticated event attribution.
+  const sessionIds = new Set(events.map((event) => event.session_id ?? ""));
+  if (sessionIds.size !== 1) {
+    return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
+  }
+  const sessionId = events[0]?.session_id;
   try {
     await enforceActionRateLimit("public_analytics:ip", requestIp(request), 240, 10, false);
-    if (parsed.data.session_id) {
-      await enforceActionRateLimit("public_analytics:session", parsed.data.session_id, 120, 10, false);
+    if (sessionId) {
+      await enforceActionRateLimit("public_analytics:session", sessionId, 120, 10, false);
     }
   } catch {
     return NextResponse.json({ ok: true, dropped: "rate_limited" }, { status: 202 });
@@ -118,23 +136,28 @@ export async function POST(request: Request) {
     })();
     const userId = typeof claimsData?.claims?.sub === "string" ? claimsData.claims.sub : null;
     const admin = createAdminClient();
-    const payload = {
-      event_id: parsed.data.event_id ?? null,
-      event_name: parsed.data.event,
-      path: parsed.data.path,
-      referrer: parsed.data.referrer ?? null,
-      session_id: parsed.data.session_id ?? null,
+    const payloads = events.map((event) => ({
+      event_id: event.event_id ?? null,
+      event_name: event.event,
+      path: event.path,
+      referrer: event.referrer ?? null,
+      session_id: event.session_id ?? null,
       user_id: userId,
-      metadata: parsed.data.metadata ?? {},
-    };
+      metadata: event.metadata ?? {},
+    }));
 
-    if (parsed.data.event_id) {
+    // Modern clients provide UUIDs and retain duplicate-safe inserts.
+    // Older cached clients may omit event_id and still use the insert path.
+    const withIds = payloads.filter((payload) => payload.event_id);
+    const withoutIds = payloads.filter((payload) => !payload.event_id);
+    if (withIds.length) {
       const { error } = await admin
         .from("analytics_events")
-        .upsert(payload, { onConflict: "event_id", ignoreDuplicates: true });
+        .upsert(withIds, { onConflict: "event_id", ignoreDuplicates: true });
       if (error) return NextResponse.json({ ok: true, dropped: "storage_unavailable" }, { status: 202 });
-    } else {
-      const { error } = await admin.from("analytics_events").insert(payload);
+    }
+    if (withoutIds.length) {
+      const { error } = await admin.from("analytics_events").insert(withoutIds);
       if (error) return NextResponse.json({ ok: true, dropped: "storage_unavailable" }, { status: 202 });
     }
   } catch {

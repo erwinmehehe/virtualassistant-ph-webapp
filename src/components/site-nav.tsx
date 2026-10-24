@@ -143,7 +143,11 @@ export async function SiteNav({
   const isTrainingContext = actionContext === "training";
   const trainingContextLoginHref = trainingLoginHref();
   const trainingContextJoinHref = trainingJoinHref();
-  const { user, profile } = await getSessionProfile();
+  // The public training page must not personalize the shared ISR response.
+  // Keep the same primary navigation and use neutral account CTAs instead.
+  const { user, profile } = isTrainingContext
+    ? { user: null, profile: null }
+    : await getSessionProfile();
   const workspaceHref = profile?.role === "client" ? "/workspace/client"
     : profile?.role === "va" ? "/workspace/va"
     : profile?.role === "recruiter" ? "/workspace/recruiter/today"

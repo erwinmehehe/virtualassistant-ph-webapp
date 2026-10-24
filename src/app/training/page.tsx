@@ -30,14 +30,13 @@ import {
 } from "@/lib/public-training";
 import { trainingCourseDestination, trainingJoinHref } from "@/lib/training-intent";
 import { AUSTRALIA_SPECIALIZATIONS } from "@/lib/training-specializations";
-import { getSessionProfile } from "@/lib/auth";
 import { TrainingMobileCta } from "@/components/training-mobile-cta";
 import { getTrainingCourseArtwork, TrainingCourseArtwork } from "@/components/training-course-artwork";
 import "@/components/training-course-artwork.css";
 import "../training-landing.css";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const dynamic = "force-static";
+export const revalidate = 300;
 
 function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
@@ -221,11 +220,11 @@ const FAQS = [
 ] as const;
 
 export default async function TrainingPage() {
-  const [{ courses }, { user }] = await Promise.all([
-    getPublicTrainingOverview(),
-    getSessionProfile(),
-  ]);
-  const signedIn = Boolean(user);
+  const { courses } = await getPublicTrainingOverview();
+  // This public SEO landing page contains no visitor-specific data. Returning
+  // learners can log in from the visible login link; authenticated learners
+  // entering the join flow are redirected to the intended workspace course.
+  const signedIn = false;
   const trainingHomeHref = signedIn ? "/workspace/training" : JOIN_HREF;
   const publishedCourses = courses.filter((course) => course.status === "published");
   const globalCourses = publishedCourses.filter((course) => !course.country_focus);

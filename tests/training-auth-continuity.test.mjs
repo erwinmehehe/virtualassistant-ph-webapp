@@ -92,19 +92,32 @@ test("training session continuity falls back to the verified auth user when clai
   assert.match(auth, /userId = userData\.user\.id/);
 });
 
-test("signed-in learners are not sent back through training login or signup CTAs", async () => {
-  const [page, nav] = await Promise.all([
+test("public cached training offers neutral CTAs and signed-in learners skip signup", async () => {
+  const [page, nav, join] = await Promise.all([
     read("src/app/training/page.tsx"),
     read("src/components/site-nav.tsx"),
+    read("src/app/auth/join/training/page.tsx"),
   ]);
 
-  assert.match(page, /getSessionProfile/);
-  assert.match(page, /const signedIn = Boolean\(user\)/);
-  assert.match(page, /signedIn \? trainingCourseDestination\(course\.slug\) : trainingJoinHref\(course\.slug\)/);
-  assert.match(page, /signedIn \? "\/workspace\/training" : JOIN_HREF/);
+  // Shared HTML is cacheable and must not read per-user sessions.
+  assert.match(page, /export const dynamic = "force-static"/);
+  assert.match(page, /export const revalidate = 300/);
+  assert.doesNotMatch(page, /getSessionProfile/);
+  assert.match(page, /const signedIn = false/);
+  assert.match(page, /const LOGIN_HREF = "\/auth\/login\?next=/);
+  assert.match(page, /trainingJoinHref\(course\.slug\)/);
   assert.match(page, /Go to learner dashboard/);
-  assert.match(page, /<TrainingMobileCta href=\{trainingHomeHref\} label=\{signedIn \? "Continue training" : "Start free training"\}\/>/);
+
+  // The primary training navigation is anonymous-only on this public page.
+  assert.match(nav, /isTrainingContext[\s\S]*?\? \{ user: null, profile: null \}[\s\S]*?: await getSessionProfile\(\)/);
   assert.match(nav, /href=\{user \? "\/workspace\/training" : trainingContextLoginHref\}/);
   assert.match(nav, /user \? "Continue training" : "Start free training"/);
-  assert.match(nav, /user \? "My learning" : "Training login"/);
+
+  // Existing signed-in learners are redirected to their requested published
+  // course; unauthenticated visitors still see the normal signup form.
+  assert.match(join, /match\.status === "published"|item\.status === "published"/);
+  assert.match(join, /if \(hasSessionCookie\)/);
+  assert.match(join, /getFastRoleProfile\(\)/);
+  assert.match(join, /if \(userId\) redirect\(trainingCourseDestination\(course\?\.slug\)\)/);
+  assert.match(join, /<TrainingJoinForm course=\{course\}/);
 });

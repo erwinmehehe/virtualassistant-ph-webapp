@@ -488,6 +488,11 @@ export const BLOG_AEO_GUIDES: BlogPost[] = [
         "description": "Plan a practical follow-up discussion after the trial."
       },
       {
+        "label": "Download paid-trial scoring rubric",
+        "href": "/downloads/virtual-assistant-paid-trial-rubric.csv",
+        "description": "Use the editable five-part work-sample assessment sheet."
+      },
+      {
         "label": "Virtual assistant tasks",
         "href": "/blog/virtual-assistant-tasks",
         "description": "Select a work sample that mirrors the actual job."

@@ -95,11 +95,11 @@ export function verifyDiditWebhook(raw: Buffer, headers: Headers, config: DiditC
     !uuid.test(payload.session_id) || typeof payload.vendor_data !== "string" ||
     !uuid.test(payload.vendor_data) || typeof payload.workflow_id !== "string" ||
     payload.workflow_id !== config.workflowId || payload.environment !== config.environment ||
-    !Number.isSafeInteger(payload.created_at) || (payload.created_at as number) <= 0 ||
+    typeof payload.created_at !== "number" || !Number.isSafeInteger(payload.created_at) || payload.created_at <= 0 ||
     !["status.updated", "data.updated"].includes(String(payload.webhook_type)) ||
     typeof payload.status !== "string") return null;
 
-  return payload as DiditEvent;
+  return payload as unknown as DiditEvent;
 }
 
 export function outcomeFromDidit(event: DiditEvent): IdvStatus | null {

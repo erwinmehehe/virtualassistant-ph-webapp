@@ -20,7 +20,12 @@ test("public site header no longer calls Supabase or reads cookies while renderi
   assert.match(account, /auth\.getUser\(\)/);
   assert.match(account, /\.from\("profiles"\)/);
   assert.match(account, /\.select\("role,account_status"\)/);
-  assert.doesNotMatch(account.replaceAll(/\/\*[\s\S]*?\*\//g, ""), /service_role|createAdminClient|raw_user_meta_data/);
+  const config = await source("next.config.ts");
+  assert.match(config, /localSupabaseConnectSrc/);
+  assert.match(config, /process\.env\.VERCEL_ENV === "production"/);
+  assert.match(config, /url\.hostname === "127\.0\.0\.1"/);
+  assert.match(config, /supabaseOrigin\.origin/);
+  assert.doesNotMatch(account, /createAdminClient\(|SUPABASE_SERVICE_ROLE_KEY|\.auth\.admin\./);
 });
 
 test("public nav preserves recruiter, admin, client, VA, and training links", async () => {

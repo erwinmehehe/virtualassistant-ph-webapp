@@ -8,7 +8,9 @@ function data(file, marker) {
   const value = readFileSync(join(root, file), "utf8");
   const start = value.indexOf(marker);
   assert.ok(start >= 0, file + " missing export marker");
-  return JSON.parse(value.slice(start + marker.length, value.lastIndexOf(";")));
+  const end = value.indexOf("];", start + marker.length);
+  assert.ok(end >= 0, file + " missing JSON array closing marker");
+  return JSON.parse(value.slice(start + marker.length, end + 1));
 }
 const posts = data("src/lib/blog-aeo-followup-guides.ts", "export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = ");
 const archives = data("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");

@@ -11,9 +11,8 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { JobCard } from "@/components/job-card";
-import { createClient } from "@/lib/supabase/server";
-import { MIN_HOURLY_RATE, VA_CATEGORIES } from "@/lib/constants";
-import { getBusinessSettings } from "@/lib/business-settings";
+import { VA_CATEGORIES } from "@/lib/constants";
+import { getPublicJobFilterFloor, getPublicJobResults, parsePublicJobFilters, PUBLIC_JOBS_PAGE_SIZE } from "@/lib/public-job-directory";
 import { canonicalPath, canonicalUrl } from "@/lib/seo-url";
 import { AnswerFirst } from "@/components/answer-first";
 import { faqSchema } from "@/lib/faq-schema";
@@ -22,9 +21,9 @@ import { socialMetadata } from "@/lib/og";
 import "./jobs-marketplace.css";
 
 export const metadata: Metadata = {
-  title: { absolute: "Virtual Assistant Jobs Philippines" },
+  title: { absolute: "Virtual Assistant Jobs Philippines | Free VA Jobs" },
   description:
-    "Find published remote Virtual Assistant jobs in the Philippines. Employers can submit a hiring request with clear role requirements, pay, and hours.",
+    "Browse free virtual assistant jobs in the Philippines. Filter published remote roles by pay, hours, and skills. Create a free VA profile and apply when eligible.",
   alternates: { canonical: canonicalPath("/jobs") },
   ...socialMetadata({
     title: "Virtual Assistant Jobs Philippines",
@@ -37,12 +36,16 @@ export const metadata: Metadata = {
   }),
 };
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = PUBLIC_JOBS_PAGE_SIZE;
 const EMPLOYER_POST_HREF = "/post-a-job";
 const EMPLOYER_LOGIN_HREF = "/auth/login?next=%2Fworkspace%2Fclient%2Fjobs%2Fnew";
 const VA_JOIN_HREF = "/auth/join/va";
 
 const jobFaqs = [
+  [
+    "Where can I find free Virtual Assistant job websites in the Philippines?",
+    "Start with a current VA job directory, then compare Philippines-focused boards, general job sites, and freelance marketplaces. Browsing is not always the same as free applications: some marketplaces use proposal credits or deduct service fees.",
+  ],
   [
     "Is it free for Virtual Assistants to apply?",
     "Creating a VA profile is free. Training is free and optional. Published roles accept applications from eligible vetted VAs; joining or completing training does not guarantee employment.",
@@ -90,49 +93,26 @@ export default async function PublicJobsPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const [params, settings] = await Promise.all([searchParams, getBusinessSettings()]);
-  const q = String(params.q || "").trim().replace(/[,%()]/g, " ");
-  const category = String(params.category || "").trim();
-  const minRate = Number(params.min_rate || 0);
-  const hours = String(params.hours || "");
-  const sort = String(params.sort || "newest");
-  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
-  let jobs: any[] = [];
+  const params = await searchParams;
+  const filters = parsePublicJobFilters(params);
+  const { q, category, minRate, hours, sort, page: requestedPage } = filters;
+  const floorPromise = getPublicJobFilterFloor();
+  let jobs: Record<string, unknown>[] = [];
   let total = 0;
 
   try {
-    const supabase = await createClient();
-    let query: any = supabase
-      .from("public_jobs")
-      .select(
-        "id,slug,title,company_name,summary,categories,required_skills,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,engagement_length,published_at,company_logo_url,company_industry,company_location,company_verified_at,company_hires_count",
-        { count: "exact" },
-      )
-      .gte("min_hourly_rate", MIN_HOURLY_RATE);
-
-    if (q) query = query.or(`title.ilike.%${q}%,summary.ilike.%${q}%`);
-    if (category) query = query.contains("categories", [category]);
-    if (minRate) query = query.gte("min_hourly_rate", minRate);
-    if (hours === "full") query = query.gte("hours_per_week", 35);
-    if (hours === "part") query = query.gt("hours_per_week", 0).lt("hours_per_week", 35);
-    if (sort === "rate") query = query.order("min_hourly_rate", { ascending: false, nullsFirst: false });
-    else if (sort === "hours") query = query.order("hours_per_week", { ascending: false, nullsFirst: false });
-    else query = query.order("published_at", { ascending: false, nullsFirst: false });
-
-    const from = (requestedPage - 1) * PAGE_SIZE;
-    const result = await query.range(from, from + PAGE_SIZE - 1);
-    jobs = result.data || [];
-    total = result.count || 0;
-
+    const result = await getPublicJobResults(filters);
+    jobs = result.jobs;
+    total = result.total;
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
-      console.warn("[jobs] Supabase unavailable:", (err as Error).message);
+      console.warn("[jobs] Public directory temporarily unavailable:", (err as Error).message);
     }
   }
 
+  const floor = await floorPromise;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(requestedPage, pages);
-  const floor = settings.minHourlyRate;
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -188,7 +168,7 @@ export default async function PublicJobsPage({
               </span>
               <h1 id="jobs-market-title">Virtual Assistant Jobs Philippines</h1>
               <p>
-                Browse published remote Virtual Assistant roles with clear pay, weekly hours, and timezone details. Compare opportunities, find work that matches your skills, and apply with a free VA profile when eligible.
+                Browse free Virtual Assistant job listings in the Philippines. Compare published remote roles by skills, pay, weekly hours, and timezone, then apply with a free VA profile when eligible.
               </p>
               <AnswerFirst
                 id="jobs-quick-answer"
@@ -248,7 +228,7 @@ export default async function PublicJobsPage({
                 <Search size={17} />
                 <input
                   name="q"
-                  defaultValue={params.q}
+                  defaultValue={q}
                   placeholder="Search job title or description"
                   aria-label="Search jobs"
                 />
@@ -338,6 +318,11 @@ export default async function PublicJobsPage({
               <div><strong>Apply when eligible</strong><p>Apply to published roles that fit your skills. Recruiters review applications before client presentation.</p></div>
             </div>
             <p>Training courses and certificates are free and optional. Training completion is not a requirement to apply, and does not guarantee a job.</p>
+            <p className="jobs-jobsite-guide">
+              Comparing free Virtual Assistant job websites in the Philippines?{" "}
+              <Link href="/blog/free-virtual-assistant-job-websites-philippines">Read our guide to free VA job websites</Link>{" "}
+              for a clear comparison of job boards, application costs, and common warning signs before you apply.
+            </p>
             <div className="jobs-candidate-guide-actions">
               <Link className="btn btn-primary" href={VA_JOIN_HREF}>Create free VA profile <ArrowRight size={15}/></Link>
               <Link className="btn" href="/training">Explore free VA training</Link>

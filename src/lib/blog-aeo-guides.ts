@@ -518,5 +518,279 @@ export const BLOG_AEO_GUIDES: BlogPost[] = [
         "description": "Define the role, hours, tools, and screening criteria."
       }
     ]
+  },
+  {
+    "slug": "virtual-assistant-kpi-scorecard",
+    "title": "Virtual Assistant KPI Scorecard: Metrics and Review Template",
+    "metaTitle": "Virtual Assistant KPI Scorecard: Metrics & Template",
+    "description": "Measure virtual assistant work with an editable KPI scorecard, clear formulas, role-based examples, weekly review questions and quality safeguards.",
+    "quickAnswerQuestion": "What KPIs should you track for a virtual assistant?",
+    "quickAnswer": "Track outcomes that show whether delegated work is accurate, on time, and properly escalated. Start with task completion, error or rework rate, agreed response windows, and documentation quality. Add role-specific measures for customer support, sales, or bookkeeping. Review a small scorecard weekly, explain exceptions, and update targets as responsibilities change.",
+    "excerpt": "A practical VA performance scorecard with measurable definitions, worked examples, and a downloadable CSV for weekly reviews.",
+    "topic": "managing",
+    "clusterLabel": "Virtual Assistant Performance",
+    "intent": "informational",
+    "publishedAt": "2026-10-24",
+    "updatedAt": "2026-10-24",
+    "author": "VirtualAssistant.com.ph Editorial Team",
+    "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
+    "reviewNote": "The formulas and example targets are illustrative planning aids, not universal performance benchmarks. Use appropriate privacy and employment practices when collecting workplace data.",
+    "sources": [
+      {
+        "label": "NIST: Multifactor authentication and limited access",
+        "href": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/multi-factor-authentication"
+      }
+    ],
+    "keyTakeaways": [
+      "Score completed outcomes against clear acceptance criteria instead of measuring mouse movement, online status, or message volume.",
+      "Use four to six role-relevant metrics at first, with an agreed definition, owner, period, and exception rule for each.",
+      "Review the scorecard alongside work samples and blockers because a percentage without context can mislead.",
+      "Document a baseline and coaching actions before using metrics to make major staffing or workflow decisions."
+    ],
+    "sections": [
+      {
+        "heading": "Good metrics help managers improve the workflow",
+        "questionHeading": "What makes a virtual assistant KPI useful?",
+        "paragraphs": [
+          "A key performance indicator should describe an outcome the assistant can influence and the manager can verify. Examples include the share of assigned tasks finished by the agreed deadline, the number of records corrected after quality review, or whether customer requests were routed within the promised response window.",
+          "A high count of messages sent is not automatically a positive result. If every reply triggers another question or the CRM becomes less accurate, activity has increased without adding business value. Measuring work well means defining what 'complete' means and checking the quality of the finished result.",
+          "A useful scorecard has only a few metrics, a reliable source for each number, a person who reviews them, and space to explain exceptions. The manager still owns the clarity of the work, approvals, staffing capacity, and access to the tools needed to deliver the outcome."
+        ]
+      },
+      {
+        "heading": "A core scorecard with formulas you can explain",
+        "questionHeading": "Which KPIs should every virtual assistant manager consider?",
+        "paragraphs": [
+          "The table below provides possible measures, not required targets for every role. Choose the measures that match the work and define the reporting period. If the denominator is extremely small, show the counts beside the percentage so one unusual case does not distort the conversation.",
+          "Always document exclusions. A task waiting for client approval should not automatically count as an assistant delay if the assistant escalated it correctly. Likewise, work marked complete but returned for corrections should be visible in the quality measure."
+        ],
+        "table": {
+          "headers": [
+            "Metric",
+            "Calculation or evidence",
+            "Review question"
+          ],
+          "rows": [
+            [
+              "On-time completion",
+              "Tasks finished by deadline / tasks due",
+              "Were dependencies and approvals available?"
+            ],
+            [
+              "Quality or rework rate",
+              "Tasks returned for correction / tasks reviewed",
+              "Which error type repeats?"
+            ],
+            [
+              "Response-window compliance",
+              "Replies inside agreed window / replies requiring coverage",
+              "Was live coverage part of the schedule?"
+            ],
+            [
+              "Escalation quality",
+              "Sampled cases correctly flagged and documented",
+              "Were exceptions raised before deadlines?"
+            ],
+            [
+              "Record accuracy",
+              "Correct verified records / sampled records",
+              "Can reviewers trace updates to a source?"
+            ],
+            [
+              "Documentation coverage",
+              "Recurring workflows with current approved SOPs",
+              "Can another person follow the process?"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "A worked weekly example with transparent numbers",
+        "questionHeading": "How do you calculate virtual assistant performance metrics?",
+        "paragraphs": [
+          "Imagine an administrative assistant had 40 tasks due this week and finished 36 by their agreed deadlines. On-time completion is 36 divided by 40, or 90%. Suppose a reviewer checked 20 of the completed tasks and requested corrections on two. The observed rework rate in that reviewed sample is 2 divided by 20, or 10%. These numbers are hypothetical examples, not published performance benchmarks.",
+          "Now add context: three late tasks were waiting for manager approval and were escalated on time, while one had no advance warning. Counting all four as the same failure would hide the distinction between a process bottleneck and an execution gap. Keep the original metric, but record the reason categories before taking action.",
+          "Percentages should never conceal the volume of work. A 100% result based on one task is not as informative as a consistent result over dozens of comparable tasks. Where practical, show a rolling trend and an example of the actual deliverable reviewed."
+        ],
+        "bullets": [
+          "Tasks due: 40; completed on time: 36; on-time completion: 90%.",
+          "Tasks reviewed: 20; returned for correction: 2; sampled rework rate: 10%.",
+          "Late-task categories: waiting for approval, unexpected outage, unclear scope, or missed ownership.",
+          "Coaching action: clarify the approval workflow and require an earlier status update for at-risk work."
+        ]
+      },
+      {
+        "heading": "Role-specific scorecards are more useful than one universal target",
+        "questionHeading": "How should KPIs change by virtual assistant role?",
+        "paragraphs": [
+          "Different roles create value in different ways. A customer-support assistant may be evaluated on resolved inquiries and appropriate escalation; an executive assistant on calendar accuracy, briefing readiness, and timely follow-up; an ecommerce assistant on order exceptions and listing quality. A single company-wide 'tasks per hour' quota is unlikely to capture these differences.",
+          "Use a mix of quantity, quality, timeliness, and judgment. An assistant who handles fewer sensitive cases correctly may contribute more than someone who closes many tickets without proper checks. Assess whether the employee or contractor controls the process being measured."
+        ],
+        "table": {
+          "headers": [
+            "VA role",
+            "Useful measures",
+            "Guardrail"
+          ],
+          "rows": [
+            [
+              "Administrative",
+              "On-time tasks, record accuracy, handoff completeness",
+              "Do not count waiting-for-approval time as unreported failure."
+            ],
+            [
+              "Executive",
+              "Calendar conflicts prevented, briefing completeness, follow-up timeliness",
+              "Priorities can change during the day."
+            ],
+            [
+              "Customer support",
+              "Quality-reviewed resolutions, response windows, correct escalations",
+              "Do not reward quick but incorrect refunds."
+            ],
+            [
+              "Lead generation",
+              "CRM completeness, qualified handoffs, follow-up accuracy",
+              "Keep lead quality separate from raw contact counts."
+            ],
+            [
+              "Ecommerce",
+              "Exception resolution, order-data accuracy, listing QA",
+              "Confirm owner approval for customer-impacting adjustments."
+            ],
+            [
+              "Bookkeeping support",
+              "Coding accuracy, reconciliation exception logs, month-end handoffs",
+              "Final accounting approvals stay with authorized personnel."
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "Downloadable scorecard fields and how to fill them",
+        "questionHeading": "What should be included in a VA performance spreadsheet?",
+        "paragraphs": [
+          "The accompanying CSV template gives each metric a row with the definition, review period, agreed target, observed result, evidence source, exception notes, review owner, and next action. It is deliberately editable rather than pretending every business has the same benchmark. Open it in a spreadsheet tool and replace the example categories with those used in your workflow.",
+          "Record the evidence source before you begin. For task completion, that could be a project board with due dates. For response windows, it could be your ticketing system. For record accuracy, use a defined sample checked against original documents. If a metric relies only on memory or an undocumented estimate, mark it as provisional.",
+          "The best version of this template takes a few minutes to review. A sprawling dashboard with dozens of columns can become another job for the person you hired to reduce administrative work."
+        ],
+        "bullets": [
+          "Metric and plain-English definition, including exclusions.",
+          "Weekly or monthly reporting period and source of the raw counts.",
+          "Agreed target, actual numerator and denominator, and observed result.",
+          "Exception notes and one named person responsible for the next action.",
+          "Review date so improvement can be checked rather than assumed."
+        ]
+      },
+      {
+        "heading": "A practical review rhythm for weeks one through four",
+        "questionHeading": "How often should you review a new virtual assistant?",
+        "numbered": [
+          "Before the first task, select two or three measures and show a completed example of acceptable work.",
+          "In the first week, review samples daily where the risk or learning curve warrants it, and correct unclear instructions immediately.",
+          "In week two, compare the quality of output with the first-week baseline and identify recurring exceptions.",
+          "In week three, give the assistant ownership of a slightly larger workflow only when the existing process is stable.",
+          "At day 30, review the scorecard, ask what blocks progress, and revise scope or targets based on evidence."
+        ],
+        "paragraphs": [
+          "During the first month, use frequent conversation and work examples rather than treating a dashboard as an automatic pass-or-fail system. Newly assigned work can look slower because the assistant is documenting instructions, clarifying priorities, and learning company-specific approvals.",
+          "For an established arrangement, a short weekly operational review and a broader monthly process review may be sufficient. Increase the cadence for unusual changes, not as a default form of surveillance."
+        ]
+      },
+      {
+        "heading": "Avoid incentives that accidentally reduce quality",
+        "questionHeading": "What virtual assistant metrics can become misleading?",
+        "paragraphs": [
+          "Metrics can backfire when they reward the wrong behavior. Counting emails sent can encourage unnecessary follow-ups. Rewarding ticket closure speed without checking resolution can push unresolved problems back to customers. Measuring attendance or keyboard activity does not prove that the important work was accurate or useful.",
+          "Consider whether the assistant can genuinely control the result. A lead-generation assistant may maintain clean contact records and timely qualified handoffs, but they cannot guarantee sales that depend on pricing, product fit, and a client's closing process. Separate controllable actions from downstream company outcomes.",
+          "Explain the purpose and scope of monitoring, minimize unnecessary personal information, and review applicable workplace privacy requirements. A scorecard should help people work more clearly, not replace management judgment with a decontextualized ranking."
+        ]
+      },
+      {
+        "heading": "Use the scorecard to improve delegation",
+        "questionHeading": "What should you do when a KPI declines?",
+        "paragraphs": [
+          "Look at the underlying examples before changing pay, staffing, or responsibilities. A decline can result from a broken tool, changing task complexity, conflicting instructions, insufficient capacity, or mistakes by the assistant. Ask which inputs changed and whether the expected standard was actually communicated.",
+          "Choose one corrective action: clarify the SOP, simplify an approval chain, provide focused training, or redefine the work queue. Review the same measure in the next period. Recording a specific change creates learning; blaming a single number rarely does.",
+          "If you are preparing a new hire, use the scorecard definitions inside the job brief and onboarding plan. Candidates can evaluate whether the job expectations match their experience, and managers can compare evidence from a trial task to the same outcomes that matter after hiring."
+        ]
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What are the most important KPIs for a virtual assistant?",
+        "answer": "Start with on-time completion, accuracy or rework, timely responses where live coverage is part of the job, and documented escalation. Add role-specific measures instead of applying one universal quota to every assistant."
+      },
+      {
+        "question": "How do I calculate a virtual assistant's on-time completion rate?",
+        "answer": "Divide tasks completed by the agreed deadline by all tasks due in the period, then multiply by 100. Show the underlying counts and record tasks affected by client approvals or other dependencies so the percentage can be interpreted fairly."
+      },
+      {
+        "question": "Should I track hours worked or completed tasks?",
+        "answer": "Hours can be relevant to scheduling, capacity, and agreed compensation, but they do not measure outcome quality by themselves. Compare time with accurate deliverables, communication, and appropriate handling of exceptions."
+      },
+      {
+        "question": "What is a good virtual assistant productivity target?",
+        "answer": "There is no single target for every role. Establish a baseline using representative work, define what acceptable quality means, and agree on a practical improvement goal. Avoid importing a percentage from another business without comparable work."
+      },
+      {
+        "question": "How do I measure virtual assistant accuracy?",
+        "answer": "Sample completed work against an approved source or acceptance checklist. Record the number of items reviewed, items requiring correction, and the types of errors. For small samples, report counts alongside percentages."
+      },
+      {
+        "question": "How often should a virtual assistant KPI scorecard be reviewed?",
+        "answer": "A short weekly review is a useful starting point during onboarding, with more frequent checks for sensitive new tasks. Mature, stable workflows may need fewer meetings. Review sooner when work scope, tools, or risk changes materially."
+      },
+      {
+        "question": "Can I use a spreadsheet to manage VA performance?",
+        "answer": "Yes. A spreadsheet can hold definitions, targets, observed counts, exceptions, and next actions. Use consistent source data and protect access. A small accurate scorecard is more useful than an elaborate dashboard of unreliable figures."
+      },
+      {
+        "question": "How can a KPI scorecard help with VA onboarding?",
+        "answer": "It tells the new assistant what completed work looks like, which issues require escalation, and how feedback will be collected. Pair metrics with real examples and an SOP so the first review produces specific improvements rather than vague judgments."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "VA management resources",
+        "href": "/blog/topic/managing",
+        "description": "Explore onboarding, delegation, and performance processes."
+      },
+      {
+        "label": "30-day virtual assistant onboarding",
+        "href": "/blog/virtual-assistant-onboarding-checklist",
+        "description": "Set review and training milestones."
+      },
+      {
+        "label": "How many VA hours should you hire?",
+        "href": "/blog/how-many-hours-hire-virtual-assistant",
+        "description": "Set realistic coverage based on workload."
+      },
+      {
+        "label": "Virtual assistant tasks",
+        "href": "/blog/virtual-assistant-tasks",
+        "description": "Translate recurring responsibilities into measurable outcomes."
+      },
+      {
+        "label": "Paid VA trial tasks",
+        "href": "/blog/virtual-assistant-paid-trial-tasks",
+        "description": "Evaluate work quality before onboarding."
+      },
+      {
+        "label": "Virtual assistant SOP template",
+        "href": "/blog/virtual-assistant-sop-template",
+        "description": "Document repeatable workflows and exception rules."
+      },
+      {
+        "label": "Download VA scorecard CSV",
+        "href": "/downloads/virtual-assistant-kpi-scorecard.csv",
+        "description": "Open an editable spreadsheet with example definitions and blank metrics."
+      },
+      {
+        "label": "Create a role brief",
+        "href": "/hire",
+        "description": "Share tasks, availability, and expectations when hiring."
+      }
+    ]
   }
 ];

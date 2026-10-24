@@ -13,10 +13,10 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
     "clusterLabel": "Virtual Assistant Jobs Philippines",
     "intent": "comparison",
     "publishedAt": "2026-10-03",
-    "updatedAt": "2026-10-03",
+    "updatedAt": "2026-10-24",
     "author": "VirtualAssistant.com.ph Editorial Team",
     "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
-    "reviewNote": "Platform access, application limits, commissions, subscriptions, and employer fees can change. Check each website's current terms before applying or hiring.",
+    "reviewNote": "Updated October 24, 2026. Website access, application credits, commissions, subscriptions, and hiring policies can change. Verify the current terms on each platform before applying.",
     "sources": [
       {
         "label": "VirtualAssistant.com.ph Jobs",
@@ -41,6 +41,10 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
       {
         "label": "Upwork",
         "href": "https://www.upwork.com/"
+      },
+      {
+        "label": "Upwork Connects: official application rules",
+        "href": "https://support.upwork.com/hc/en-us/articles/211062898-Understanding-and-using-Connects"
       },
       {
         "label": "VirtualStaff.ph",
@@ -124,7 +128,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "1. VirtualAssistant.com.ph: free VA applications with reviewed public roles",
+        "heading": "VirtualAssistant.com.ph: free VA applications with reviewed public roles",
         "questionHeading": "Can you apply for VA jobs on VirtualAssistant.com.ph for free?",
         "paragraphs": [
           "VirtualAssistant.com.ph is built around Filipino Virtual Assistants and businesses hiring remote talent from the Philippines. Public job listings can show the role scope, weekly hours, timezone context, and advertised compensation so applicants can decide whether the opportunity fits before entering the recruiting process.",
@@ -133,7 +137,23 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "2. OnlineJobs.ph: a Philippines-focused channel for remote work",
+        "heading": "How to use a live VA jobs directory before applying",
+        "questionHeading": "How can Filipino applicants compare current VA openings?",
+        "paragraphs": [
+          "A comparison guide helps you decide where to search; a live job directory helps you decide which roles are worth an application today. The VirtualAssistant.com.ph jobs board shows published remote opportunities rather than requiring you to create an account just to read the listings.",
+          "Review the advertised responsibilities, compensation, weekly hours, timezone and required skills. Use the category, hours and pay filters to narrow the list, then open the full job description before preparing your application.",
+          "Creating a VirtualAssistant.com.ph profile is free. Published roles accept applications from eligible approved and bench-vetted VAs; a free account alone does not mean every vacancy is available to every applicant. Training is optional, and neither training nor a certificate guarantees employment."
+        ],
+        "bullets": [
+          "Browse the current openings on the Virtual Assistant Jobs Philippines page.",
+          "Compare the tasks and tools with work you can demonstrate.",
+          "Confirm the advertised schedule and compensation fit your availability.",
+          "Create your free VA profile and follow the vetting steps if a role matches.",
+          "Track the job link and avoid sending duplicate or generic applications."
+        ]
+      },
+      {
+        "heading": "OnlineJobs.ph: a Philippines-focused channel for remote work",
         "questionHeading": "What can Filipino VAs find on OnlineJobs.ph?",
         "paragraphs": [
           "OnlineJobs.ph is one of the best-known Philippines-focused remote work marketplaces. Employers commonly use it for Virtual Assistant, administrative, customer support, ecommerce, marketing, bookkeeping, and other online roles.",
@@ -142,7 +162,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "3. JobStreet Philippines: useful for employment-style VA roles",
+        "heading": "JobStreet Philippines: useful for employment-style VA roles",
         "questionHeading": "When is JobStreet useful for a VA job search?",
         "paragraphs": [
           "JobStreet is useful when your search includes Virtual Assistant, executive assistant, administrative assistant, customer support, back-office, operations, or remote support roles offered by established companies. These listings may look more like conventional employment than freelance marketplace work.",
@@ -151,7 +171,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "4. Indeed Philippines: broad coverage and frequent new listings",
+        "heading": "Indeed Philippines: broad coverage and frequent new listings",
         "questionHeading": "How can Indeed help with Philippine VA job searches?",
         "paragraphs": [
           "Indeed aggregates and hosts a large number of Philippine job listings, including remote Virtual Assistant, administrative support, customer service, operations and specialist roles. Its strength is breadth: you can search variations such as virtual assistant work from home, executive assistant remote, ecommerce assistant, bookkeeping assistant, or customer support remote.",
@@ -159,7 +179,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "5. LinkedIn Jobs: combine applications with direct company research",
+        "heading": "LinkedIn Jobs: combine applications with direct company research",
         "questionHeading": "How can you use LinkedIn to research a VA employer?",
         "paragraphs": [
           "LinkedIn is more useful when you treat the company profile and recruiter identity as part of the application. A job post can lead you to the company's employees, website, recent activity, and hiring team, which gives you more context than a title and short description alone.",
@@ -168,7 +188,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "6. Upwork: strong for freelance VA projects, but check proposal and service costs",
+        "heading": "Upwork: strong for freelance VA projects, but check proposal and service costs",
         "questionHeading": "What costs should you check before applying on Upwork?",
         "paragraphs": [
           "Upwork is different from a conventional job board. Clients post freelance projects and ongoing contracts, while freelancers submit proposals or respond to invitations. This structure can work well for specialist VAs who can show relevant samples and explain a specific result they can deliver.",
@@ -177,7 +197,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         ]
       },
       {
-        "heading": "7. VirtualStaff.ph: another Philippines-focused remote staffing option",
+        "heading": "VirtualStaff.ph: another Philippines-focused remote staffing option",
         "questionHeading": "What VA opportunities can you compare on VirtualStaff.ph?",
         "paragraphs": [
           "VirtualStaff.ph focuses on remote staffing and Filipino talent. It can be worth checking alongside other Philippines-focused channels because job availability changes by role, industry and client demand.",
@@ -296,14 +316,14 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
     ],
     "internalLinks": [
       {
+        "label": "Browse free Virtual Assistant jobs in the Philippines",
+        "href": "/jobs",
+        "description": "View current remote VA openings, advertised pay, schedules and requirements."
+      },
+      {
         "label": "Philippines hiring and job guides",
         "href": "/blog/topic/philippines",
         "description": "Browse practical Philippines-focused Virtual Assistant guidance."
-      },
-      {
-        "label": "Virtual Assistant Jobs Philippines",
-        "href": "/jobs",
-        "description": "Browse current remote VA opportunities with published role details."
       },
       {
         "label": "Create your free VA profile",

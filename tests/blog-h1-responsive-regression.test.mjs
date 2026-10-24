@@ -28,8 +28,23 @@ test("merged payment article keeps named provider guidance and safe bank-instruc
   assert.match(paid.html, /Wise, Payoneer, PayPal, or bank transfer: which payment method fits\?/);
   assert.match(paid.html, /How do you verify payment instructions without exposing your accounts\?/);
   assert.match(paid.html, /USD 500/);
-  assert.match(paid.html, /https:\/\/wise\.com\/help/);
-  assert.match(paid.html, /https:\/\/www\.payoneer\.com\//);
+  // Parse provider destinations rather than matching URL substrings: an unanchored
+  // domain regex could also match an attacker-controlled lookalike hostname.
+  const providerUrls = paid.html.split('href="').slice(1)
+    .map((part) => part.split('"', 1)[0])
+    .flatMap((href) => {
+      try {
+        const url = new URL(href);
+        return url.protocol === "https:" ? [url] : [];
+      } catch {
+        return [];
+      }
+    });
+  assert.ok(providerUrls.some((url) => url.hostname === "wise.com" && url.pathname.startsWith("/help/")),
+    "Wise source must link to the official HTTPS help pages");
+  assert.ok(providerUrls.some((url) => url.hostname === "www.payoneer.com" &&
+    ["/pricing/", "/withdraw-funds/"].includes(url.pathname)),
+    "Payoneer source must link to an official HTTPS product page");
   const blog = source("src/lib/blog.ts");
   for (const symbol of ["BLOG_AEO_GUIDES", "BLOG_AEO_FOLLOWUP_GUIDES", "CLICK_GROWTH_POST_OVERRIDES", "applyGscEditorialPatch"]) {
     assert.ok(blog.includes(symbol), symbol + " must remain wired into blog registration");

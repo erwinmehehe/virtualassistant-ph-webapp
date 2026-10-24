@@ -43,7 +43,7 @@ export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = [
         "href": "https://www.upwork.com/"
       },
       {
-        "label": "Upwork Connects — official application rules",
+        "label": "Upwork Connects: official application rules",
         "href": "https://support.upwork.com/hc/en-us/articles/211062898-Understanding-and-using-Connects"
       },
       {

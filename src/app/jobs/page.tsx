@@ -82,7 +82,11 @@ const jobFaqs = [
 
 function pageHref(params: Record<string, string | undefined>, page: number) {
   const out = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) if (value && key !== "page") out.set(key, value);
+  // Carry only actual filter values into pagination; avoid propagating arbitrary tracking queries.
+  for (const key of ["q", "category", "min_rate", "hours", "sort"]) {
+    const value = params[key];
+    if (value) out.set(key, value);
+  }
   if (page > 1) out.set("page", String(page));
   const query = out.toString();
   return `/jobs${query ? `?${query}` : ""}`;

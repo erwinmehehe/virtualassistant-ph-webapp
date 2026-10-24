@@ -1,0 +1,76 @@
+VIRTUAL ASSISTANT STANDARD OPERATING PROCEDURE (SOP)
+Copy this worksheet into a company-controlled document and replace the prompts.
+Do not place passwords, recovery codes, or unnecessary personal information here.
+
+SOP title:
+Document owner:
+Assistant / backup owner:
+Version:
+Effective date:
+Next review date:
+
+PURPOSE AND RESULT
+Why does this workflow exist?
+What does a complete and correct result look like?
+
+TRIGGER AND COVERAGE
+What starts the task?
+How often does it run?
+What are the working hours and response deadlines?
+
+INPUTS AND SOURCE OF TRUTH
+Which approved records, instructions, and tools should be used?
+Where is the authoritative policy or source document?
+Which permissions are required? Refer to the access owner, not a password.
+
+PROCEDURE
+Step 1:
+Step 2:
+Step 3:
+Step 4:
+Step 5:
+
+QUALITY CHECK BEFORE COMPLETION
+[ ] Information checked against the approved source.
+[ ] Names, dates, recipients, and links verified where relevant.
+[ ] No unapproved promises, payments, or account changes.
+[ ] Completion status and evidence recorded.
+[ ] Any unresolved follow-up has a named owner and due date.
+
+DECISION AND APPROVAL BOUNDARIES
+Assistant may do independently:
+Assistant may draft, but owner must approve:
+Assistant must not do:
+Escalation contact:
+Backup escalation contact:
+Urgent escalation window:
+
+OUTPUT AND HANDOFF
+Where is the result stored?
+Who receives an update?
+What is the required handoff format?
+
+EXCEPTIONS
+Missing source information:
+Conflicting requests:
+Privacy or security concern:
+Tool outage:
+Deadline at risk:
+
+WORKED EXAMPLE
+Sample input (synthetic or redacted):
+Acceptable completed output:
+Example of an issue that must be escalated:
+
+CHANGE LOG
+Date / version / change / approver:
+
+TRIAL AND REVIEW
+Tested by:
+Representative test case:
+Corrections needed:
+Approved by:
+Next review date:
+
+For context, read:
+https://virtualassistant.com.ph/blog/virtual-assistant-sop-template

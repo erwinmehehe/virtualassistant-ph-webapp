@@ -66,3 +66,14 @@ test("jobs landing and existing comparison article link each other with distinct
   assert.match(blog, /"label": "Browse free Virtual Assistant jobs in the Philippines",\s*"href": "\/jobs"/);
   assert.match(index, /BLOG_JOB_SEARCH_GUIDES/);
 });
+
+test("public listing job cards do not prefetch every dynamic detail route", async () => {
+  const [page, jobCard] = await Promise.all([
+    read("src/app/jobs/page.tsx"),
+    read("src/components/job-card.tsx"),
+  ]);
+  assert.match(page, /<JobCard[\s\S]*?prefetch=\{false\}/);
+  assert.match(jobCard, /prefetch = true/);
+  assert.match(jobCard, /<Link href=\{href\} prefetch=\{prefetch\}>/);
+  assert.match(jobCard, /<Link className="btn btn-primary" href=\{href\} prefetch=\{prefetch\}>/);
+});

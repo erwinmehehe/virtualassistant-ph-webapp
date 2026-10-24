@@ -56,8 +56,8 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
   "slug": "get-paid-virtual-assistant-philippines",
   "title": "How to Get Paid as a Virtual Assistant in the Philippines",
-  "metaTitle": "How Filipino VAs Get Paid by International Clients (2026)",
-  "metaDescription": "Compare how Filipino Virtual Assistants get paid by overseas clients via Wise, Payoneer, PayPal or bank transfer, including FX, fees and payment timing.",
+  "metaTitle": "How to Get Paid as a Virtual Assistant in the Philippines",
+  "metaDescription": "Learn how Filipino Virtual Assistants get paid by international clients, including currency, invoices, transfer methods, fees, records, and scam checks.",
   "date": "July 5, 2026",
   "tag": "Rates & Payments",
   "excerpt": "A candidate-focused guide to getting paid by international clients: agree on currency and schedule, invoice clearly, compare transfer fees, keep records, and avoid payment scams.",
@@ -68,7 +68,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
     "Compare payment methods by the amount that actually reaches you in PHP, not by the advertised transfer fee alone.",
     "A legitimate client should not require you to send money, buy gift cards or pay a large “processing fee” before you can receive wages or contractor payments."
   ],
-  "updatedDate": "October 22, 2026"
+  "updatedDate": "October 24, 2026"
 },
   {
   "slug": "hourly-rates-for-filipino-virtual-project-manager",

@@ -9,6 +9,7 @@ import { BLOG_CANDIDATE_PROFILE_GUIDES } from "@/lib/blog-candidate-profile-guid
 import { BLOG_JOB_SEARCH_GUIDES } from "@/lib/blog-job-search-guides";
 import { BLOG_AEO_GUIDES } from "@/lib/blog-aeo-guides";
 import { BLOG_AEO_FOLLOWUP_GUIDES } from "@/lib/blog-aeo-followup-guides";
+import { applyGscEditorialPatch } from "@/lib/blog-gsc-editorial-refreshes";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
@@ -17,6 +18,11 @@ BLOG_POSTS.push(...BLOG_CANDIDATE_PROFILE_GUIDES);
 BLOG_POSTS.push(...BLOG_JOB_SEARCH_GUIDES);
 BLOG_POSTS.push(...BLOG_AEO_GUIDES);
 BLOG_POSTS.push(...BLOG_AEO_FOLLOWUP_GUIDES);
+
+// Preserve canonical URLs and existing editorial content while applying targeted GSC refreshes.
+for (let index = 0; index < BLOG_POSTS.length; index += 1) {
+  BLOG_POSTS[index] = applyGscEditorialPatch(BLOG_POSTS[index]);
+}
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },

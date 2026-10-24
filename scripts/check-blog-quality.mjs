@@ -9,6 +9,7 @@ const demandGuidesPath = path.join(root, 'src/lib/blog-demand-guides.ts');
 const keywordSupportGuidesPath = path.join(root, 'src/lib/blog-keyword-support-guides.ts');
 const candidateGuidesPath = path.join(root, 'src/lib/blog-candidate-profile-guides.ts');
 const jobSearchGuidesPath = path.join(root, 'src/lib/blog-job-search-guides.ts');
+const aeoGuidesPath = path.join(root, 'src/lib/blog-aeo-guides.ts');
 const servicePath = path.join(root, 'src/lib/service-pages.ts');
 const softwarePath = path.join(root, 'src/lib/software-pages.ts');
 const industryPath = path.join(root, 'src/lib/industries.ts');
@@ -24,6 +25,7 @@ function readPosts() {
     ...readPostArray(keywordSupportGuidesPath, 'export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = '),
     ...readPostArray(candidateGuidesPath, 'export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = '),
     ...readPostArray(jobSearchGuidesPath, 'export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = '),
+    ...readPostArray(aeoGuidesPath, 'export const BLOG_AEO_GUIDES: BlogPost[] = '),
   ];
 }
 function readPostArray(file, marker) {
@@ -121,7 +123,8 @@ const knownStatic = new Set([
   '/', '/blog', '/services', '/industries', '/software', '/training', '/hire', '/pricing', '/jobs', '/post-a-job', '/for-virtual-assistants', '/auth/join/va', '/virtual-assistant-companies-philippines', '/managed-vs-direct-hire',
   '/tools/virtual-assistant-cost-calculator', '/tools/hourly-to-monthly-calculator',
   '/tools/virtual-assistant-job-description-generator', '/tools/what-type-of-va-do-i-need',
-  '/research/virtual-assistant-rates-philippines-2026', '/resources/virtual-assistant-job-description'
+  '/research/virtual-assistant-rates-philippines-2026', '/resources/virtual-assistant-job-description',
+  '/downloads/virtual-assistant-kpi-scorecard.csv', '/downloads/virtual-assistant-sop-template.txt', '/downloads/virtual-assistant-paid-trial-rubric.csv'
 ]);
 const banned = [
   'delve into', 'game-changer', 'game changer', 'unlock the potential', 'seamless solution',

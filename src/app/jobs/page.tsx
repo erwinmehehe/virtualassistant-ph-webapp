@@ -270,6 +270,7 @@ export default async function PublicJobsPage({
               {jobs.length ? jobs.map((job) => (
                 <JobCard
                   key={job.id}
+                  prefetch={false}
                   job={job}
                   company={{
                     company_name: job.company_name,

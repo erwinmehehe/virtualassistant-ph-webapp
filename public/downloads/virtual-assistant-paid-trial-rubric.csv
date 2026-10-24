@@ -1,0 +1,8 @@
+Candidate Reference,Role,Task,Criterion,Illustrative Weight (%),Score (0-4),Weighted Score,Example Evidence,Required Follow-up
+,,Sample Work,Accuracy and completeness,35,,,,
+,,Sample Work,Prioritization and judgment,20,,,,
+,,Sample Work,Communication and handoff,20,,,,
+,,Sample Work,Exception handling,15,,,,
+,,Sample Work,Documentation and QA,10,,,,
+Notes,Use the same brief for every candidate,0 means missing evidence and 4 means strong evidence,These weights are illustrative,Do not treat total score as a universal pass mark,Record critical authorization or privacy errors separately,,,
+Notes,Use synthetic or redacted input data,Agree on trial scope and payment before work begins,Follow applicable laws and policies,,,,,

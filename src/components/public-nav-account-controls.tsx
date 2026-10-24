@@ -7,9 +7,9 @@ import { createClient } from "@/lib/supabase/client";
 import { trainingJoinHref, trainingLoginHref } from "@/lib/training-intent";
 
 type Role = "client" | "va" | "recruiter" | "admin";
-type NavIdentity = { signedIn: boolean; role: Role | null };
+type NavIdentity = { userId: string | null; role: Role | null };
 
-const SIGNED_OUT: NavIdentity = { signedIn: false, role: null };
+const SIGNED_OUT: NavIdentity = { userId: null, role: null };
 
 function isRole(value: unknown): value is Role {
   return value === "client" || value === "va" || value === "recruiter" || value === "admin";
@@ -44,6 +44,8 @@ export function PublicNavAccountControls({
     // The callback must stay synchronous; querying Supabase from inside it can
     // deadlock the client's auth state lock. INITIAL_SESSION covers page load.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Clear cached navigation immediately upon sign-out.
+      if (!session) setIdentity(SIGNED_OUT);
       setSessionUserId(session?.user?.id ?? null);
     });
     return () => subscription.unsubscribe();
@@ -51,7 +53,6 @@ export function PublicNavAccountControls({
 
   useEffect(() => {
     let cancelled = false;
-    setIdentity(SIGNED_OUT);
     if (!sessionUserId) return;
 
     async function resolveNavigation() {
@@ -69,7 +70,7 @@ export function PublicNavAccountControls({
 
       if (cancelled || profile?.account_status === "banned") return;
       setIdentity({
-        signedIn: true,
+        userId: user.id,
         role: isRole(profile?.role) ? profile.role : null,
       });
     }
@@ -78,7 +79,9 @@ export function PublicNavAccountControls({
     return () => { cancelled = true; };
   }, [sessionUserId]);
 
-  const { signedIn, role } = identity;
+  // Never show a previous account's actions while the session changes.
+  const signedIn = Boolean(sessionUserId && identity.userId === sessionUserId);
+  const role = signedIn ? identity.role : null;
   const isClient = signedIn && role === "client";
   const isVa = signedIn && role === "va";
   const accountHref = isTrainingContext

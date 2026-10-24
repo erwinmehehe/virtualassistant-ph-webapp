@@ -16,6 +16,26 @@ BLOG_POSTS.push(...BLOG_CANDIDATE_PROFILE_GUIDES);
 BLOG_POSTS.push(...BLOG_JOB_SEARCH_GUIDES);
 BLOG_POSTS.push(...BLOG_AEO_GUIDES);
 
+// SERP-focused copy refinements for GSC-visible legacy guides. The underlying
+// first-party dataset and article sections remain unchanged.
+const CLICK_GROWTH_POST_OVERRIDES: Record<string, Partial<BlogPost>> = {
+  "virtual-assistant-salary-philippines": {
+    "description": "Compare Filipino VA pay in 2026 without mixing employee salary, contractor hourly rates and agency fees. See first-party rate data and sample limitations.",
+    "quickAnswerQuestion": "How much does a Virtual Assistant earn in the Philippines in 2026?",
+    "quickAnswer": "There is no single national Virtual Assistant salary. In a September 22, 2026 platform snapshot, 93 profiles reported positive preferred hourly rates; the median preference was USD $5 per hour. These are self-reported preferences, not accepted pay or employee salary records. Compare employee, contractor, and agency arrangements separately."
+  },
+  "average-hourly-rate-virtual-assistants-philippines": {
+    "description": "See first-party preferred hourly-rate data from 93 Filipino VA profiles in a 2026 snapshot, plus the role and contract factors that shape total hiring costs.",
+    "quickAnswerQuestion": "What do Filipino Virtual Assistants charge per hour in 2026?",
+    "quickAnswer": "Our September 22, 2026 snapshot includes 93 profiles with a positive preferred hourly rate and a median self-reported preference of USD $5 per hour. This is not verified payroll data or a quote for every role. Compare actual tasks, required tools, schedule, employment setup and agency services before making a hiring budget."
+  }
+};
+for (const post of BLOG_POSTS) {
+  const refinement = CLICK_GROWTH_POST_OVERRIDES[post.slug];
+  if (refinement) Object.assign(post, refinement);
+}
+
+
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },
   pricing: { label: "Pricing", description: "Virtual Assistant budgets, hourly and monthly cost planning, marketplace rates, and compensation decisions." },

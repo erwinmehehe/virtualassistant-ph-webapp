@@ -68,11 +68,21 @@ function resourceToBlog(slug: string): BlogPost {
     metaTitle: page.metaTitle,
     description: page.metaDescription,
     excerpt: page.lede,
+    quickAnswerQuestion: slug === "virtual-assistant-cover-letter"
+      ? "What should a Virtual Assistant cover letter include?"
+      : slug === "best-laptop-for-virtual-assistant"
+        ? "Which laptop specifications work for Filipino Virtual Assistants?"
+        : undefined,
+    quickAnswer: slug === "virtual-assistant-cover-letter"
+      ? "Use a short, role-specific letter with one truthful work example, the actual tools you know, your hours and timezone overlap, and a clear next step. Copy the beginner or experienced sample below, replace every placeholder, and attach only portfolio evidence you have permission to share."
+      : slug === "best-laptop-for-virtual-assistant"
+        ? "For most Philippine Virtual Assistants, a Windows 11 laptop with 16 GB RAM, a 512 GB SSD, and a recent mid-range processor is a practical starting point. Check the exact apps your client requires, then compare the 8 GB versus 16 GB and Windows versus Mac tables before buying."
+        : undefined,
     topic,
     clusterLabel: page.clusterLabel,
     intent: "informational",
     publishedAt: "2026-09-22",
-    updatedAt: slug === "best-laptop-for-virtual-assistant" ? "2026-10-04" : "2026-09-22",
+    updatedAt: slug === "best-laptop-for-virtual-assistant" ? "2026-10-04" : slug === "virtual-assistant-cover-letter" ? "2026-10-22" : "2026-09-22",
     author: "VirtualAssistant.com.ph Editorial Team",
     reviewedBy: "VirtualAssistant.com.ph Editorial Team",
     reviewNote: page.reviewNote,

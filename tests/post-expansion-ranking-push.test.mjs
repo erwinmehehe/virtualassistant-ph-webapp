@@ -54,7 +54,7 @@ test("near-page-one archive guides now answer the query earlier", () => {
     assert.ok(start >= 0, `${slug}: missing`);
     const end = archive.indexOf("\n  },", start);
     const block = archive.slice(start, end);
-    const expectedDate = "September 23, 2026";
+    const expectedDate = slug === "get-paid-virtual-assistant-philippines" ? "October 24, 2026" : "September 23, 2026";
     assert.ok(block.includes(`"updatedDate": "${expectedDate}"`), `${slug}: updated date not refreshed`);
   }
 });

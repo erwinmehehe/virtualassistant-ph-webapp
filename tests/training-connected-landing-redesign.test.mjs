@@ -22,7 +22,8 @@ test("public training uses the primary site navigation and exposes Training glob
   assert.match(header, /mode="training"/);
 
   assert.match(nav, /<Link href="\/training">Training<\/Link>/);
-  assert.match(nav, /<Link href="\/training">Free VA Training<\/Link>/);
+  const accountControls = await readFile("src/components/public-nav-account-controls.tsx", "utf8");
+  assert.match(accountControls, /<Link href="\/training">Free VA Training<\/Link>/);
   assert.match(nav, /actionContext === "training"/);
   assert.match(nav, /Training login/);
   assert.match(nav, /Start free training/);

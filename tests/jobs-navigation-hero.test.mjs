@@ -3,12 +3,13 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const nav = readFileSync("src/components/site-nav.tsx", "utf8");
+const accountControls = readFileSync("src/components/public-nav-account-controls.tsx", "utf8");
 const page = readFileSync("src/app/jobs/page.tsx", "utf8");
 const css = readFileSync("src/app/jobs/jobs-marketplace.css", "utf8");
 
 test("Jobs is directly discoverable in both site navs on desktop and mobile", () => {
   assert.match(nav, /<nav className="nav-links" aria-label="Primary navigation">[\s\S]*?<Link className="va-nav-jobs-link" href="\/jobs">Jobs<\/Link>/);
-  assert.match(nav, /<nav className="va-mobile-panel" aria-label="Mobile navigation">[\s\S]*?<Link className="va-mobile-jobs-link" href="\/jobs">Jobs<\/Link>/);
+  assert.match(accountControls, /<nav className="va-mobile-panel" aria-label="Mobile navigation">[\s\S]*?<Link className="va-mobile-jobs-link" href="\/jobs">Jobs<\/Link>/);
   assert.match(nav, /<Link href="\/jobs" className="training-nav-jobs">Jobs<\/Link>/);
   assert.match(nav, /<Link href="\/jobs">Browse VA jobs<\/Link>/);
   assert.doesNotMatch(nav, /<Link href="\/jobs">Browse Virtual Assistant jobs<\/Link>/);

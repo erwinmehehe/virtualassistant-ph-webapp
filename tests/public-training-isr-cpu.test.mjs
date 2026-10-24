@@ -25,7 +25,8 @@ test("training navigation stays visually connected without shared-response perso
     source("src/components/site-nav.tsx"),
   ]);
   assert.match(header, /<SiteNav actionContext="training" \/>/);
-  assert.match(nav, /isTrainingContext[\s\S]*?\? \{ user: null, profile: null \}[\s\S]*?: await getSessionProfile\(\)/);
+  assert.match(nav, /<PublicNavAccountControls isTrainingContext=\{isTrainingContext\} \/>/);
+  assert.doesNotMatch(nav, /getSessionProfile\(|cookies\(/);
   assert.match(nav, /href="\/training"/);
   assert.match(nav, /Start free training/);
 });
@@ -45,12 +46,13 @@ test("public training and OG bypass cookie refresh but keep canonical redirects"
   const middleware = await source("middleware.ts");
   assert.match(middleware, /const hasLegacyHost =/);
   assert.match(middleware, /NextResponse\.redirect\(canonicalUrl, 308\)/);
-  assert.match(middleware, /request\.nextUrl\.pathname === "\/training"/);
-  assert.match(middleware, /request\.nextUrl\.pathname === "\/api\/og"/);
-  const publicFastPath = middleware.indexOf('request.nextUrl.pathname === "/training"');
-  const sessionRefresh = middleware.indexOf('const supabase = createServerClient(');
-  assert.ok(publicFastPath > middleware.indexOf("NextResponse.redirect(canonicalUrl, 308)"));
-  assert.ok(publicFastPath < sessionRefresh);
+  // Public pages no longer enter protected-route middleware.
+  assert.match(middleware, /matcher: \["\/workspace\/:path\*", "\/auth\/:path\*"\]/);
+  // Legacy public-route checks may remain in middleware source, but the
+  // Next.js matcher prevents public URLs from invoking that function at all.
+  const matcher = middleware.match(/matcher:\s*\[([^\]]+)\]/)?.[1];
+  assert.ok(matcher, "Middleware matcher must be explicit");
+  assert.doesNotMatch(matcher, /\/training|\/api\/og/);
   assert.match(middleware, /await supabase\.auth\.getClaims\(\)/);
 });
 

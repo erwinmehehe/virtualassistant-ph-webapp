@@ -69,9 +69,10 @@ test("vetted application still notifies the job poster", async () => {
 
 
 test("public header is software-first and role-aware", async () => {
-  const [nav, header] = await Promise.all([
+  const [nav, header, account] = await Promise.all([
     read("src/components/site-nav.tsx"),
     read("src/components/site-header.tsx"),
+    read("src/components/public-nav-account-controls.tsx"),
   ]);
 
   const primaryStart = nav.indexOf('<nav className="nav-links" aria-label="Primary navigation">');
@@ -81,12 +82,13 @@ test("public header is software-first and role-aware", async () => {
   assert.doesNotMatch(primary, /href="\/how-vetting-works">How it works/);
   assert.doesNotMatch(primary, /href="\/pricing">Pricing/);
 
-  assert.match(nav, /getSessionProfile/);
-  assert.match(nav, /profile\?\.role === "client"/);
-  assert.match(nav, /href="\/workspace\/client\/jobs\/new">Post a job/);
-  assert.match(nav, /profile\?\.role === "va"/);
-  assert.match(nav, /href="\/jobs">Browse VA jobs/);
-  assert.match(nav, /href=\{workspaceHref\}>My workspace/);
+  assert.doesNotMatch(nav, /getSessionProfile/);
+  assert.match(nav, /PublicNavAccountControls/);
+  assert.match(account, /role === "client"/);
+  assert.match(account, /"\/workspace\/client\/jobs\/new"/);
+  assert.match(account, /role === "va"/);
+  assert.match(account, /"Browse VA jobs"/);
+  assert.match(account, /"My workspace"/);
   assert.match(nav, /href="\/software">Software/);
   assert.match(header, /export async function SiteHeader/);
 });

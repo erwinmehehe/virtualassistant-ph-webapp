@@ -10,6 +10,7 @@ const keywordSupportGuidesPath = path.join(root, 'src/lib/blog-keyword-support-g
 const candidateGuidesPath = path.join(root, 'src/lib/blog-candidate-profile-guides.ts');
 const jobSearchGuidesPath = path.join(root, 'src/lib/blog-job-search-guides.ts');
 const aeoGuidesPath = path.join(root, 'src/lib/blog-aeo-guides.ts');
+const aeoFollowupGuidesPath = path.join(root, 'src/lib/blog-aeo-followup-guides.ts');
 const servicePath = path.join(root, 'src/lib/service-pages.ts');
 const softwarePath = path.join(root, 'src/lib/software-pages.ts');
 const industryPath = path.join(root, 'src/lib/industries.ts');
@@ -26,6 +27,7 @@ function readPosts() {
     ...readPostArray(candidateGuidesPath, 'export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = '),
     ...readPostArray(jobSearchGuidesPath, 'export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = '),
     ...readPostArray(aeoGuidesPath, 'export const BLOG_AEO_GUIDES: BlogPost[] = '),
+    ...readPostArray(aeoFollowupGuidesPath, 'export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = '),
   ];
 }
 function readPostArray(file, marker) {
@@ -124,7 +126,8 @@ const knownStatic = new Set([
   '/tools/virtual-assistant-cost-calculator', '/tools/hourly-to-monthly-calculator',
   '/tools/virtual-assistant-job-description-generator', '/tools/what-type-of-va-do-i-need',
   '/research/virtual-assistant-rates-philippines-2026', '/resources/virtual-assistant-job-description',
-  '/downloads/virtual-assistant-kpi-scorecard.csv', '/downloads/virtual-assistant-sop-template.txt', '/downloads/virtual-assistant-paid-trial-rubric.csv'
+  '/downloads/virtual-assistant-kpi-scorecard.csv', '/downloads/virtual-assistant-sop-template.txt', '/downloads/virtual-assistant-paid-trial-rubric.csv',
+  '/downloads/virtual-assistant-offboarding-checklist.csv', '/downloads/first-virtual-assistant-task-audit.csv'
 ]);
 const banned = [
   'delve into', 'game-changer', 'game changer', 'unlock the potential', 'seamless solution',

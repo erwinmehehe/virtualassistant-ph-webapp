@@ -76,7 +76,7 @@ export const GSC_EDITORIAL_PATCHES: GscEditorialPatch[] = [
         "paragraphs": [
           "SSS explains that an employer reports covered employees, while individuals entering genuine self-employment register under the self-employed member category. It also lists employer reporting and contribution responsibilities. These rules should be checked against the facts before anyone decides which instructions apply to a particular Filipino VA.",
           "Employers should not assume that paying through Wise, a bank transfer, a freelance marketplace or an agency makes the relationship legally independent. Workers should not assume that having an SSS number by itself settles contributions or status. The correct process may require professional review of how the engagement operates in practice.",
-          "Read the <a href=\"https://www.sss.gov.ph/become-an-sss-member\">official SSS membership guidance</a>, the <a href=\"https://www.sss.gov.ph/employer-er\">employer duties page</a>, and the <a href=\"https://www.sss.gov.ph/self-employed\">self-employed guidance</a>, then verify updated program rules with the relevant agencies. The VAPH <a href=\"/blog/filipino-va-contractor-vs-employee\">worker classification guide</a> provides additional background but does not replace legal advice."
+          "Read the official SSS membership guidance, the employer duties page, and the self-employed guidance, then verify updated program rules with the relevant agencies. The VAPH worker classification guide provides additional background but does not replace legal advice."
         ]
       }
     ],

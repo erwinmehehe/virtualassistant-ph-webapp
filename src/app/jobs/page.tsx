@@ -97,7 +97,7 @@ export default async function PublicJobsPage({
   const filters = parsePublicJobFilters(params);
   const { q, category, minRate, hours, sort, page: requestedPage } = filters;
   const floorPromise = getPublicJobFilterFloor();
-  let jobs: Record<string, unknown>[] = [];
+  let jobs: any[] = []; // Public view fields are rendered by the existing JobCard contract.
   let total = 0;
 
   try {

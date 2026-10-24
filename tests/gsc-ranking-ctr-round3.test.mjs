@@ -72,7 +72,7 @@ test("near-page-one archive guides now include decision modules and current revi
   for (const [slug, marker] of checks) {
     const post = posts.find((item) => item.slug === slug);
     assert.ok(post, `${slug}: missing`);
-    assert.equal(post.updatedDate, slug === "get-paid-virtual-assistant-philippines" ? "October 24, 2026" : "September 23, 2026");
+    assert.equal(post.updatedDate, "October 24, 2026");
     assert.match(post.html, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
   const comparison = posts.find((item) => item.slug.startsWith("general-virtual-assistant-vs-executive"));

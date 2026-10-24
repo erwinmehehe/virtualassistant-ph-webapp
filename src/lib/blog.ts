@@ -8,6 +8,8 @@ import { BLOG_KEYWORD_SUPPORT_GUIDES } from "@/lib/blog-keyword-support-guides";
 import { BLOG_CANDIDATE_PROFILE_GUIDES } from "@/lib/blog-candidate-profile-guides";
 import { BLOG_JOB_SEARCH_GUIDES } from "@/lib/blog-job-search-guides";
 import { BLOG_AEO_GUIDES } from "@/lib/blog-aeo-guides";
+import { BLOG_AEO_FOLLOWUP_GUIDES } from "@/lib/blog-aeo-followup-guides";
+import { applyGscEditorialPatch } from "@/lib/blog-gsc-editorial-refreshes";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
@@ -15,6 +17,7 @@ export const BLOG_POSTS: BlogPost[] = [...RAW_BLOG_POSTS, ...EDITORIAL_SEO_POSTS
 BLOG_POSTS.push(...BLOG_CANDIDATE_PROFILE_GUIDES);
 BLOG_POSTS.push(...BLOG_JOB_SEARCH_GUIDES);
 BLOG_POSTS.push(...BLOG_AEO_GUIDES);
+BLOG_POSTS.push(...BLOG_AEO_FOLLOWUP_GUIDES);
 
 // SERP-focused copy refinements for GSC-visible legacy guides. The underlying
 // first-party dataset and article sections remain unchanged.
@@ -25,16 +28,17 @@ const CLICK_GROWTH_POST_OVERRIDES: Record<string, Partial<BlogPost>> = {
     "quickAnswer": "There is no single national Virtual Assistant salary. In a September 22, 2026 platform snapshot, 93 profiles reported positive preferred hourly rates; the median preference was USD $5 per hour. These are self-reported preferences, not accepted pay or employee salary records. Compare employee, contractor, and agency arrangements separately."
   },
   "average-hourly-rate-virtual-assistants-philippines": {
-    "description": "See first-party preferred hourly-rate data from 93 Filipino VA profiles in a 2026 snapshot, plus the role and contract factors that shape total hiring costs.",
     "quickAnswerQuestion": "What do Filipino Virtual Assistants charge per hour in 2026?",
     "quickAnswer": "Our September 22, 2026 snapshot includes 93 profiles with a positive preferred hourly rate and a median self-reported preference of USD $5 per hour. This is not verified payroll data or a quote for every role. Compare actual tasks, required tools, schedule, employment setup and agency services before making a hiring budget."
   }
 };
-for (const post of BLOG_POSTS) {
-  const refinement = CLICK_GROWTH_POST_OVERRIDES[post.slug];
-  if (refinement) Object.assign(post, refinement);
-}
 
+// Preserve canonical URLs and existing editorial content while applying targeted GSC refreshes.
+for (let index = 0; index < BLOG_POSTS.length; index += 1) {
+  BLOG_POSTS[index] = applyGscEditorialPatch(BLOG_POSTS[index]);
+  const refinement = CLICK_GROWTH_POST_OVERRIDES[BLOG_POSTS[index].slug];
+  if (refinement) Object.assign(BLOG_POSTS[index], refinement);
+}
 
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },

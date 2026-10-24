@@ -115,15 +115,13 @@ test("priority retained guides can optimize SERP metadata without changing their
     assert.ok(post, `${slug}: missing`);
     assert.ok(post.metaTitle && post.metaTitle.length >= 45 && post.metaTitle.length <= 60, `${slug}: invalid meta title`);
     assert.ok(post.metaDescription && post.metaDescription.length >= 140 && post.metaDescription.length <= 160, `${slug}: invalid meta description`);
-    const expectedDate = slug === "get-paid-virtual-assistant-philippines"
-      ? "October 24, 2026"
-      : [
+    const expectedDate = [
       "get-paid-virtual-assistant-philippines",
       "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
       "how-to-pay-a-filipino-virtual-assistant-directly",
       "hourly-rates-for-filipino-virtual-project-manager"
     ].includes(slug)
-      ? "September 23, 2026"
+      ? "October 24, 2026"
       : "September 20, 2026";
     assert.equal(post.updatedDate, expectedDate);
   }

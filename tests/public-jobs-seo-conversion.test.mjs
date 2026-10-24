@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = readFileSync("src/app/jobs/page.tsx", "utf8");
+const publicJobs = readFileSync("src/lib/public-job-directory.ts", "utf8");
 const css = readFileSync("src/app/jobs/jobs-marketplace.css", "utf8");
 const postJobPage = readFileSync("src/app/workspace/client/jobs/new/page.tsx", "utf8");
 const jobSearchGuides = readFileSync("src/lib/blog-job-search-guides.ts", "utf8");
@@ -12,7 +13,7 @@ const joinForm = readFileSync("src/components/join-account-form.tsx", "utf8");
 const jobDraftSuggestions = readFileSync("src/lib/job-draft-suggestions.ts", "utf8");
 
 test("jobs landing provides distinct employer posting and candidate browsing paths", () => {
-  assert.match(page, /title: \{ absolute: "Virtual Assistant Jobs Philippines" \}/);
+  assert.match(page, /title: \{ absolute: "Virtual Assistant Jobs Philippines \| Free VA Jobs" \}/);
   assert.match(page, /<h1 id="jobs-market-title">Virtual Assistant Jobs Philippines<\/h1>/);
   assert.match(page, /Remote VA opportunities in the Philippines/);
   assert.match(page, /Browse open jobs/);
@@ -107,8 +108,8 @@ test("job draft suggestions only emit matcher-supported VAPH categories", () => 
 
 test("public marketplace never exposes jobs below the product rate floor", () => {
   const detail = readFileSync("src/app/jobs/[id]/page.tsx", "utf8");
-  assert.match(page, /MIN_HOURLY_RATE/);
-  assert.match(page, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
+  assert.match(publicJobs, /MIN_HOURLY_RATE/);
+  assert.match(publicJobs, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
   assert.match(detail, /MIN_HOURLY_RATE/);
   assert.match(detail, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
 });

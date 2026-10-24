@@ -13,7 +13,7 @@ test("payment article H1 matches its concise existing SEO title without changing
   assert.match(entry[0], /"title": "How to Get Paid as a Virtual Assistant in the Philippines"/);
   assert.match(entry[0], /"metaTitle": "How to Get Paid as a Virtual Assistant in the Philippines"/);
   assert.doesNotMatch(entry[0], /"title": "[^"]*by International Clients"/);
-  assert.match(entry[0], /"metaDescription": "Learn how Filipino VAs receive international payments/);
+  assert.match(entry[0], /"metaDescription": "Learn how Filipino Virtual Assistants get paid by international clients/);
 });
 
 test("new and archived article templates use one semantic H1 and a long-title class", () => {

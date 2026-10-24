@@ -20,7 +20,7 @@ test("merged payment article keeps named provider guidance and safe bank-instruc
   const archive = source("src/lib/archive-posts.ts");
   const marker = "export const ARCHIVE_POSTS: ArchivePost[] = ";
   const start = archive.indexOf("[", archive.indexOf(marker) + marker.length);
-  const end = archive.indexOf("];", start);
+  const end = archive.lastIndexOf("];");
   const posts = JSON.parse(archive.slice(start, end + 1));
   const paid = posts.find((post) => post.slug === "get-paid-virtual-assistant-philippines");
   assert.ok(paid);

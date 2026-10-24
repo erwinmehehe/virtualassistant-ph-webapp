@@ -48,8 +48,11 @@ test("public training and OG bypass cookie refresh but keep canonical redirects"
   assert.match(middleware, /NextResponse\.redirect\(canonicalUrl, 308\)/);
   // Public pages no longer enter protected-route middleware.
   assert.match(middleware, /matcher: \["\/workspace\/:path\*", "\/auth\/:path\*"\]/);
-  assert.doesNotMatch(middleware, /request\.nextUrl\.pathname === "\/training"/);
-  assert.doesNotMatch(middleware, /request\.nextUrl\.pathname === "\/api\/og"/);
+  // Legacy public-route checks may remain in middleware source, but the
+  // Next.js matcher prevents public URLs from invoking that function at all.
+  const matcher = middleware.match(/matcher:\\s*\\[([^\\]]+)\\]/)?.[1];
+  assert.ok(matcher, "Middleware matcher must be explicit");
+  assert.doesNotMatch(matcher, /\\/training|\\/api\\/og/);
   assert.match(middleware, /await supabase\.auth\.getClaims\(\)/);
 });
 

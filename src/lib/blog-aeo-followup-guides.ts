@@ -507,6 +507,11 @@ export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = [
         "description": "Browse first-hire planning, screening and interview advice."
       },
       {
+        "label": "Download a two-week task audit",
+        "href": "/downloads/first-virtual-assistant-task-audit.csv",
+        "description": "Track repeatable work and build a realistic first hiring brief."
+      },
+      {
         "label": "Virtual assistant tasks you can delegate",
         "href": "/blog/virtual-assistant-tasks",
         "description": "Identify connected recurring workflows."
@@ -1061,10 +1066,6 @@ export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = [
       {
         "label": "Philippine Supreme Court G.R. No. 257821 (2024)",
         "href": "https://lawphil.net/judjuris/juri2024/aug2024/gr_257821_2024.html"
-      },
-      {
-        "label": "Philippine Supreme Court G.R. No. 264439 (2024)",
-        "href": "https://lawphil.net/judjuris/juri2024/feb2024/pdf/gr_264439_2024.pdf"
       }
     ],
     "keyTakeaways": [

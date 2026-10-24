@@ -16,6 +16,26 @@ test("payment article H1 matches its concise existing SEO title without changing
   assert.match(entry[0], /"metaDescription": "Learn how Filipino Virtual Assistants get paid by international clients/);
 });
 
+test("merged payment article keeps named provider guidance and safe bank-instruction verification", () => {
+  const archive = source("src/lib/archive-posts.ts");
+  const marker = "export const ARCHIVE_POSTS: ArchivePost[] = ";
+  const start = archive.indexOf("[", archive.indexOf(marker) + marker.length);
+  const end = archive.indexOf("];", start);
+  const posts = JSON.parse(archive.slice(start, end + 1));
+  const paid = posts.find((post) => post.slug === "get-paid-virtual-assistant-philippines");
+  assert.ok(paid);
+  assert.equal(paid.updatedDate, "October 24, 2026");
+  assert.match(paid.html, /Wise, Payoneer, PayPal, or bank transfer: which payment method fits\?/);
+  assert.match(paid.html, /How do you verify payment instructions without exposing your accounts\?/);
+  assert.match(paid.html, /USD 500/);
+  assert.match(paid.html, /https:\/\/wise\.com\/help/);
+  assert.match(paid.html, /https:\/\/www\.payoneer\.com\//);
+  const blog = source("src/lib/blog.ts");
+  for (const symbol of ["BLOG_AEO_GUIDES", "BLOG_AEO_FOLLOWUP_GUIDES", "CLICK_GROWTH_POST_OVERRIDES", "applyGscEditorialPatch"]) {
+    assert.ok(blog.includes(symbol), symbol + " must remain wired into blog registration");
+  }
+});
+
 test("new and archived article templates use one semantic H1 and a long-title class", () => {
   for (const path of ["src/components/blog-article.tsx", "src/components/archive-article.tsx"]) {
     const template = source(path);

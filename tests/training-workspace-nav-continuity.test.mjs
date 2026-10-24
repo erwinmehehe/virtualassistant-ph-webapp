@@ -22,7 +22,7 @@ test("training navigation exposes learning, course browsing, certificates, accou
   const shell = await readFile(shellPath, "utf8");
 
   assert.match(shell, /href="\/workspace\/training" aria-current="page"/);
-  assert.match(shell, /\/workspace\/training\?browse=1#course-library-title/);
+  assert.match(shell, /\/workspace\/training\?browse=personal#course-library-title/);
   assert.match(shell, /\/workspace\/training#certificates/);
   assert.match(shell, /const accountHref = "\/workspace\/training\/account"/);
   assert.match(shell, /href=\{accountHref\}/);

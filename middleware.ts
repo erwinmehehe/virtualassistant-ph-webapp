@@ -76,6 +76,8 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+// Keep routing compute off public, cached pages. Account/session refresh happens
+// only where it is required; canonical WWW redirects are deployed via vercel.json.
 export const config = {
-  matcher: ["/((?!api/analytics|api/errors|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"]
+  matcher: ["/workspace/:path*", "/auth/:path*"],
 };

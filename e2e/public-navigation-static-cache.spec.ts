@@ -28,9 +28,9 @@ test("verified signed-in client sees the correct public-page account actions", a
 
   await page.goto("/");
   const navigation = page.locator(".site-header .nav-actions");
-  await expect(navigation.locator("> a.va-nav-account-login")).toHaveText("My workspace");
-  await expect(navigation.locator("> a.header-hire-cta")).toHaveText("Post a job");
-  await expect(navigation.locator("> a.va-nav-account-login")).toHaveAttribute("href", "/workspace/client");
+  await expect(navigation.locator(":scope > a.va-nav-account-login")).toHaveText("My workspace");
+  await expect(navigation.locator(":scope > a.header-hire-cta")).toHaveText("Post a job");
+  await expect(navigation.locator(":scope > a.va-nav-account-login")).toHaveAttribute("href", "/workspace/client");
 
   await page.goto("/training");
   // This public page remains cacheable and never serializes session info into its HTML.

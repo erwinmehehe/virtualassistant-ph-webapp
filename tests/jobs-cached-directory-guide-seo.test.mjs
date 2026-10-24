@@ -56,7 +56,7 @@ test("jobs landing and existing comparison article link each other with distinct
   ]);
   assert.match(page, /Virtual Assistant Jobs Philippines \| Free VA Jobs/);
   assert.match(page, /<h1 id="jobs-market-title">Virtual Assistant Jobs Philippines<\/h1>/);
-  assert.match(page, /<Link href="\/blog\/free-virtual-assistant-job-websites-philippines">Read our guide to free VA job websites<\/Link>/);
+  assert.match(page, /<Link className="text-link" href="\/blog\/free-virtual-assistant-job-websites-philippines">Read our guide to free VA job websites<\/Link>/);
   assert.match(page, /canonicalPath\("\/jobs"\)/);
   assert.match(page, /"@type": "CollectionPage"/);
   assert.match(blog, /"slug": "free-virtual-assistant-job-websites-philippines"/);

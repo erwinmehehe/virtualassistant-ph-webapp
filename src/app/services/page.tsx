@@ -10,7 +10,10 @@ import { getPublicTalentProof } from "@/lib/public-talent-proof";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
-import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createPublicClient } from "@/lib/supabase/public";
+
+export const revalidate = 300;
 
 const SERVICES_META_TITLE = "Virtual Assistant Services Philippines | VA Roles";
 const SERVICES_META_DESCRIPTION = "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.";
@@ -43,16 +46,34 @@ const SERVICE_CATEGORIES: { id: string; label: string; description: string; grou
   { id: "hospitality", label: "Hospitality", description: "Guest messaging, reservations, calendar monitoring, vendor coordination, and property operations support.", groups: ["Hospitality"] }
 ];
 
-async function liveAvailability() {
-  const counts = new Map<string, number>();
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase.from("public_va_directory").select("user_id,primary_category,categories").limit(500);
+const cachedServiceAvailability = unstable_cache(
+  async () => {
+    const supabase = createPublicClient();
+    if (!supabase) return [] as [string, number][];
+    const { data, error } = await supabase
+      .from("public_va_directory")
+      .select("user_id,primary_category,categories")
+      .limit(500);
+    if (error) throw new Error("Public service availability is temporarily unavailable");
+    const counts = new Map<string, number>();
     for (const va of data || []) {
-      for (const category of new Set([va.primary_category, ...(va.categories || [])].filter(Boolean))) counts.set(String(category), (counts.get(String(category)) || 0) + 1);
+      for (const category of new Set([va.primary_category, ...(va.categories || [])].filter(Boolean))) {
+        counts.set(String(category), (counts.get(String(category)) || 0) + 1);
+      }
     }
-  } catch { /* the directory remains usable when live data is unavailable */ }
-  return counts;
+    // Next cache serializes values, so return JSON-safe entries instead of Map.
+    return [...counts.entries()];
+  },
+  ["public-services-availability-v1"],
+  { revalidate: 300, tags: ["public-va-directory"] },
+);
+
+async function liveAvailability() {
+  try {
+    return new Map<string, number>(await cachedServiceAvailability());
+  } catch {
+    return new Map<string, number>();
+  }
 }
 
 export default async function ServicesPage() {

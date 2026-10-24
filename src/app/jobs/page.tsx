@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     "Browse free virtual assistant jobs in the Philippines. Filter published remote roles by pay, hours, and skills. Create a free VA profile and apply when eligible.",
   alternates: { canonical: canonicalPath("/jobs") },
   ...socialMetadata({
-    title: "Virtual Assistant Jobs Philippines",
+    title: "Virtual Assistant Jobs Philippines | Free VA Jobs",
     description:
-      "Browse published Virtual Assistant opportunities, or post a role for recruiter review with clear pay, hours, and requirements.",
+      "Browse free remote VA job listings for Filipinos. Compare published roles by pay, skills, schedule, and timezone before you apply.",
     path: canonicalPath("/jobs"),
     category: "jobs",
     eyebrow: "Remote VA jobs and hiring requests",
@@ -320,7 +320,7 @@ export default async function PublicJobsPage({
             <p>Training courses and certificates are free and optional. Training completion is not a requirement to apply, and does not guarantee a job.</p>
             <p className="jobs-jobsite-guide">
               Comparing free Virtual Assistant job websites in the Philippines?{" "}
-              <Link href="/blog/free-virtual-assistant-job-websites-philippines">Read our guide to free VA job websites</Link>{" "}
+              <Link className="text-link" href="/blog/free-virtual-assistant-job-websites-philippines">Read our guide to free VA job websites</Link>{" "}
               for a clear comparison of job boards, application costs, and common warning signs before you apply.
             </p>
             <div className="jobs-candidate-guide-actions">

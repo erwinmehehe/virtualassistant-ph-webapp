@@ -31,8 +31,9 @@ test("training public header stays learner-focused while using the primary site 
   assert.match(siteNav, /Training login/);
   assert.match(siteNav, /Start free training/);
   assert.match(siteNav, /<Link className="va-nav-jobs-link" href="\/jobs">Jobs<\/Link>/);
-  assert.match(siteNav, /<Link className="va-mobile-jobs-link" href="\/jobs">Jobs<\/Link>/);
-  assert.match(siteNav, /!isTrainingContext && !user \? \([\s\S]*href="\/auth\/join\/va"/);
+  const accountControls = await readFile("src/components/public-nav-account-controls.tsx", "utf8");
+  assert.match(accountControls, /<Link className="va-mobile-jobs-link" href="\/jobs">Jobs<\/Link>/);
+  assert.match(accountControls, /!isTrainingContext && !signedIn \? \([\s\S]*href="\/auth\/join\/va"/);
   assert.match(page, /export const dynamic = "force-static"/);
   assert.match(page, /export const revalidate = 300/);
   assert.doesNotMatch(page, /getSessionProfile\(/);

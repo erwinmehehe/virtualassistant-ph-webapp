@@ -38,7 +38,7 @@ test("custom Web Vitals are disabled while public conversions remain tracked", a
 test("public accessibility defaults include keyboard focus and reduced motion", async () => {
   const [styles, nav, cta, avatar] = await Promise.all([
     read("src/app/public-foundation.css"),
-    read("src/components/site-nav.tsx"),
+    read("src/components/public-nav-account-controls.tsx"),
     read("src/components/floating-cta.tsx"),
     read("src/components/public-avatar.tsx"),
   ]);

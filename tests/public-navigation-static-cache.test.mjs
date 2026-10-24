@@ -20,7 +20,7 @@ test("public site header no longer calls Supabase or reads cookies while renderi
   assert.match(account, /auth\.getUser\(\)/);
   assert.match(account, /\.from\("profiles"\)/);
   assert.match(account, /\.select\("role,account_status"\)/);
-  assert.doesNotMatch(account, /service_role|createAdminClient|raw_user_meta_data/);
+  assert.doesNotMatch(account.replaceAll(/\/\*[\s\S]*?\*\//g, ""), /service_role|createAdminClient|raw_user_meta_data/);
 });
 
 test("public nav preserves recruiter, admin, client, VA, and training links", async () => {

@@ -792,5 +792,294 @@ export const BLOG_AEO_GUIDES: BlogPost[] = [
         "description": "Share tasks, availability, and expectations when hiring."
       }
     ]
+  },
+  {
+    "slug": "virtual-assistant-sop-template",
+    "title": "Virtual Assistant SOP Template: Steps, Examples and Checklist",
+    "metaTitle": "Virtual Assistant SOP Template: Examples & Checklist",
+    "description": "Document repeatable work with a virtual assistant SOP template, approval rules, a worked inbox example, quality checks and a reusable worksheet.",
+    "quickAnswerQuestion": "What should a virtual assistant SOP include?",
+    "quickAnswer": "A virtual assistant standard operating procedure should name the task owner, trigger, required inputs, step-by-step actions, quality checks, exceptions, escalation contact, and completed output. Include the tools and permission level needed, plus a version and review date. Start with one recurring workflow, test the instructions with a real example, and revise gaps before handing over more tasks.",
+    "excerpt": "A copy-ready VA SOP structure with an example inbox workflow, security boundaries, version control, and a downloadable checklist.",
+    "topic": "managing",
+    "clusterLabel": "Virtual Assistant SOPs",
+    "intent": "informational",
+    "publishedAt": "2026-10-24",
+    "updatedAt": "2026-10-24",
+    "author": "VirtualAssistant.com.ph Editorial Team",
+    "reviewedBy": "VirtualAssistant.com.ph Editorial Team",
+    "reviewNote": "Examples are illustrative and must be adapted to each organization's data permissions, contractual duties, and approval policies before use.",
+    "sources": [
+      {
+        "label": "NIST: Access limits, MFA and removal when roles change",
+        "href": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/multi-factor-authentication"
+      },
+      {
+        "label": "CISA: Require multifactor authentication for business systems",
+        "href": "https://www.cisa.gov/audiences/small-and-medium-businesses/secure-your-business/require-multifactor-authentication"
+      }
+    ],
+    "keyTakeaways": [
+      "A useful SOP describes inputs, acceptable output, decisions, and exceptions rather than listing only clicks.",
+      "Begin with one workflow and a finished example before asking a virtual assistant to own a broad department process.",
+      "Document what the assistant may do independently and when an authorized person must approve or intervene.",
+      "Keep SOPs current through versioning, a named owner, sample-based QA, and an explicit handoff to the next person."
+    ],
+    "sections": [
+      {
+        "heading": "An SOP turns a recurring task into a repeatable handoff",
+        "questionHeading": "What is a virtual assistant SOP?",
+        "paragraphs": [
+          "A standard operating procedure is a working document that explains how to complete an assigned process consistently. For a virtual assistant, it should answer three questions: what triggers the task, what finished work looks like, and what happens when the instructions do not cover the situation. Screenshots may help, but a folder of screenshots without decision rules is not a dependable handoff.",
+          "Consider the instruction 'manage the inbox.' Two people could reasonably interpret that as archiving promotions, responding to clients, rescheduling meetings, or approving billing exceptions. An SOP narrows the scope. It explains which messages the assistant handles, which approved templates can be used, the response window, what must be escalated, and where the final status is recorded.",
+          "The goal is not to remove judgment entirely. It is to make ordinary work predictable while directing uncertain or high-impact decisions to the right person. A good SOP reduces repeated questions without encouraging an assistant to guess."
+        ]
+      },
+      {
+        "heading": "The essential fields in a one-page virtual assistant SOP",
+        "questionHeading": "What sections should an SOP template contain?",
+        "paragraphs": [
+          "An effective SOP can be concise, provided that it contains the information needed for the work. Use the same basic format for every workflow so new assistants and reviewers know where to find the instructions. Keep the current approved version in a shared location rather than sending multiple conflicting copies.",
+          "The following fields work for administrative, customer support, executive, research, and marketing operations. More regulated workflows may need additional compliance, approval, retention, or audit requirements."
+        ],
+        "table": {
+          "headers": [
+            "SOP field",
+            "What to record"
+          ],
+          "rows": [
+            [
+              "Purpose and result",
+              "Why this work exists and what a finished outcome means"
+            ],
+            [
+              "Owner and backup",
+              "Who performs it, who reviews it, and who covers absences"
+            ],
+            [
+              "Trigger and frequency",
+              "When to begin and any agreed service window"
+            ],
+            [
+              "Inputs and access",
+              "Required systems, documents, and minimum permissions"
+            ],
+            [
+              "Steps and evidence",
+              "Action sequence with source checks and status notes"
+            ],
+            [
+              "Quality checks",
+              "What must be verified before marking complete"
+            ],
+            [
+              "Exceptions and approval",
+              "Stop conditions, escalation contact, and response rule"
+            ],
+            [
+              "Output and handoff",
+              "Where to save the result and who is notified"
+            ],
+            [
+              "Version and review date",
+              "Document owner, latest change, and next review"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "Worked example: triage and respond to shared inbox requests",
+        "questionHeading": "What does a finished virtual assistant SOP look like?",
+        "paragraphs": [
+          "This hypothetical SOP covers routine questions sent to a business support inbox. The assistant uses a company-controlled mailbox, approved reply templates, and a ticket log. The task starts when a new message enters the support queue during the agreed coverage window. The expected result is an accurate reply or an appropriately escalated ticket, not simply a closed email.",
+          "The assistant first checks the sender and existing thread, then identifies the topic, urgency, and whether a response is permitted under the supplied policy. For standard appointment questions, the assistant can send an approved response after confirming the relevant calendar availability. For payment disputes, personal-information requests, or threats, the assistant does not improvise a commitment; the case goes to a named owner.",
+          "Before marking the ticket complete, the assistant verifies the recipient, template accuracy, attachments, and recorded status. Any unresolved request is left open with the next action and review owner visible. This example uses fictional circumstances and should be adapted to the business's actual service policies."
+        ],
+        "numbered": [
+          "Open the company-controlled queue at the agreed start of coverage.",
+          "Read the full thread and cross-check the approved account or booking record.",
+          "Assign category, urgency, and expected response deadline in the ticket log.",
+          "Draft a permitted response from the approved knowledge base; do not promise unapproved outcomes.",
+          "Escalate refunds, privacy matters, threats, unclear authority, or conflicting information.",
+          "Check names, dates, links, recipient, and next-step ownership before sending.",
+          "Record the sent reply or escalation, evidence source, and follow-up deadline."
+        ]
+      },
+      {
+        "heading": "Make the decision boundaries visible",
+        "questionHeading": "How do you describe what a virtual assistant may approve?",
+        "paragraphs": [
+          "Most SOP failures occur where the work stops being routine. A customer may ask for an exception, a data source may contradict another record, or a manager may be unavailable. If the document only says 'use your best judgment,' the assistant lacks the authority and context to resolve the issue safely.",
+          "Add three explicit lanes: actions the assistant may complete independently, actions they may draft but must submit for approval, and actions reserved for the business owner or a qualified professional. Write an escalation response time and backup contact so an urgent exception is not abandoned in someone's private chat.",
+          "For example, an assistant may update a confirmed appointment, draft a discretionary refund message for a manager to approve, and never authorize payment or disclose private records. These boundaries should match actual system permissions so the SOP does not grant authority that the software access model fails to enforce."
+        ]
+      },
+      {
+        "heading": "A step-by-step method to write your first three SOPs",
+        "questionHeading": "How do I create SOPs for a new virtual assistant?",
+        "numbered": [
+          "List recurring tasks and choose one that happens often enough to observe but is not the highest-risk process in the business.",
+          "Record a qualified employee completing a representative task, including what they check and when they ask for approval.",
+          "Write the trigger, inputs, output, permission level, exact steps, and examples of acceptable results.",
+          "Add exceptions deliberately: missing source data, deadline conflicts, duplicate requests, complaints, and system outages.",
+          "Let another person follow the SOP using a test case while the owner observes without coaching.",
+          "Fix unclear decisions, outdated links, hidden assumptions, and steps that cannot be verified.",
+          "Approve a version, train the assistant with a worked example, then review output after the first week."
+        ],
+        "paragraphs": [
+          "Choose the next SOP based on the work that consumes the most repeat explanation, not on which document looks impressive. Typical starting candidates are inbox triage, CRM updates, scheduling coordination, recurring report assembly, and content publishing checks.",
+          "A quick screen recording can complement the written steps when software navigation is complex, but write down the decision rules. Interfaces change; acceptance criteria and approval boundaries are the parts future assistants need to understand."
+        ]
+      },
+      {
+        "heading": "Useful examples for several virtual assistant roles",
+        "questionHeading": "Which recurring VA tasks are worth documenting first?",
+        "paragraphs": [
+          "Create role-specific SOPs rather than copying one long generic procedure into every job. Each SOP should have a different trigger, source of truth, and completion standard. Managers can reuse the common format while writing original instructions for the actual work."
+        ],
+        "table": {
+          "headers": [
+            "Role",
+            "First SOP to document",
+            "Key control"
+          ],
+          "rows": [
+            [
+              "Executive assistant",
+              "Meeting briefing preparation",
+              "Confirm attendees, latest agenda, and confidential distribution"
+            ],
+            [
+              "Sales or CRM assistant",
+              "New inbound lead qualification",
+              "Define required fields and owner-approved qualification rules"
+            ],
+            [
+              "Customer support assistant",
+              "Ticket classification and escalation",
+              "Respect policy approvals and record unresolved requests"
+            ],
+            [
+              "Ecommerce assistant",
+              "Order exception monitoring",
+              "Verify order source before status changes"
+            ],
+            [
+              "SEO or content assistant",
+              "Content update and publishing QA",
+              "Check source claims, links, metadata, and approval"
+            ],
+            [
+              "Bookkeeping support",
+              "Invoice intake and coding preparation",
+              "Separate preparation from final payment and accounting approval"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "Keep access instructions safe and role-specific",
+        "questionHeading": "Should passwords and sensitive details go inside an SOP?",
+        "paragraphs": [
+          "Do not embed passwords, recovery codes, personal data dumps, or unrestricted administrator credentials in the SOP itself. Instead, refer to the approved account owner, access request process, and permission level required for the task. Grant accounts through company-controlled tools and use multifactor authentication where available.",
+          "Use the smallest set of permissions needed. An inbox assistant may be able to tag or draft messages without acquiring access to payroll records or full organization settings. Review access when the SOP scope changes and remove permissions promptly when a person leaves the project.",
+          "NIST and CISA describe least-privilege access and strong authentication as important safeguards for business systems. These are operational controls, not substitutes for a company-specific security and privacy assessment."
+        ]
+      },
+      {
+        "heading": "Review the SOP as part of the regular quality process",
+        "questionHeading": "How often should virtual assistant SOPs be updated?",
+        "paragraphs": [
+          "Review an SOP after a meaningful tool change, a policy update, a recurring error, or a new exception that the existing instructions do not cover. For stable routine work, schedule a periodic owner review rather than changing the document after every individual preference. Record what changed and why.",
+          "Store an owner, version number, effective date, and short change log at the top. When replacing a step, retire outdated attachments and broken screenshots. Teach the new rule using an example, then check whether the next few completed tasks follow it.",
+          "Pair each SOP with a small scorecard: is the output accurate, complete, on time, and properly documented? If a metric repeatedly declines, inspect the procedure and workload before assuming the assistant needs more effort. The SOP and the performance review should inform each other."
+        ]
+      },
+      {
+        "heading": "Use the SOP template to prepare a stronger hiring brief",
+        "questionHeading": "How does documenting work help you hire a virtual assistant?",
+        "paragraphs": [
+          "A candidate can evaluate a role more accurately when the business has a few well-defined workflows rather than a vague request to help with everything. Share a redacted sample during screening, ask the candidate how they would handle an exception, and use a paid trial that reflects the document's acceptance criteria.",
+          "After hiring, start with one SOP, review completed work, and expand responsibilities as the assistant demonstrates reliable handling of ordinary cases and escalations. Keeping the material clear also helps a backup assistant cover absences without relying on private memory.",
+          "VAPH's hiring process can start with your task list, required software, schedule, and approval boundaries. The accompanying downloadable SOP worksheet provides a structure for turning those details into a repeatable operational handoff."
+        ]
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What does SOP stand for in virtual assistant work?",
+        "answer": "SOP means standard operating procedure. It is a documented method for completing a recurring task with defined inputs, steps, quality checks, decision limits, and a handoff or completion record."
+      },
+      {
+        "question": "How detailed should a virtual assistant SOP be?",
+        "answer": "Detailed enough that a trained person can follow it without guessing about approvals, data sources, or completion standards. Keep routine steps concise, then include examples and exception rules where mistakes would matter."
+      },
+      {
+        "question": "Can I use one SOP template for different VA roles?",
+        "answer": "Yes, reuse the document structure for the owner, trigger, steps, checks, and escalation. Write different instructions and acceptance criteria for administrative, sales, ecommerce, marketing, and bookkeeping tasks."
+      },
+      {
+        "question": "Should an SOP include screenshots or a video?",
+        "answer": "Screenshots and short recordings can explain navigation, but they should supplement rather than replace written decisions and quality standards. Check them after a tool redesign so the guide does not direct an assistant to outdated controls."
+      },
+      {
+        "question": "Where should I store SOPs for a remote virtual assistant?",
+        "answer": "Use a company-controlled shared knowledge base or document system with permissions, a current approved version, and a named owner. Avoid keeping the only copy in a private chat thread or a departing contractor's personal account."
+      },
+      {
+        "question": "Can AI write SOPs for a virtual assistant?",
+        "answer": "AI can help turn approved notes into a first draft, but the workflow owner must confirm each step, permission, source, and exception. Do not expose confidential material to unapproved tools, and test the instructions with real examples before using them."
+      },
+      {
+        "question": "Who should approve a new virtual assistant SOP?",
+        "answer": "The person accountable for the workflow should approve it, with additional review from IT, compliance, finance, or a qualified professional when the work affects their systems or regulated responsibilities."
+      },
+      {
+        "question": "How do I know when an SOP is working?",
+        "answer": "Ask a trained person to complete a representative task using the SOP, then check output accuracy, escalation behavior, rework, and the completeness of the handoff. Revise missing details based on observed exceptions, not just page length."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "VA management guides",
+        "href": "/blog/topic/managing",
+        "description": "Read related delegation and onboarding resources."
+      },
+      {
+        "label": "Download SOP worksheet",
+        "href": "/downloads/virtual-assistant-sop-template.txt",
+        "description": "Copy a fill-in template for your next recurring workflow."
+      },
+      {
+        "label": "30-day onboarding checklist",
+        "href": "/blog/virtual-assistant-onboarding-checklist",
+        "description": "Introduce the process in manageable stages."
+      },
+      {
+        "label": "Virtual assistant KPI scorecard",
+        "href": "/blog/virtual-assistant-kpi-scorecard",
+        "description": "Measure whether the documented workflow performs well."
+      },
+      {
+        "label": "Paid VA trial assessment",
+        "href": "/blog/virtual-assistant-paid-trial-tasks",
+        "description": "Test actual skills against the process before hiring."
+      },
+      {
+        "label": "Virtual assistant task examples",
+        "href": "/blog/virtual-assistant-tasks",
+        "description": "Choose the first duties worth documenting."
+      },
+      {
+        "label": "Virtual assistant interview questions",
+        "href": "/blog/virtual-assistant-interview-questions",
+        "description": "Use exception scenarios to evaluate judgment."
+      },
+      {
+        "label": "Create a role brief",
+        "href": "/hire",
+        "description": "Translate documented responsibilities into a hiring request."
+      }
+    ]
   }
 ];

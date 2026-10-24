@@ -538,7 +538,7 @@ export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = [
       },
       {
         "label": "Small-business VA services",
-        "href": "/service/small-business-virtual-assistant",
+        "href": "/services",
         "description": "Review role-specific responsibilities and tools."
       },
       {
@@ -781,7 +781,7 @@ export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = [
       },
       {
         "label": "Virtual assistant hiring costs",
-        "href": "/how-much-virtual-assistant-philippines",
+        "href": "/pricing",
         "description": "Evaluate the real scope and budget of a role."
       },
       {

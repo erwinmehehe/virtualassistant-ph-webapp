@@ -4,7 +4,7 @@ import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { trainingJoinHref, trainingLoginHref } from "@/lib/training-intent";
 import { TrainingSectionObserver } from "@/components/training-section-observer";
-import { getSessionProfile } from "@/lib/auth";
+import { PublicNavAccountControls } from "@/components/public-nav-account-controls";
 
 const serviceGroups = Array.from(
   SERVICE_PAGES.reduce((groups, page) => {
@@ -16,8 +16,6 @@ const serviceGroups = Array.from(
 ).sort((a, b) => b[1].length - a[1].length).slice(0, 6);
 
 const industryLinks = INDUSTRIES.slice(0, 8);
-
-const ACCOUNT_LOGIN = "/auth/login";
 
 function CallCard({ title, body }: { title: string; body: string }) {
   return (
@@ -125,7 +123,7 @@ function TrainingNav({
   );
 }
 
-export async function SiteNav({
+export function SiteNav({
   mode = "default",
   trainingCourseSlug,
   trainingCurrent = "landing",
@@ -141,18 +139,6 @@ export async function SiteNav({
   }
 
   const isTrainingContext = actionContext === "training";
-  const trainingContextLoginHref = trainingLoginHref();
-  const trainingContextJoinHref = trainingJoinHref();
-  // The public training page must not personalize the shared ISR response.
-  // Keep the same primary navigation and use neutral account CTAs instead.
-  const { user, profile } = isTrainingContext
-    ? { user: null, profile: null }
-    : await getSessionProfile();
-  const workspaceHref = profile?.role === "client" ? "/workspace/client"
-    : profile?.role === "va" ? "/workspace/va"
-    : profile?.role === "recruiter" ? "/workspace/recruiter/today"
-    : profile?.role === "admin" ? "/workspace/admin/today"
-    : "/workspace";
 
   return (
     <header className="site-header va-site-nav">
@@ -200,75 +186,7 @@ export async function SiteNav({
         </nav>
 
         <div className="nav-actions">
-          {isTrainingContext ? (
-            <Link className="va-nav-account-login" href={user ? "/workspace/training" : trainingContextLoginHref} data-track="training_login_click">
-              {user ? "My learning" : "Training login"}
-            </Link>
-          ) : user ? (
-            <Link className="va-nav-account-login" href={workspaceHref}>My workspace</Link>
-          ) : (
-            <Link className="va-nav-account-login" href={ACCOUNT_LOGIN}>Log in</Link>
-          )}
-
-          {isTrainingContext ? (
-            <Link
-              className="btn btn-primary desktop-hire-cta training-header-cta"
-              href={user ? "/workspace/training" : trainingContextJoinHref}
-              data-track="training_account_click"
-              data-cta-position="header"
-            >
-              {user ? "Continue training" : "Start free training"} <ArrowRight size={14} aria-hidden="true"/>
-            </Link>
-          ) : profile?.role === "client" ? (
-            <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/workspace/client/jobs/new">Post a job</Link>
-          ) : profile?.role === "va" ? (
-            <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/jobs">Browse VA jobs</Link>
-          ) : (
-            <Link className="btn btn-primary desktop-hire-cta header-hire-cta" href="/hire" data-track="header_hire_virtual_assistant">Hire a Virtual Assistant</Link>
-          )}
-
-          <details className="va-mobile-drawer">
-            <summary className="btn" aria-label="Navigation menu"><Menu size={18} aria-hidden="true" /><span>Menu</span></summary>
-            <nav className="va-mobile-panel" aria-label="Mobile navigation">
-              {isTrainingContext ? (
-                <Link
-                  className="mobile-menu-primary"
-                  href={user ? "/workspace/training" : trainingContextJoinHref}
-                  data-track="training_account_click"
-                  data-cta-position="mobile_menu"
-                >
-                  {user ? "Continue training" : "Start free training"}
-                </Link>
-              ) : profile?.role === "client" ? (
-                <Link className="mobile-menu-primary" href="/workspace/client/jobs/new">Post a job</Link>
-              ) : profile?.role === "va" ? (
-                <Link className="mobile-menu-primary" href="/jobs">Browse VA jobs</Link>
-              ) : (
-                <Link className="mobile-menu-primary" href="/hire">Hire a Virtual Assistant</Link>
-              )}
-              <Link href="/find-talent">Find a VA</Link>
-              <Link href="/services">Services</Link>
-              <Link href="/industries">Industries</Link>
-              <Link href="/software">Software</Link>
-              <Link className="va-mobile-jobs-link" href="/jobs">Jobs</Link>
-              <span className="va-mobile-panel-label">Virtual Assistants</span>
-              <Link href="/training">Free VA Training</Link>
-              <Link href="/for-virtual-assistants">For Virtual Assistants</Link>
-              {!isTrainingContext && !user ? (
-                <Link href="/auth/join/va">Apply as a Virtual Assistant</Link>
-              ) : null}
-              <span className="va-mobile-panel-label">Account</span>
-              {isTrainingContext ? (
-                <Link href={user ? "/workspace/training" : trainingContextLoginHref} data-track="training_login_click">
-                  {user ? "My learning" : "Training login"}
-                </Link>
-              ) : user ? (
-                <Link href={workspaceHref}>My workspace</Link>
-              ) : (
-                <Link href={ACCOUNT_LOGIN}>Log in</Link>
-              )}
-            </nav>
-          </details>
+          <PublicNavAccountControls isTrainingContext={isTrainingContext} />
         </div>
       </div>
     </header>

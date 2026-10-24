@@ -8,8 +8,11 @@ async function source(path) {
 
 test("public navigation uses one role-aware account login", async () => {
   const nav = await source("src/components/site-nav.tsx");
-  assert.match(nav, /const ACCOUNT_LOGIN = "\/auth\/login"/);
-  assert.match(nav, /className="va-nav-account-login" href=\{ACCOUNT_LOGIN\}>Log in/);
+  const account = await source("src/components/public-nav-account-controls.tsx");
+  assert.doesNotMatch(nav, /getSessionProfile/);
+  assert.match(nav, /PublicNavAccountControls/);
+  assert.match(account, /className="va-nav-account-login"/);
+  assert.match(account, /"Log in"/);
   assert.doesNotMatch(nav, /CLIENT_LOGIN|VA_LOGIN/);
   assert.doesNotMatch(nav, /Client Portal|VA log in/);
 });

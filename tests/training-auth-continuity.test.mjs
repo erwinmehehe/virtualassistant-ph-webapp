@@ -108,10 +108,12 @@ test("public cached training offers neutral CTAs and signed-in learners skip sig
   assert.match(page, /trainingJoinHref\(course\.slug\)/);
   assert.match(page, /Go to learner dashboard/);
 
-  // The primary training navigation is anonymous-only on this public page.
-  assert.match(nav, /isTrainingContext[\s\S]*?\? \{ user: null, profile: null \}[\s\S]*?: await getSessionProfile\(\)/);
-  assert.match(nav, /href=\{user \? "\/workspace\/training" : trainingContextLoginHref\}/);
-  assert.match(nav, /user \? "Continue training" : "Start free training"/);
+  // Shared public HTML remains neutral; authenticated navigation hydrates client-side.
+  const accountControls = await read("src/components/public-nav-account-controls.tsx");
+  assert.match(nav, /PublicNavAccountControls/);
+  assert.doesNotMatch(nav, /getSessionProfile/);
+  assert.match(accountControls, /"My learning"/);
+  assert.match(accountControls, /"Continue training"/);
 
   // Existing signed-in learners are redirected to their requested published
   // course; unauthenticated visitors still see the normal signup form.

@@ -57,7 +57,9 @@ test("commercial service updates keep metadata within SERP length budget", () =>
   for (const slug of ["it-virtual-assistant", "operations", "dental-virtual-assistant"]) {
     const p = pages.find((page) => page.slug === slug);
     assert.ok(p, slug + " missing");
-    assert.ok(p.metaTitle.length >= 40 && p.metaTitle.length <= 60, slug + " title length");
+    assert.ok(p.metaTitle.length >= 30 && p.metaTitle.length <= 60, slug + " title length");
+    assert.match(p.metaTitle, /Philippines$/, slug + " title must preserve its canonical phrase");
+    assert.equal(p.metaTitle.includes("|"), false, slug + " title must remain pure");
     assert.ok(p.metaDescription.length >= 140 && p.metaDescription.length <= 160, slug + " description length");
     assert.ok(p.outcomes.length >= 3);
     assert.match(p.intro, /Virtual Assistant in the Philippines/i);
@@ -71,4 +73,15 @@ test("salary and hourly-rate quick answers disclose sample limits", () => {
   assert.match(text, /average-hourly-rate-virtual-assistants-philippines/);
   assert.match(text, /not accepted pay or employee salary records/);
   assert.match(text, /not verified payroll data/);
+});
+
+test("payment revisions preserve the original query owner and editorial audit date", () => {
+  const posts = parseLiteralArray("src/lib/archive-posts.ts", "export const ARCHIVE_POSTS: ArchivePost[] = ");
+  const paid = posts.find((post) => post.slug === "get-paid-virtual-assistant-philippines");
+  assert.ok(paid);
+  assert.equal(paid.metaTitle, "How to Get Paid as a Virtual Assistant in the Philippines");
+  assert.equal(paid.updatedDate, "October 24, 2026");
+  const decisions = JSON.parse(source("data/archive-editorial-decisions.json"));
+  assert.equal(decisions.items.find((item) => item.slug === paid.slug).completedAt, "2026-10-24");
+  assert.match(source("src/lib/blog.ts"), /BLOG_POSTS.push\(\.\.\.BLOG_AEO_GUIDES\)/);
 });

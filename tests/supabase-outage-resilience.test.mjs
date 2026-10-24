@@ -76,7 +76,7 @@ test("outage deadlines cover public, admin, session, middleware and fail-closed 
   }
 
   assert.match(middleware, /createBoundedSupabaseFetch\(4_000\)/);
-  assert.match(middleware, /api\/analytics\|api\/errors/);
+  assert.match(middleware, /matcher: \["\/workspace\/:path\*", "\/auth\/:path\*"\]/);
   assert.match(middleware, /try \{\s*await supabase\.auth\.getClaims\(\);/);
   assert.match(limiter, /abortSignal\(AbortSignal\.timeout\(logInfrastructureFailure \? 8_000 : 5_000\)\)/);
   assert.match(limiter, /throw new Error\("We could not verify this request safely/);

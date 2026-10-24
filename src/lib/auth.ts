@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOrBootstrapProfile } from "@/lib/profile-bootstrap";
@@ -22,6 +23,14 @@ function roleHome(role: Role) {
 export const getSessionProfile = cache(async function getSessionProfile() {
   return withServerTiming("auth.session", async () => {
     try {
+      // Most visits to public pages have no Supabase session. Avoid creating
+      // an auth client and calling auth.getUser() for each anonymous visitor.
+      const cookieStore = await cookies();
+      const hasSupabaseSession = cookieStore.getAll().some(({ name }) =>
+        name.startsWith("sb-") && name.includes("-auth-token"),
+      );
+      if (!hasSupabaseSession) return { user: null, profile: null };
+
       const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { user: null, profile: null };

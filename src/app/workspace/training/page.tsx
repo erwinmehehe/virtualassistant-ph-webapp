@@ -313,7 +313,7 @@ export default async function TrainingDashboardPage({
 }) {
   const params = await searchParams;
   const filter: FilterKey = isFilterKey(params.filter) ? params.filter : "all";
-  const libraryOpen = params.browse === "1" || Boolean(params.filter && params.filter !== "all");
+  const libraryOpen = params.browse === "personal" || Boolean(params.filter && params.filter !== "all");
   const { userId, profile } = await requireAuthenticatedUserFast("/workspace/training");
   const { courses, learnerProfile, learnerPreferences, savedCourseIds, error } = await getTrainingDashboard(userId);
   const { data: { user: learnerAccount } } = await (await createClient()).auth.getUser();

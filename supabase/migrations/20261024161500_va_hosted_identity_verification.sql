@@ -10,6 +10,8 @@ create table if not exists public.va_identity_checks (
   consent_version text not null,
   consented_at timestamptz not null,
   last_started_at timestamptz not null default now(),
+  attempt_day date not null default current_date,
+  attempt_count integer not null default 0 check (attempt_count between 0 and 5),
   last_event_id uuid,
   last_provider_created_at bigint not null default 0,
   verified_at timestamptz,

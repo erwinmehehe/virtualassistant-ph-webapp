@@ -1,0 +1,8 @@
+Role,Metric,Definition,Numerator,Denominator,Observed Rate (%),Agreed Target,Review Period,Evidence Source,Exceptions,Review Owner,Next Action
+Administrative,On-time completion,Tasks completed by agreed deadline / tasks due,,,,,Week 1,Project board,,,
+Administrative,Rework rate,Completed tasks returned for correction / tasks reviewed,,,,,Week 1,QA sample,,,
+Customer Support,Response-window compliance,Replies within agreed window / replies requiring coverage,,,,,Week 1,Ticketing system,,,
+Customer Support,Appropriate escalations,Cases correctly escalated / cases requiring escalation,,,,,Week 1,Reviewed case sample,,,
+Lead Generation,CRM record accuracy,Correct verified records / records reviewed,,,,,Week 1,CRM audit sample,,,
+Executive,Briefing completeness,Complete accurate briefings / briefings reviewed,,,,,Week 1,Meeting preparation log,,,
+Any role,Documentation coverage,Recurring workflows with current SOP / recurring workflows owned,,,,,Month 1,SOP register,,,

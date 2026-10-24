@@ -10,6 +10,15 @@ function normalizeRequestHost(value: string | null) {
   return value?.split(",")[0]?.trim().replace(/:\d+$/, "").toLowerCase() ?? null;
 }
 
+// Public course discovery is separate from the authenticated learner workspace.
+function publicTrainingBrowseRedirect(request: NextRequest) {
+  const destination = request.nextUrl.clone();
+  destination.pathname = "/training";
+  destination.search = "";
+  destination.hash = "course-library";
+  return NextResponse.redirect(destination, 307);
+}
+
 export async function middleware(request: NextRequest) {
   const forwardedHost = normalizeRequestHost(request.headers.get("x-forwarded-host"));
   const host = normalizeRequestHost(request.headers.get("host"));
@@ -33,6 +42,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(canonicalUrl, 308);
   }
 
+  const isPublicBrowseRequest = request.nextUrl.pathname === "/workspace/training" &&
+    request.nextUrl.searchParams.get("browse") === "1";
+
   let response = NextResponse.next({ request });
 
   // These responses are public and intentionally identical for every user.
@@ -49,7 +61,10 @@ export async function middleware(request: NextRequest) {
   const hasSupabaseSession = request.cookies.getAll().some(({ name }) =>
     name.startsWith("sb-") && name.includes("-auth-token")
   );
-  if (!hasSupabaseSession) return response;
+  if (!hasSupabaseSession) {
+    if (isPublicBrowseRequest) return publicTrainingBrowseRedirect(request);
+    return response;
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -67,12 +82,16 @@ export async function middleware(request: NextRequest) {
       }
     }
   );
+  let sessionVerified = false;
   try {
-    await supabase.auth.getClaims();
+    const { data, error } = await supabase.auth.getClaims();
+    sessionVerified = !error && Boolean(data?.claims?.sub);
   } catch {
     // This is only a session refresh. Server-side route guards still enforce
     // authentication and authorization; do not trust this fallback for access.
   }
+  // Stale cookies should not force a visitor to log in merely to browse courses.
+  if (isPublicBrowseRequest && !sessionVerified) return publicTrainingBrowseRedirect(request);
   return response;
 }
 

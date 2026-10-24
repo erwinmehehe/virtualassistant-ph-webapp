@@ -25,8 +25,8 @@ test("training navigation stays visually connected without shared-response perso
     source("src/components/site-nav.tsx"),
   ]);
   assert.match(header, /<SiteNav actionContext="training" \/>/);
-  assert.match(nav, /<PublicNavAccountControls isTrainingContext=\\{isTrainingContext\\} \\/>/);
-  assert.doesNotMatch(nav, /getSessionProfile\\(|cookies\\(/);
+  assert.match(nav, /<PublicNavAccountControls isTrainingContext=\{isTrainingContext\} \/>/);
+  assert.doesNotMatch(nav, /getSessionProfile\(|cookies\(/);
   assert.match(nav, /href="\/training"/);
   assert.match(nav, /Start free training/);
 });

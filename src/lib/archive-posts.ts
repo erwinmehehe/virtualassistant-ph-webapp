@@ -39,7 +39,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "general-virtual-assistant-vs-executive-virtual-assistant-which-should-you-hire-in-the-philippines",
     "title": "General Virtual Assistant vs. Executive Virtual Assistant: Which Should You Hire in the Philippines?",
-    "metaTitle": "General vs Executive VA: Which Should You Hire?",
+    "metaTitle": "General vs Executive Virtual Assistant: Roles Compared",
     "metaDescription": "Compare general and executive virtual assistant duties, judgment, confidentiality and leadership support, then use a paid work sample to decide who to hire.",
     "date": "July 12, 2026",
     "tag": "Hiring Guide",
@@ -56,7 +56,7 @@ export const ARCHIVE_POSTS: ArchivePost[] = [
   {
     "slug": "get-paid-virtual-assistant-philippines",
     "title": "How to Get Paid as a Virtual Assistant in the Philippines",
-    "metaTitle": "How Filipino Virtual Assistants Get Paid: Fees & Safety",
+    "metaTitle": "How to Get Paid as a Virtual Assistant in the Philippines",
     "metaDescription": "Learn how Filipino VAs receive international payments, compare currencies and fees, verify bank details and avoid suspicious recruiter or payment requests.",
     "date": "July 5, 2026",
     "tag": "Rates & Payments",

@@ -35,6 +35,13 @@ export async function middleware(request: NextRequest) {
 
   let response = NextResponse.next({ request });
 
+  // These responses are public and intentionally identical for every user.
+  // Preserve the canonical-host redirect above, but do not refresh sessions
+  // merely to serve cached training content or public social images.
+  if (request.nextUrl.pathname === "/training" || request.nextUrl.pathname === "/api/og") {
+    return response;
+  }
+
   // Public visitors and crawlers do not need an auth refresh. Supabase SSR
   // session cookies are named sb-<project-ref>-auth-token (and may be split
   // into numbered chunks), so only create the auth client when one exists.
@@ -69,6 +76,8 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+// Keep routing compute off public, cached pages. Account/session refresh happens
+// only where it is required; canonical WWW redirects are deployed via vercel.json.
 export const config = {
-  matcher: ["/((?!api/analytics|api/errors|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"]
+  matcher: ["/workspace/:path*", "/auth/:path*"],
 };

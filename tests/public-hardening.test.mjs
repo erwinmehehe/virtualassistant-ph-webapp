@@ -31,13 +31,14 @@ test("custom Web Vitals are disabled while public conversions remain tracked", a
   assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
   assert.match(analytics, /send\("form_start"/);
   assert.doesNotMatch(analytics, /send\("form_submit_attempt"/);
-  assert.match(analytics, /send\("page_view"/);
+  assert.match(analytics, /const events: AnalyticsEvent\[\] = \[\{ event: "page_view" \}\]/);
+  assert.match(analytics, /sendMany\(events\)/);
 });
 
 test("public accessibility defaults include keyboard focus and reduced motion", async () => {
   const [styles, nav, cta, avatar] = await Promise.all([
     read("src/app/public-foundation.css"),
-    read("src/components/site-nav.tsx"),
+    read("src/components/public-nav-account-controls.tsx"),
     read("src/components/floating-cta.tsx"),
     read("src/components/public-avatar.tsx"),
   ]);

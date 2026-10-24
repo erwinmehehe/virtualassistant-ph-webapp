@@ -91,7 +91,7 @@ test("retained GSC archive posts expose stronger decision and payment guidance",
   assert.equal(comparison.updatedDate, "September 23, 2026");
   assert.match(comparison.html, /decision table|at a glance/i);
   assert.match(comparison.html, /budget|cost/i);
-  assert.equal(paid.updatedDate, "September 23, 2026");
+  assert.equal(paid.updatedDate, "October 24, 2026");
   assert.match(paid.html, /comparison table/i);
   assert.match(paid.html, /fees|exchange rate/i);
   assert.match(paid.html, /sample-virtual-assistant-contract/);

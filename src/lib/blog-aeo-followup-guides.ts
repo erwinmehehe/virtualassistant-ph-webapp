@@ -20,11 +20,11 @@ export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = [
     "reviewNote": "Offboarding depends on contracts, role permissions, data protection obligations, and local labor law. Use this as an operations template, not advice on termination rights or legally required payments.",
     "sources": [
       {
-        "label": "CISA Cybersecurity Performance Goals checklist: revoking credentials",
-        "href": "https://www.cisa.gov/sites/default/files/publications/CISA_CPG_CHECKLIST_12052022.pdf"
+        "label": "NIST: Small-business MFA and removing access when staff leave",
+        "href": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/multi-factor-authentication"
       },
       {
-        "label": "NIST Small Business Cybersecurity guidance",
+        "label": "NIST: Small business cybersecurity guidance",
         "href": "https://www.nist.gov/itl/smallbusinesscyber"
       }
     ],

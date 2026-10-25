@@ -5,6 +5,15 @@ import ts from "typescript";
 
 const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
 
+function allowedCspSources(config, directive) {
+  const prefix = String.fromCharCode(96) + directive + " ";
+  const sourceLine = config.split("\n").find((line) => line.trimStart().startsWith(prefix));
+  assert.ok(sourceLine, "Missing " + directive + " CSP directive");
+  // Compare complete whitespace-delimited CSP source expressions instead of URL substrings.
+  return new Set(sourceLine.replaceAll(String.fromCharCode(96), "").replace(/[",]/g, "").trim().split(/\s+/));
+}
+
+
 test("GA4 remains installed for public page views and conversions", () => {
   const layout = read("src/app/layout.tsx");
   const config = read("next.config.ts");
@@ -13,9 +22,11 @@ test("GA4 remains installed for public page views and conversions", () => {
   assert.match(layout, /id="ga4-init"/);
   assert.match(layout, /gtag\('config', '\$\{gaId\}'\)/);
   assert.match(layout, /<AttributionTracker\/><Analytics\/>/);
-  assert.ok(config.includes("https://www.googletagmanager.com"));
-  assert.ok(config.includes("https://www.google-analytics.com"));
-  assert.ok(config.includes("https://*.google-analytics.com"));
+  const scriptSources = allowedCspSources(config, "script-src");
+  const connectSources = allowedCspSources(config, "connect-src");
+  assert.ok(scriptSources.has("https://www.googletagmanager.com"));
+  assert.ok(connectSources.has("https://www.google-analytics.com"));
+  assert.ok(connectSources.has("https://*.google-analytics.com"));
 });
 
 test("GA4 events do not trigger Vercel analytics requests or Web Vitals", () => {

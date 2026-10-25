@@ -85,6 +85,9 @@ export const getCachedPublishedTrainingCatalogue = unstable_cache(
 
 export const getCachedPublishedTrainingCourse = unstable_cache(
   async (slug: string) => {
+    // Reject synthetic/high-cardinality slugs before the cache fills from bot
+    // requests. Valid published course slugs are lowercase hyphenated strings.
+    if (slug.length > 120 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return null;
     const admin = createAdminClient();
     const { data: course, error: courseError } = await admin
       .from("training_courses").select(COURSE_FIELDS)

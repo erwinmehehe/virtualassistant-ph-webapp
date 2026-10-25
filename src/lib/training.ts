@@ -428,7 +428,6 @@ export async function getTrainingDashboard(userId: string) {
     country_focus: string | null;
     status: "draft" | "published" | "archived";
   }>;
-  const pathIds = pathRows.map((item) => item.id);
   const pathCourseData = catalogue.pathCourses;
 
   const pathCourses = (pathCourseData || []) as Array<{ path_id: string; course_id: string; position: number }>;

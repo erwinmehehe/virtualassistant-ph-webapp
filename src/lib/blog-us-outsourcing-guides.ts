@@ -255,6 +255,16 @@ export const BLOG_US_OUTSOURCING_GUIDES: BlogPost[] = [
         "label": "Post a job",
         "href": "/post-a-job",
         "description": "Turn a defined work brief into a sourcing request."
+      },
+      {
+        "label": "When startups should outsource",
+        "href": "/blog/when-to-outsource-for-saas-startup",
+        "description": "Use stage-specific triggers before selecting a provider."
+      },
+      {
+        "label": "Prevent remote interview cheating",
+        "href": "/blog/how-to-prevent-cheating-in-remote-interviews-for-outsourced-roles",
+        "description": "Evaluate real candidate ability and identity fairly."
       }
     ]
   },
@@ -461,6 +471,16 @@ export const BLOG_US_OUTSOURCING_GUIDES: BlogPost[] = [
         "label": "Post a defined role",
         "href": "/post-a-job",
         "description": "Start with your actual work scope."
+      },
+      {
+        "label": "Outsourcing partner selection",
+        "href": "/blog/how-us-companies-find-outsourcing-partners",
+        "description": "Assess vendors, pilots, and delivery accountability."
+      },
+      {
+        "label": "When SaaS founders should outsource",
+        "href": "/blog/when-to-outsource-for-saas-startup",
+        "description": "Separate product leadership from delegable work."
       }
     ]
   },
@@ -710,6 +730,16 @@ export const BLOG_US_OUTSOURCING_GUIDES: BlogPost[] = [
         "label": "Post a job brief",
         "href": "/post-a-job",
         "description": "Start with a narrowly defined role."
+      },
+      {
+        "label": "Software development outsourcing",
+        "href": "/blog/why-us-companies-outsource-software-development",
+        "description": "Compare engineering delivery models and ownership."
+      },
+      {
+        "label": "Selecting outsourcing partners",
+        "href": "/blog/how-us-companies-find-outsourcing-partners",
+        "description": "Evaluate provider fit before a longer commitment."
       }
     ]
   },
@@ -970,6 +1000,11 @@ export const BLOG_US_OUTSOURCING_GUIDES: BlogPost[] = [
         "label": "Post a hiring request",
         "href": "/post-a-job",
         "description": "Describe a suitable administrative role."
+      },
+      {
+        "label": "How U.S. companies select outsourcing partners",
+        "href": "/blog/how-us-companies-find-outsourcing-partners",
+        "description": "Review procurement and contract due diligence."
       }
     ]
   },
@@ -1193,6 +1228,11 @@ export const BLOG_US_OUTSOURCING_GUIDES: BlogPost[] = [
         "label": "Submit a role brief",
         "href": "/post-a-job",
         "description": "Describe the job and its required evidence."
+      },
+      {
+        "label": "How to evaluate outsourcing partners",
+        "href": "/blog/how-us-companies-find-outsourcing-partners",
+        "description": "Use shared evidence and a scoped paid pilot."
       }
     ]
   }

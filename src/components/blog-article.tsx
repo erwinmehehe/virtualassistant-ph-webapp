@@ -23,6 +23,7 @@ import { AnswerFirst } from "@/components/answer-first";
 import { articleAnswerQuestion, editorialQuestionHeading, editorialQuickAnswer } from "@/lib/answer-first";
 import { seoPriorityLinksForBlog } from "@/lib/seo-priority-links";
 import { getSoftwarePage } from "@/lib/software-pages";
+import { resolvePrunedSeoHref } from "@/lib/seo-prune";
 
 const CANDIDATE_LEARNING_GUIDES = new Set([
   "how-to-apply-as-a-virtual-assistant",
@@ -308,7 +309,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <span className="blog-toc-eyebrow">In this guide</span>
             <nav>{headings.map((item) => <a href={`#${item.id}`} key={item.id}>{item.label}</a>)}</nav>
             {service ? <Link href={serviceHref} className="blog-toc-service" data-track="blog_service_click">Explore {roleLabel} hiring <ArrowRight size={14}/></Link> : null}
-            {software ? <Link href={`/software/${software.slug}`} className="blog-toc-service" data-track="blog_software_click">Explore {software.software} hiring <ArrowRight size={14}/></Link> : null}
+            {software ? <Link href={resolvePrunedSeoHref(`/software/${software.slug}`)} className="blog-toc-service" data-track="blog_software_click">Explore {software.software} hiring <ArrowRight size={14}/></Link> : null}
           </div>
         </aside>
 

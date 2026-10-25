@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -10,6 +10,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { normalizeTimeZone } from "@/lib/timezones";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
+import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { clientCanSelfPublishJob, isPublishableCompanyName, publicJobReviewSignals, publicationMissingDetails, resolveClientJobSubmitStatus } from "@/lib/job-publication";
 import { assertPublicHiringContentSafe, hiringCircumventionSignals } from "@/lib/hiring-circumvention";
 import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
@@ -43,6 +44,15 @@ export async function createJobAction(formData: FormData) {
   const { user } = await requireRole("client");
   const supabase = await createClient();
   const submitMode = String(formData.get("submit_mode") ?? "submit");
+  // Self-service publishing needs an abuse ceiling now that normal employer
+  // posts no longer wait in a human review queue. Scope to the authenticated
+  // employer, including edits; this does not block by nationality or region.
+  await enforceActionRateLimit(
+    submitMode === "draft" ? "client_job_draft" : "client_job_publish",
+    user.id,
+    submitMode === "draft" ? 40 : 12,
+    60,
+  );
   const minRate = n(formData.get("min_hourly_rate"));
   const overlap = n(formData.get("overlap_hours")) ?? 0;
   const exception = formData.get("live_coverage_exception") === "on";
@@ -83,7 +93,6 @@ export async function createJobAction(formData: FormData) {
     ? "managed_service"
     : "curated_placement";
 
-  const publicationRollout = process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true";
   const contentParts = [
     title, companyName, summary, description, responsibilities, requiredSkills,
     requiredTools, String(formData.get("schedule_notes") ?? ""),
@@ -93,32 +102,20 @@ export async function createJobAction(formData: FormData) {
     ...hiringCircumventionSignals(contentParts),
     ...publicJobReviewSignals(contentParts),
   ];
-  // Under the rollout, suspicious posts are saved for staff review but never
-  // publicly indexed. With the rollout off, preserve the existing strict
-  // submit rejection for contact/payment circumvention.
-  const needsModeration = publicationRollout && submitMode !== "draft" && reviewSignals.length > 0;
+  // Standard submissions publish immediately. Suspicious content remains
+  // private until staff verifies it does not endanger applicants.
+  const needsModeration = submitMode !== "draft" && reviewSignals.length > 0;
   if (submitMode !== "draft" && !needsModeration) {
     assertPublicHiringContentSafe(contentParts);
   }
 
   const admin = createAdminClient();
-  const { data: clientProfile } = await admin
-    .from("client_profiles")
-    .select("can_self_publish_jobs,verified_at")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const canSelfPublish = clientCanSelfPublishJob({ emailVerified: Boolean(user.email_confirmed_at) });
 
-  // Legacy approved publishers are unaffected. All other verified clients
-  // are eligible only when the explicitly default-off rollout switch is set.
-  // Keep commercial and candidate-access approvals separate from publication.
-  const legacyApproved = Boolean(clientProfile?.can_self_publish_jobs && clientProfile?.verified_at) && serviceModel === "curated_placement";
-  const canSelfPublish = clientCanSelfPublishJob({
-    serviceModel,
-    legacyApproved,
-    emailVerified: Boolean(user.email_confirmed_at),
-    verifiedClientRollout: publicationRollout,
-  });
-  if (canSelfPublish && submitMode !== "draft") {
+  if (submitMode !== "draft") {
+    if (!canSelfPublish) {
+      throw new Error("Verify your email address before publishing a job. You can save a draft in the meantime.");
+    }
     const selfPublishMissing = publicationMissingDetails({
       title,
       company_name: companyName,
@@ -242,9 +239,8 @@ export async function createJobAction(formData: FormData) {
     }
   }
 
-  // Notify only when a private brief is first submitted for team review.
-  // Complete and eligible curated-placement roles may already be public;
-  // managed-service roles still enter the staffed review path.
+  // Only content safety holds enter staff review. Public posting no longer
+  // waits on recruiter/company approval or commercial acceptance.
   await recordProductEvent(jobId ? "job_updated" : "job_created", { userId: user.id, path: `/workspace/client/jobs/${savedId}`, metadata: { job_id: savedId, status: savedStatus, submit_mode: submitMode } });
 
   if (savedStatus === "pending" && previousStatus !== "pending") {
@@ -277,12 +273,26 @@ export async function createJobAction(formData: FormData) {
     }
   }
 
-  let publicJobForIndexing: { id: string; slug: string | null } | null = null;
+  let publicJobForIndexing: { id: string; slug: string | null; recruiter_id: string | null } | null = null;
   if (savedStatus === "published") {
-    const { data } = await admin.from("jobs").select("id,slug").eq("id", savedId).maybeSingle();
+    const { data } = await admin.from("jobs").select("id,slug,recruiter_id").eq("id", savedId).maybeSingle();
     publicJobForIndexing = data;
     if (publicJobForIndexing) {
       await notifyGoogleIndexingBestEffort(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`, "URL_UPDATED");
+    }
+    // Public visibility no longer waits for manual approval. Notify the
+    // assigned recruiter to prepare service terms and begin screening instead.
+    if (publicJobForIndexing?.recruiter_id && previousStatus !== "published") {
+      try {
+        await admin.from("notifications").insert({
+          user_id: publicJobForIndexing.recruiter_id,
+          title: "New employer job is live",
+          body: `"${title}" has been published. Prepare service terms and coordinate qualified applicants.`,
+          href: `/workspace/recruiter/roles/${savedId}#overview`,
+        });
+      } catch {
+        // Posting must not depend on a non-critical notification.
+      }
     }
   }
   else if (previousStatus === "published") {
@@ -298,6 +308,8 @@ export async function createJobAction(formData: FormData) {
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter/roles");
+  updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   if (publicJobForIndexing) revalidatePath(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`);
   redirect(`/workspace/client/jobs/${savedId}?saved=1`);
@@ -317,6 +329,8 @@ export async function closeJobAction(formData: FormData) {
   revalidatePath(`/workspace/client/jobs/${id}`);
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
+  updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${job.slug || id}`);
   await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_DELETED");
@@ -393,6 +407,8 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/workspace/client");
+  updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
 }

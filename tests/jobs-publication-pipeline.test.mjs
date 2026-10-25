@@ -61,38 +61,71 @@ test("client claim remains available as a manual account link without pre-shortl
 });
 
 
-test("selected clients can self-publish complete curated-placement jobs only", async () => {
-  const migration = await read("supabase/migrations/20260920090500_client_job_self_publish_permission.sql");
-  const jobs = await read("src/app/actions/jobs.ts");
-  const admin = await read("src/app/actions/admin.ts");
-  const adminJob = await read("src/app/workspace/admin/jobs/[id]/page.tsx");
+test("all email-verified employer roles auto-publish without manual approval", async () => {
+  const [jobs, publication, adminJob] = await Promise.all([
+    read("src/app/actions/jobs.ts"),
+    read("src/lib/job-publication.ts"),
+    read("src/app/workspace/admin/jobs/[id]/page.tsx"),
+  ]);
 
-  assert.match(migration, /can_self_publish_jobs boolean not null default false/);
-  assert.match(jobs, /select\("can_self_publish_jobs,verified_at"\)/);
-  assert.match(jobs, /clientProfile\?\.can_self_publish_jobs && clientProfile\?\.verified_at/);
-  assert.match(jobs, /serviceModel === "curated_placement"/);
-  assert.match(jobs, /status: initialStatus/);
-  assert.match(jobs, /resolveClientJobSubmitStatus/);
-  assert.match(jobs, /published_at: selfPublish \? new Date\(\)\.toISOString\(\) : null/);
+  assert.match(jobs, /emailVerified: Boolean\(user\.email_confirmed_at\)/);
+  assert.match(jobs, /Verify your email address before publishing/);
+  assert.match(jobs, /enforceActionRateLimit\(/);
+  assert.match(jobs, /"client_job_publish"/);
+  assert.match(jobs, /"client_job_draft"/);
+  assert.match(jobs, /const needsModeration = submitMode !== "draft" && reviewSignals\.length > 0/);
   assert.match(jobs, /Complete the public job before publishing/);
-  assert.match(admin, /setClientJobSelfPublishAction/);
-  assert.match(adminJob, /Allow direct publishing/);
-  assert.match(adminJob, /Managed-service roles still require review/);
+  assert.match(jobs, /resolveClientJobSubmitStatus/);
+  assert.match(jobs, /status: initialStatus/);
+  assert.match(jobs, /published_at: selfPublish \? new Date\(\)\.toISOString\(\) : null/);
+  assert.doesNotMatch(jobs, /ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH|select\("can_self_publish_jobs,verified_at"\)/);
+  assert.match(publication, /return emailVerified/);
+  assert.doesNotMatch(adminJob, /Allow direct publishing|setClientJobSelfPublishAction/);
 });
 
-test("approved client publishing UI explains when a job will go live", async () => {
-  const newJob = await read("src/app/workspace/client/jobs/new/page.tsx");
-  const wizard = await read("src/components/job-wizard.tsx");
-  const clientJobs = await read("src/app/workspace/client/jobs/page.tsx");
+test("posting UI explains immediate publication and separate commercial terms", async () => {
+  const [newJob, wizard, clientJobs, guest, edit] = await Promise.all([
+    read("src/app/workspace/client/jobs/new/page.tsx"),
+    read("src/components/job-wizard.tsx"),
+    read("src/app/workspace/client/jobs/page.tsx"),
+    read("src/app/post-a-job/page.tsx"),
+    read("src/app/workspace/client/jobs/[id]/edit/page.tsx"),
+  ]);
 
-  assert.match(newJob, /can_self_publish_jobs/);
-  assert.match(newJob, /Tell us who you need/);
-  assert.match(wizard, /canSelfPublishJobs/);
+  assert.match(newJob, /emailVerified: Boolean\(user\.email_confirmed_at\)/);
+  assert.match(newJob, /Complete your role details and publish immediately/);
+  assert.match(newJob, /Recruiting and commercial terms are separate/);
   assert.match(wizard, /Publish job/);
   assert.match(wizard, /public Virtual Assistant jobs directory immediately/);
-  assert.match(clientJobs, /Direct publishing is enabled for your account/);
+  assert.doesNotMatch(wizard, /canSelfPublishJobs && data\.service_model === "curated_placement"/);
+  assert.match(guest, /publish automatically/i);
+  assert.match(clientJobs, /Verified client accounts can publish complete job posts automatically/);
+  assert.doesNotMatch(clientJobs, /supabase\.auth\.getUser\(\)|can_self_publish_jobs/);
+  assert.match(edit, /canSelfPublishJobs=\{Boolean\(user\.email_confirmed_at\)\}/);
 });
 
+test("public job reads are session-free, cached and invalidated after publication or moderation", async () => {
+  const [detail, jobs, admin] = await Promise.all([
+    read("src/app/jobs/[id]/page.tsx"),
+    read("src/app/actions/jobs.ts"),
+    read("src/app/actions/admin.ts"),
+  ]);
+  assert.match(detail, /const readCachedPublishedJob = unstable_cache\(/);
+  assert.match(detail, /createPublicClient\(\)/);
+  assert.match(detail, /const getPublishedJob = cache\(/);
+  assert.match(detail, /revalidate: 60, tags: \["public-job-details"\]/);
+  assert.match(detail, /\.from\("public_jobs"\)/);
+  assert.match(detail, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
+  assert.doesNotMatch(detail.slice(0, detail.indexOf("function publicCompanyFromJob")), /await createClient\(\)/);
+  assert.match(jobs, /updateTag\("public-job-details"\)/);
+  assert.match(admin, /updateTag\("public-job-details"\)/);
+  assert.match(jobs, /updateTag\("public-jobs"\)/);
+  assert.match(admin, /updateTag\("public-jobs"\)/);
+  assert.match(admin, /publishAfterSafetyClear/);
+  assert.match(admin, /submittedForPublicPosting/);
+  assert.match(admin, /getUserById\(job\.client_id\)/);
+  assert.match(admin, /email_confirmed_at/);
+});
 
 test("all publication write paths use the same required-role validator", async () => {
   const [helper, jobs, admin] = await Promise.all([

@@ -92,7 +92,7 @@ test("high-volume low-intent signals are GA4-only and no longer invoke Supabase"
   assert.match(client, /!GA4_ONLY_EVENTS\.has\(event\)/);
   assert.match(client, /for \(const \{ event, metadata \} of events\) forwardToGa4\(event, metadata\);/);
   assert.match(client, /send\("form_start"/);
-  assert.match(client, /data\.track/);
+  assert.match(client, /clicked\.dataset\.track/);
 
   const allowed = route.split("const fixedEvents = new Set([")[1]?.split("]);")[0] ?? "";
   assert.ok(allowed.length > 0);

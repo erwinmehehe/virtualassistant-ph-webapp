@@ -76,7 +76,7 @@ test("custom Web Vitals reporting stays disabled before database work", async ()
     "Unsupported events must be rejected before DB-backed rate limiting");
 });
 
-test("conversion analytics accepts and reports the complete homepage funnel", async () => {
+test("conversion analytics retains real outcomes while retiring homepage telemetry", async () => {
   const [analytics, route, sales, dashboard, migration] = await Promise.all([
     read("src/components/analytics.tsx"),
     read("src/app/api/analytics/route.ts"),
@@ -85,18 +85,18 @@ test("conversion analytics accepts and reports the complete homepage funnel", as
     read("supabase/migrations/20260912231500_lead_response_sla_and_conversion.sql")
   ]);
 
-  for (const event of ["page_view", "form_start", "booking_click"]) {
-    assert.match(route, new RegExp(`"${event}"`));
+  const allowed = route.split("const fixedEvents = new Set([")[1]?.split("]);")[0] ?? "";
+  for (const event of ["booking_click", "role_brief_submit", "job_apply"]) {
+    assert.ok(allowed.includes('"' + event + '"'), "Keep the conversion " + event);
   }
+  assert.doesNotMatch(allowed, /"page_view"|"form_start"|"login_submit"|"web_vital"/);
   assert.match(analytics, /send\("form_start"/);
   assert.doesNotMatch(analytics, /send\("form_submit_attempt"/);
-  assert.doesNotMatch(route, /"form_submit_attempt"/);
   assert.match(analytics, /send\("booking_click"/);
-  assert.match(sales, /recruiter_conversion_summary/);
-  for (const stage of ["Homepage visits", "Form starts", "Form submissions", "Discovery booked", "Qualified", "Proposal sent", "Clients won"]) {
-    assert.match(sales, new RegExp(stage));
-  }
-  assert.match(dashboard, /Homepage-to-client funnel/);
+  assert.match(sales, /\.from\("lead_intake"\)/);
+  assert.doesNotMatch(sales, /recruiter_conversion_summary|homepageVisits|formStarts/);
+  assert.match(dashboard, /Verified conversion control/);
+  assert.doesNotMatch(dashboard, /Website → client funnel|Homepage-to-client funnel/);
   assert.match(migration, /security definer/);
   assert.match(migration, /grant execute[\s\S]*to service_role/);
 });

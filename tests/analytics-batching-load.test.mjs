@@ -4,16 +4,18 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("related navigation analytics use one request while preserving separate event records", async () => {
+test("navigation only sends meaningful conversion events, never first-party page views", async () => {
   const client = await read("src/components/analytics.tsx");
 
   assert.match(client, /function sendMany\(events: AnalyticsEvent\[\]\)/);
   assert.match(client, /const payload = JSON\.stringify\(entries\.length === 1 \? entries\[0\] : entries\)/);
-  assert.match(client, /const events: AnalyticsEvent\[\] = \[\{ event: "page_view" \}\]/);
+  assert.match(client, /const events: AnalyticsEvent\[\] = \[\]/);
+  assert.doesNotMatch(client, /events\.push\(\{ event: "page_view" \}\)/);
+  assert.match(client, /RETIRED_EVENTS = new Set\(\["page_view"\]\)/);
   assert.match(client, /if \(pathname === "\/pricing"\) events\.push\(\{ event: "pricing_view" \}\)/);
   assert.match(client, /if \(pathname === "\/hire"\) events\.push\(\{ event: "hire_page_view" \}\)/);
   assert.match(client, /if \(pathname\.startsWith\("\/va\/"\)\) events\.push\(\{ event: "candidate_view" \}\)/);
-  assert.match(client, /sendMany\(events\)/);
+  assert.match(client, /if \(events\.length\) sendMany\(events\)/);
   assert.doesNotMatch(client, /send\("page_view"\)/);
   assert.match(client, /if \(!tracked\.length\) return/);
   assert.match(client, /getBrowserSessionId\(\)/);
@@ -34,6 +36,8 @@ test("analytics API bounds every batch, retains legacy single event and fails cl
   assert.match(route, /pageView\.path === "\/hire" && detail\.event === "hire_page_view"/);
   assert.match(route, /pageView\.path\.startsWith\("\/va\/"\) && detail\.event === "candidate_view"/);
   assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
+  assert.match(route, /const persistedEvents = events\.filter/);
+  assert.match(route, /const payloads = persistedEvents\.map/);
   assert.match(route, /const sessionIds = new Set\(events\.map\(\(event\) => event\.session_id \?\? ""\)\)/);
   assert.match(route, /sessionIds\.size !== 1/);
   assert.equal((route.match(/enforceActionRateLimit\("public_analytics:ip"/g) || []).length, 1);

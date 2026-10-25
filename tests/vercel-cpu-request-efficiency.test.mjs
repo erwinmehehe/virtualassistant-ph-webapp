@@ -1,52 +1,34 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import ts from "typescript";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("first-party page views use one general entry per tab but retain every blog view", async () => {
-  const client = await read("src/components/analytics.tsx");
-  const start = client.indexOf("const FIRST_PARTY_PAGE_VIEW_SESSION_KEY");
-  const end = client.indexOf("function sendMany(", start);
-  assert.ok(start >= 0 && end > start, "Page view guard must be present before analytics sender");
+test("page views no longer invoke a first-party Function but conversion tracking stays", async () => {
+  const [client, route, productEvents] = await Promise.all([
+    read("src/components/analytics.tsx"),
+    read("src/app/api/analytics/route.ts"),
+    read("src/lib/product-events.ts"),
+  ]);
 
-  const js = ts.transpileModule(client.slice(start, end), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-  }).outputText;
-  const load = new Function("window", js + "\nreturn shouldRecordFirstPartyPageView;");
-
-  const stored = new Map();
-  const browser = {
-    sessionStorage: {
-      getItem(key) { return stored.get(key) ?? null; },
-      setItem(key, value) { stored.set(key, value); },
-    },
-  };
-  const shouldRecord = load(browser);
-  assert.equal(shouldRecord("/"), true, "Record a first-party landing view");
-  assert.equal(shouldRecord("/services"), false, "Do not beacon on every SPA route transition");
-  assert.equal(shouldRecord("/blog/first-guide"), true, "Keep blog-to-lead attribution");
-  assert.equal(shouldRecord("/blog/another-guide"), true, "Keep each blog navigation");
-  assert.equal(shouldRecord("/pricing"), false, "Pricing-view conversion is a separate event");
-
-  const newTab = load({ sessionStorage: {
-    getItem: () => null,
-    setItem: () => {},
-  } });
-  assert.equal(newTab("/hire"), true, "A new tab still records its entry");
-
-  const blockedStorage = load({
-    get sessionStorage() { throw new Error("storage disabled"); },
-  });
-  assert.equal(blockedStorage("/blog/guide"), true, "Blog attribution survives disabled storage");
-  assert.equal(blockedStorage("/services"), false, "Avoid nonessential writes when storage is unavailable");
-
-  assert.match(client, /event !== "page_view" \|\| shouldRecordFirstPartyPageView\(window\.location\.pathname\)/);
+  assert.match(client, /GA4_ONLY_EVENTS = new Set\(\["form_start", "login_submit"\]\)/);
+  assert.match(client, /RETIRED_EVENTS = new Set\(\["page_view"\]\)/);
+  assert.match(client, /!GA4_ONLY_EVENTS\.has\(event\)/);
+  assert.match(client, /!RETIRED_EVENTS\.has\(event\)/);
+  assert.doesNotMatch(client, /events\.push\(\{ event: "page_view" \}\)/);
+  assert.doesNotMatch(client, /FIRST_PARTY_PAGE_VIEW_SESSION_KEY/);
   for (const event of ["pricing_view", "hire_page_view", "candidate_view", "booking_click"]) {
-    assert.ok(client.includes('"' + event + '"'), event + " must remain tracked");
+    assert.ok(client.includes('"' + event + '"'), event + " should remain");
   }
   assert.match(client, /for \(const \{ event, metadata \} of events\) forwardToGa4\(event, metadata\);/);
+  const allowed = route.split("const fixedEvents = new Set([")[1]?.split("]);")[0] ?? "";
+  assert.doesNotMatch(allowed, /"page_view"|"web_vital"|"form_start"|"login_submit"/);
+  assert.match(allowed, /"role_brief_submit"/);
+  assert.match(route, /const persistedEvents = events\.filter\(\(\{ event \}\) => event !== "page_view"\)/);
+  assert.match(route, /dropped: "retired_event"/);
+  assert.ok(route.indexOf('if (!persistedEvents.length)') < route.indexOf('enforceActionRateLimit("public_analytics:ip"'));
+  assert.match(productEvents, /if \(eventName\.startsWith\("training_"\)\) return;/);
+  assert.doesNotMatch(productEvents, /eventName !== "training_checkpoint_attempt"/);
 });
 
 test("sitemap uses session-free, hourly cached anonymous reads and retains public job URLs", async () => {
@@ -75,30 +57,21 @@ test("per-user workspace badge caches refresh every minute without changing acce
   assert.match(badges, /recruiter_id\.eq\.\$\{userId\}/);
 });
 
-test("admin analytics explicitly distinguishes first-party counts from GA4 total page views", async () => {
-  const dashboard = await read("src/app/workspace/admin/analytics/page.tsx");
-  assert.match(dashboard, /Tracked entry\/blog views/);
-  assert.match(dashboard, /use GA4 for all page views/);
-  assert.match(dashboard, /const blogSessions = new Set/);
-  assert.match(dashboard, /const blogPageViews = blogViews\.filter/);
-});
-
-
-test("high-volume low-intent signals are GA4-only and no longer invoke Supabase", async () => {
-  const client = await read("src/components/analytics.tsx");
-  const route = await read("src/app/api/analytics/route.ts");
-
-  assert.match(client, /const GA4_ONLY_EVENTS = new Set\(\["form_start", "login_submit"\]\)/);
-  assert.match(client, /!GA4_ONLY_EVENTS\.has\(event\)/);
-  assert.match(client, /for \(const \{ event, metadata \} of events\) forwardToGa4\(event, metadata\);/);
-  assert.match(client, /send\("form_start"/);
-  assert.match(client, /clicked\.dataset\.track/);
-
-  const allowed = route.split("const fixedEvents = new Set([")[1]?.split("]);")[0] ?? "";
-  assert.ok(allowed.length > 0);
-  assert.doesNotMatch(allowed, /"form_start"|"login_submit"/);
-  assert.match(allowed, /"booking_click"/);
-  assert.match(allowed, /"role_brief_submit"/);
-  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
-  assert.ok(route.indexOf("!allowedEvent(parsed.data.event)") < route.indexOf('enforceActionRateLimit("public_analytics:ip"'), "Stale beacons must be rejected before RPC");
+test("admin first-party dashboard and website visit funnel are retired, saved records kept", async () => {
+  const [dashboard, sales, salesDashboard, training, trainingPage, nav] = await Promise.all([
+    read("src/app/workspace/admin/analytics/page.tsx"),
+    read("src/lib/sales-analytics.ts"),
+    read("src/components/sales-analytics-dashboard.tsx"),
+    read("src/lib/training.ts"),
+    read("src/app/workspace/admin/training/page.tsx"),
+    read("src/components/app-nav-links.tsx"),
+  ]);
+  assert.match(dashboard, /redirect\("\/workspace\/admin\/today"\)/);
+  assert.doesNotMatch(nav, /"\/workspace\/admin\/analytics"/);
+  assert.doesNotMatch(sales, /recruiter_conversion_summary/);
+  assert.doesNotMatch(salesDashboard, /Website → client funnel/);
+  assert.match(salesDashboard, /Verified conversion control/);
+  assert.doesNotMatch(training, /\.from\("analytics_events"\)/);
+  assert.doesNotMatch(trainingPage, /Learner completion funnel|Checkpoint failure/);
+  assert.match(trainingPage, /Completion within 7 and 14 days/);
 });

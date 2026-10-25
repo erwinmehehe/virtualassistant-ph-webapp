@@ -119,6 +119,8 @@ test("public job reads are session-free, cached and invalidated after publicatio
   assert.doesNotMatch(detail.slice(0, detail.indexOf("function publicCompanyFromJob")), /await createClient\(\)/);
   assert.match(jobs, /updateTag\("public-job-details"\)/);
   assert.match(admin, /updateTag\("public-job-details"\)/);
+  assert.match(jobs, /updateTag\("public-jobs"\)/);
+  assert.match(admin, /updateTag\("public-jobs"\)/);
   assert.match(admin, /publishAfterSafetyClear/);
   assert.match(admin, /submittedForPublicPosting/);
   assert.match(admin, /getUserById\(job\.client_id\)/);

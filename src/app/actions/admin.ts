@@ -267,6 +267,7 @@ export async function unpublishJobForReviewAction(formData: FormData) {
   await writeAdminAudit({ actorId: user.id, action: "job_unpublished_for_review", targetType: "job", targetId: jobId });
   await notifyGoogleIndexingBestEffort(`/jobs/${held.slug || held.id}`, "URL_DELETED");
   updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${held.slug || held.id}`);
   revalidatePath("/workspace/admin/jobs");
@@ -319,6 +320,7 @@ export async function clearJobContentReviewAction(formData: FormData) {
     await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_UPDATED");
   }
   updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${job.slug || job.id}`);
   revalidatePath("/workspace/admin/jobs");

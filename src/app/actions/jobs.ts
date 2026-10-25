@@ -309,6 +309,7 @@ export async function createJobAction(formData: FormData) {
   revalidatePath("/workspace/recruiter/today");
   revalidatePath("/workspace/recruiter/roles");
   updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   if (publicJobForIndexing) revalidatePath(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`);
   redirect(`/workspace/client/jobs/${savedId}?saved=1`);
@@ -329,6 +330,7 @@ export async function closeJobAction(formData: FormData) {
   revalidatePath("/workspace/client");
   revalidatePath("/workspace/client/jobs");
   updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${job.slug || id}`);
   await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_DELETED");
@@ -406,6 +408,7 @@ export async function acceptCommercialTermsAction(formData: FormData) {
   revalidatePath("/workspace/client/jobs");
   revalidatePath("/workspace/client");
   updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
 }

@@ -10,6 +10,7 @@ import { MIN_HOURLY_RATE } from "@/lib/constants";
 import { normalizeTimeZone } from "@/lib/timezones";
 import { slugifyJobTitle } from "@/lib/public-routing";
 import { recordProductEvent } from "@/lib/product-events";
+import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { clientCanSelfPublishJob, isPublishableCompanyName, publicJobReviewSignals, publicationMissingDetails, resolveClientJobSubmitStatus } from "@/lib/job-publication";
 import { assertPublicHiringContentSafe, hiringCircumventionSignals } from "@/lib/hiring-circumvention";
 import { notifyGoogleIndexingBestEffort } from "@/lib/google-indexing";
@@ -43,6 +44,15 @@ export async function createJobAction(formData: FormData) {
   const { user } = await requireRole("client");
   const supabase = await createClient();
   const submitMode = String(formData.get("submit_mode") ?? "submit");
+  // Self-service publishing needs an abuse ceiling now that normal employer
+  // posts no longer wait in a human review queue. Scope to the authenticated
+  // employer, including edits; this does not block by nationality or region.
+  await enforceActionRateLimit(
+    submitMode === "draft" ? "client_job_draft" : "client_job_publish",
+    user.id,
+    submitMode === "draft" ? 40 : 12,
+    60,
+  );
   const minRate = n(formData.get("min_hourly_rate"));
   const overlap = n(formData.get("overlap_hours")) ?? 0;
   const exception = formData.get("live_coverage_exception") === "on";

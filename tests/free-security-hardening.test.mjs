@@ -90,7 +90,7 @@ test("VA application entry points require moderated public jobs and keep private
   assert.match(interest, /\.not\("client_id",\s*"is",\s*null\)/);
 });
 
-test("Turnstile stays optional only when both keys are absent and fails closed on partial configuration", async () => {
+test("Turnstile is optional only outside production and fails closed for missing or partial production configuration", async () => {
   const [env, turnstile] = await Promise.all([
     read(".env.example"),
     read("src/lib/turnstile.ts"),
@@ -98,6 +98,8 @@ test("Turnstile stays optional only when both keys are absent and fails closed o
 
   assert.match(env, /^NEXT_PUBLIC_TURNSTILE_SITE_KEY=$/m);
   assert.match(env, /^TURNSTILE_SECRET_KEY=$/m);
-  assert.match(turnstile, /if \(!secret && !siteKey\) return true/);
+  assert.match(turnstile, /if \(!secret && !siteKey\) \{/);
+  assert.match(turnstile, /if \(process\.env\.VERCEL_ENV === "production"\) \{[\s\S]*?missing production configuration; refusing protected submission[\s\S]*?return false/);
+  assert.match(turnstile, /Non-production local tests and ordinary previews may opt out\.[\s\S]*?return true/);
   assert.match(turnstile, /if \(!secret \|\| !siteKey\)[\s\S]*return false/);
 });

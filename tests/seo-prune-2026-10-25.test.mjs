@@ -80,3 +80,11 @@ test("service pages receiving cost redirects add grounded budget guidance", asyn
   assert.match(route, /candidate preferences, not a confirmed price/);
   assert.match(route, /href="\/average-hourly-rate-virtual-assistants-philippines"/);
 });
+
+test("QuickBooks blog references bypass the retired software URL", async () => {
+  const article = await read("src/components/blog-article.tsx");
+  const guides = await read("src/lib/blog-keyword-support-guides.ts");
+  assert.ok(article.includes('href={resolvePrunedSeoHref(`/software/${software.slug}`)}'));
+  assert.ok(guides.includes('"href": "/service/quickbooks-virtual-assistant"'));
+  assert.ok(!guides.includes('"href": "/software/quickbooks"'));
+});

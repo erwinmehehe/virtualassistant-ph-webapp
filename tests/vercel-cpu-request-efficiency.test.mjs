@@ -4,31 +4,21 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("page views no longer invoke a first-party Function but conversion tracking stays", async () => {
-  const [client, route, productEvents] = await Promise.all([
+test("all optional tracking and GA4 are fully disabled", async () => {
+  const [layout, client, route, product, candidate] = await Promise.all([
+    read("src/app/layout.tsx"),
     read("src/components/analytics.tsx"),
     read("src/app/api/analytics/route.ts"),
     read("src/lib/product-events.ts"),
+    read("src/components/client-candidate-view-tracker.tsx"),
   ]);
-
-  assert.match(client, /GA4_ONLY_EVENTS = new Set\(\["form_start", "login_submit"\]\)/);
-  assert.match(client, /RETIRED_EVENTS = new Set\(\["page_view"\]\)/);
-  assert.match(client, /!GA4_ONLY_EVENTS\.has\(event\)/);
-  assert.match(client, /!RETIRED_EVENTS\.has\(event\)/);
-  assert.doesNotMatch(client, /events\.push\(\{ event: "page_view" \}\)/);
-  assert.doesNotMatch(client, /FIRST_PARTY_PAGE_VIEW_SESSION_KEY/);
-  for (const event of ["pricing_view", "hire_page_view", "candidate_view", "booking_click"]) {
-    assert.ok(client.includes('"' + event + '"'), event + " should remain");
-  }
-  assert.match(client, /for \(const \{ event, metadata \} of events\) forwardToGa4\(event, metadata\);/);
-  const allowed = route.split("const fixedEvents = new Set([")[1]?.split("]);")[0] ?? "";
-  assert.doesNotMatch(allowed, /"page_view"|"web_vital"|"form_start"|"login_submit"/);
-  assert.match(allowed, /"role_brief_submit"/);
-  assert.match(route, /const persistedEvents = events\.filter\(\(\{ event \}\) => event !== "page_view"\)/);
-  assert.match(route, /dropped: "retired_event"/);
-  assert.ok(route.indexOf('if (!persistedEvents.length)') < route.indexOf('enforceActionRateLimit("public_analytics:ip"'));
-  assert.match(productEvents, /if \(eventName\.startsWith\("training_"\)\) return;/);
-  assert.doesNotMatch(productEvents, /eventName !== "training_checkpoint_attempt"/);
+  assert.doesNotMatch(layout, /gtag|<Analytics|<AttributionTracker/);
+  assert.match(client, /return null/);
+  assert.match(candidate, /return null/);
+  assert.match(route, /status: 204/);
+  assert.doesNotMatch(route, /analytics_events|createAdminClient|enforceActionRateLimit/);
+  assert.match(product, /export async function recordProductEvent/);
+  assert.doesNotMatch(product, /analytics_events|createAdminClient/);
 });
 
 test("sitemap uses session-free, hourly cached anonymous reads and retains public job URLs", async () => {

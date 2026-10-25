@@ -2,53 +2,22 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
+const read = path => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("navigation only sends meaningful conversion events, never first-party page views", async () => {
-  const client = await read("src/components/analytics.tsx");
-
-  assert.match(client, /function sendMany\(events: AnalyticsEvent\[\]\)/);
-  assert.match(client, /const payload = JSON\.stringify\(entries\.length === 1 \? entries\[0\] : entries\)/);
-  assert.match(client, /const events: AnalyticsEvent\[\] = \[\]/);
-  assert.doesNotMatch(client, /events\.push\(\{ event: "page_view" \}\)/);
-  assert.match(client, /RETIRED_EVENTS = new Set\(\["page_view"\]\)/);
-  assert.match(client, /if \(pathname === "\/pricing"\) events\.push\(\{ event: "pricing_view" \}\)/);
-  assert.match(client, /if \(pathname === "\/hire"\) events\.push\(\{ event: "hire_page_view" \}\)/);
-  assert.match(client, /if \(pathname\.startsWith\("\/va\/"\)\) events\.push\(\{ event: "candidate_view" \}\)/);
-  assert.match(client, /if \(events\.length\) sendMany\(events\)/);
-  assert.doesNotMatch(client, /send\("page_view"\)/);
-  assert.match(client, /if \(!tracked\.length\) return/);
-  assert.match(client, /getBrowserSessionId\(\)/);
-  assert.match(client, /crypto\?\.randomUUID/);
-  assert.match(client, /navigator\.sendBeacon/);
+test("analytics no longer sends navigation or clickstream requests", async () => {
+  const [layout, client, candidate] = await Promise.all([
+    read("src/app/layout.tsx"),
+    read("src/components/analytics.tsx"),
+    read("src/components/client-candidate-view-tracker.tsx"),
+  ]);
+  assert.doesNotMatch(layout, /<Analytics\/>/);
+  assert.match(client, /return null/);
+  assert.match(candidate, /return null/);
+  assert.doesNotMatch(client + candidate, /sendBeacon|fetch\(|IntersectionObserver|gtag\(/);
 });
 
-test("analytics API bounds every batch, retains legacy single event and fails closed", async () => {
+test("retired API returns 204 for cached old client requests with no Supabase work", async () => {
   const route = await read("src/app/api/analytics/route.ts");
-
-  assert.match(route, /const candidates = Array\.isArray\(body\) \? body : \[body\]/);
-  assert.match(route, /candidates\.length > 2/);
-  assert.match(route, /schema\.safeParse\(candidate\)/);
-  assert.match(route, /if \(events\.length === 2\)/);
-  assert.match(route, /pageView\.event === "page_view"/);
-  assert.match(route, /detail\.path === pageView\.path/);
-  assert.match(route, /pageView\.path === "\/pricing" && detail\.event === "pricing_view"/);
-  assert.match(route, /pageView\.path === "\/hire" && detail\.event === "hire_page_view"/);
-  assert.match(route, /pageView\.path\.startsWith\("\/va\/"\) && detail\.event === "candidate_view"/);
-  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
-  assert.match(route, /const persistedEvents = events\.filter/);
-  assert.match(route, /const payloads = persistedEvents\.map/);
-  assert.match(route, /const sessionIds = new Set\(events\.map\(\(event\) => event\.session_id \?\? ""\)\)/);
-  assert.match(route, /sessionIds\.size !== 1/);
-  assert.equal((route.match(/enforceActionRateLimit\("public_analytics:ip"/g) || []).length, 1);
-  assert.equal((route.match(/enforceActionRateLimit\("public_analytics:session"/g) || []).length, 1);
-  assert.match(route, /if \(sessionId\)/);
-  assert.match(route, /BOT_USER_AGENT\.test\(userAgent\)/);
-  assert.match(route, /hasSupabaseSession/);
-  assert.match(route, /if \(!hasSupabaseSession\) return null/);
-  assert.match(route, /const withIds = payloads\.filter/);
-  assert.match(route, /const withoutIds = payloads\.filter/);
-  assert.match(route, /\.upsert\(withIds, \{ onConflict: "event_id", ignoreDuplicates: true \}\)/);
-  assert.match(route, /\.insert\(withoutIds\)/);
-  assert.match(route, /dropped: "storage_unavailable"/);
+  assert.match(route, /status: 204/);
+  assert.doesNotMatch(route, /analytics_events|enforceActionRateLimit|createClient|createAdminClient/);
 });

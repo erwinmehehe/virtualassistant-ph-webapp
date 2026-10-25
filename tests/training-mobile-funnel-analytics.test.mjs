@@ -13,20 +13,16 @@ const assessmentPath = "src/app/workspace/training/courses/[slug]/assessments/[a
 const certificateActionsPath = "src/components/training-certificate-actions.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
 
-test("training navigation and CTA clicks do not send custom activity telemetry", async () => {
-  const [analytics, api, productEvents] = await Promise.all([
+test("training and candidate analytics are inert while learner state persists", async () => {
+  const [client, api, recorder] = await Promise.all([
     readFile(analyticsPath, "utf8"),
     readFile(analyticsApiPath, "utf8"),
     readFile("src/lib/product-events.ts", "utf8"),
   ]);
-
-  assert.match(analytics, /!isTrainingPath\(pathname\)/);
-  assert.match(analytics, /event\.startsWith\("training_"\)/);
-  assert.doesNotMatch(analytics, /send\("training_/);
-  assert.doesNotMatch(api, /"training_[a-z_]+"/);
-  assert.match(productEvents, /eventName\.startsWith\("training_"\)/);
-  assert.doesNotMatch(productEvents, /eventName !== "training_checkpoint_attempt"/);
-  assert.match(productEvents, /if \(eventName\.startsWith\("training_"\)\) return;/);
+  assert.match(client, /return null/);
+  assert.match(api, /status: 204/);
+  assert.doesNotMatch(recorder, /analytics_events|createAdminClient/);
+  assert.match(recorder, /export async function recordProductEvent/);
 });
 
 test("automatic assessment scoring closes the learner funnel through certificate issuance", async () => {

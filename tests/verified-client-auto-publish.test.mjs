@@ -16,15 +16,17 @@ const eligibility = (overrides = {}) => ({
   ...overrides,
 });
 
-test("verified clients cannot self-publish unless the rollout is enabled", () => {
-  assert.equal(clientCanSelfPublishJob(eligibility()), false);
-  assert.equal(clientCanSelfPublishJob(eligibility({ emailVerified: false, verifiedClientRollout: true })), false);
-  assert.equal(clientCanSelfPublishJob(eligibility({ verifiedClientRollout: true })), true);
-  assert.equal(clientCanSelfPublishJob(eligibility({ serviceModel: "managed_service", verifiedClientRollout: true })), false);
+test("email-verified employers publish complete roles without admin review or a feature flag", () => {
+  assert.equal(clientCanSelfPublishJob(eligibility()), true);
+  assert.equal(clientCanSelfPublishJob(eligibility({ verifiedClientRollout: false })), true);
+  assert.equal(clientCanSelfPublishJob(eligibility({ serviceModel: "managed_service" })), true);
+  assert.equal(clientCanSelfPublishJob(eligibility({ legacyApproved: false })), true);
 });
 
-test("existing admin-granted publishing remains available even with rollout off", () => {
-  assert.equal(clientCanSelfPublishJob(eligibility({ emailVerified: false, legacyApproved: true })), true);
+test("unverified accounts never bypass publication verification through legacy permission", () => {
+  assert.equal(clientCanSelfPublishJob(eligibility({ emailVerified: false })), false);
+  assert.equal(clientCanSelfPublishJob(eligibility({ emailVerified: false, legacyApproved: true })), false);
+  assert.equal(clientCanSelfPublishJob(eligibility({ emailVerified: false, verifiedClientRollout: true })), false);
 });
 
 test("complete briefs pass the existing company/content/pay floor checks", () => {

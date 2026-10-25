@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -15,9 +15,10 @@ export async function reviewJobAction(formData: FormData) {
   const decision = String(formData.get("decision"));
   const admin = createAdminClient();
   if (decision === "approve") {
-    const { data: job } = await admin.from("jobs").select("client_id,service_model,moderation_status,title,company_name,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
+    const { data: job } = await admin.from("jobs").select("client_id,status,service_model,moderation_status,title,company_name,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
     if (!job?.client_id) throw new Error("Link this lead-created job to a client account before publishing it.");
-    if (job.moderation_status !== "clear") throw new Error("Review and clear the content hold before approving this job.");
+    if (job.moderation_status !== "clear") throw new Error("Clear the content hold before quoting commercial terms.");
+    if (!["pending", "published"].includes(job.status)) throw new Error("Only an open role can receive commercial terms.");
     const missing = publicationMissingDetails(job);
     if (missing.length) throw new Error(`This brief is missing required public content: ${missing.join(", ")}.`);
     const { data: settings } = await admin.from("admin_settings").select("default_placement_fee,default_managed_markup_percent").eq("id",1).single();
@@ -32,7 +33,8 @@ export async function reviewJobAction(formData: FormData) {
       managed_markup_percent:job.service_model === "managed_service" ? managedMarkup : null,
       commercial_status:"quoted"
     },{onConflict:"job_id"});
-    await admin.from("jobs").update({ status: "pending", rejection_note: null }).eq("id", id);
+    // Pricing must never unpublish a role the employer already posted.
+    await admin.from("jobs").update({ rejection_note: null }).eq("id", id);
   } else if (decision === "reject") {
     await admin.from("jobs").update({ status: "draft", rejection_note: String(formData.get("note") ?? "Please update the job and resubmit.") }).eq("id", id);
   }
@@ -264,6 +266,8 @@ export async function unpublishJobForReviewAction(formData: FormData) {
   const { writeAdminAudit } = await import("@/lib/admin-audit");
   await writeAdminAudit({ actorId: user.id, action: "job_unpublished_for_review", targetType: "job", targetId: jobId });
   await notifyGoogleIndexingBestEffort(`/jobs/${held.slug || held.id}`, "URL_DELETED");
+  updateTag("public-job-details");
+  updateTag("public-jobs");
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${held.slug || held.id}`);
   revalidatePath("/workspace/admin/jobs");
@@ -279,7 +283,7 @@ export async function clearJobContentReviewAction(formData: FormData) {
   if (!jobId) throw new Error("Missing job.");
   const admin = createAdminClient();
   const { data: job, error: readError } = await admin.from("jobs")
-    .select("id,updated_at,moderation_status,title,company_name,summary,description,responsibilities,required_skills,required_tools,min_hourly_rate,schedule_notes,onboarding_plan")
+    .select("id,client_id,status,slug,updated_at,moderation_status,rejection_note,title,company_name,summary,description,responsibilities,required_skills,required_tools,min_hourly_rate,schedule_notes,onboarding_plan")
     .eq("id", jobId).maybeSingle();
   if (readError) throw readError;
   if (!job || job.moderation_status !== "review") throw new Error("This job is not awaiting content review.");
@@ -288,15 +292,37 @@ export async function clearJobContentReviewAction(formData: FormData) {
   const parts = [job.title,job.company_name,job.summary,job.description,job.responsibilities,job.required_skills,job.required_tools,job.schedule_notes,job.onboarding_plan];
   assertPublicHiringContentSafe(parts);
   if (publicJobReviewSignals(parts).length) throw new Error("Remove promotional language and external links before clearing the hold.");
+  // Clearing the exceptional content hold completes the employer's
+  // submitted publication request without a second approval step.
+  // Only republish a role that the employer actually submitted or that staff
+  // deliberately withdrew for safety review. Older unlinked or lead-created
+  // pending jobs must not be bulk-published when a hold is cleared.
+  const submittedForPublicPosting = Boolean(
+    job.rejection_note?.startsWith("Held for content review:") ||
+    job.rejection_note === "Unpublished for staff content review.",
+  );
+  let publishAfterSafetyClear = false;
+  if (job.status === "pending" && job.client_id && submittedForPublicPosting) {
+    const { data: employer, error: employerError } = await admin.auth.admin.getUserById(job.client_id);
+    publishAfterSafetyClear = !employerError && Boolean(employer.user?.email_confirmed_at);
+  }
   const { data: cleared, error } = await admin.from("jobs").update({
     moderation_status: "clear",
     rejection_note: null,
+    ...(publishAfterSafetyClear ? { status: "published", published_at: new Date().toISOString() } : {}),
   }).eq("id", jobId).eq("moderation_status", "review")
     .eq("updated_at", job.updated_at).select("id").maybeSingle();
   if (error) throw error;
   if (!cleared) throw new Error("The job changed during review. Reload and review the current content.");
   const { writeAdminAudit } = await import("@/lib/admin-audit");
   await writeAdminAudit({ actorId: user.id, action: "job_content_review_cleared", targetType: "job", targetId: jobId });
+  if (publishAfterSafetyClear) {
+    await notifyGoogleIndexingBestEffort(`/jobs/${job.slug || job.id}`, "URL_UPDATED");
+  }
+  updateTag("public-job-details");
+  updateTag("public-jobs");
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${job.slug || job.id}`);
   revalidatePath("/workspace/admin/jobs");
   revalidatePath(`/workspace/admin/jobs/${jobId}`);
   revalidatePath(`/workspace/recruiter/roles/${jobId}`);

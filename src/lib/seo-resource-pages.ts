@@ -1,3 +1,5 @@
+import { isPrunedRedirectSource, resolvePrunedSeoHref } from "@/lib/seo-prune";
+
 export type ResourceAudience = "client" | "candidate";
 export type ResourceIntent = "definition" | "tasks" | "hiring" | "interview" | "cost" | "tools" | "candidate";
 
@@ -1472,7 +1474,14 @@ const CANDIDATE_RESOURCE_PAGES: SeoResourcePage[] = [
     ]
   }];
 
-export const SEO_RESOURCE_PAGES: SeoResourcePage[] = [...ROLE_RESOURCE_PAGES, ...CANDIDATE_RESOURCE_PAGES];
+// Retired resources should not appear in resource cards or the sitemap.
+// Repoint surviving pages' contextual links instead of linking through 301s.
+export const SEO_RESOURCE_PAGES: SeoResourcePage[] = [...ROLE_RESOURCE_PAGES, ...CANDIDATE_RESOURCE_PAGES]
+  .filter((page) => !isPrunedRedirectSource(`/resources/${page.slug}`))
+  .map((page) => ({
+    ...page,
+    internalLinks: page.internalLinks.map((link) => ({ ...link, href: resolvePrunedSeoHref(link.href) })),
+  }));
 
 export function seoResourceBySlug(slug: string) {
   return SEO_RESOURCE_PAGES.find((page) => page.slug === slug);

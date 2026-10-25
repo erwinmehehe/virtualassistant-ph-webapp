@@ -15,6 +15,7 @@ import {
   summarizeAssessmentAnswerPattern,
 } from "@/lib/training-integrity";
 import { getAustraliaSpecialization, isAustraliaSpecializationSlug } from "@/lib/training-specializations";
+import { getCachedPublishedLessonId } from "@/lib/training-published-lesson-cache";
 
 export async function startTrainingCourseAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
@@ -186,24 +187,16 @@ export async function recordTrainingLessonEngagementAction(input: {
   if (!lessonId || !courseSlug) return { activeSeconds: 0, maxScrollPercent: 0 };
 
   const admin = createAdminClient();
-  // Foreign-key joins validate the published course and lesson in one read,
-  // instead of three sequential round trips on every active learner heartbeat.
-  const { data: lesson, error: lessonLookupError } = await admin
-    .from("training_lessons")
-    .select("id,training_modules!inner(training_courses!inner(slug,status))")
-    .eq("id", lessonId)
-    .eq("is_published", true)
-    .eq("training_modules.training_courses.slug", courseSlug)
-    .eq("training_modules.training_courses.status", "published")
-    .maybeSingle();
-  if (lessonLookupError) throw new Error("Training progress could not be validated. Please try again.");
-  if (!lesson) return { activeSeconds: 0, maxScrollPercent: 0 };
+  // Public lesson publication state is safe to cache briefly across users.
+  // Learner engagement stays uncached and remains scoped to the signed-in user.
+  const validLessonId = await getCachedPublishedLessonId(lessonId, courseSlug);
+  if (!validLessonId) return { activeSeconds: 0, maxScrollPercent: 0 };
 
   const { data: existing } = await admin
     .from("training_lesson_engagement")
     .select("active_seconds,max_scroll_percent,last_activity_at")
     .eq("user_id", userId)
-    .eq("lesson_id", lesson.id)
+    .eq("lesson_id", validLessonId)
     .maybeSingle();
 
   const now = new Date();
@@ -218,7 +211,7 @@ export async function recordTrainingLessonEngagementAction(input: {
 
   const { error: engagementError } = await admin.from("training_lesson_engagement").upsert({
     user_id: userId,
-    lesson_id: lesson.id,
+    lesson_id: validLessonId,
     active_seconds: activeSeconds,
     max_scroll_percent: maxScrollPercent,
     last_activity_at: now.toISOString(),

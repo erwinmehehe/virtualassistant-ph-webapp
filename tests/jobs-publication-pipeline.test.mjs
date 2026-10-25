@@ -70,6 +70,9 @@ test("all email-verified employer roles auto-publish without manual approval", a
 
   assert.match(jobs, /emailVerified: Boolean\(user\.email_confirmed_at\)/);
   assert.match(jobs, /Verify your email address before publishing/);
+  assert.match(jobs, /enforceActionRateLimit\(/);
+  assert.match(jobs, /"client_job_publish"/);
+  assert.match(jobs, /"client_job_draft"/);
   assert.match(jobs, /const needsModeration = submitMode !== "draft" && reviewSignals\.length > 0/);
   assert.match(jobs, /Complete the public job before publishing/);
   assert.match(jobs, /resolveClientJobSubmitStatus/);
@@ -116,6 +119,9 @@ test("public job reads are session-free, cached and invalidated after publicatio
   assert.match(jobs, /updateTag\("public-job-details"\)/);
   assert.match(admin, /updateTag\("public-job-details"\)/);
   assert.match(admin, /publishAfterSafetyClear/);
+  assert.match(admin, /submittedForPublicPosting/);
+  assert.match(admin, /getUserById\(job\.client_id\)/);
+  assert.match(admin, /email_confirmed_at/);
 });
 
 test("all publication write paths use the same required-role validator", async () => {

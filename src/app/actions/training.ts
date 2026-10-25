@@ -184,7 +184,13 @@ export async function recordTrainingLessonEngagementAction(input: {
   const lessonId = String(input.lessonId || "").trim();
   const courseSlug = String(input.courseSlug || "").trim();
   const scrollPercent = Math.max(0, Math.min(100, Math.round(Number(input.scrollPercent || 0))));
-  if (!lessonId || !courseSlug) return { activeSeconds: 0, maxScrollPercent: 0 };
+  // Bound cache-key cardinality: callers can submit IDs and slugs directly to
+  // server actions, but only real database-shaped identifiers should reach the cache.
+  if (
+    !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(lessonId) ||
+    courseSlug.length > 120 ||
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(courseSlug)
+  ) return { activeSeconds: 0, maxScrollPercent: 0 };
 
   const admin = createAdminClient();
   // Public lesson publication state is safe to cache briefly across users.

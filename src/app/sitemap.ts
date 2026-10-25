@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { isPrunedRedirectSource, SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS } from "@/lib/seo-prune";
 import { createPublicClient } from "@/lib/supabase/public";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
@@ -45,13 +46,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   return [
-    ...PUBLIC_SEO_ROUTES.map((route) => ({
+    ...PUBLIC_SEO_ROUTES.filter((route) => !isPrunedRedirectSource(route.path)).map((route) => ({
       url: `${base}${route.path}`,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
       ...(route.lastModified ? { lastModified: route.lastModified } : {}),
     })),
-    ...SEO_RESOURCE_PAGES.filter((page) => !EDITORIAL_RESOURCE_SLUGS.includes(page.slug as typeof EDITORIAL_RESOURCE_SLUGS[number]) && !EXISTING_BLOG_RESOURCE_REDIRECTS[page.slug]).map((page) => ({
+    ...SEO_RESOURCE_PAGES.filter((page) => !isPrunedRedirectSource(`/resources/${page.slug}`) && !EDITORIAL_RESOURCE_SLUGS.includes(page.slug as typeof EDITORIAL_RESOURCE_SLUGS[number]) && !EXISTING_BLOG_RESOURCE_REDIRECTS[page.slug]).map((page) => ({
       url: `${base}/resources/${page.slug}`,
       lastModified: seoResourceUpdatedAt(page.slug),
       changeFrequency: "monthly" as const,
@@ -62,13 +63,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.72,
     })),
-    ...BLOG_POSTS.map((post) => ({
+    ...BLOG_POSTS.filter((post) => !isPrunedRedirectSource(blogHref(post))).map((post) => ({
       url: `${base}${blogHref(post)}`,
       lastModified: post.updatedAt,
       changeFrequency: "monthly" as const,
       priority: post.serviceSlug ? 0.76 : 0.68,
     })),
-    ...ARCHIVE_POSTS.map((post) => ({
+    ...ARCHIVE_POSTS.filter((post) => !isPrunedRedirectSource(post.legacyPath || `/blog/${post.slug}`)).map((post) => ({
       url: `${base}${post.legacyPath ? post.legacyPath.replace(/\/$/, "") : `/blog/${post.slug}`}`,
       ...(archiveUpdatedIso(post) ? { lastModified: archiveUpdatedIso(post) } : {}),
       changeFrequency: "monthly" as const,
@@ -84,7 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.74,
     })),
-    ...softwarePages.map((page) => ({
+    ...softwarePages.filter((page) => !SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS.has(page.slug) && !isPrunedRedirectSource(`/software/${page.slug}`)).map((page) => ({
       url: `${base}/software/${page.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.7,

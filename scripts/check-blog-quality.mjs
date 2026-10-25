@@ -18,6 +18,11 @@ const industryPath = path.join(root, 'src/lib/industries.ts');
 const archivePath = path.join(root, 'src/lib/archive-posts.ts');
 const editorialPath = path.join(root, 'src/lib/editorial-seo-guides.ts');
 
+const seoPrunePolicy = fs.readFileSync(path.join(root, 'src/lib/seo-prune.ts'), 'utf8');
+const seoPruneMatch = seoPrunePolicy.match(/SEO_PRUNE_REDIRECTS: Record<string, string> = (\{[\s\S]*?\});/);
+if (!seoPruneMatch) throw new Error('SEO pruning redirect policy missing');
+const seoPruneRedirects = JSON.parse(seoPruneMatch[1]);
+
 function readPosts() {
   return [
     ...readPostArray(blogPath, 'export const BLOG_POSTS: BlogPost[] = '),
@@ -196,7 +201,11 @@ for (const post of posts) {
   const hrefs = (post.internalLinks || []).map(link => link.href);
   if (!hrefs.includes(`/blog/topic/${post.topic}`)) failures.push(`${post.slug}: missing topic-hub internal link`);
   if (post.serviceSlug && !hrefs.includes(`/service/${post.serviceSlug}`)) failures.push(`${post.slug}: missing canonical service-page link`);
-  if (post.softwareSlug && !hrefs.includes(`/software/${post.softwareSlug}`)) failures.push(`${post.slug}: missing canonical software-page link`);
+  if (post.softwareSlug) {
+    const sourceHref = `/software/${post.softwareSlug}`;
+    const canonicalHref = seoPruneRedirects[sourceHref] || sourceHref;
+    if (!hrefs.includes(canonicalHref)) failures.push(`${post.slug}: missing canonical software-page link ${canonicalHref}`);
+  }
   const articleLinkCount = hrefs.filter(href => blogRoutes.has(href)).length;
   if (articleLinkCount < 1) failures.push(`${post.slug}: missing a contextual article link`);
 

@@ -30,7 +30,7 @@ test("GSC service opportunities keep supporting research without new URLs",()=>{
   ]) assert.match(source,new RegExp(`"${slug}"\\s*:\\s*\\[`),`${slug}: service authority links missing`);
 
   assert.match(source,/\/blog\/dental-virtual-assistant-interview-questions/);
-  assert.match(source,/\/blog\/how-to-hire-a-hvac-virtual-assistant/);
-  assert.match(source,/\/blog\/how-to-hire-a-ebay-virtual-assistant/);
+  assert.match(source,/\/service\/hvac-virtual-assistant/);
+  assert.match(source,/\/service\/ebay-virtual-assistant/);
   assert.match(source,/\/research\/virtual-assistant-rates-philippines-2026/);
 });

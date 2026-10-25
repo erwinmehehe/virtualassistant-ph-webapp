@@ -11,6 +11,7 @@ import { BLOG_AEO_GUIDES } from "@/lib/blog-aeo-guides";
 import { BLOG_AEO_FOLLOWUP_GUIDES } from "@/lib/blog-aeo-followup-guides";
 import { BLOG_US_OUTSOURCING_GUIDES } from "@/lib/blog-us-outsourcing-guides";
 import { applyGscEditorialPatch } from "@/lib/blog-gsc-editorial-refreshes";
+import { isPrunedRedirectSource, resolvePrunedSeoHref } from "@/lib/seo-prune";
 
 export type { BlogFaq, BlogInternalLink, BlogPost, BlogSection, BlogTopic } from "@/lib/blog-types";
 
@@ -42,6 +43,17 @@ for (let index = 0; index < BLOG_POSTS.length; index += 1) {
   if (refinement) Object.assign(BLOG_POSTS[index], refinement);
 }
 
+// Pruned articles resolve through Next.js redirects; do not list or recommend
+// the retired originals, and link directly to their destination from survivors.
+for (let index = BLOG_POSTS.length - 1; index >= 0; index -= 1) {
+  const post = BLOG_POSTS[index];
+  if (isPrunedRedirectSource(post.legacyPath || `/blog/${post.slug}`)) {
+    BLOG_POSTS.splice(index, 1);
+    continue;
+  }
+  post.internalLinks = post.internalLinks.map((link) => ({ ...link, href: resolvePrunedSeoHref(link.href) }));
+}
+
 export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string }> = {
   hiring: { label: "Hiring", description: "Role design, screening, interviews, job descriptions, onboarding, and better hiring decisions." },
   pricing: { label: "Pricing", description: "Virtual Assistant budgets, hourly and monthly cost planning, marketplace rates, and compensation decisions." },
@@ -56,7 +68,7 @@ export const BLOG_TOPICS: Record<BlogTopic, { label: string; description: string
 };
 
 export function blogHref(post: BlogPost) {
-  return (post.legacyPath || `/blog/${post.slug}`).replace(/\/$/, "");
+  return resolvePrunedSeoHref((post.legacyPath || `/blog/${post.slug}`).replace(/\/$/, ""));
 }
 
 export function blogPostBySlug(slug: string) {

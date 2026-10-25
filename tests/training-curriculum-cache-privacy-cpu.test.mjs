@@ -87,3 +87,17 @@ test("middleware already skips public pages and auth calls without session cooki
   assert.match(middleware, /if \(!hasSupabaseSession\) return response/);
   assert.match(middleware, /supabase\.auth\.getClaims\(\)/);
 });
+
+test("public pricing is static ISR with admin-triggered price refresh", async () => {
+  const [pricing, settings, header] = await Promise.all([
+    read("src/app/pricing/page.tsx"),
+    read("src/app/actions/settings.ts"),
+    read("src/components/site-nav.tsx"),
+  ]);
+  assert.match(pricing, /export const dynamic = "force-static"/);
+  assert.match(pricing, /export const revalidate = 120/);
+  assert.match(pricing, /getBusinessSettings\(\)/);
+  assert.match(settings, /revalidatePath\("\/pricing"\)/);
+  assert.match(header, /<PublicNavAccountControls/);
+  assert.doesNotMatch(pricing, /getSessionProfile|cookies\(\)|headers\(\)/);
+});

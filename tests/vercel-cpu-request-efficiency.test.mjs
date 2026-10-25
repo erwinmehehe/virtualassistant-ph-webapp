@@ -82,3 +82,23 @@ test("admin analytics explicitly distinguishes first-party counts from GA4 total
   assert.match(dashboard, /const blogSessions = new Set/);
   assert.match(dashboard, /const blogPageViews = blogViews\.filter/);
 });
+
+
+test("high-volume low-intent signals are GA4-only and no longer invoke Supabase", async () => {
+  const client = await read("src/components/analytics.tsx");
+  const route = await read("src/app/api/analytics/route.ts");
+
+  assert.match(client, /const GA4_ONLY_EVENTS = new Set\(\["form_start", "login_submit"\]\)/);
+  assert.match(client, /!GA4_ONLY_EVENTS\.has\(event\)/);
+  assert.match(client, /for \(const \{ event, metadata \} of events\) forwardToGa4\(event, metadata\);/);
+  assert.match(client, /send\("form_start"/);
+  assert.match(client, /data\.track/);
+
+  const allowed = route.split("const fixedEvents = new Set([")[1]?.split("]);")[0] ?? "";
+  assert.ok(allowed.length > 0);
+  assert.doesNotMatch(allowed, /"form_start"|"login_submit"/);
+  assert.match(allowed, /"booking_click"/);
+  assert.match(allowed, /"role_brief_submit"/);
+  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
+  assert.ok(route.indexOf("!allowedEvent(parsed.data.event)") < route.indexOf('enforceActionRateLimit("public_analytics:ip"'), "Stale beacons must be rejected before RPC");
+});

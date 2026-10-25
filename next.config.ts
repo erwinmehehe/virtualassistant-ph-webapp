@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { SEO_PRUNE_REDIRECTS, resolvePrunedSeoHref } from "./src/lib/seo-prune";
+
 
 const ROLE_RESOURCE_CONSOLIDATIONS = [
   { service: "admin-inbox", base: "administrative-virtual-assistant", article: "an" },
@@ -148,7 +150,12 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    return [
+    return ([
+      // Implement the CSV decisions before older resource migrations.
+      ...Object.entries(SEO_PRUNE_REDIRECTS).flatMap(([source, destination]) => [
+        { source, destination, permanent: true },
+        { source: source + "/", destination, permanent: true }
+      ]),
       // Static, auth-free course discovery. The personal learner catalog remains
       // at /workspace/training?browse=personal and keeps its access gate.
       {
@@ -377,7 +384,13 @@ const nextConfig: NextConfig = {
       { source: "/client-dashboard/", destination: "/workspace/client", permanent: false },
       { source: "/va-dashboard/", destination: "/workspace/va", permanent: false },
       { source: "/account/", destination: "/auth/login", permanent: false }
-    ];
+    ] as Awaited<ReturnType<NonNullable<NextConfig["redirects"]>>>).reduce((rules, rule) => {
+      // Some legacy rules already covered these paths. First match wins.
+      if (rules.some((existing) => existing.source === rule.source)) return rules;
+      // Repoint older rule targets as well, avoiding redirect chains.
+      rules.push({ ...rule, destination: resolvePrunedSeoHref(rule.destination) });
+      return rules;
+    }, [] as Awaited<ReturnType<NonNullable<NextConfig["redirects"]>>>);
   },
   experimental: {
     serverActions: {

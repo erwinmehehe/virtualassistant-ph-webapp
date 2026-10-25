@@ -263,12 +263,26 @@ export async function createJobAction(formData: FormData) {
     }
   }
 
-  let publicJobForIndexing: { id: string; slug: string | null } | null = null;
+  let publicJobForIndexing: { id: string; slug: string | null; recruiter_id: string | null } | null = null;
   if (savedStatus === "published") {
-    const { data } = await admin.from("jobs").select("id,slug").eq("id", savedId).maybeSingle();
+    const { data } = await admin.from("jobs").select("id,slug,recruiter_id").eq("id", savedId).maybeSingle();
     publicJobForIndexing = data;
     if (publicJobForIndexing) {
       await notifyGoogleIndexingBestEffort(`/jobs/${publicJobForIndexing.slug || publicJobForIndexing.id}`, "URL_UPDATED");
+    }
+    // Public visibility no longer waits for manual approval. Notify the
+    // assigned recruiter to prepare service terms and begin screening instead.
+    if (publicJobForIndexing?.recruiter_id && previousStatus !== "published") {
+      try {
+        await admin.from("notifications").insert({
+          user_id: publicJobForIndexing.recruiter_id,
+          title: "New employer job is live",
+          body: `"${title}" has been published. Prepare service terms and coordinate qualified applicants.`,
+          href: `/workspace/recruiter/roles/${savedId}#overview`,
+        });
+      } catch {
+        // Posting must not depend on a non-critical notification.
+      }
     }
   }
   else if (previousStatus === "published") {

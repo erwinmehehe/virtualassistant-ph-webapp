@@ -61,7 +61,16 @@ export async function verifyTurnstile(formData: FormData, expectedAction?: strin
   // Turnstile is optional, but a partial production configuration is unsafe:
   // a public widget without server validation is security theatre, while a
   // secret without a widget makes every legitimate submission impossible.
-  if (!secret && !siteKey) return true;
+  if (!secret && !siteKey) {
+    // Production is expected to have both keys. Missing configuration must
+    // never silently disable the login and signup abuse gate.
+    if (process.env.VERCEL_ENV === "production") {
+      console.error("[turnstile] missing production configuration; refusing protected submission");
+      return false;
+    }
+    // Non-production local tests and ordinary previews may opt out.
+    return true;
+  }
   if (!secret || !siteKey) {
     console.error("[turnstile] incomplete configuration; refusing protected submission");
     await recordAuthChallengeFailure(expectedAction, "incomplete_configuration");

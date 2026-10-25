@@ -13,7 +13,10 @@ import "../hiring-pages.css";
 import "../info-pages.css";
 import "./pricing-page.css";
 
-export const dynamic = "force-dynamic";
+// Pricing is identical for all visitors; admin setting changes already
+// call revalidatePath("/pricing") to keep the public fee current.
+export const dynamic = "force-static";
+export const revalidate = 120;
 export const metadata: Metadata = { title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", keywords: ["virtual assistant pricing philippines", "virtual assistant pricing", "virtual assistant service cost", "how much does a virtual assistant cost", "virtual assistant rates", "affordable virtual assistant", "cheap virtual assistant"] , alternates: { canonical: canonicalPath("/pricing") }, ...socialMetadata({ title: "Virtual Assistant Pricing Philippines | Service Costs", description: "Compare Virtual Assistant pricing, compensation, direct-hire placement costs, managed service terms, and monthly cost estimates before you hire.", path: canonicalPath("/pricing"), category: "pricing", eyebrow: "Virtual Assistant Pricing", points: ["Role scope", "Hours & schedule", "VA compensation", "Managed vs direct hire"] }) };
 
 const FEE_INCLUSIONS = [

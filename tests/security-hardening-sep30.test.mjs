@@ -141,7 +141,8 @@ test("Turnstile fails closed on partial configuration and binds tokens to sensit
     read("src/app/auth/forgot/page.tsx"),
   ]);
 
-  assert.match(turnstile, /if \(!secret && !siteKey\) return true/);
+  assert.match(turnstile, /if \(!secret && !siteKey\) \{/);
+  assert.match(turnstile, /missing production configuration; refusing protected submission/);
   assert.match(turnstile, /if \(!secret \|\| !siteKey\)[\s\S]*return false/);
   assert.match(turnstile, /token\.length > 2_048/);
   assert.match(turnstile, /remoteip/);

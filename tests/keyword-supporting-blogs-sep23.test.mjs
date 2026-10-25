@@ -80,8 +80,11 @@ test("service-support posts point to the existing commercial service owners", ()
   assert.ok(technical.internalLinks.some((link) => link.href === "/service/it-virtual-assistant"));
 });
 
-test("software-support posts point to the correct software canonicals", () => {
+test("software-support posts point directly to their current canonical destinations", () => {
   const bySlug = new Map(posts().map((post) => [post.slug, post]));
+  const redirectMatch = source("src/lib/seo-prune.ts").match(/SEO_PRUNE_REDIRECTS: Record<string, string> = (\{[\s\S]*?\});/);
+  assert.ok(redirectMatch, "SEO pruning redirect policy must exist");
+  const redirects = JSON.parse(redirectMatch[1]);
   const expected = new Map([
     ["gohighlevel-virtual-assistant-tasks", "gohighlevel"],
     ["hubspot-virtual-assistant-tasks", "hubspot"],
@@ -95,7 +98,12 @@ test("software-support posts point to the correct software canonicals", () => {
   for (const [slug, softwareSlug] of expected) {
     const post = bySlug.get(slug);
     assert.equal(post.softwareSlug, softwareSlug);
-    assert.ok(post.internalLinks.some((link) => link.href === `/software/${softwareSlug}`));
+    const sourceHref = `/software/${softwareSlug}`;
+    const canonicalHref = redirects[sourceHref] ?? sourceHref;
+    assert.ok(post.internalLinks.some((link) => link.href === canonicalHref), `${slug}: missing direct canonical link ${canonicalHref}`);
+    if (canonicalHref !== sourceHref) {
+      assert.ok(!post.internalLinks.some((link) => link.href === sourceHref), `${slug}: still links to retired URL ${sourceHref}`);
+    }
     assert.equal(post.serviceSlug, undefined);
   }
 });

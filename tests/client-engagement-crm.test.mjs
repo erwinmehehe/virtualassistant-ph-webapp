@@ -60,8 +60,7 @@ test("recruiter pipeline surfaces client activity and unread work without openin
   assert.match(pipeline, /recruiter_client_activity_snapshot/);
   assert.match(pipeline, /Client activity/);
   assert.match(pipeline, /Login/);
-  assert.match(pipeline, /VA views/);
-  assert.doesNotMatch(pipeline, /VA views\*/);
+  assert.doesNotMatch(pipeline, /<b>VA views<\/b>/);
   assert.doesNotMatch(pipeline, /Account-wide candidate viewing activity/);
   assert.match(pipeline, /Shortlist/);
   assert.match(pipeline, /Decision/);

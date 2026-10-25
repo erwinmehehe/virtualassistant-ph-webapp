@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SoftwareDirectory } from "@/components/software-directory";
 import { softwarePages } from "@/lib/software-pages";
+import { isPrunedRedirectSource } from "@/lib/seo-prune";
 import { canonicalPath } from "@/lib/seo-url";
 import { socialMetadata } from "@/lib/og";
 import "../software-directory.css";
@@ -31,7 +32,8 @@ export const metadata: Metadata = {
   }),
 };
 
-const guidePreviews = softwarePages.map(({ slug, software, category, focus, tasks }) => ({
+const directorySoftwarePages = softwarePages.filter((page) => !isPrunedRedirectSource(`/software/${page.slug}`));
+const guidePreviews = directorySoftwarePages.map(({ slug, software, category, focus, tasks }) => ({
   slug,
   software,
   category,
@@ -39,7 +41,7 @@ const guidePreviews = softwarePages.map(({ slug, software, category, focus, task
   tasks,
 }));
 
-const categoryCount = new Set(softwarePages.map((guide) => guide.category)).size;
+const categoryCount = new Set(directorySoftwarePages.map((guide) => guide.category)).size;
 
 export default function SoftwareIndexPage() {
   return (
@@ -70,7 +72,7 @@ export default function SoftwareIndexPage() {
                 </Link>
               </div>
               <div className="sw-hero-proof" aria-label="Software guide features">
-                <span><CheckCircle2 size={16} aria-hidden="true" /> {softwarePages.length} platform guides</span>
+                <span><CheckCircle2 size={16} aria-hidden="true" /> {directorySoftwarePages.length} platform guides</span>
                 <span><CheckCircle2 size={16} aria-hidden="true" /> {categoryCount} industry categories</span>
                 <span><CheckCircle2 size={16} aria-hidden="true" /> Workflow-first hiring</span>
               </div>

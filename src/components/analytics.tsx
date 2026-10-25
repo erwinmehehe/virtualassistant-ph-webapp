@@ -68,6 +68,24 @@ function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
 
 type AnalyticsEvent = { event: string; metadata?: Record<string, unknown> };
 
+// GA4 measures all public page views. Our first-party table only needs one
+// general entry per browser tab plus blog views for the content-to-lead funnel.
+// Keeping every SPA navigation as a server beacon caused needless invocations.
+const FIRST_PARTY_PAGE_VIEW_SESSION_KEY = "vaph-first-party-page-view";
+
+function shouldRecordFirstPartyPageView(pathname: string) {
+  const isBlogPath = pathname === "/blog" || pathname.startsWith("/blog/");
+  try {
+    const alreadyRecorded = window.sessionStorage.getItem(FIRST_PARTY_PAGE_VIEW_SESSION_KEY) === "1";
+    if (!alreadyRecorded) window.sessionStorage.setItem(FIRST_PARTY_PAGE_VIEW_SESSION_KEY, "1");
+    return isBlogPath || !alreadyRecorded;
+  } catch {
+    // Blocked storage should never break navigation or blog attribution.
+    // GA4 enhanced measurement still covers general page views.
+    return isBlogPath;
+  }
+}
+
 /**
  * Send related page events in one request. This preserves individual event
  * records while avoiding a second Function invocation, auth enrichment and
@@ -75,7 +93,10 @@ type AnalyticsEvent = { event: string; metadata?: Record<string, unknown> };
  */
 function sendMany(events: AnalyticsEvent[]) {
   for (const { event, metadata } of events) forwardToGa4(event, metadata);
-  const tracked = events.filter(({ event }) => !event.startsWith("training_"));
+  const tracked = events.filter(({ event }) =>
+    !event.startsWith("training_") &&
+    (event !== "page_view" || shouldRecordFirstPartyPageView(window.location.pathname))
+  );
   if (!tracked.length) return;
 
   const referrer = document.referrer ? (() => {

@@ -39,7 +39,8 @@ test("software hub groups all registry categories through a searchable directory
     readFile("src/lib/software-pages.ts", "utf8"),
   ]);
 
-  assert.match(hub, /softwarePages\.map\(\(\{ slug, software, category, focus, tasks \}\)/);
+  assert.match(hub, /softwarePages\.filter\(\(page\) => !isPrunedRedirectSource/);
+  assert.match(hub, /directorySoftwarePages\.map\(\(\{ slug, software, category, focus, tasks \}\)/);
   assert.match(hub, /<SoftwareDirectory guides=\{guidePreviews\}/);
   assert.match(directory, /new Set\(guides\.map\(\(guide\) => guide\.category\)\)/);
   assert.match(directory, /guide\.category === category/);

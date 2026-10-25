@@ -15,9 +15,10 @@ export async function reviewJobAction(formData: FormData) {
   const decision = String(formData.get("decision"));
   const admin = createAdminClient();
   if (decision === "approve") {
-    const { data: job } = await admin.from("jobs").select("client_id,service_model,moderation_status,title,company_name,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
+    const { data: job } = await admin.from("jobs").select("client_id,status,service_model,moderation_status,title,company_name,summary,responsibilities,required_skills,hours_per_week,timezone,min_hourly_rate,start_timing").eq("id", id).single();
     if (!job?.client_id) throw new Error("Link this lead-created job to a client account before publishing it.");
-    if (job.moderation_status !== "clear") throw new Error("Review and clear the content hold before approving this job.");
+    if (job.moderation_status !== "clear") throw new Error("Clear the content hold before quoting commercial terms.");
+    if (!["pending", "published"].includes(job.status)) throw new Error("Only an open role can receive commercial terms.");
     const missing = publicationMissingDetails(job);
     if (missing.length) throw new Error(`This brief is missing required public content: ${missing.join(", ")}.`);
     const { data: settings } = await admin.from("admin_settings").select("default_placement_fee,default_managed_markup_percent").eq("id",1).single();
@@ -32,7 +33,8 @@ export async function reviewJobAction(formData: FormData) {
       managed_markup_percent:job.service_model === "managed_service" ? managedMarkup : null,
       commercial_status:"quoted"
     },{onConflict:"job_id"});
-    await admin.from("jobs").update({ status: "pending", rejection_note: null }).eq("id", id);
+    // Pricing must never unpublish a role the employer already posted.
+    await admin.from("jobs").update({ rejection_note: null }).eq("id", id);
   } else if (decision === "reject") {
     await admin.from("jobs").update({ status: "draft", rejection_note: String(formData.get("note") ?? "Please update the job and resubmit.") }).eq("id", id);
   }

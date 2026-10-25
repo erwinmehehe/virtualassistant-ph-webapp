@@ -13,9 +13,9 @@ test("GA4 remains installed for public page views and conversions", () => {
   assert.match(layout, /id="ga4-init"/);
   assert.match(layout, /gtag\('config', '\$\{gaId\}'\)/);
   assert.match(layout, /<AttributionTracker\/><Analytics\/>/);
-  assert.match(config, /https:\/\/www\.googletagmanager\.com/);
-  assert.match(config, /https:\/\/www\.google-analytics\.com/);
-  assert.match(config, /https:\/\/\*\.google-analytics\.com/);
+  assert.ok(config.includes("https://www.googletagmanager.com"));
+  assert.ok(config.includes("https://www.google-analytics.com"));
+  assert.ok(config.includes("https://*.google-analytics.com"));
 });
 
 test("GA4 events do not trigger Vercel analytics requests or Web Vitals", () => {

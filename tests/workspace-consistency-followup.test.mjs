@@ -62,8 +62,8 @@ test("primary recruiter navigation stays consolidated",async()=>{
 
 test("content security policy allows GA4 while custom Vercel telemetry stays retired", async () => {
   const config = await read("next.config.ts");
-  assert.match(config, /https:\/\/www\.googletagmanager\.com/);
-  assert.match(config, /https:\/\/www\.google-analytics\.com/);
-  assert.match(config, /https:\/\/\*\.google-analytics\.com/);
-  assert.match(config, /https:\/\/challenges\.cloudflare\.com/);
+  assert.ok(config.includes("https://www.googletagmanager.com"));
+  assert.ok(config.includes("https://www.google-analytics.com"));
+  assert.ok(config.includes("https://*.google-analytics.com"));
+  assert.ok(config.includes("https://challenges.cloudflare.com"));
 });

@@ -5,9 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { isExplicitCrossSiteRequest, readRequestJson } from "@/lib/http-security";
 
+// Form-focus and login-attempt signals are client-side GA4-only.
+// Reject stale cached browser beacons before rate limiting, auth or storage.
 const fixedEvents = new Set([
   "page_view",
-  "form_start",
   "booking_click",
   "pricing_view",
   "hire_page_view",
@@ -32,7 +33,6 @@ const fixedEvents = new Set([
   "tool_complete",
   "tool_cta_match",
   "service_blog_guide",
-  "login_submit",
   "role_brief_create_account",
   "role_brief_submit",
   "talent_request_intro",

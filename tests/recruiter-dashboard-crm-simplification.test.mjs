@@ -39,7 +39,9 @@ test("client CRM defaults to a simple pipeline with fixed views and focused acti
     assert.match(page, new RegExp(`"${label}"`));
   }
   assert.match(page, /<th aria-label="Select"><\/th><th>Client<\/th><th>Stage<\/th><th>Role<\/th><th>Client activity<\/th><th>Owner<\/th><th>Next step<\/th>/);
-  assert.match(page, /VA views/);
+  assert.doesNotMatch(page, /<b>VA views<\/b>/);
+  assert.match(page, /<b>Shortlist<\/b>/);
+  assert.match(page, /<b>Reply<\/b>/);
   assert.doesNotMatch(page, /Account-wide/);
   assert.doesNotMatch(page, /Customize dashboard|Save current view|Attio-style|Pipeline value|objectBar/);
 });

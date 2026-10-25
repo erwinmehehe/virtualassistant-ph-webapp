@@ -30,6 +30,6 @@ export function ClientEngagementPanel({
       <div><span>Last email reply / chat reply</span><strong>{lastClientReply}</strong></div>
       <div><span>Reply status</span><strong className={replyStatus.startsWith("Client replied") ? styles.needsAction : replyStatus.startsWith("Awaiting") ? styles.awaiting : styles.handled}>{replyStatus}</strong></div>
     </div>
-    <p className={styles.note}>Shortlist decisions and inbound client replies are saved in the hiring workflow and stay role-scoped. Recruiters can also log a reply manually. Candidate-view analytics have been retired.</p>
+    <p className={styles.note}>Shortlist decisions and inbound client email replies are tracked automatically and kept role-scoped. Recruiters can also log a reply manually if needed. Candidate-view analytics have been retired.</p>
   </section>;
 }

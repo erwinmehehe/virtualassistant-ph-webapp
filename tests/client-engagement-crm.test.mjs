@@ -13,38 +13,33 @@ test("reviewed shortlist questions route into the role-scoped recruiter chat", a
   assert.doesNotMatch(page, /Send to recruiter/);
 });
 
-test("recruiter CRM shows role-scoped client engagement signals", async () => {
-  const [record, panel, tracker, analyticsApi, migration] = await Promise.all([
+test("recruiter CRM retains operational activity but no longer shows stale VA-view analytics", async () => {
+  const [record, panel, tracker, analyticsApi, pipeline, migration] = await Promise.all([
     read("src/app/workspace/recruiter/crm/[leadId]/page.tsx"),
     read("src/components/client-engagement-panel.tsx"),
     read("src/components/client-candidate-view-tracker.tsx"),
     read("src/app/api/analytics/route.ts"),
+    read("src/app/workspace/recruiter/crm/page.tsx"),
     read("supabase/migrations/20260929171000_role_scoped_client_candidate_views.sql"),
   ]);
 
   for (const label of [
-    "Last login",
-    "Last VA viewed",
-    "VAs viewed",
-    "Shortlist opened",
-    "Last shortlist activity",
-    "Decision received",
-    "Last email reply",
+    "Last login", "Shortlist opened", "Last shortlist activity",
+    "Decision received", "Last email reply", "Reply status",
   ]) {
     assert.match(panel, new RegExp(label));
   }
-
   assert.match(record, /recruiter_client_activity_snapshot/);
   assert.match(record, /ClientEngagementPanel/);
-  assert.match(tracker, /event: "candidate_viewed"/);
-  assert.match(tracker, /job_id: jobId/);
-  assert.match(tracker, /va_id: vaId/);
-  assert.match(tracker, /surface: "client_hiring_room"/);
-  assert.match(analyticsApi, /"candidate_viewed"/);
+  assert.match(pipeline, /Reply in chat/);
+  assert.doesNotMatch(panel, /Last VA viewed|VAs viewed/);
+  assert.doesNotMatch(pipeline, /<b>VA views<\/b>/);
+  assert.match(tracker, /return null/);
+  assert.doesNotMatch(tracker, /sendBeacon|fetch\(|IntersectionObserver/);
+  assert.match(analyticsApi, /status: 204/);
+  assert.doesNotMatch(analyticsApi, /analytics_events|createAdminClient/);
+  // Existing migration stays intact; no historical user records are erased.
   assert.match(migration, /count\(distinct nullif\(a\.metadata ->> 'va_id', ''\)\)/);
-  assert.match(migration, /a\.metadata ->> 'job_id' = l\.job_id::text/);
-  assert.match(migration, /a\.metadata ->> 'surface' = 'client_hiring_room'/);
-  assert.match(panel, /distinct candidates actually viewed in this role's Hiring Room/);
 });
 
 test("recruiter can explicitly log inbound email replies", async () => {

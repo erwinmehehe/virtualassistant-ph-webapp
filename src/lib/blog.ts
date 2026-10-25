@@ -9,6 +9,7 @@ import { BLOG_CANDIDATE_PROFILE_GUIDES } from "@/lib/blog-candidate-profile-guid
 import { BLOG_JOB_SEARCH_GUIDES } from "@/lib/blog-job-search-guides";
 import { BLOG_AEO_GUIDES } from "@/lib/blog-aeo-guides";
 import { BLOG_AEO_FOLLOWUP_GUIDES } from "@/lib/blog-aeo-followup-guides";
+import { BLOG_US_OUTSOURCING_GUIDES } from "@/lib/blog-us-outsourcing-guides";
 import { applyGscEditorialPatch } from "@/lib/blog-gsc-editorial-refreshes";
 import { isPrunedRedirectSource, resolvePrunedSeoHref } from "@/lib/seo-prune";
 
@@ -19,6 +20,7 @@ BLOG_POSTS.push(...BLOG_CANDIDATE_PROFILE_GUIDES);
 BLOG_POSTS.push(...BLOG_JOB_SEARCH_GUIDES);
 BLOG_POSTS.push(...BLOG_AEO_GUIDES);
 BLOG_POSTS.push(...BLOG_AEO_FOLLOWUP_GUIDES);
+BLOG_POSTS.push(...BLOG_US_OUTSOURCING_GUIDES);
 
 // SERP-focused copy refinements for GSC-visible legacy guides. The underlying
 // first-party dataset and article sections remain unchanged.

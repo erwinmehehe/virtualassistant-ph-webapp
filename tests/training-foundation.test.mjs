@@ -231,9 +231,13 @@ test("new roadmap courses remain invisible until full content review", async () 
   assert.match(seed, /'\[\]'::jsonb, 25/);
   assert.match(seed, /false, 1, now\(\), now\(\)/);
 
-  const training = await readFile("src/lib/training.ts", "utf8");
-  assert.match(training, /\.eq\("status", "published"\)/);
-  assert.match(training, /\.eq\("is_published", true\)/);
+  const [training, curriculum] = await Promise.all([
+    readFile("src/lib/training.ts", "utf8"),
+    readFile("src/lib/training-curriculum-cache.ts", "utf8"),
+  ]);
+  assert.match(training, /getCachedPublishedTrainingCatalogue/);
+  assert.match(curriculum, /\.eq\("status", "published"\)/);
+  assert.match(curriculum, /\.eq\("is_published", true\)/);
 
   const authoring = await readFile("src/app/actions/training-admin.ts", "utf8");
   assert.match(authoring, /recommended_order/);

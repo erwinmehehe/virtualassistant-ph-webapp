@@ -11,6 +11,7 @@ const candidateGuidesPath = path.join(root, 'src/lib/blog-candidate-profile-guid
 const jobSearchGuidesPath = path.join(root, 'src/lib/blog-job-search-guides.ts');
 const aeoGuidesPath = path.join(root, 'src/lib/blog-aeo-guides.ts');
 const aeoFollowupGuidesPath = path.join(root, 'src/lib/blog-aeo-followup-guides.ts');
+const usOutsourcingGuidesPath = path.join(root, 'src/lib/blog-us-outsourcing-guides.ts');
 const servicePath = path.join(root, 'src/lib/service-pages.ts');
 const softwarePath = path.join(root, 'src/lib/software-pages.ts');
 const industryPath = path.join(root, 'src/lib/industries.ts');
@@ -28,6 +29,7 @@ function readPosts() {
     ...readPostArray(jobSearchGuidesPath, 'export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = '),
     ...readPostArray(aeoGuidesPath, 'export const BLOG_AEO_GUIDES: BlogPost[] = '),
     ...readPostArray(aeoFollowupGuidesPath, 'export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = '),
+    ...readPostArray(usOutsourcingGuidesPath, 'export const BLOG_US_OUTSOURCING_GUIDES: BlogPost[] = '),
   ];
 }
 function readPostArray(file, marker) {

@@ -2,10 +2,17 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("client self-publishing requires an explicitly verified client profile", async () => {
-  const source = await readFile("src/app/actions/jobs.ts", "utf8");
-  assert.match(source, /select\("can_self_publish_jobs,verified_at"\)/);
-  assert.match(source, /clientProfile\?\.can_self_publish_jobs && clientProfile\?\.verified_at/);
+test("employer auto-publication requires a confirmed email, complete job and content-safety checks", async () => {
+  const [source, policy] = await Promise.all([
+    readFile("src/app/actions/jobs.ts", "utf8"),
+    readFile("src/lib/job-publication.ts", "utf8"),
+  ]);
+  assert.match(source, /emailVerified: Boolean\(user\.email_confirmed_at\)/);
+  assert.match(source, /Verify your email address before publishing/);
+  assert.match(source, /publicationMissingDetails\(\{/);
+  assert.match(source, /const needsModeration = submitMode !== "draft" && reviewSignals\.length > 0/);
+  assert.match(policy, /return emailVerified/);
+  assert.doesNotMatch(source, /select\("can_self_publish_jobs,verified_at"\)/);
 });
 
 test("public job content blocks direct contact, payment and off-platform hiring instructions", async () => {

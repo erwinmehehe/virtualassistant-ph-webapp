@@ -93,7 +93,8 @@ test("posting UI explains immediate publication and separate commercial terms", 
   ]);
 
   assert.match(newJob, /emailVerified: Boolean\(user\.email_confirmed_at\)/);
-  assert.match(newJob, /publish your completed job immediately/);
+  assert.match(newJob, /Complete your role details and publish immediately/);
+  assert.match(newJob, /Recruiting and commercial terms are separate/);
   assert.match(wizard, /Publish job/);
   assert.match(wizard, /public Virtual Assistant jobs directory immediately/);
   assert.doesNotMatch(wizard, /canSelfPublishJobs && data\.service_model === "curated_placement"/);

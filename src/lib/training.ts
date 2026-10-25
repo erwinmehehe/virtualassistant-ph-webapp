@@ -1,4 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCachedPublishedTrainingCatalogue, getCachedPublishedTrainingCourse } from "@/lib/training-curriculum-cache";
+import { getTrainingVerifiedAuthUser } from "@/lib/training-verified-auth-user";
 import { createClient } from "@/lib/supabase/server";
 import { buildTrainingCompletionHealth } from "@/lib/training-completion-health";
 import { buildTrainingCohortConversion } from "@/lib/training-cohort-conversion";
@@ -194,21 +196,14 @@ function percent(done: number, total: number) {
 
 export async function getTrainingDashboard(userId: string) {
   const supabase = await createClient();
-  const [
-    { data: authUserData },
-    { data: courseData, error },
-  ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
-      .from("training_courses")
-      .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
-      .eq("status", "published")
-      .order("recommended_order", { ascending: true })
-      .order("title"),
-  ]);
+  const { data: authUserData } = await getTrainingVerifiedAuthUser();
   const learnerName = String(authUserData.user?.user_metadata?.full_name || "").trim() || null;
-
-  if (error) {
+  let catalogue: Awaited<ReturnType<typeof getCachedPublishedTrainingCatalogue>>;
+  try {
+    catalogue = await getCachedPublishedTrainingCatalogue();
+  } catch {
+    // Fail closed; a transient database issue must not cache partial curriculum
+    // or expose privileged query errors to the learner.
     return {
       courses: [] as TrainingCourseSummary[],
       paths: [] as TrainingLearningPathSummary[],
@@ -216,11 +211,11 @@ export async function getTrainingDashboard(userId: string) {
       learnerPreferences: null as TrainingLearnerPreferences | null,
       savedCourseIds: [] as string[],
       learnerName,
-      error: error.message,
+      error: "Training catalogue is temporarily unavailable.",
     };
   }
 
-  const courses = (courseData || []) as CourseRow[];
+  const courses = catalogue.courses as CourseRow[];
   const courseIds = courses.map((course) => course.id);
   if (!courseIds.length) {
     return {
@@ -234,25 +229,11 @@ export async function getTrainingDashboard(userId: string) {
     };
   }
 
-  const { data: moduleData } = await supabase
-    .from("training_modules")
-    .select("id,course_id,title,summary,position")
-    .in("course_id", courseIds)
-    .order("position");
-
-  const modules = (moduleData || []) as ModuleRow[];
-  const moduleIds = modules.map((module) => module.id);
-
-  const { data: lessonData } = moduleIds.length
-    ? await supabase
-        .from("training_lessons")
-        .select("id,module_id,slug,title,summary,content,estimated_minutes,position,is_published,content_version,reviewed_by,last_reviewed_at")
-        .in("module_id", moduleIds)
-        .eq("is_published", true)
-        .order("position")
-    : { data: [] };
-
-  const lessons = (lessonData || []) as LessonRow[];
+  // Shared metadata contains only published lessons, without their lengthy
+  // content. Enrollment, progress, certificates and preferences remain
+  // private requests below and are NEVER put into the shared cache.
+  const modules = catalogue.modules as ModuleRow[];
+  const lessons = catalogue.lessons as LessonRow[];
   const lessonIds = lessons.map((lesson) => lesson.id);
 
   const [
@@ -292,12 +273,7 @@ export async function getTrainingDashboard(userId: string) {
       .select("id,course_id,credential_code,issued_at,revoked_at,metadata")
       .eq("user_id", userId)
       .in("course_id", courseIds),
-    supabase
-      .from("training_assessments")
-      .select("id,course_id,title,pass_score,position")
-      .in("course_id", courseIds)
-      .eq("is_published", true)
-      .order("position"),
+    Promise.resolve({ data: catalogue.assessments }),
     supabase
       .from("va_profiles")
       .select("primary_category,categories,tools,industries")
@@ -442,11 +418,7 @@ export async function getTrainingDashboard(userId: string) {
     };
   });
 
-  const { data: pathData } = await supabase
-    .from("training_learning_paths")
-    .select("id,slug,title,summary,country_focus,status")
-    .eq("status", "published")
-    .order("title");
+  const pathData = catalogue.paths;
 
   const pathRows = (pathData || []) as Array<{
     id: string;
@@ -457,13 +429,7 @@ export async function getTrainingDashboard(userId: string) {
     status: "draft" | "published" | "archived";
   }>;
   const pathIds = pathRows.map((item) => item.id);
-  const { data: pathCourseData } = pathIds.length
-    ? await supabase
-        .from("training_learning_path_courses")
-        .select("path_id,course_id,position")
-        .in("path_id", pathIds)
-        .order("position")
-    : { data: [] };
+  const pathCourseData = catalogue.pathCourses;
 
   const pathCourses = (pathCourseData || []) as Array<{ path_id: string; course_id: string; position: number }>;
   const paths: TrainingLearningPathSummary[] = pathRows.map((item) => ({
@@ -498,39 +464,26 @@ export async function getTrainingDashboard(userId: string) {
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {
   const supabase = await createClient();
-  const { data: courseData, error } = await supabase
-    .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
+  let published: Awaited<ReturnType<typeof getCachedPublishedTrainingCourse>>;
+  try {
+    published = await getCachedPublishedTrainingCourse(slug);
+  } catch {
+    return { course: null, error: "This training course is temporarily unavailable." };
+  }
+  if (!published) return { course: null, error: null };
 
-  if (error || !courseData) return { course: null, error: error?.message || null };
-  const course = courseData as CourseRow;
+  const course = published.course as CourseRow;
+  const modules = published.modules as ModuleRow[];
+  const lessons = published.lessons as LessonRow[];
+  const assessmentData = published.assessments as TrainingAssessment[];
+  const lessonIds = lessons.map((lesson) => lesson.id);
 
-  const { data: moduleData } = await supabase
-    .from("training_modules")
-    .select("id,course_id,title,summary,position")
-    .eq("course_id", course.id)
-    .order("position");
-
-  const modules = (moduleData || []) as ModuleRow[];
-  const moduleIds = modules.map((module) => module.id);
-
+  // Learner progress is resolved with the request-bound RLS client every time.
   const [
-    { data: lessonData },
     { data: enrollmentData },
-    { data: assessmentData },
     { data: certificateData },
+    { data: progressData },
   ] = await Promise.all([
-    moduleIds.length
-      ? supabase
-          .from("training_lessons")
-          .select("id,module_id,slug,title,summary,content,estimated_minutes,position,is_published,content_version,reviewed_by,last_reviewed_at")
-          .in("module_id", moduleIds)
-          .eq("is_published", true)
-          .order("position")
-      : Promise.resolve({ data: [] }),
     supabase
       .from("training_enrollments")
       .select("course_id,started_at,completed_at")
@@ -538,29 +491,20 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
       .eq("course_id", course.id)
       .maybeSingle(),
     supabase
-      .from("training_assessments")
-      .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published,rubric,resource_pack")
-      .eq("course_id", course.id)
-      .eq("is_published", true)
-      .order("position"),
-    supabase
       .from("training_certificates")
       .select("id,course_id,credential_code,issued_at,revoked_at,metadata")
       .eq("user_id", userId)
       .eq("course_id", course.id)
       .is("revoked_at", null)
       .maybeSingle(),
+    lessonIds.length
+      ? supabase
+          .from("training_lesson_progress")
+          .select("lesson_id")
+          .eq("user_id", userId)
+          .in("lesson_id", lessonIds)
+      : Promise.resolve({ data: [] }),
   ]);
-
-  const lessons = (lessonData || []) as LessonRow[];
-  const lessonIds = lessons.map((lesson) => lesson.id);
-  const { data: progressData } = lessonIds.length
-    ? await supabase
-        .from("training_lesson_progress")
-        .select("lesson_id")
-        .eq("user_id", userId)
-        .in("lesson_id", lessonIds)
-    : { data: [] };
 
   const completed = new Set(
     ((progressData || []) as Array<{ lesson_id: string }>).map((row) => row.lesson_id),

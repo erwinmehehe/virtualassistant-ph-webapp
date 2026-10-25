@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL("../" + path, import.meta.url), "utf8");
 
-test("all optional tracking and GA4 are fully disabled", async () => {
+test("GA4 is preserved, while first-party and training telemetry are retired", async () => {
   const [layout, client, route, product, candidate] = await Promise.all([
     read("src/app/layout.tsx"),
     read("src/components/analytics.tsx"),
@@ -12,8 +12,12 @@ test("all optional tracking and GA4 are fully disabled", async () => {
     read("src/lib/product-events.ts"),
     read("src/components/client-candidate-view-tracker.tsx"),
   ]);
-  assert.doesNotMatch(layout, /gtag|<Analytics|<AttributionTracker/);
-  assert.match(client, /return null/);
+  assert.match(layout, /NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  assert.match(layout, /ga4-init/);
+  assert.match(layout, /<AttributionTracker\/><Analytics\/>/);
+  assert.match(client, /forwardToGa4/);
+  assert.match(client, /!isTrainingPath\(pathname\)/);
+  assert.doesNotMatch(client, /sendBeacon|fetch\(|useReportWebVitals/);
   assert.match(candidate, /return null/);
   assert.match(route, /status: 204/);
   assert.doesNotMatch(route, /analytics_events|createAdminClient|enforceActionRateLimit/);

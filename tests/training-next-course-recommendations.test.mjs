@@ -84,7 +84,8 @@ test("recommendation links remain phone-safe without optional clickstream tracki
   assert.doesNotMatch(route, /"training_recommendation_click"/);
   const analytics = await readFile("src/components/analytics.tsx", "utf8");
   assert.match(analytics, /return null/);
-  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useEffect/);
+  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useReportWebVitals/);
+  assert.match(analytics, /event\.startsWith\("training_"\)/);
   assert.match(css, /\.training-next-primary/);
   assert.match(css, /\.training-next-alternate-grid/);
   assert.match(css, /@media \(max-width: 720px\)/);

@@ -69,7 +69,9 @@ test("sitewide analytics and Web Vitals have no Vercel CPU or Supabase writes", 
     read("src/lib/sales-analytics.ts"),
     read("src/components/sales-analytics-dashboard.tsx"),
   ]);
-  assert.doesNotMatch(layout, /NEXT_PUBLIC_GA_MEASUREMENT_ID|gtag|<Analytics\/>/);
+  assert.match(layout, /NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  assert.match(layout, /ga4-init/);
+  assert.match(layout, /<Analytics\/>/);
   assert.doesNotMatch(tracker, /sendBeacon|fetch\(|useReportWebVitals/);
   assert.match(tracker, /return null/);
   assert.match(route, /status: 204/);

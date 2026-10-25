@@ -174,7 +174,8 @@ test("VA onboarding saves progression without optional analytics beacons", () =>
   assert.match(analyticsRoute, /status: 204/);
   assert.doesNotMatch(analyticsRoute, /analytics_events|createAdminClient/);
   assert.match(analytics, /return null/);
-  assert.doesNotMatch(analytics, /sendBeacon|useEffect/);
+  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useReportWebVitals/);
+  assert.match(analytics, /forwardToGa4/);
   assert.match(serverEvents, /recordProductEvent/);
   assert.doesNotMatch(serverEvents, /createAdminClient|analytics_events/);
 });

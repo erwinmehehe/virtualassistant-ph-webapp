@@ -19,15 +19,18 @@ test("default public metadata includes branded Open Graph and Twitter imagery", 
   assert.match(twitter, /OpengraphImage/);
 });
 
-test("public analytics, GA4 and custom Web Vitals are all disabled", async () => {
+test("GA4 stays active but custom Web Vitals and first-party analytics remain disabled", async () => {
   const [layout, analytics, route] = await Promise.all([
     read("src/app/layout.tsx"),
     read("src/components/analytics.tsx"),
     read("src/app/api/analytics/route.ts"),
   ]);
-  assert.doesNotMatch(layout, /gtag|<Analytics|<AttributionTracker|GoogleTagManager/);
-  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useReportWebVitals|useEffect/);
-  assert.match(analytics, /return null/);
+  assert.match(layout, /NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  assert.match(layout, /ga4-init/);
+  assert.match(layout, /<AttributionTracker\/><Analytics\/>/);
+  assert.match(analytics, /forwardToGa4/);
+  assert.match(analytics, /!isTrainingPath\(pathname\)/);
+  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useReportWebVitals|reportWebVital/);
   assert.match(route, /status: 204/);
   assert.doesNotMatch(route, /analytics_events|createAdminClient/);
 });

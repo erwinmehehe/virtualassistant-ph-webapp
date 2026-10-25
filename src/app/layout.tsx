@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import Script from "next/script";
+import { Analytics } from "@/components/analytics";
+import { AttributionTracker } from "@/components/attribution-tracker";
 import "./globals.css";
 import "./operations.css";
 import "./marketing-refresh.css";
@@ -20,6 +23,7 @@ import "./hiring-brief-form.css";
 import "./public-talent-proof.css";
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph"),
@@ -60,5 +64,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en-US"><body><a className="skip-link" href="#main-content">Skip to main content</a>
-    {children}</body></html>;
+    {gaId ? <>
+      <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+      <Script id="ga4-init" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${gaId}');`}</Script>
+    </> : null}
+    <AttributionTracker/><Analytics/>{children}</body></html>;
 }

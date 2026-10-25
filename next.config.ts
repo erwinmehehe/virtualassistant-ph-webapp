@@ -88,12 +88,12 @@ const contentSecurityPolicy = [
   // Next.js still emits inline hydration/JSON-LD script blocks in this app, so
   // keep that narrow allowance for now. Production no longer permits eval,
   // and inline event-handler attributes are explicitly blocked.
-  `script-src 'self' 'unsafe-inline'${allowUnsafeEval} https://challenges.cloudflare.com`,
+  `script-src 'self' 'unsafe-inline'${allowUnsafeEval} https://challenges.cloudflare.com https://www.googletagmanager.com`,
   "script-src-attr 'none'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  `connect-src 'self'${localSupabaseConnectSrc} https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com https://*.vercel-insights.com`,
+  `connect-src 'self'${localSupabaseConnectSrc} https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com https://*.vercel-insights.com https://www.google-analytics.com https://*.google-analytics.com`,
   "frame-src https://challenges.cloudflare.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",

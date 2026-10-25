@@ -13,6 +13,7 @@ import { organizationId, websiteId } from "@/lib/organization";
 import { blogHref, softwareBlogPosts } from "@/lib/blog";
 import { localizeContent, localizeEnglish } from "@/lib/content-language";
 import { socialMetadata } from "@/lib/og";
+import { SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS } from "@/lib/seo-prune";
 
 export function generateStaticParams() { return softwarePages.map((page) => ({ slug: page.slug })); }
 
@@ -36,7 +37,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       locale: page.locale === "en-AU" ? "en_AU" : page.locale === "en-GB" ? "en_GB" : undefined,
       eyebrow: page.software,
       points: page.tasks.slice(0, 4),
-    })
+    }),
+    ...(SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS.has(page.slug)
+      ? { robots: { index: false, follow: true, googleBot: { index: false, follow: true } } }
+      : {})
   };
 }
 

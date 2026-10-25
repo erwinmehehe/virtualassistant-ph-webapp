@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, BriefcaseBusiness, CheckCircle2, Clock3, Globe2, ShieldCheck, WalletCards } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { getSessionProfile } from "@/lib/auth";
 import { applyToJobAction, saveJobAction } from "@/app/actions/applications";
 import { money, dateShort } from "@/lib/format";
@@ -19,17 +22,28 @@ import { organizationId, websiteId } from "@/lib/organization";
 import { MIN_HOURLY_RATE } from "@/lib/constants";
 import "./job-detail.css";
 
-async function getPublishedJob(key: string) {
-  try {
-    const supabase = await createClient();
-    const query = supabase.from("public_jobs").select("*").gte("min_hourly_rate", MIN_HOURLY_RATE);
-    const { data } = isUuid(key) ? await query.eq("id", key).maybeSingle() : await query.eq("slug", key).maybeSingle();
-    return data;
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") console.warn("[jobs/[id]] Supabase unavailable:", (err as Error).message);
-    return null;
-  }
-}
+// Public job data is shared by crawlers and authenticated visitors.
+// Only the per-user application/saved-job state below needs session reads.
+const readCachedPublishedJob = unstable_cache(
+  async (key: string) => {
+    const supabase = createPublicClient();
+    if (!supabase) return null;
+    try {
+      const query = supabase.from("public_jobs").select("*").gte("min_hourly_rate", MIN_HOURLY_RATE);
+      const { data, error } = isUuid(key)
+        ? await query.eq("id", key).maybeSingle()
+        : await query.eq("slug", key).maybeSingle();
+      return error ? null : data;
+    } catch {
+      return null;
+    }
+  },
+  ["published-job-detail-v1"],
+  { revalidate: 60, tags: ["public-job-details"] },
+);
+
+// Deduplicate the metadata and page read during the same React render.
+const getPublishedJob = cache(async (key: string) => readCachedPublishedJob(key));
 
 function publicCompanyFromJob(job: any) {
   if (!job) return null;

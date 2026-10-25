@@ -23,19 +23,14 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
   const supabase=await createClient();
   const {data:company}=await supabase
     .from("client_profiles")
-    .select("company_name,timezone,hiring_needs,budget_min,budget_max,can_self_publish_jobs,verified_at")
+    .select("company_name,timezone,hiring_needs,budget_min,budget_max")
     .eq("user_id",user.id)
     .maybeSingle();
   const {data:requested}=params.talent
     ? await supabase.from("public_va_directory").select("user_id,slug,full_name,primary_category").eq("slug",params.talent).maybeSingle()
     : {data:null};
 
-  const canSelfPublishJobs = clientCanSelfPublishJob({
-    serviceModel: "curated_placement",
-    legacyApproved: Boolean(company?.can_self_publish_jobs && company?.verified_at),
-    emailVerified: Boolean(user.email_confirmed_at),
-    verifiedClientRollout: process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true",
-  });
+  const canSelfPublishJobs = clientCanSelfPublishJob({ emailVerified: Boolean(user.email_confirmed_at) });
   const needs=String(company?.hiring_needs||"").trim();
   const starter=needs?starterBrief(needs):{};
   const initialData={
@@ -59,10 +54,10 @@ export default async function NewJobPage({searchParams}:{searchParams:Promise<Re
         <p>{fromPublicDraft
           ? "Check the role, schedule and budget below. You can edit anything before you submit."
           : canSelfPublishJobs
-            ? "Describe the work, set the schedule and budget, then review the public job before it goes live."
+            ? "Complete your role details and publish immediately. Recruiting and commercial terms are separate."
             : fromOnboarding
-              ? "We used your onboarding answers to prepare a starter brief. Review it, adjust anything you want, then send it to your recruiter."
-              : "Start with the work you need handled. We will help turn it into a clear brief your recruiter can actually hire against."}</p>
+              ? "Review the starter brief, then verify your email and publish your completed job."
+              : "Describe your role, verify your email, and publish without a recruiter approval step."}</p>
       </div>
       <div className="client-role-editor-meta" aria-label="Hiring request form details">
         <span><strong>3</strong> short steps</span>

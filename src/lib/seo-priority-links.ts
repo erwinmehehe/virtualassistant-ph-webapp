@@ -1,3 +1,5 @@
+import { resolvePrunedSeoHref } from "@/lib/seo-prune";
+
 export type SeoPriorityLink = {
   href: string;
   label: string;
@@ -114,7 +116,7 @@ const DENTAL_SERVICE: SeoPriorityLink = {
 
 const HVAC_HIRING: SeoPriorityLink = {
   href: "/blog/how-to-hire-a-hvac-virtual-assistant",
-  label: "HVAC Virtual Assistant hiring guide",
+  label: "HVAC VA hiring and cost guidance",
   description: "Define the HVAC workflow, screen for evidence, test live customer and dispatch scenarios, and set escalation boundaries."
 };
 
@@ -126,7 +128,7 @@ const HVAC_COST: SeoPriorityLink = {
 
 const EBAY_HIRING: SeoPriorityLink = {
   href: "/blog/how-to-hire-a-ebay-virtual-assistant",
-  label: "eBay Virtual Assistant hiring guide",
+  label: "eBay VA hiring and cost guidance",
   description: "Screen eBay candidates on listing workflows, customer support, order handling, account discipline, and marketplace evidence."
 };
 
@@ -210,14 +212,25 @@ export const SERVICE_PRIORITY_LINKS: Record<string, SeoPriorityLink[]> = {
   "content-writing": [CONTENT_MARKETING_GUIDE, RATE_GUIDE, PRICING_HUB, HIRE_HUB]
 };
 
+function activePriorityLinks(links: SeoPriorityLink[]) {
+  const seen = new Set<string>();
+  return links
+    .map((link) => ({ ...link, href: resolvePrunedSeoHref(link.href) }))
+    .filter((link) => {
+      if (seen.has(link.href)) return false;
+      seen.add(link.href);
+      return true;
+    });
+}
+
 export function seoPriorityLinksForBlog(slug: string) {
-  return BLOG_PRIORITY_LINKS[slug] || [];
+  return activePriorityLinks(BLOG_PRIORITY_LINKS[slug] || []);
 }
 
 export function seoPriorityLinksForArchive(slug: string) {
-  return ARCHIVE_PRIORITY_LINKS[slug] || [];
+  return activePriorityLinks(ARCHIVE_PRIORITY_LINKS[slug] || []);
 }
 
 export function seoPriorityLinksForService(slug: string) {
-  return SERVICE_PRIORITY_LINKS[slug] || [];
+  return activePriorityLinks(SERVICE_PRIORITY_LINKS[slug] || []);
 }

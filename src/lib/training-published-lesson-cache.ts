@@ -5,7 +5,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Cache only published lesson eligibility, never per-user learning activity.
- * The short TTL limits the window after an editor unpublishes a lesson.
+ * Cache expiry is aligned with the published-curriculum cache (120 seconds),
+ * and admin publishing actions immediately invalidate the shared curriculum tag.
+ * Direct database edits outside those actions may take up to this TTL to appear.
  * Fail closed on database errors rather than caching a false negative.
  */
 export const getCachedPublishedLessonId = unstable_cache(
@@ -24,5 +26,5 @@ export const getCachedPublishedLessonId = unstable_cache(
     return data?.id ?? null;
   },
   ["training-published-lesson-eligibility"],
-  { revalidate: 30, tags: ["training-curriculum"] },
+  { revalidate: 120, tags: ["training-curriculum"] },
 );

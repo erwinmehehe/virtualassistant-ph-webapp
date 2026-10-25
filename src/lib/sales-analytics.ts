@@ -70,8 +70,6 @@ export async function getSalesAnalytics(args: {
 }) {
   const admin = createAdminClient();
   const since = new Date(Date.now() - args.days * 86400000).toISOString();
-  const acquisitionQuery = admin.rpc("recruiter_conversion_summary", { p_since: since });
-
   let leadQuery = admin
     .from("lead_intake")
     .select("id,name,company,source_page,page_url,crm_stage,created_at,first_contact_at,discovery_scheduled_at,discovery_completed_at,discovery_cancelled_at,discovery_outcome,owner_id,estimated_value_usd,won_at,lost_at,lost_reason,lost_reason_code,lost_competitor,win_back_at")
@@ -80,10 +78,7 @@ export async function getSalesAnalytics(args: {
     .limit(5000);
   if (args.ownerId) leadQuery = leadQuery.eq("owner_id", args.ownerId);
 
-  const [{ data: acquisition, error: acquisitionError }, { data: leads, error: leadsError }] = await Promise.all([
-    acquisitionQuery,
-    leadQuery
-  ]);
+  const { data: leads, error: leadsError } = await leadQuery;
   const leadRows = leads || [];
   const leadIds = leadRows.map((lead: any) => lead.id);
   const ownerIds = [...new Set(leadRows.map((lead: any) => lead.owner_id).filter(Boolean))];
@@ -168,25 +163,6 @@ export async function getSalesAnalytics(args: {
     .map((lead: any) => Math.max(0, (new Date(lead.won_at).getTime() - new Date(lead.created_at).getTime()) / 86400000))
     .filter(Number.isFinite);
   const withinThirty = responseMinutes.filter((minutes) => minutes <= 30).length;
-
-  const acquisitionMetrics = (acquisition || {}) as {
-    homepage_visits?: number;
-    form_starts?: number;
-    tracked_sessions?: number;
-  };
-  const homepageVisits = Number(acquisitionMetrics.homepage_visits || 0);
-  const formStarts = Number(acquisitionMetrics.form_starts || 0);
-  const trackedSessions = Number(acquisitionMetrics.tracked_sessions || 0);
-
-  const funnel = [
-    { key: "homepage", label: "Homepage visits", count: homepageVisits },
-    { key: "form_start", label: "Form starts", count: formStarts },
-    { key: "lead", label: "Form submissions", count: leadRows.length },
-    { key: "discovery", label: "Discovery booked", count: discoveryBooked },
-    { key: "qualified", label: "Qualified", count: qualified },
-    { key: "proposal", label: "Proposal sent", count: sentLeadIds.size },
-    { key: "won", label: "Clients won", count: won }
-  ].map((stage) => ({ ...stage, rate: pct(stage.count, homepageVisits) }));
 
   const sourceMap = new Map<string, any>();
   for (const lead of leadRows) {
@@ -309,16 +285,12 @@ export async function getSalesAnalytics(args: {
     since,
     scopeOwnerId: args.ownerId || null,
     errors: {
-      acquisition: acquisitionError?.message || null,
       leads: leadsError?.message || null,
       proposals: proposalsError?.message || null,
       jobs: jobsError?.message || null,
       workrooms: workroomsError?.message || null
     },
     totals: {
-      homepageVisits,
-      formStarts,
-      trackedSessions,
       leads: leadRows.length,
       contacted,
       discoveryBooked,
@@ -359,7 +331,6 @@ export async function getSalesAnalytics(args: {
       { key: "proposal_accepted", label: "Proposal accepted", count: acceptedLeadIds.size },
       { key: "hire", label: "Hire", count: hiredLeadIds.size }
     ],
-    funnel,
     timeline,
     sources,
     owners: ownersSummary,

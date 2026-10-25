@@ -71,36 +71,18 @@ type AnalyticsEvent = { event: string; metadata?: Record<string, unknown> };
 // Low-intent engagement events belong in GA4, not in a separate Vercel
 // Function + rate-limiter RPC + database write. Keep conversion beacons.
 const GA4_ONLY_EVENTS = new Set(["form_start", "login_submit"]);
-
-// GA4 measures all public page views. Our first-party table only needs one
-// general entry per browser tab plus blog views for the content-to-lead funnel.
-// Keeping every SPA navigation as a server beacon caused needless invocations.
-const FIRST_PARTY_PAGE_VIEW_SESSION_KEY = "vaph-first-party-page-view";
-
-function shouldRecordFirstPartyPageView(pathname: string) {
-  const isBlogPath = pathname === "/blog" || pathname.startsWith("/blog/");
-  try {
-    const alreadyRecorded = window.sessionStorage.getItem(FIRST_PARTY_PAGE_VIEW_SESSION_KEY) === "1";
-    if (!alreadyRecorded) window.sessionStorage.setItem(FIRST_PARTY_PAGE_VIEW_SESSION_KEY, "1");
-    return isBlogPath || !alreadyRecorded;
-  } catch {
-    // Blocked storage should never break navigation or blog attribution.
-    // GA4 enhanced measurement still covers general page views.
-    return isBlogPath;
-  }
-}
+const RETIRED_EVENTS = new Set(["page_view"]);
 
 /**
- * Send related page events in one request. This preserves individual event
- * records while avoiding a second Function invocation, auth enrichment and
- * pair of rate-limit checks on pricing, hiring and VA profile pages.
+ * Forward conversion events to GA4, and persist only meaningful funnel events.
+ * Page views are measured by GA4 itself rather than a Vercel Function.
  */
 function sendMany(events: AnalyticsEvent[]) {
   for (const { event, metadata } of events) forwardToGa4(event, metadata);
   const tracked = events.filter(({ event }) =>
     !event.startsWith("training_") &&
     !GA4_ONLY_EVENTS.has(event) &&
-    (event !== "page_view" || shouldRecordFirstPartyPageView(window.location.pathname))
+    !RETIRED_EVENTS.has(event)
   );
   if (!tracked.length) return;
 
@@ -151,11 +133,11 @@ export function Analytics() {
       return;
     }
 
-    const events: AnalyticsEvent[] = [{ event: "page_view" }];
+    const events: AnalyticsEvent[] = [];
     if (pathname === "/pricing") events.push({ event: "pricing_view" });
     if (pathname === "/hire") events.push({ event: "hire_page_view" });
     if (pathname.startsWith("/va/")) events.push({ event: "candidate_view" });
-    sendMany(events);
+    if (events.length) sendMany(events);
   }, [pathname]);
 
   useEffect(() => {

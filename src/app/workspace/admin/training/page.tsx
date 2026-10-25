@@ -18,7 +18,7 @@ export default async function AdminTrainingPage() {
     getTrainingAdminSummary(),
     getTrainingReminderOutcomes(),
   ]);
-  const { courses, paths, totals, funnel, recovery, completionHealth, cohortConversion, lessonBottlenecks, integrity, error } = summary;
+  const { courses, paths, totals, recovery, completionHealth, cohortConversion, lessonBottlenecks, integrity, error } = summary;
 
   return (
     <div className="dash-page role-overview">
@@ -36,29 +36,6 @@ export default async function AdminTrainingPage() {
       </div>
 
       {error ? <section className="card dashboard-section-card"><h2>Migration required</h2><p className="muted">Apply the free training foundation migration before using course administration.</p></section> : null}
-
-      {!error ? (
-        <section className="card dashboard-section-card training-admin-funnel">
-          <div className="dashboard-section-head">
-            <div>
-              <h2>Learner completion funnel</h2>
-              <p>Unique signed-in learners who reached each training milestone in the last {funnel.windowDays} days. This is an activity funnel, not a fixed start-date cohort.</p>
-            </div>
-            <span className="badge">{funnel.windowDays} days</span>
-          </div>
-          <div className="compact-list training-funnel-list">
-            {funnel.stages.map((stage, index) => (
-              <div key={stage.event}>
-                <span>
-                  <strong>{index + 1}. {stage.label}</strong>
-                  <small>{stage.events} event{stage.events === 1 ? "" : "s"} recorded</small>
-                </span>
-                <span className="badge">{stage.learners} learner{stage.learners === 1 ? "" : "s"}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       {!error ? (
         <section className="card dashboard-section-card training-recovery-analytics">
@@ -378,11 +355,6 @@ export default async function AdminTrainingPage() {
 
           <div className="va-status-grid">
             <div className="status-summary-card">
-              <div className="row-between"><span>Checkpoint failure</span><Activity size={18}/></div>
-              <strong>{integrity.checkpointFailureRate}%</strong>
-              <small>{integrity.checkpointAttempts} attempt{integrity.checkpointAttempts === 1 ? "" : "s"}</small>
-            </div>
-            <div className="status-summary-card">
               <div className="row-between"><span>First-attempt pass</span><ShieldCheck size={18}/></div>
               <strong>{integrity.firstAttemptPassRate}%</strong>
               <small>Automatic final checks</small>
@@ -425,7 +397,7 @@ export default async function AdminTrainingPage() {
           <div className="dashboard-section-head training-integrity-lessons-head">
             <div>
               <h3>Lessons creating the most friction</h3>
-              <p>Checkpoint failures are combined with lessons repeatedly missed in final checks.</p>
+              <p>Only saved final-check results are counted. Checkpoint attempts are no longer separately tracked.</p>
             </div>
           </div>
           {integrity.lessonFailures.length ? (
@@ -434,16 +406,16 @@ export default async function AdminTrainingPage() {
                 <div key={item.lessonId}>
                   <span>
                     <strong>{item.lessonTitle}</strong>
-                    <small>{item.courseTitle} · {item.attempts} checkpoint attempt{item.attempts === 1 ? "" : "s"} · {item.failures} failed · {item.finalMisses} final-check miss{item.finalMisses === 1 ? "" : "es"}</small>
+                    <small>{item.courseTitle} · {item.finalMisses} final-check miss{item.finalMisses === 1 ? "" : "es"}</small>
                   </span>
-                  <span className="badge">{item.failureRate}% fail</span>
+                  <span className="badge">{item.finalMisses} missed</span>
                 </div>
               ))}
             </div>
           ) : (
             <div className="dashboard-caught-up">
               <ShieldCheck size={22}/>
-              <div><strong>No integrity friction yet.</strong><p>Lesson-level signals will appear after learners begin using the new checkpoints.</p></div>
+              <div><strong>No integrity friction yet.</strong><p>Lesson-level feedback appears when saved final checks identify missed topics.</p></div>
             </div>
           )}
         </section>

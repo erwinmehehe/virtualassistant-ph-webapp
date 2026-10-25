@@ -5,10 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { enforceActionRateLimit } from "@/lib/rate-limit";
 import { isExplicitCrossSiteRequest, readRequestJson } from "@/lib/http-security";
 
-// Form-focus and login-attempt signals are client-side GA4-only.
-// Reject stale cached browser beacons before rate limiting, auth or storage.
+// Browser page views and low-intent interactions are not first-party events.
+// Only meaningful conversions reach Supabase; stale navigation pairs are filtered.
 const fixedEvents = new Set([
-  "page_view",
   "booking_click",
   "pricing_view",
   "hire_page_view",
@@ -85,9 +84,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, dropped: "invalid_json" }, { status: 202 });
   }
 
-  // Keep legacy single-event requests compatible, but only allow the specific
-  // two-event page navigation pairs emitted by our client. Arbitrary batches
-  // would multiply stored events without consuming more rate-limit attempts.
+  // Keep a temporary compatibility path for older clients that batch a page view
+  // with a conversion. The view is discarded, and only the conversion persists.
   const candidates = Array.isArray(body) ? body : [body];
   if (!candidates.length || candidates.length > 2) {
     return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
@@ -99,7 +97,7 @@ export async function POST(request: Request) {
     // before any database call, as with the single-event endpoint.
     if (
       !parsed.success ||
-      !allowedEvent(parsed.data.event) ||
+      (!allowedEvent(parsed.data.event) && parsed.data.event !== "page_view") ||
       JSON.stringify(parsed.data.metadata ?? {}).length > 8000
     ) {
       return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
@@ -128,7 +126,11 @@ export async function POST(request: Request) {
   if (sessionIds.size !== 1) {
     return NextResponse.json({ ok: true, dropped: "invalid_event" }, { status: 202 });
   }
-  const sessionId = events[0]?.session_id;
+  // Older client bundles may still send page_view alone or as the first item
+  // of a navigation pair. Never persist it or count it against DB rate limits.
+  const persistedEvents = events.filter(({ event }) => event !== "page_view");
+  if (!persistedEvents.length) return NextResponse.json({ ok: true, dropped: "retired_event" }, { status: 202 });
+  const sessionId = persistedEvents[0]?.session_id;
   try {
     await enforceActionRateLimit("public_analytics:ip", requestIp(request), 240, 10, false);
     if (sessionId) {
@@ -151,7 +153,7 @@ export async function POST(request: Request) {
     })();
     const userId = typeof claimsData?.claims?.sub === "string" ? claimsData.claims.sub : null;
     const admin = createAdminClient();
-    const payloads = events.map((event) => ({
+    const payloads = persistedEvents.map((event) => ({
       event_id: event.event_id ?? null,
       event_name: event.event,
       path: event.path,

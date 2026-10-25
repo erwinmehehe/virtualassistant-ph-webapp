@@ -83,18 +83,15 @@ test("training learner journey remains connected from signup through verified hi
   assert.match(clientHiringRoomMigration, /c\.status='published'/);
   assert.match(clientHiringRoom, /credentialCode: row\.credential_code/);
 
-  // Training clickstream no longer submits browser events or reaches the
-  // analytics API. Signup, assessment, progress and certificates persist
-  // through their dedicated product tables, not optional event logging.
-  assert.doesNotMatch(analyticsRoute, /"training_[a-z_]+"/);
+  // Training events are no longer stored in analytics_events.
+  // Canonical progress, assessments and certificates remain functional.
+  assert.match(analyticsRoute, /status: 204/);
   const browserAnalytics = await source("src/components/analytics.tsx");
-  assert.match(browserAnalytics, /!isTrainingPath\(pathname\)/);
+  assert.match(browserAnalytics, /return null/);
   const recorder = await source("src/lib/product-events.ts");
-  assert.match(recorder, /eventName\.startsWith\("training_"\)/);
-  assert.match(recorder, /eventName !== "training_checkpoint_attempt"/);
+  assert.doesNotMatch(recorder, /analytics_events|createAdminClient/);
   assert.match(signup, /recordProductEvent\("training_account_created"/);
-  assert.match(adminAnalytics, /Training engagement/);
-  assert.match(adminAnalytics, /Assessment submissions|Training engagement/);
+  assert.match(adminAnalytics, /redirect\("\/workspace\/admin\/today"\)/);
 });
 
 test("training signup and workspace remain intentionally separate from candidate onboarding", async () => {

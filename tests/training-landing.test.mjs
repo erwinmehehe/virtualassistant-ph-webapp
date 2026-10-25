@@ -91,19 +91,15 @@ test("candidate education pages route readers into training instead of buyer CTA
   assert.match(vaHub, /Start free training|Free VA training/);
 });
 
-test("training actions persist progress without custom activity beacons", () => {
+test("training actions save canonical state without event beacons", () => {
   const browserAnalytics = source("src/components/analytics.tsx");
   const analyticsRoute = source("src/app/api/analytics/route.ts");
   const productEvents = source("src/lib/product-events.ts");
   const trainingActions = source("src/app/actions/training.ts");
-  const trainingAuth = source("src/app/actions/training-auth.ts");
 
-  assert.match(browserAnalytics, /!isTrainingPath\(pathname\)/);
-  assert.doesNotMatch(browserAnalytics, /send\("training_/);
-  assert.doesNotMatch(analyticsRoute, /"training_[a-z_]+"/);
-  assert.match(productEvents, /eventName\.startsWith\("training_"\)/);
-  assert.match(productEvents, /eventName !== "training_checkpoint_attempt"/);
-  assert.match(trainingAuth, /recordProductEvent\("training_account_created"/);
+  assert.match(browserAnalytics, /return null/);
+  assert.match(analyticsRoute, /status: 204/);
+  assert.doesNotMatch(productEvents, /analytics_events|createAdminClient/);
   assert.match(trainingActions, /training_enrollments/);
   assert.match(trainingActions, /training_lesson_progress/);
   assert.match(trainingActions, /finalizeTrainingCourseIfEligible/);

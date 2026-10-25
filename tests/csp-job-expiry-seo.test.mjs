@@ -14,7 +14,7 @@ test("production CSP removes eval and blocks inline script attributes", async ()
     config,
     /script-src 'self' 'unsafe-inline' 'unsafe-eval' https:\/\/challenges\.cloudflare\.com/,
   );
-  assert.match(config, /https:\/\/www\.googletagmanager\.com/);
+  assert.doesNotMatch(config, /https:\/\/www\.googletagmanager\.com/);
   assert.match(config, /https:\/\/challenges\.cloudflare\.com/);
 });
 

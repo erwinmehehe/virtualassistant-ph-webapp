@@ -12,7 +12,6 @@ test("frequent workspace GET pages use fast verified role guards",async()=>{
     "src/app/workspace/recruiter/funnel/page.tsx",
     "src/app/workspace/recruiter/queue/page.tsx",
     "src/app/workspace/recruiter/work-readiness/page.tsx",
-    "src/app/workspace/admin/analytics/page.tsx",
     "src/app/workspace/admin/audit/page.tsx",
     "src/app/workspace/admin/email-health/page.tsx",
     "src/app/workspace/admin/health/page.tsx",

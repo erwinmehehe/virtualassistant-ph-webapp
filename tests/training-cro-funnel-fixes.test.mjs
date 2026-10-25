@@ -111,30 +111,25 @@ test("successful signup shows a dedicated confirmation state and keeps the inten
   assert.match(action, /courseTitle,/);
 });
 
-test("training signup/confirmation works without custom training clickstream traffic", async () => {
-  const [analytics, route, action, confirm, callback, migration] = await Promise.all([
+test("training signup and confirmation remain functional with event tracking disabled", async () => {
+  const [tracker, route, action, confirm, callback, migration, recorder] = await Promise.all([
     readFile(analyticsPath, "utf8"),
     readFile(analyticsRoute, "utf8"),
     readFile(joinAction, "utf8"),
     readFile(confirmRoute, "utf8"),
     readFile(callbackRoute, "utf8"),
     readFile(migrationPath, "utf8"),
+    readFile("src/lib/product-events.ts", "utf8"),
   ]);
-
-  assert.match(analytics, /course_slug: clicked\.dataset\.courseSlug/);
-  assert.match(analytics, /cta_position: clicked\.dataset\.ctaPosition/);
-  assert.match(analytics, /!isTrainingPath\(pathname\)/);
-  assert.doesNotMatch(route, /"training_[a-z_]+"/);
-  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
-  assert.match(action, /recordProductEvent\("training_account_created"/);
-  assert.match(action, /recordProductEvent\("training_confirmation_sent"/);
-  assert.match(confirm, /recordProductEvent\("training_email_confirmed"/);
+  assert.match(tracker, /return null/);
+  assert.match(route, /status: 204/);
+  assert.match(action, /sendAccountConfirmationEmail/);
+  assert.match(confirm, /verifyOtp/);
   assert.match(callback, /recordProductEvent\("training_email_confirmed"/);
   assert.match(migration, /references auth\.users\(id\)/i);
   assert.match(migration, /on delete set null/i);
-  const recorder = await readFile("src/lib/product-events.ts", "utf8");
-  assert.match(recorder, /eventName\.startsWith\("training_"\)/);
-  assert.match(recorder, /eventName !== "training_checkpoint_attempt"/);
+  assert.match(recorder, /export async function recordProductEvent/);
+  assert.doesNotMatch(recorder, /analytics_events|createAdminClient/);
 });
 
 test("mobile training CTA only appears after the hero and before the final CTA", async () => {

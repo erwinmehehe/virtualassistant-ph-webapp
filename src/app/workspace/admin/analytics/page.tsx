@@ -4,7 +4,7 @@ import { dateShort } from "@/lib/format";
 import { BLOG_POSTS, blogHref } from "@/lib/blog";
 
 const labels: Record<string, string> = {
-  page_view: "Page views",
+  page_view: "First-party entry/blog views",
   hero_role_brief: "Hero to role brief",
   hero_browse_talent: "Hero to directory",
   directory_role_brief: "Directory to role brief",
@@ -179,7 +179,7 @@ export default async function AdminAnalyticsPage() {
 
   const acquisitionFunnel = [
     ["Known sessions", knownSessions, "Unique first-party session IDs recorded"],
-    ["Page views", pageViews, "All recorded public page views"],
+    ["Tracked entry/blog views", pageViews, "First public page per tab and blog views; use GA4 for all page views"],
     ["Role-brief CTA clicks", roleClicks, "Tracked header, hero, and directory entry clicks"],
     ["Saved role briefs", roleBriefCount, "Server-side role brief records"],
     ["Client accounts created", clientAccounts, "Completed client signups recorded server-side"]

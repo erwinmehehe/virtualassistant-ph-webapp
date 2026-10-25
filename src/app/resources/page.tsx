@@ -38,7 +38,7 @@ export default function ResourcesPage() {
     />
     <div className="hs-root sp-root">
       <Band>
-        <SectionHead kicker="For businesses" title="Find a focused hiring guide" lede={"Start with a service page for role responsibilities, cost factors, and screening steps. Supplementary resources remain here when they address a distinct question."}/>
+        <SectionHead kicker="For businesses" title="Virtual Assistant hiring guides" lede={"Start with a service page for role responsibilities, cost factors, and screening steps. Supplementary resources remain here when they address a distinct question."}/>
         <div className="premium-service-grid">
           {client.map((page) => <Link className="premium-service-card" href={"/resources/" + page.slug} key={page.slug}><div><h3>{page.title}</h3><p>{page.metaDescription}</p></div><span className="premium-service-link">Read guide <ArrowRight size={14}/></span></Link>)}
         </div>

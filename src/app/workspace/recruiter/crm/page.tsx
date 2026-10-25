@@ -54,8 +54,6 @@ type Job = { id: string; title: string | null; status: string | null; hiring_sta
 type ClientActivitySnapshot = {
   lead_id: string;
   last_login_at: string | null;
-  last_va_view_at: string | null;
-  va_views: number | string | null;
   shortlist_opened_at: string | null;
   last_shortlist_activity_at: string | null;
   latest_decision: string | null;
@@ -374,7 +372,6 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                     const activity = activityMap.get(lead.id);
                     const replyStatus = String(activity?.reply_status || (lead.first_contact_at ? "awaiting_reply" : "not_contacted"));
                     const unreadChat = Number(activity?.unread_chat || 0);
-                    const vaViews = Number(activity?.va_views || 0);
                     const needsMoreOptions = activity?.latest_decision === "need_more_options";
                     const winBackDue = Boolean(lead.win_back_at && new Date(lead.win_back_at).getTime() <= now);
                     const nextStepLabel = lead.win_back_at
@@ -409,7 +406,6 @@ export default async function RecruiterCrmPage({ searchParams }: { searchParams:
                       <td>
                         <div className={styles.clientSignals}>
                           <span><b>Login</b>{shortDate(activity?.last_login_at, "Never")}</span>
-                          <span title="Distinct VAs viewed by this client for this hiring role"><b>VA views</b>{vaViews ? `${vaViews} · ${shortDate(activity?.last_va_view_at)}` : "None"}</span>
                           <span title={activity?.last_shortlist_activity_at ? `Last shortlist activity ${shortDate(activity.last_shortlist_activity_at)}` : "No shortlist activity"}><b>Shortlist</b>{activity?.shortlist_opened_at ? shortDate(activity.shortlist_opened_at) : "Not opened"}</span>
                           <span className={replyStatus === "needs_action" ? styles.signalUnread : undefined}><b>Reply</b>{shortDate(activity?.last_client_reply_at, "None")}</span>
                           {activity?.latest_decision ? <span className={styles.signalDecision}><b>Decision</b>{decisionLabel(activity.latest_decision)}</span> : null}

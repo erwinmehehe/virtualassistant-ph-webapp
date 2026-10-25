@@ -2,9 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { getBrowserSessionId } from "@/lib/browser-session";
-
-const endpoint = "/api/analytics";
 
 declare global {
   interface Window {
@@ -69,45 +66,12 @@ function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
 type AnalyticsEvent = { event: string; metadata?: Record<string, unknown> };
 
 /**
- * Send related page events in one request. This preserves individual event
- * records while avoiding a second Function invocation, auth enrichment and
- * pair of rate-limit checks on pricing, hiring and VA profile pages.
+ * GA4-only event forwarding. Do not call /api/analytics: it is retired to
+ * prevent Vercel Function invocations and redundant analytics_events inserts.
+ * Google Analytics handles normal page views with its own enhanced measurement.
  */
 function sendMany(events: AnalyticsEvent[]) {
   for (const { event, metadata } of events) forwardToGa4(event, metadata);
-  const tracked = events.filter(({ event }) => !event.startsWith("training_"));
-  if (!tracked.length) return;
-
-  const referrer = document.referrer ? (() => {
-    try {
-      const url = new URL(document.referrer);
-      return url.origin === window.location.origin ? url.pathname : url.origin;
-    } catch {
-      return null;
-    }
-  })() : null;
-  const sessionId = getBrowserSessionId() || undefined;
-  const entries = tracked.map(({ event, metadata }) => ({
-    event_id: typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : undefined,
-    event,
-    // Keep analytics acquisition-focused and avoid persisting query-string values.
-    path: window.location.pathname,
-    referrer,
-    session_id: sessionId,
-    metadata: metadata ?? {},
-  }));
-  // Keep the single-event request shape compatible with older deployments.
-  const payload = JSON.stringify(entries.length === 1 ? entries[0] : entries);
-
-  try {
-    if (navigator.sendBeacon) {
-      const ok = navigator.sendBeacon(endpoint, new Blob([payload], { type: "application/json" }));
-      if (ok) return;
-    }
-    void fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true });
-  } catch {
-    // Analytics must never interrupt the user experience.
-  }
 }
 
 function send(event: string, metadata?: Record<string, unknown>) {
@@ -125,11 +89,11 @@ export function Analytics() {
       return;
     }
 
-    const events: AnalyticsEvent[] = [{ event: "page_view" }];
+    const events: AnalyticsEvent[] = [];
     if (pathname === "/pricing") events.push({ event: "pricing_view" });
     if (pathname === "/hire") events.push({ event: "hire_page_view" });
     if (pathname.startsWith("/va/")) events.push({ event: "candidate_view" });
-    sendMany(events);
+    if (events.length) sendMany(events);
   }, [pathname]);
 
   useEffect(() => {

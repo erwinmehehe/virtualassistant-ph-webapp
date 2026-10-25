@@ -19,20 +19,20 @@ test("default public metadata includes branded Open Graph and Twitter imagery", 
   assert.match(twitter, /OpengraphImage/);
 });
 
-test("custom Web Vitals are disabled while public conversions remain tracked", async () => {
-  const [analytics, route] = await Promise.all([
+test("GA4 stays active but custom Web Vitals and first-party analytics remain disabled", async () => {
+  const [layout, analytics, route] = await Promise.all([
+    read("src/app/layout.tsx"),
     read("src/components/analytics.tsx"),
     read("src/app/api/analytics/route.ts"),
   ]);
-
-  assert.doesNotMatch(analytics, /useReportWebVitals|reportWebVital|includeWebVitalSample|sample_rate/);
-  assert.doesNotMatch(analytics, /send\("web_vital"/);
-  assert.doesNotMatch(route, /"web_vital"/);
-  assert.match(route, /!allowedEvent\(parsed\.data\.event\)/);
-  assert.match(analytics, /send\("form_start"/);
-  assert.doesNotMatch(analytics, /send\("form_submit_attempt"/);
-  assert.match(analytics, /const events: AnalyticsEvent\[\] = \[\{ event: "page_view" \}\]/);
-  assert.match(analytics, /sendMany\(events\)/);
+  assert.match(layout, /NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  assert.match(layout, /ga4-init/);
+  assert.match(layout, /<AttributionTracker\/><Analytics\/>/);
+  assert.match(analytics, /forwardToGa4/);
+  assert.match(analytics, /!isTrainingPath\(pathname\)/);
+  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useReportWebVitals|reportWebVital/);
+  assert.match(route, /status: 204/);
+  assert.doesNotMatch(route, /analytics_events|createAdminClient/);
 });
 
 test("public accessibility defaults include keyboard focus and reduced motion", async () => {

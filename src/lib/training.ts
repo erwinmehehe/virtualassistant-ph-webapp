@@ -731,10 +731,6 @@ export async function getTrainingAdminSummary() {
       courses: [] as Array<CourseRow & { modules: number; lessons: number; publishedLessons: number }>,
       paths: [] as Array<{ id: string; slug: string; title: string; summary: string | null; country_focus: string | null; status: string; courseCount: number }>,
       totals: { courses: 0, published: 0, lessons: 0 },
-      funnel: {
-        windowDays: 30,
-        stages: [] as Array<{ event: string; label: string; learners: number; events: number }>,
-      },
       recovery: {
         inactivityHours: 72,
         incompleteEnrollments: 0,
@@ -755,8 +751,6 @@ export async function getTrainingAdminSummary() {
       }),
       integrity: {
         windowDays: 30,
-        checkpointAttempts: 0,
-        checkpointFailureRate: 0,
         firstAttemptPassRate: 0,
         retryRate: 0,
         automaticFinalAttempts: 0,
@@ -770,9 +764,6 @@ export async function getTrainingAdminSummary() {
           lessonId: string;
           lessonTitle: string;
           courseTitle: string;
-          attempts: number;
-          failures: number;
-          failureRate: number;
           finalMisses: number;
         }>,
       },
@@ -835,44 +826,8 @@ export async function getTrainingAdminSummary() {
     : { data: [] };
   const adminPathCourses = (adminPathCourseData || []) as Array<{ path_id: string; course_id: string }>;
 
-  const funnelWindowDays = 30;
-  const funnelSince = new Date(Date.now() - funnelWindowDays * 86_400_000).toISOString();
-  const funnelDefinitions = [
-    { event: "training_course_view", label: "Viewed a course" },
-    { event: "training_course_start", label: "Started a course" },
-    { event: "training_lesson_complete", label: "Completed a lesson" },
-    { event: "training_assessment_view", label: "Opened final check" },
-    { event: "training_assessment_submit", label: "Submitted final check" },
-    { event: "training_assessment_reviewed", label: "Final check scored" },
-    { event: "training_course_complete", label: "Completed a course" },
-    { event: "training_certificate_issued", label: "Certificate issued" },
-    { event: "training_certificate_profile_added", label: "Added certificate to public profile" },
-    { event: "training_certificate_recruiter_view", label: "Recruiter viewed verified training" },
-    { event: "training_certificate_view", label: "Viewed certificate" },
-  ] as const;
-  const { data: funnelEventData } = await admin
-    .from("analytics_events")
-    .select("event_name,user_id")
-    .gte("created_at", funnelSince)
-    .in("event_name", funnelDefinitions.map((item) => item.event))
-    .limit(10000);
-
-  const funnelRows = (funnelEventData || []) as Array<{
-    event_name: string;
-    user_id: string | null;
-  }>;
-  const funnel = {
-    windowDays: funnelWindowDays,
-    stages: funnelDefinitions.map((definition) => {
-      const matching = funnelRows.filter((row) => row.event_name === definition.event);
-      return {
-        ...definition,
-        learners: new Set(matching.map((row) => row.user_id).filter(Boolean)).size,
-        events: matching.length,
-      };
-    }),
-  };
-
+  const integrityWindowDays = 30;
+  const integritySince = new Date(Date.now() - integrityWindowDays * 86_400_000).toISOString();
   const courseById = new Map(courses.map((course) => [course.id, course]));
   const lessonMeta = new Map(
     lessons.map((lesson) => {
@@ -890,35 +845,26 @@ export async function getTrainingAdminSummary() {
     }),
   );
 
-  const [{ data: checkpointEventData }, { data: engagementData }, { data: completionData }, { data: submissionData }] =
+  // Read saved learner state only. No analytics-event scan is needed.
+  const [{ data: engagementData }, { data: completionData }, { data: submissionData }] =
     await Promise.all([
-      admin
-        .from("analytics_events")
-        .select("metadata,user_id")
-        .eq("event_name", "training_checkpoint_attempt")
-        .gte("created_at", funnelSince)
-        .limit(10000),
       admin
         .from("training_lesson_engagement")
         .select("lesson_id,user_id,active_seconds,max_scroll_percent,updated_at")
-        .gte("updated_at", funnelSince)
+        .gte("updated_at", integritySince)
         .limit(10000),
       admin
         .from("training_lesson_progress")
         .select("lesson_id,user_id,completed_at")
-        .gte("completed_at", funnelSince)
+        .gte("completed_at", integritySince)
         .limit(10000),
       admin
         .from("training_assessment_submissions")
         .select("user_id,status,score,response,submitted_at")
-        .gte("submitted_at", funnelSince)
+        .gte("submitted_at", integritySince)
         .limit(10000),
     ]);
 
-  const checkpointRows = (checkpointEventData || []) as Array<{
-    metadata: Record<string, unknown> | null;
-    user_id: string | null;
-  }>;
   const engagements = (engagementData || []) as Array<{
     lesson_id: string;
     user_id: string;
@@ -938,16 +884,6 @@ export async function getTrainingAdminSummary() {
     response: Record<string, unknown> | null;
     submitted_at: string;
   }>;
-
-  const checkpointByLesson = new Map<string, { attempts: number; failures: number }>();
-  for (const row of checkpointRows) {
-    const lessonId = typeof row.metadata?.lesson_id === "string" ? row.metadata.lesson_id : "";
-    if (!lessonId) continue;
-    const current = checkpointByLesson.get(lessonId) || { attempts: 0, failures: 0 };
-    current.attempts += 1;
-    if (row.metadata?.correct !== true) current.failures += 1;
-    checkpointByLesson.set(lessonId, current);
-  }
 
   const automaticSubmissions = submissions.filter(
     (row) => row.response?.kind === "automatic_knowledge_check",
@@ -1009,35 +945,21 @@ export async function getTrainingAdminSummary() {
   const assessedLearners = new Set(automaticSubmissions.map((row) => row.user_id));
   const retryLearners = new Set(retries.map((row) => row.user_id));
 
-  const lessonFailures = [...new Set([
-    ...checkpointByLesson.keys(),
-    ...finalMissesByLesson.keys(),
-  ])]
+  // Final assessment responses persist in the training database. Display only
+  // misses supported by those records, never zero checkpoint failure rates.
+  const lessonFailures = [...finalMissesByLesson.keys()]
     .map((lessonId) => {
-      const checkpoint = checkpointByLesson.get(lessonId) || { attempts: 0, failures: 0 };
       const meta = lessonMeta.get(lessonId);
       return {
         lessonId,
         lessonTitle: meta?.title || "Lesson",
         courseTitle: meta?.courseTitle || "Course",
-        attempts: checkpoint.attempts,
-        failures: checkpoint.failures,
-        failureRate: checkpoint.attempts
-          ? Math.round((checkpoint.failures / checkpoint.attempts) * 100)
-          : 0,
         finalMisses: finalMissesByLesson.get(lessonId) || 0,
       };
     })
-    .filter((item) => item.attempts || item.finalMisses)
-    .sort((a, b) =>
-      b.finalMisses - a.finalMisses ||
-      b.failureRate - a.failureRate ||
-      b.attempts - a.attempts
-    )
+    .sort((a, b) => b.finalMisses - a.finalMisses)
     .slice(0, 10);
 
-  const checkpointAttempts = checkpointRows.length;
-  const checkpointFailures = checkpointRows.filter((row) => row.metadata?.correct !== true).length;
   // The Data API may enforce a 1,000-row response ceiling regardless of
   // .limit(). Page in stable order and chunk user IDs so completion rates never
   // silently omit late rows or exceed a long REST query-string limit.
@@ -1226,11 +1148,7 @@ export async function getTrainingAdminSummary() {
   };
 
   const integrity = {
-    windowDays: funnelWindowDays,
-    checkpointAttempts,
-    checkpointFailureRate: checkpointAttempts
-      ? Math.round((checkpointFailures / checkpointAttempts) * 100)
-      : 0,
+    windowDays: integrityWindowDays,
     firstAttemptPassRate: firstAttempts.length
       ? Math.round((firstAttemptPasses.length / firstAttempts.length) * 100)
       : 0,
@@ -1258,7 +1176,6 @@ export async function getTrainingAdminSummary() {
       published: hydrated.filter((course) => course.status === "published").length,
       lessons: lessons.length,
     },
-    funnel,
     recovery,
     completionHealth,
     cohortConversion,

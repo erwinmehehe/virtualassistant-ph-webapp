@@ -61,44 +61,25 @@ test("dashboard overview payloads use consolidated RPC fast paths", async () => 
   }
 });
 
-test("custom Web Vitals reporting stays disabled before database work", async () => {
-  const [analytics, route] = await Promise.all([
-    read("src/components/analytics.tsx"),
-    read("src/app/api/analytics/route.ts")
-  ]);
-
-  assert.doesNotMatch(analytics, /useReportWebVitals|reportWebVital|includeWebVitalSample/);
-  assert.doesNotMatch(analytics, /send\("web_vital"/);
-  assert.doesNotMatch(route, /"web_vital"/);
-  const rejectIndex = route.indexOf("!allowedEvent(parsed.data.event)");
-  const databaseLimiterIndex = route.indexOf('enforceActionRateLimit("public_analytics:ip"');
-  assert.ok(rejectIndex !== -1 && databaseLimiterIndex > rejectIndex,
-    "Unsupported events must be rejected before DB-backed rate limiting");
-});
-
-test("conversion analytics accepts and reports the complete homepage funnel", async () => {
-  const [analytics, route, sales, dashboard, migration] = await Promise.all([
+test("sitewide analytics and Web Vitals have no Vercel CPU or Supabase writes", async () => {
+  const [layout, tracker, route, sales, dashboard] = await Promise.all([
+    read("src/app/layout.tsx"),
     read("src/components/analytics.tsx"),
     read("src/app/api/analytics/route.ts"),
     read("src/lib/sales-analytics.ts"),
     read("src/components/sales-analytics-dashboard.tsx"),
-    read("supabase/migrations/20260912231500_lead_response_sla_and_conversion.sql")
   ]);
-
-  for (const event of ["page_view", "form_start", "booking_click"]) {
-    assert.match(route, new RegExp(`"${event}"`));
-  }
-  assert.match(analytics, /send\("form_start"/);
-  assert.doesNotMatch(analytics, /send\("form_submit_attempt"/);
-  assert.doesNotMatch(route, /"form_submit_attempt"/);
-  assert.match(analytics, /send\("booking_click"/);
-  assert.match(sales, /recruiter_conversion_summary/);
-  for (const stage of ["Homepage visits", "Form starts", "Form submissions", "Discovery booked", "Qualified", "Proposal sent", "Clients won"]) {
-    assert.match(sales, new RegExp(stage));
-  }
-  assert.match(dashboard, /Homepage-to-client funnel/);
-  assert.match(migration, /security definer/);
-  assert.match(migration, /grant execute[\s\S]*to service_role/);
+  assert.match(layout, /NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  assert.match(layout, /ga4-init/);
+  assert.match(layout, /<Analytics\/>/);
+  assert.doesNotMatch(tracker, /sendBeacon|fetch\(|useReportWebVitals/);
+  assert.match(tracker, /return null/);
+  assert.match(route, /status: 204/);
+  assert.doesNotMatch(route, /analytics_events|createAdminClient|enforceActionRateLimit/);
+  assert.match(sales, /\.from\("lead_intake"\)/);
+  assert.doesNotMatch(sales, /recruiter_conversion_summary/);
+  assert.match(dashboard, /Verified conversion control/);
+  assert.doesNotMatch(dashboard, /Website → client funnel/);
 });
 
 test("lead response SLA creates immediate and scheduled recruiter alerts", async () => {

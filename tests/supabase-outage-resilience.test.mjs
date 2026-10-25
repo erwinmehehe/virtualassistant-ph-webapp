@@ -81,9 +81,8 @@ test("outage deadlines cover public, admin, session, middleware and fail-closed 
   assert.match(limiter, /abortSignal\(AbortSignal\.timeout\(logInfrastructureFailure \? 8_000 : 5_000\)\)/);
   assert.match(limiter, /throw new Error\("We could not verify this request safely/);
 
-  assert.match(analytics, /if \(!hasSupabaseSession\) return null/);
-  assert.match(analytics, /public_analytics:ip/);
-  assert.match(analytics, /public_analytics:session/);
+  assert.match(analytics, /status: 204/);
+  assert.doesNotMatch(analytics, /createAdminClient|enforceActionRateLimit|analytics_events|hasSupabaseSession/);
 
   // Heavy vector maintenance stays in the authenticated daily maintenance job,
   // not inside a public request to /find-talent.

@@ -55,19 +55,17 @@ test("booking management stores hashes and expiry but never new raw capability v
   assert.match(cleanup, /check \(discovery_manage_token is null\)/);
 });
 
-test("public analytics is rate-limited, bot-filtered, and idempotent", async () => {
+test("retired analytics endpoint no longer invokes the database, rate limits or tracking", async () => {
   const [route, client, migration] = await Promise.all([
     read("src/app/api/analytics/route.ts"),
     read("src/components/analytics.tsx"),
     read("supabase/migrations/20260924231000_public_capability_and_analytics_hardening.sql"),
   ]);
 
-  assert.match(route, /BOT_USER_AGENT/);
-  assert.match(route, /public_analytics:ip/);
-  assert.match(route, /public_analytics:session/);
-  assert.match(route, /event_id/);
-  assert.match(route, /ignoreDuplicates: true/);
-  assert.match(client, /crypto\?\.randomUUID/);
+  assert.match(route, /status: 204/);
+  assert.doesNotMatch(route, /createAdminClient|enforceActionRateLimit|analytics_events|BOT_USER_AGENT/);
+  assert.match(client, /return null/);
+  assert.doesNotMatch(client, /sendBeacon|fetch\(|randomUUID/);
   assert.match(migration, /analytics_events_event_id_key unique\(event_id\)/);
 });
 

@@ -31,7 +31,6 @@ test("desktop and mobile navigation use simplified durable workspace groups", ()
     "Talent",
     "Performance",
     "Finance",
-    "Analytics",
     "Users",
     "Settings",
   ]) {

@@ -116,7 +116,6 @@ const nav: Record<Role, readonly NavGroup[]> = {
         ["Sales", "/workspace/admin/sales", BriefcaseBusiness],
         ["Client Success", "/workspace/client-success", UsersRound],
         ["Agency Funnel", "/workspace/admin/funnel", Activity],
-        ["Analytics", "/workspace/admin/analytics", BarChart3],
         ["Users", "/workspace/admin/users", UsersRound],
         ["Account settings", "/workspace/account", Settings],
       ],
@@ -138,7 +137,7 @@ const mobilePrimary: Record<Role, string[]> = {
   client: ["/workspace/client", "/workspace/client/jobs", "/workspace/client/messages", "/workspace/client/team"],
   va: ["/workspace/va", "/workspace/va/jobs", "/workspace/va/applications", "/workspace/va/messages"],
   recruiter: ["/workspace/recruiter/today", "/workspace/recruiter/roles", "/workspace/recruiter/talent", "/workspace/recruiter/messages"],
-  admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/analytics"],
+  admin: ["/workspace/admin/today", "/workspace/admin/finance", "/workspace/admin/sales", "/workspace/admin/users"],
 };
 
 function activeFor(pathname: string, href: string) {

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { SERVICE_PAGES } from "@/lib/service-pages";
 import { INDUSTRIES } from "@/lib/industries";
 import { softwarePages } from "@/lib/software-pages";
@@ -10,26 +10,38 @@ import { SEO_RESOURCE_PAGES } from "@/lib/seo-resource-pages";
 import { seoResourceUpdatedAt } from "@/lib/seo-resource-dates";
 import { EDITORIAL_RESOURCE_SLUGS, EXISTING_BLOG_RESOURCE_REDIRECTS } from "@/lib/editorial-seo-guides";
 
+// Sitemap responses are the same for every visitor and crawler. Rebuild the
+// published-job portion hourly instead of invoking a Function on each crawl.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").replace(/\/$/, "");
   const blogTopicRoutes = Object.keys(BLOG_TOPICS).map((topic) => `/blog/topic/${topic}`);
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   // VA profiles are deliberately noindex, so they are not listed here.
   // Public jobs must come from the sanitized public_jobs view: raw jobs are
   // intentionally unavailable to anonymous/public reads after RLS hardening.
   const jobs: Array<{ id: string; slug: string | null; published_at: string | null; expires_at: string | null }> = [];
   const JOB_PAGE_SIZE = 500;
-  for (let from = 0; from < 10_000; from += JOB_PAGE_SIZE) {
-    const { data, error } = await supabase
-      .from("public_jobs")
-      .select("id,slug,published_at,expires_at")
-      .gt("expires_at", new Date().toISOString())
-      .order("published_at", { ascending: false, nullsFirst: false })
-      .range(from, from + JOB_PAGE_SIZE - 1);
-    if (error || !data?.length) break;
-    jobs.push(...data);
-    if (data.length < JOB_PAGE_SIZE) break;
+  const jobCutoff = new Date().toISOString();
+  // Do not read auth cookies or create a user session in a public metadata route.
+  // Missing configuration during CI builds still permits the static SEO routes.
+  if (supabase) {
+    for (let from = 0; from < 10_000; from += JOB_PAGE_SIZE) {
+      const { data, error } = await supabase
+        .from("public_jobs")
+        .select("id,slug,published_at,expires_at")
+        .gt("expires_at", jobCutoff)
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .range(from, from + JOB_PAGE_SIZE - 1);
+      if (error || !data?.length) {
+        if (error) console.warn("[sitemap] public jobs temporarily unavailable", { code: error.code });
+        break;
+      }
+      jobs.push(...data);
+      if (data.length < JOB_PAGE_SIZE) break;
+    }
   }
 
   return [

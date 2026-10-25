@@ -32,17 +32,15 @@ test("training evidence links to credential verification", async () => {
   assert.match(component, /Verify credential/);
 });
 
-test("admin analytics calculates training conversion stages and largest drop-off", async () => {
-  const analytics = await source("src/app/workspace/admin/analytics/page.tsx");
-
-  assert.match(analytics, /trainingParticipantCount/);
-  assert.match(analytics, /trainingConversionStages/);
-  assert.match(analytics, /Accounts created/);
-  assert.match(analytics, /Assessment submissions/);
-  assert.match(analytics, /Course completions/);
-  assert.match(analytics, /Largest measured drop-off/);
-  assert.match(analytics, /% of previous stage/);
-  assert.match(analytics, /Lesson completions remain an activity count/);
+test("retired event analytics redirects, but training records and reports remain available", async () => {
+  const [analytics, training] = await Promise.all([
+    source("src/app/workspace/admin/analytics/page.tsx"),
+    source("src/app/workspace/admin/training/page.tsx"),
+  ]);
+  assert.match(analytics, /redirect\("\/workspace\/admin\/today"\)/);
+  assert.doesNotMatch(analytics, /analytics_events/);
+  assert.match(training, /Completion within 7 and 14 days/);
+  assert.match(training, /Course-level completion bottlenecks/);
 });
 
 test("newly issued certificates snapshot recipient name without mutating existing awards", async () => {

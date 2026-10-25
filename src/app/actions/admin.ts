@@ -282,7 +282,7 @@ export async function clearJobContentReviewAction(formData: FormData) {
   if (!jobId) throw new Error("Missing job.");
   const admin = createAdminClient();
   const { data: job, error: readError } = await admin.from("jobs")
-    .select("id,client_id,status,slug,updated_at,moderation_status,title,company_name,summary,description,responsibilities,required_skills,required_tools,min_hourly_rate,schedule_notes,onboarding_plan")
+    .select("id,client_id,status,slug,updated_at,moderation_status,rejection_note,title,company_name,summary,description,responsibilities,required_skills,required_tools,min_hourly_rate,schedule_notes,onboarding_plan")
     .eq("id", jobId).maybeSingle();
   if (readError) throw readError;
   if (!job || job.moderation_status !== "review") throw new Error("This job is not awaiting content review.");
@@ -293,7 +293,18 @@ export async function clearJobContentReviewAction(formData: FormData) {
   if (publicJobReviewSignals(parts).length) throw new Error("Remove promotional language and external links before clearing the hold.");
   // Clearing the exceptional content hold completes the employer's
   // submitted publication request without a second approval step.
-  const publishAfterSafetyClear = job.status === "pending" && Boolean(job.client_id);
+  // Only republish a role that the employer actually submitted or that staff
+  // deliberately withdrew for safety review. Older unlinked or lead-created
+  // pending jobs must not be bulk-published when a hold is cleared.
+  const submittedForPublicPosting = Boolean(
+    job.rejection_note?.startsWith("Held for content review:") ||
+    job.rejection_note === "Unpublished for staff content review.",
+  );
+  let publishAfterSafetyClear = false;
+  if (job.status === "pending" && job.client_id && submittedForPublicPosting) {
+    const { data: employer, error: employerError } = await admin.auth.admin.getUserById(job.client_id);
+    publishAfterSafetyClear = !employerError && Boolean(employer.user?.email_confirmed_at);
+  }
   const { data: cleared, error } = await admin.from("jobs").update({
     moderation_status: "clear",
     rejection_note: null,

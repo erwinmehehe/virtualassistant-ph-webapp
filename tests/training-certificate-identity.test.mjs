@@ -36,10 +36,10 @@ test("certificate issuance requires a confirmed identity but retains the old cre
   assert.match(completion, /recipient_name: recipientName/);
   assert.match(completion, /issued_at: completedAt/);
   const actions = await source("src/app/actions/training-certificate-identity.ts");
-  const learnerOnly = actions.split("export async function correctIssuedTrainingCertificateNameAction")[0];
-  assert.doesNotMatch(learnerOnly, /\.from\("training_certificates"\)\s*\.update/);
-  assert.match(learnerOnly, /finalizeTrainingCourseIfEligible/);
-  assert.match(learnerOnly, /completed_at/);
+  const confirmationOnly = actions.split("export async function addNameToUnnamedTrainingCertificateAction")[0];
+  assert.doesNotMatch(confirmationOnly, /\.from\("training_certificates"\)\s*\.update/);
+  assert.match(confirmationOnly, /finalizeTrainingCourseIfEligible/);
+  assert.match(confirmationOnly, /completed_at/);
 });
 
 test("verified staff correction is scoped, audited and does not reissue certificates", async () => {

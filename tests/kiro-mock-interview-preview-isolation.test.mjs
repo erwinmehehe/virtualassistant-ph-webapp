@@ -83,6 +83,9 @@ test("local genuine-provider UAT requires every operator flag and disposable loo
     ...allowed,
     NODE_ENV: "development",
     VERCEL_ENV: "",
+    GITHUB_ACTIONS: "true",
+    GITHUB_REPOSITORY: "erwinmehehe/virtualassistant-ph-webapp",
+    GITHUB_REF: "refs/heads/main",
     VAPH_MOCK_INTERVIEW_REAL_MODEL_UAT: "operator-approved",
     AI_MOCK_INTERVIEW_LOCAL_SANDBOX_ONLY: "true",
     E2E_BASE_URL: "http://127.0.0.1:3000",
@@ -92,6 +95,9 @@ test("local genuine-provider UAT requires every operator flag and disposable loo
   assert.equal(gates(sandbox).isMockInterviewLivePilot("fictional-va-id"), true);
   const changes = [
     { NODE_ENV: "production" },
+    { GITHUB_ACTIONS: "" },
+    { GITHUB_REPOSITORY: "untrusted/fork" },
+    { GITHUB_REF: "refs/heads/feature/unreviewed" },
     { VAPH_MOCK_INTERVIEW_REAL_MODEL_UAT: "" },
     { AI_MOCK_INTERVIEW_LOCAL_SANDBOX_ONLY: "false" },
     { AI_MOCK_INTERVIEW_E2E_MOCK: "true" },

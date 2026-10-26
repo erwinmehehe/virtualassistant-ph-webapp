@@ -24,6 +24,7 @@ const payload = {
   courseSlug: "virtual-assistant-foundations",
   difficulty: "beginner",
   focus: "General VA",
+  consent: true,
   turns: [{ speaker: "recruiter", question: "How would you handle a fictional task?", answer: "I will check the deadline, make a plan and request approval." }],
 };
 

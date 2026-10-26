@@ -151,6 +151,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
+      - name: Retain Kiro Career Studio desktop/mobile acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: kiro-career-studio-${{ github.run_id }}
+          path: artifacts/kiro-career-studio/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Retain AEO editorial mobile and desktop screenshots
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

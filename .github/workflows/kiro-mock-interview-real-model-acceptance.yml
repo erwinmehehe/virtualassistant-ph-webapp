@@ -1,0 +1,146 @@
+name: Kiro Mock Interview real-model acceptance (operator gated)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  interview-real-model-acceptance:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.repository == 'erwinmehehe/virtualassistant-ph-webapp' &&
+      vars.VAPH_MOCK_INTERVIEW_REAL_MODEL_UAT_ALLOWED == 'true' &&
+      vars.VAPH_MOCK_INTERVIEW_PROVIDER_POLICY_APPROVED == 'true' &&
+      vars.VAPH_AI_GATEWAY_BUDGET_CONFIRMED == 'true' &&
+      vars.VAPH_MOCK_INTERVIEW_MODEL_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: vaph-ai-coach-sandbox
+    env:
+      SUPABASE_CLI_VERSION: "2.113.0"
+      E2E_PASSWORD: "E2e-Only!Pass12345"
+      E2E_BASE_URL: "http://127.0.0.1:3000"
+      NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000"
+      AI_MOCK_INTERVIEW_ENABLED: "true"
+      AI_MOCK_INTERVIEW_REAL_MODEL_ENABLED: "true"
+      AI_MOCK_INTERVIEW_PROVIDER_APPROVED: "true"
+      AI_MOCK_INTERVIEW_FREE_ONLY: "true"
+      AI_MOCK_INTERVIEW_LOCAL_SANDBOX_ONLY: "true"
+      VAPH_MOCK_INTERVIEW_REAL_MODEL_UAT: "operator-approved"
+      AI_MOCK_INTERVIEW_MODEL: ${{ vars.VAPH_MOCK_INTERVIEW_MODEL_ID }}
+    steps:
+      - name: Checkout reviewed main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies without provider credentials
+        run: npm ci
+
+      - name: Validate current free-only model before any credential is available
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const modelId = process.env.AI_MOCK_INTERVIEW_MODEL || "";
+          if (process.env.AI_MOCK_INTERVIEW_FREE_ONLY !== "true" ||
+              !/^[a-z0-9._-]+\/[a-z0-9._-]+$/i.test(modelId)) {
+            throw new Error("Model selection is missing or invalid");
+          }
+          const res = await fetch("https://ai-gateway.vercel.sh/v1/models", {
+            cache: "no-store", signal: AbortSignal.timeout(15000),
+          });
+          if (!res.ok) throw new Error("Gateway model catalog unavailable: " + res.status);
+          const json = await res.json();
+          const item = json?.data?.find((entry) => entry.id === modelId);
+          const zero = (value) => (typeof value === "number" ||
+              (typeof value === "string" && value.trim() !== "")) &&
+              Number.isFinite(Number(value)) && Number(value) === 0;
+          if (!item || item.type !== "language" || !zero(item.pricing?.input) || !zero(item.pricing?.output)) {
+            throw new Error("Model not currently approved for free-only test: abort");
+          }
+          console.log("Fresh zero-price catalog verification passed for operator-selected model");
+          NODE
+
+      - name: Ensure PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+
+      - name: Bootstrap disposable Supabase
+        run: bash scripts/bootstrap-e2e-local-supabase.sh
+
+      - name: Export loopback database variables only
+        shell: bash
+        run: |
+          set -a
+          source .supabase-e2e.env
+          set +a
+          case "$API_URL" in
+            http://127.0.0.1:*|http://localhost:*) ;;
+            *) echo "Refusing a hosted / production database"; exit 1 ;;
+          esac
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "LOCAL_SUPABASE_DB_URL=$DB_URL"
+          } >> "$GITHUB_ENV"
+
+      - name: Verify local database contracts
+        run: psql "$LOCAL_SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f scripts/verify-e2e-db-contracts.sql
+
+      - name: Seed fictional accounts only
+        run: node scripts/seed-e2e-users.mjs
+
+      - name: Allowlist one disposable VA identity
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from "node:fs";
+          import {createClient} from "@supabase/supabase-js";
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+          if (!/^http:\/\/(localhost|127\.0\.0\.1):\d+/.test(url)) {
+            throw new Error("Not a local Supabase project");
+          }
+          const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+            auth: { persistSession: false, autoRefreshToken: false },
+          });
+          const {data,error} = await admin.auth.admin.listUsers({page:1,perPage:100});
+          if (error) throw error;
+          const learner = data.users.find((user) => user.email === "va.e2e@example.test");
+          if (!learner) throw new Error("Synthetic learner missing");
+          appendFileSync(process.env.GITHUB_ENV, "AI_MOCK_INTERVIEW_PILOT_USER_IDS=" + learner.id + "\n");
+          NODE
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run real model against synthetic learner (maximum three requests)
+        env:
+          AI_GATEWAY_API_KEY: ${{ secrets.VAPH_AI_COACH_SANDBOX_GATEWAY_KEY }}
+        run: |
+          test -n "${AI_GATEWAY_API_KEY:-}" || exit 1
+          npx playwright test e2e/kiro-mock-interview-real-model-uat.spec.ts --project=chromium --workers=1 --retries=0
+
+      - name: Preserve fictional model-response QA evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: kiro-panel-real-model-uat-${{ github.run_id }}
+          path: artifacts/kiro-panel-real-model-uat/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop disposable Supabase
+        if: always()
+        run: npx -y "supabase@$SUPABASE_CLI_VERSION" stop --no-backup

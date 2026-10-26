@@ -381,6 +381,8 @@ export default async function TrainingLessonPage({
               courseSlug={course.slug}
               lessonId={lesson.id}
               lessonTitle={lesson.title}
+              completedLessons={course.completedLessons}
+              lessonCount={course.lessonCount}
             />
           ) : null}
           {pathContext.primary ? (

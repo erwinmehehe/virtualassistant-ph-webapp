@@ -49,7 +49,7 @@ test("manual real model test sanitizes actual local course metadata before any p
     "const answers = [",
     "i < 3",
     "LOCAL TEST INTERVIEW",
-    "human",
+    "manual QA",
   ]) assert.ok(spec.toLowerCase().includes(marker.toLowerCase()), "Missing " + marker);
   assert.match(spec, /expect\(anonymous\.status\(\)\)\.toBe\(401\)/);
   assert.match(spec, /expect\(denied\.status\(\)\)\.toBe\(403\)/);

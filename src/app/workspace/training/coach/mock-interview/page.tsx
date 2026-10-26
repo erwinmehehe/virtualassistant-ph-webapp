@@ -44,7 +44,7 @@ export default async function KiroMockInterviewPage() {
     <div className="dash-page kiro-career-page kiro-interview-page">
       <Link className="kiro-career-back" href="/workspace/training/coach"><ArrowLeft size={16}/> Back to Kiro Career Studio</Link>
       <header className="kiro-interview-hero">
-        <span className="kiro-career-eyebrow"><Sparkles size={15}/> KIro · MOCK INTERVIEW STUDIO</span>
+        <span className="kiro-career-eyebrow"><Sparkles size={15}/> Kiro · MOCK INTERVIEW STUDIO</span>
         <h1>Practice with a virtual panel of interviewers.</h1>
         <p>Work through six fictional questions from a recruiter, a client and a senior VA trainer. Choose a course you are enrolled in, answer one question at a time and review a transparent practice rubric.</p>
         <div className="kiro-interview-boundary"><ShieldCheck size={17}/> Coaching only. No real recruiter, hiring outcome, grading or certificate changes.</div>

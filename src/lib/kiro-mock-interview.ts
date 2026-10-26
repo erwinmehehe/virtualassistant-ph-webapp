@@ -96,6 +96,7 @@ export type InterviewRequest = {
   focus: typeof INTERVIEW_FOCUS_OPTIONS[number];
   difficulty: InterviewDifficulty;
   turns: InterviewTurn[];
+  consent: true;
 };
 
 /** Validate the entire transcript on every request before an external call. */
@@ -105,6 +106,7 @@ export function parseInterviewRequest(value: unknown): InterviewRequest | null {
   if (typeof row.courseSlug !== "string" || !/^[a-z0-9-]{3,80}$/.test(row.courseSlug)) return null;
   if (!INTERVIEW_FOCUS_OPTIONS.includes(row.focus as typeof INTERVIEW_FOCUS_OPTIONS[number])) return null;
   if (!INTERVIEW_DIFFICULTIES.includes(row.difficulty as InterviewDifficulty)) return null;
+  if (row.consent !== true) return null;
   if (!Array.isArray(row.turns) || row.turns.length < 1 || row.turns.length > INTERVIEW_ROUNDS) return null;
   let total = 0;
   const turns: InterviewTurn[] = [];
@@ -124,5 +126,6 @@ export function parseInterviewRequest(value: unknown): InterviewRequest | null {
     focus: row.focus as InterviewRequest["focus"],
     difficulty: row.difficulty as InterviewDifficulty,
     turns,
+    consent: true,
   };
 }

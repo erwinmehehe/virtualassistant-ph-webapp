@@ -29,3 +29,20 @@ test("completion and certificate database lookup errors are not ignored", () => 
   assert.match(completion, /if \(completionSaveError\) throw/);
   assert.match(completion, /if \(certificateLookupError\) throw/);
 });
+
+test("reading engagement uses serialized database RPC rather than read-modify-write", () => {
+  const start = actions.indexOf("export async function recordTrainingLessonEngagementAction");
+  const end = actions.indexOf("export async function checkTrainingLessonCheckpointAction", start);
+  const action = actions.slice(start, end);
+  assert.match(action, /\.rpc\("record_training_engagement_atomic"/);
+  assert.doesNotMatch(action, /\.from\("training_lesson_engagement"\)\.upsert/);
+
+  const migration = readFileSync(
+    new URL("../supabase/migrations/20261026150000_atomic_training_engagement.sql", import.meta.url),
+    "utf8",
+  );
+  assert.match(migration, /pg_advisory_xact_lock/);
+  assert.match(migration, /for update/);
+  assert.match(migration, /grant execute .*service_role/);
+  assert.match(migration, /revoke all .*anon, authenticated/);
+});

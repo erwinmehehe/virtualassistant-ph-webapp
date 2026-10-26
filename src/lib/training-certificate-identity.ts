@@ -26,3 +26,16 @@ export function confirmedTrainingCertificateName(appMetadata: Record<string, unk
     ? name
     : null;
 }
+
+/**
+ * A legacy recipient may be added only when no recipient was saved at all.
+ * Malformed metadata or any nonempty existing value is NOT safe to overwrite.
+ */
+export function hasMissingTrainingCertificateRecipient(metadata: unknown): boolean {
+  if (metadata === null) return true;
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return false;
+  const value = (metadata as Record<string, unknown>).recipient_name;
+  return value === null || value === undefined ||
+    (typeof value === "string" && value.trim().length === 0);
+}
+

@@ -32,11 +32,12 @@ test("heartbeat validates published lesson eligibility with a shared bounded cac
   // Keep auth and personal learning progress outside the shared cache.
   assert.match(section, /requireAuthenticatedUserFast/);
   assert.match(section, /getCachedPublishedLessonId\(lessonId, courseSlug\)/);
-  assert.match(section, /\.eq\("user_id", userId\)/);
-  assert.match(section, /\.eq\("lesson_id", validLessonId\)/);
-  assert.match(section, /\.from\("training_lesson_engagement"\)/);
-  assert.match(section, /upsert\(\{/);
-  assert.match(section, /onConflict: "user_id,lesson_id"/);
+  // Engagement is now written atomically by a server-only RPC, not a read/upsert.
+  assert.match(section, /\.rpc\("record_training_engagement_atomic"/);
+  assert.match(section, /p_user_id: userId/);
+  assert.match(section, /p_lesson_id: validLessonId/);
+  assert.match(section, /p_scroll_percent: scrollPercent/);
+  assert.doesNotMatch(section, /\.from\("training_lesson_engagement"\)|upsert\(\{/);
   assert.doesNotMatch(section, /\.from\("training_lessons"\)|\.from\("training_courses"\)|\.from\("training_modules"\)/);
 
   // Reject arbitrary high-cardinality cache keys before invoking the cache.

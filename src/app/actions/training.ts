@@ -280,23 +280,21 @@ export async function checkTrainingLessonCheckpointAction(input: {
   if (!correct) return { correct: false };
 
   const now = new Date().toISOString();
-  const { data: existing } = await admin
+  // Update only checkpoint columns: never replace concurrent reading-time totals.
+  const { data: savedCheckpoint, error: checkpointSaveError } = await admin
     .from("training_lesson_engagement")
-    .select("active_seconds,max_scroll_percent,last_activity_at")
+    .update({
+      checkpoint_passed_at: now,
+      checkpoint_key: checkpoint.checkpointKey,
+      updated_at: now,
+    })
     .eq("user_id", userId)
     .eq("lesson_id", lesson.id)
+    .select("lesson_id")
     .maybeSingle();
-
-  const { error: checkpointSaveError } = await admin.from("training_lesson_engagement").upsert({
-    user_id: userId,
-    lesson_id: lesson.id,
-    active_seconds: Number(existing?.active_seconds || 0),
-    max_scroll_percent: Number(existing?.max_scroll_percent || 0),
-    checkpoint_passed_at: now,
-    checkpoint_key: checkpoint.checkpointKey,
-    last_activity_at: existing?.last_activity_at || now,
-    updated_at: now,
-  }, { onConflict: "user_id,lesson_id" });
+  if (!savedCheckpoint && !checkpointSaveError) {
+    throw new Error("Read the lesson before completing its checkpoint.");
+  }
   if (checkpointSaveError) throw new Error("Checkpoint result could not be saved. Please try again.");
 
   return { correct: true };
@@ -393,17 +391,22 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
   }
 
   const now = new Date().toISOString();
-  const { error: exerciseSaveError } = await admin.from("training_lesson_engagement").upsert({
-    user_id: userId,
-    lesson_id: lesson.id,
-    active_seconds: Number(engagement?.active_seconds || 0),
-    max_scroll_percent: Number(engagement?.max_scroll_percent || 0),
-    checkpoint_passed_at: checkpoint ? now : null,
-    checkpoint_key: checkpoint?.checkpointKey || null,
-    exercise_response: hasExercise ? exerciseResponse : null,
-    last_activity_at: now,
-    updated_at: now,
-  }, { onConflict: "user_id,lesson_id" });
+  // Preserve concurrent engagement updates; completion changes only these fields.
+  const { data: savedExercise, error: exerciseSaveError } = await admin
+    .from("training_lesson_engagement")
+    .update({
+      checkpoint_passed_at: checkpoint ? now : null,
+      checkpoint_key: checkpoint?.checkpointKey || null,
+      exercise_response: hasExercise ? exerciseResponse : null,
+      updated_at: now,
+    })
+    .eq("user_id", userId)
+    .eq("lesson_id", lesson.id)
+    .select("lesson_id")
+    .maybeSingle();
+  if (!savedExercise && !exerciseSaveError) {
+    throw new Error("Lesson activity was not found. Please reload and try again.");
+  }
   if (exerciseSaveError) throw new Error("Lesson activity could not be saved. Please try again.");
 
   const { error: enrollmentError } = await admin

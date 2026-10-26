@@ -69,8 +69,8 @@ test("sales analytics keep responsive trend and source charts while funnels expl
   assert.match(lib,/timeline,/);
   assert.match(analytics,/RevenueTrendChart/);
   assert.match(analytics,/RevenueBarChart/);
-  assert.match(analytics,/Website → client funnel/);
-  assert.match(analytics,/from previous step/);
+  assert.doesNotMatch(analytics,/Website → client funnel/);
+  assert.match(analytics,/Verified conversion control/);
   assert.match(charts,/<svg/);
   assert.match(charts,/role="img"/);
   assert.match(funnel,/agency-funnel-flow/);

@@ -2,10 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useReportWebVitals } from "next/web-vitals";
-import { getBrowserSessionId } from "@/lib/browser-session";
-
-const endpoint = "/api/analytics";
 
 declare global {
   interface Window {
@@ -14,13 +10,17 @@ declare global {
 }
 
 function isTrainingPath(pathname: string) {
-  return pathname === "/training" || pathname.startsWith("/workspace/training");
+  return pathname === "/training"
+    || pathname.startsWith("/training/")
+    || pathname.startsWith("/workspace/training")
+    || pathname.startsWith("/auth/join/training");
 }
 
 function trackablePath(pathname: string) {
+  // Business conversions remain tracked, but training browsing is not
+  // sent to our analytics API or GA4 as custom activity events.
   return pathname === "/workspace/va/onboarding"
-    || isTrainingPath(pathname)
-    || (!pathname.startsWith("/workspace") && !pathname.startsWith("/api"));
+    || (!isTrainingPath(pathname) && !pathname.startsWith("/workspace") && !pathname.startsWith("/api"));
 }
 
 /**
@@ -30,9 +30,9 @@ function trackablePath(pathname: string) {
  * read by channel and country.
  *
  * page_view is left out: GA4's enhanced measurement already records it,
- * including client-side navigation. web_vital is left out as noise.
+ * including client-side navigation. Custom Web Vitals collection is disabled.
  */
-const GA4_SKIPPED_EVENTS = new Set(["page_view", "web_vital"]);
+const GA4_SKIPPED_EVENTS = new Set(["page_view"]);
 
 /** GA4 accepts letters, digits and underscores, starting with a letter, max 40. */
 function ga4EventName(event: string) {
@@ -41,7 +41,7 @@ function ga4EventName(event: string) {
 }
 
 function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
-  if (GA4_SKIPPED_EVENTS.has(event)) return;
+  if (event.startsWith("training_") || GA4_SKIPPED_EVENTS.has(event)) return;
   const gtag = typeof window !== "undefined" ? window.gtag : undefined;
   if (typeof gtag !== "function") return;
 
@@ -63,66 +63,23 @@ function forwardToGa4(event: string, metadata?: Record<string, unknown>) {
   }
 }
 
-function send(event: string, metadata?: Record<string, unknown>) {
-  forwardToGa4(event, metadata);
-  const payload = JSON.stringify({
-    event_id: typeof window.crypto?.randomUUID === "function" ? window.crypto.randomUUID() : undefined,
-    event,
-    // Keep analytics acquisition-focused and avoid persisting query-string values.
-    path: window.location.pathname,
-    referrer: document.referrer ? (() => {
-      try {
-        const url = new URL(document.referrer);
-        return url.origin === window.location.origin ? url.pathname : url.origin;
-      } catch {
-        return null;
-      }
-    })() : null,
-    session_id: getBrowserSessionId() || undefined,
-    metadata: metadata ?? {}
-  });
-  try {
-    if (navigator.sendBeacon) {
-      const ok = navigator.sendBeacon(endpoint, new Blob([payload], { type: "application/json" }));
-      if (ok) return;
-    }
-    void fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true });
-  } catch {
-    // Analytics must never interrupt the user experience.
-  }
+type AnalyticsEvent = { event: string; metadata?: Record<string, unknown> };
+
+/**
+ * GA4-only event forwarding. Do not call /api/analytics: it is retired to
+ * prevent Vercel Function invocations and redundant analytics_events inserts.
+ * Google Analytics handles normal page views with its own enhanced measurement.
+ */
+function sendMany(events: AnalyticsEvent[]) {
+  for (const { event, metadata } of events) forwardToGa4(event, metadata);
 }
 
-type WebVitalMetric = {
-  id: string;
-  name: string;
-  value: number;
-  rating?: string;
-  navigationType?: string;
-};
-
-function reportWebVital(metric: WebVitalMetric) {
-  const pathname = window.location.pathname;
-  if (pathname.startsWith("/api")) return;
-
-  // CLS is a small unitless number, while LCP/INP/TTFB/FCP are measured in ms.
-  // Preserve enough precision to make production field data useful.
-  const value = metric.name === "CLS"
-    ? Math.round(metric.value * 1000) / 1000
-    : Math.round(metric.value);
-
-  send("web_vital", {
-    id: metric.id,
-    name: metric.name,
-    value,
-    rating: metric.rating || null,
-    navigation_type: metric.navigationType || null,
-    surface: pathname.startsWith("/workspace") ? "workspace" : "public"
-  });
+function send(event: string, metadata?: Record<string, unknown>) {
+  sendMany([{ event, metadata }]);
 }
 
 export function Analytics() {
   const pathname = usePathname();
-  useReportWebVitals(reportWebVital);
 
   useEffect(() => {
     if (!trackablePath(pathname)) return;
@@ -132,42 +89,11 @@ export function Analytics() {
       return;
     }
 
-    if (pathname.startsWith("/workspace/training")) {
-      if (pathname === "/workspace/training") {
-        send("training_dashboard_view");
-        return;
-      }
-
-      const segments = pathname.split("/").filter(Boolean);
-      const courseIndex = segments.indexOf("courses");
-      const courseSlug = courseIndex >= 0 ? segments[courseIndex + 1] || null : null;
-      const lessonIndex = segments.indexOf("lessons");
-      const assessmentIndex = segments.indexOf("assessments");
-
-      if (assessmentIndex >= 0) {
-        send("training_assessment_view", {
-          course_slug: courseSlug,
-          assessment_id: segments[assessmentIndex + 1] || null,
-        });
-      } else if (lessonIndex >= 0) {
-        send("training_lesson_view", {
-          course_slug: courseSlug,
-          lesson_id: segments[lessonIndex + 1] || null,
-        });
-      } else if (courseSlug) {
-        send("training_course_view", { course_slug: courseSlug });
-      }
-      return;
-    }
-
-    send("page_view");
-    if (pathname.startsWith("/training/certificates/")) {
-      send("training_certificate_view");
-    }
-    if (pathname === "/training") send("training_landing_view");
-    if (pathname === "/pricing") send("pricing_view");
-    if (pathname === "/hire") send("hire_page_view");
-    if (pathname.startsWith("/va/")) send("candidate_view");
+    const events: AnalyticsEvent[] = [];
+    if (pathname === "/pricing") events.push({ event: "pricing_view" });
+    if (pathname === "/hire") events.push({ event: "hire_page_view" });
+    if (pathname.startsWith("/va/")) events.push({ event: "candidate_view" });
+    if (events.length) sendMany(events);
   }, [pathname]);
 
   useEffect(() => {
@@ -179,15 +105,6 @@ export function Analytics() {
       if (!form || startedForms.has(form)) return;
       startedForms.add(form);
       send("form_start", {
-        form_id: form.id || null,
-        action: form.getAttribute("action") || window.location.pathname
-      });
-    };
-
-    const handleSubmit = (event: SubmitEvent) => {
-      const form = event.target instanceof HTMLFormElement ? event.target : null;
-      if (!form) return;
-      send("form_submit_attempt", {
         form_id: form.id || null,
         action: form.getAttribute("action") || window.location.pathname
       });
@@ -218,11 +135,9 @@ export function Analytics() {
     };
 
     document.addEventListener("focusin", handleFocus);
-    document.addEventListener("submit", handleSubmit);
     document.addEventListener("click", handleClick);
     return () => {
       document.removeEventListener("focusin", handleFocus);
-      document.removeEventListener("submit", handleSubmit);
       document.removeEventListener("click", handleClick);
     };
   }, [pathname]);

@@ -91,26 +91,19 @@ test("candidate education pages route readers into training instead of buyer CTA
   assert.match(vaHub, /Start free training|Free VA training/);
 });
 
-test("the training funnel records successful product actions", () => {
+test("training actions save canonical state without event beacons", () => {
   const browserAnalytics = source("src/components/analytics.tsx");
   const analyticsRoute = source("src/app/api/analytics/route.ts");
+  const productEvents = source("src/lib/product-events.ts");
   const trainingActions = source("src/app/actions/training.ts");
-  const trainingAuth = source("src/app/actions/training-auth.ts");
-  const adminAnalytics = source("src/app/workspace/admin/analytics/page.tsx");
 
-  assert.match(browserAnalytics, /training_landing_view/);
-  assert.match(browserAnalytics, /training_dashboard_view/);
-  assert.match(analyticsRoute, /training_account_click/);
-  assert.match(analyticsRoute, /training_course_interest_click/);
-  assert.match(analyticsRoute, /training_email_confirmed/);
-  assert.match(analyticsRoute, /training_lesson_complete/);
-  assert.match(trainingAuth, /recordProductEvent\("training_account_created"/);
-  assert.match(trainingActions, /recordProductEvent\("training_course_start"/);
-  assert.match(trainingActions, /recordProductEvent\("training_lesson_complete"/);
-  assert.match(trainingActions, /recordProductEvent\("training_course_complete"/);
-  assert.match(adminAnalytics, /Training engagement/);
+  assert.match(browserAnalytics, /return null/);
+  assert.match(analyticsRoute, /status: 204/);
+  assert.doesNotMatch(productEvents, /analytics_events|createAdminClient/);
+  assert.match(trainingActions, /training_enrollments/);
+  assert.match(trainingActions, /training_lesson_progress/);
+  assert.match(trainingActions, /finalizeTrainingCourseIfEligible/);
 });
-
 
 test("the public training page keeps individual course pages private", () => {
   assert.doesNotMatch(page, /href=\{?`?\/training\/courses/);

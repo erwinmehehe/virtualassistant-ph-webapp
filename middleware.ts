@@ -1,5 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { createBoundedSupabaseFetch } from "@/lib/supabase/bounded-fetch";
+
+// Authentication refresh must not block routing for 25 seconds.
+const boundedMiddlewareFetch = createBoundedSupabaseFetch(4_000);
 
 
 function normalizeRequestHost(value: string | null) {
@@ -31,6 +35,13 @@ export async function middleware(request: NextRequest) {
 
   let response = NextResponse.next({ request });
 
+  // These responses are public and intentionally identical for every user.
+  // Preserve the canonical-host redirect above, but do not refresh sessions
+  // merely to serve cached training content or public social images.
+  if (request.nextUrl.pathname === "/training" || request.nextUrl.pathname === "/api/og") {
+    return response;
+  }
+
   // Public visitors and crawlers do not need an auth refresh. Supabase SSR
   // session cookies are named sb-<project-ref>-auth-token (and may be split
   // into numbered chunks), so only create the auth client when one exists.
@@ -44,6 +55,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: boundedMiddlewareFetch },
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll(cookiesToSet, headers) {
@@ -55,10 +67,17 @@ export async function middleware(request: NextRequest) {
       }
     }
   );
-  await supabase.auth.getClaims();
+  try {
+    await supabase.auth.getClaims();
+  } catch {
+    // This is only a session refresh. Server-side route guards still enforce
+    // authentication and authorization; do not trust this fallback for access.
+  }
   return response;
 }
 
+// Keep routing compute off public, cached pages. Account/session refresh happens
+// only where it is required; canonical WWW redirects are deployed via vercel.json.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"]
+  matcher: ["/workspace/:path*", "/auth/:path*"],
 };

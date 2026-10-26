@@ -96,8 +96,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Dental & Healthcare",
     "primaryKeyword": "hire dental virtual assistant philippines",
     "metaTitle": "Dental Virtual Assistant Philippines",
-    "metaDescription": "Hire a vetted Dental Virtual Assistant in the Philippines. Compare relevant experience, tools, availability, and role fit before you interview.",
-    "intro": "Hire a Dental Virtual Assistant in the Philippines to handle appointment scheduling, patient reminders, and insurance verification support. Keep the scope administrative and non-clinical, with privacy, access, and escalation rules documented before onboarding.",
+    "metaDescription": "Hire a Dental Virtual Assistant in the Philippines for scheduling, patient reminders and non-clinical admin. Compare candidates, tools and role fit.",
+    "intro": "Hire a Dental Virtual Assistant in the Philippines for appointment scheduling, patient reminders, recall follow-up, and supervised insurance verification administration. Compare candidates' experience with Dentrix, Open Dental, or your own practice systems; keep patient-data access limited and leave clinical decisions and regulated judgments with qualified staff.",
     "focus": "non-clinical dental front-office support",
     "tasks": [
       "appointment scheduling",
@@ -134,9 +134,9 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "multi-location dental groups"
     ],
     "outcomes": [
-      "Create consistent ownership for appointment scheduling",
-      "Reduce the backlog around patient reminders",
-      "Keep non-clinical dental front-office support documented and moving"
+      "Track appointment confirmations, recalls, and scheduling exceptions",
+      "Document non-clinical insurance-verification follow-up and handoffs",
+      "Keep patient communication and unresolved billing items visible to practice staff"
     ],
     "costFactors": [
       "Relevant experience and independence",
@@ -1294,8 +1294,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Web & WordPress",
     "primaryKeyword": "it support virtual assistant philippines",
     "metaTitle": "IT Support Virtual Assistant Philippines",
-    "metaDescription": "Hire an IT Virtual Assistant in the Philippines for help-desk admin, account setup, documentation, ticket triage, SaaS support, and remote technical workflows.",
-    "intro": "Hire an IT Virtual Assistant in the Philippines for help-desk administration, account setup, documentation, ticket triage, SaaS support, and recurring remote IT workflows. Define access, permissions, escalation, and what requires a senior technician before the role starts.",
+    "metaDescription": "Hire an IT Virtual Assistant in the Philippines for ticket triage, account administration and SaaS support. Compare candidates and define access before hiring.",
+    "intro": "Hire an IT Virtual Assistant in the Philippines to organize helpdesk triage, approved user-account changes, SaaS access records, and ticket follow-up. Ask for evidence of Google Workspace or Microsoft 365 workflows, and keep privileged changes, security decisions, and production approvals with your authorized IT team.",
     "focus": "remote technical administration and first-line IT coordination",
     "tasks": [
       "user account administration",
@@ -1332,9 +1332,9 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "small businesses"
     ],
     "outcomes": [
-      "Create consistent ownership for user account administration",
-      "Reduce the backlog around helpdesk triage",
-      "Keep remote technical administration and first-line IT coordination documented and moving"
+      "Track user access requests with clear tickets and approval owners",
+      "Document first-line helpdesk triage and specialist escalations",
+      "Keep SaaS access, device records, and follow-up status visible"
     ],
     "costFactors": [
       "Relevant experience and independence",
@@ -1546,8 +1546,8 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
     "directoryCategory": "Administrative Support",
     "primaryKeyword": "operations virtual assistant philippines",
     "metaTitle": "Operations Virtual Assistant Philippines",
-    "metaDescription": "Hire an Operations Virtual Assistant in the Philippines for SOPs, recurring checklists, process tracking, vendor follow-up, reporting, and workflow QA.",
-    "intro": "Hire an Operations Virtual Assistant in the Philippines for SOP maintenance, recurring checklists, process tracking, vendor follow-up, reporting, data maintenance, and workflow QA. The role works best when every recurring process has a source of truth, owner, due date, and definition of done.",
+    "metaDescription": "Hire an Operations Virtual Assistant in the Philippines for SOP updates, recurring checklists and vendor coordination. Compare tools, scope and candidate fit.",
+    "intro": "Hire an Operations Virtual Assistant in the Philippines to maintain SOPs, own recurring checklists, track vendor follow-up, and prepare weekly process reports. Define your source of truth in ClickUp, Asana, Notion, or the tool your team already uses; give the VA clear owners, deadlines, quality checks, and escalation boundaries.",
     "focus": "process administration, recurring operations, and SOP follow-through",
     "tasks": [
       "SOP maintenance",
@@ -1584,9 +1584,9 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "remote operations teams"
     ],
     "outcomes": [
-      "Create consistent ownership for sop maintenance",
-      "Reduce the backlog around checklist ownership",
-      "Keep process administration, recurring operations, and SOP follow-through documented and moving"
+      "Keep recurring SOPs organized with owners and review dates",
+      "Track checklist exceptions and vendor follow-up against agreed deadlines",
+      "Make open work, overdue items, and handoffs visible in a shared report"
     ],
     "costFactors": [
       "Relevant experience and independence",

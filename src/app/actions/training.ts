@@ -15,6 +15,7 @@ import {
   summarizeAssessmentAnswerPattern,
 } from "@/lib/training-integrity";
 import { getAustraliaSpecialization, isAustraliaSpecializationSlug } from "@/lib/training-specializations";
+import { getCachedPublishedLessonId } from "@/lib/training-published-lesson-cache";
 
 export async function startTrainingCourseAction(formData: FormData) {
   const { userId } = await requireAuthenticatedUserFast("/workspace/training");
@@ -183,38 +184,25 @@ export async function recordTrainingLessonEngagementAction(input: {
   const lessonId = String(input.lessonId || "").trim();
   const courseSlug = String(input.courseSlug || "").trim();
   const scrollPercent = Math.max(0, Math.min(100, Math.round(Number(input.scrollPercent || 0))));
-  if (!lessonId || !courseSlug) return { activeSeconds: 0, maxScrollPercent: 0 };
+  // Bound cache-key cardinality: callers can submit IDs and slugs directly to
+  // server actions, but only real database-shaped identifiers should reach the cache.
+  if (
+    !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(lessonId) ||
+    courseSlug.length > 120 ||
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(courseSlug)
+  ) return { activeSeconds: 0, maxScrollPercent: 0 };
 
   const admin = createAdminClient();
-  const { data: course } = await admin
-    .from("training_courses")
-    .select("id")
-    .eq("slug", courseSlug)
-    .eq("status", "published")
-    .maybeSingle();
-  if (!course) return { activeSeconds: 0, maxScrollPercent: 0 };
-
-  const { data: modules } = await admin
-    .from("training_modules")
-    .select("id")
-    .eq("course_id", course.id);
-  const moduleIds = (modules || []).map((item) => item.id);
-  if (!moduleIds.length) return { activeSeconds: 0, maxScrollPercent: 0 };
-
-  const { data: lesson } = await admin
-    .from("training_lessons")
-    .select("id")
-    .eq("id", lessonId)
-    .eq("is_published", true)
-    .in("module_id", moduleIds)
-    .maybeSingle();
-  if (!lesson) return { activeSeconds: 0, maxScrollPercent: 0 };
+  // Public lesson publication state is safe to cache briefly across users.
+  // Learner engagement stays uncached and remains scoped to the signed-in user.
+  const validLessonId = await getCachedPublishedLessonId(lessonId, courseSlug);
+  if (!validLessonId) return { activeSeconds: 0, maxScrollPercent: 0 };
 
   const { data: existing } = await admin
     .from("training_lesson_engagement")
     .select("active_seconds,max_scroll_percent,last_activity_at")
     .eq("user_id", userId)
-    .eq("lesson_id", lesson.id)
+    .eq("lesson_id", validLessonId)
     .maybeSingle();
 
   const now = new Date();
@@ -229,7 +217,7 @@ export async function recordTrainingLessonEngagementAction(input: {
 
   const { error: engagementError } = await admin.from("training_lesson_engagement").upsert({
     user_id: userId,
-    lesson_id: lesson.id,
+    lesson_id: validLessonId,
     active_seconds: activeSeconds,
     max_scroll_percent: maxScrollPercent,
     last_activity_at: now.toISOString(),

@@ -86,7 +86,7 @@ export function TrainingShell({
               <TrainingNavIcon tone="violet"><GraduationCap size={16}/></TrainingNavIcon>
               <span>{isAdminPreview ? "Learner view" : "My learning"}</span>
             </Link>
-            <Link href="/workspace/training?browse=1#course-library-title">
+            <Link href="/workspace/training?browse=personal#course-library-title">
               <TrainingNavIcon tone="indigo"><BookOpenCheck size={16}/></TrainingNavIcon>
               <span>Browse courses</span>
             </Link>
@@ -124,7 +124,7 @@ export function TrainingShell({
             <TrainingNavIcon tone="violet"><GraduationCap size={17}/></TrainingNavIcon>
             <span>Learning</span>
           </Link>
-          <Link href="/workspace/training?browse=1#course-library-title">
+          <Link href="/workspace/training?browse=personal#course-library-title">
             <TrainingNavIcon tone="indigo"><BookOpenCheck size={17}/></TrainingNavIcon>
             <span>Courses</span>
           </Link>

@@ -62,6 +62,7 @@ async function invalidateCourseReview(admin: ReturnType<typeof createAdminClient
     .eq("id", courseId);
 
   updateTag("public-training");
+  updateTag("training-curriculum");
 }
 
 async function invalidateLessonReview(admin: ReturnType<typeof createAdminClient>, lessonId: string) {
@@ -153,6 +154,7 @@ export async function updateTrainingCourseAction(formData: FormData) {
 
 
   updateTag("public-training");
+  updateTag("training-curriculum");
   revalidatePath(adminTrainingPath(courseId));
   revalidatePath("/workspace/admin/training");
 }
@@ -249,6 +251,7 @@ export async function setTrainingCourseStatusAction(formData: FormData) {
   if (error) throw error;
 
   updateTag("public-training");
+  updateTag("training-curriculum");
   revalidatePath(adminTrainingPath(courseId));
   revalidatePath("/workspace/admin/training");
   revalidatePath("/workspace/training");
@@ -291,6 +294,7 @@ export async function setTrainingLearningPathStatusAction(formData: FormData) {
   if (error) throw error;
 
   updateTag("public-training");
+  updateTag("training-curriculum");
   revalidatePath("/workspace/admin/training");
   revalidatePath("/workspace/training");
   revalidatePath("/training");
@@ -459,6 +463,7 @@ export async function setTrainingLessonPublishedAction(formData: FormData) {
     .eq("id", lessonId);
   if (error) throw error;
 
+  updateTag("training-curriculum");
   revalidatePath(adminTrainingPath(courseId, lessonId));
   revalidatePath(adminTrainingPath(courseId));
 }

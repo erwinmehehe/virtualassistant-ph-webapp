@@ -121,7 +121,7 @@ test("priority retained guides can optimize SERP metadata without changing their
       "how-to-pay-a-filipino-virtual-assistant-directly",
       "hourly-rates-for-filipino-virtual-project-manager"
     ].includes(slug)
-      ? "September 23, 2026"
+      ? "October 24, 2026"
       : "September 20, 2026";
     assert.equal(post.updatedDate, expectedDate);
   }

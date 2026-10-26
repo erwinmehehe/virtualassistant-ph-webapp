@@ -51,7 +51,7 @@ test("sitemap explicitly excludes expired jobs", async () => {
   const sitemap = await read("src/app/sitemap.ts");
 
   assert.match(sitemap, /select\("id,slug,published_at,expires_at"\)/);
-  assert.match(sitemap, /\.gt\("expires_at", new Date\(\)\.toISOString\(\)\)/);
+  assert.match(sitemap, /\.gt\("expires_at", jobCutoff\)/);
 });
 
 test("maintenance closes expired roles before reminders and submits closures to IndexNow", async () => {

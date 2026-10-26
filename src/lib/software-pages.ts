@@ -1,3 +1,5 @@
+import { isPrunedRedirectSource, SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS } from "@/lib/seo-prune";
+
 // Software-focused SEO landing pages for VirtualAssistant.com.ph
 
 export type SoftwareSeoPage = {
@@ -2377,6 +2379,8 @@ function normalizedSoftwareTool(value: string) {
 export function softwarePagesForTools(tools: string[]) {
   const normalizedTools = new Set(tools.map(normalizedSoftwareTool));
   return softwarePages.filter((page) =>
+    !isPrunedRedirectSource(`/software/${page.slug}`) &&
+    !SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS.has(page.slug) &&
     [page.software, ...(page.aliases || [])].some((name) => normalizedTools.has(normalizedSoftwareTool(name)))
   );
 }

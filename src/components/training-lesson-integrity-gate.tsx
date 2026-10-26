@@ -56,9 +56,14 @@ export function TrainingLessonIntegrityGate({
   const [exerciseResponse, setExerciseResponse] = useState(initialExerciseResponse || "");
   const [isChecking, startChecking] = useTransition();
   const lastInteractionAt = useRef(Date.now());
+  // Both values must be confirmed by the server before stopping background writes.
+  const savedCompletionEvidenceRef = useRef(
+    initialActiveSeconds >= requiredActiveSeconds && initialScrollPercent >= 85,
+  );
 
   useEffect(() => {
     let cancelled = false;
+    let heartbeatPending = false;
 
     function readingProgress() {
       const marker = document.querySelector(`[data-training-content-end="${lessonId}"]`);
@@ -80,8 +85,11 @@ export function TrainingLessonIntegrityGate({
     }
 
     async function heartbeat() {
+      // Never overlap writes, and stop once active time + reading are persisted.
+      if (cancelled || heartbeatPending || savedCompletionEvidenceRef.current) return;
       if (document.visibilityState !== "visible" || !document.hasFocus()) return;
       if (Date.now() - lastInteractionAt.current > 45_000) return;
+      heartbeatPending = true;
       const scrollPercent = readingProgress();
       try {
         const result = await recordTrainingLessonEngagementAction({
@@ -90,14 +98,19 @@ export function TrainingLessonIntegrityGate({
           scrollPercent,
         });
         if (!cancelled) {
-          setActiveSeconds(Number(result.activeSeconds || 0));
-          setMaxScrollPercent((current) => Math.max(current, Number(result.maxScrollPercent || 0)));
+          const savedSeconds = Number(result.activeSeconds || 0);
+          const savedScroll = Number(result.maxScrollPercent || 0);
+          savedCompletionEvidenceRef.current = savedSeconds >= requiredActiveSeconds && savedScroll >= 85;
+          setActiveSeconds(savedSeconds);
+          setMaxScrollPercent((current) => Math.max(current, savedScroll));
           setReadingSyncError(false);
         }
       } catch {
         // Never imply progress was saved when the server couldn't persist it.
         // Keep the lesson open, and retry automatically on the next active heartbeat.
         if (!cancelled) setReadingSyncError(true);
+      } finally {
+        heartbeatPending = false;
       }
     }
 
@@ -107,7 +120,8 @@ export function TrainingLessonIntegrityGate({
     window.addEventListener("pointerdown", markInteraction, { passive: true });
     window.addEventListener("keydown", markInteraction);
     window.addEventListener("touchstart", markInteraction, { passive: true });
-    const timer = window.setInterval(() => void heartbeat(), 20_000);
+    // 30s stays within the server-side 45s credit window and sends 1/3 fewer syncs.
+    const timer = window.setInterval(() => void heartbeat(), 30_000);
 
     return () => {
       cancelled = true;
@@ -117,7 +131,7 @@ export function TrainingLessonIntegrityGate({
       window.removeEventListener("touchstart", markInteraction);
       window.clearInterval(timer);
     };
-  }, [courseSlug, lessonId]);
+  }, [courseSlug, lessonId, requiredActiveSeconds]);
 
   const readingReady = maxScrollPercent >= 85;
   const timeReady = activeSeconds >= requiredActiveSeconds;

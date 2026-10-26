@@ -16,7 +16,7 @@ test("shared contextual OG metadata uses exact titles for image alt text", async
 test("dynamic OG renderer is contextual, 1200x630, and font-safe", async () => {
   const source = await read("src/app/api/og/route.tsx");
   assert.match(source, /new ImageResponse/);
-  assert.match(source, /width: 1200, height: 630/);
+  assert.match(source, /width:\s*1200,\s*height:\s*630/);
   assert.match(source, /VIRTUAL ASSISTANT GUIDE/);
   assert.match(source, /INDUSTRY VA GUIDE/);
   assert.match(source, /SOFTWARE VA GUIDE/);

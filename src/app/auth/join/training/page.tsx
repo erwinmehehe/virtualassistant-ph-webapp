@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { TrainingSiteHeader } from "@/components/training-site-header";
 import { TrainingJoinForm } from "@/components/training-join-form";
 import { getPublicTrainingOverview } from "@/lib/public-training";
-import { safeTrainingCourseSlug } from "@/lib/training-intent";
+import { safeTrainingCourseSlug, trainingCourseDestination } from "@/lib/training-intent";
+import { getFastRoleProfile } from "@/lib/auth";
 import { googleLoginEnabled } from "@/lib/social-login";
 
 export const metadata: Metadata = {
@@ -35,6 +38,16 @@ export default async function TrainingJoinPage({
       (item) => item.slug === requestedSlug && item.status === "published",
     );
     if (match) course = { slug: match.slug, title: match.title };
+  }
+
+  // Only authenticate when an existing session cookie is present. Anonymous
+  // visitors remain on this signup page without an unnecessary auth lookup.
+  const hasSessionCookie = (await cookies()).getAll().some(({ name }) =>
+    name.startsWith("sb-") && name.includes("-auth-token")
+  );
+  if (hasSessionCookie) {
+    const { userId } = await getFastRoleProfile();
+    if (userId) redirect(trainingCourseDestination(course?.slug));
   }
 
   const googleEnabled = googleLoginEnabled();

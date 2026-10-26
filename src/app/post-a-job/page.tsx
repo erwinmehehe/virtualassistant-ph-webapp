@@ -93,8 +93,8 @@ export default async function PostAJobPage() {
                 <div className="post-job-after">
                   <ShieldCheck size={16} aria-hidden="true" />
                   <div>
-                    <strong>Nothing is published automatically.</strong>
-                    <p>After the preview, create or sign in to your client account, confirm the saved draft, then submit it.</p>
+                    <strong>Jobs publish automatically for verified employers.</strong>
+                    <p>Sign in, verify your email, then submit the completed job. Unusual content is held for safety review.</p>
                   </div>
                 </div>
               </>

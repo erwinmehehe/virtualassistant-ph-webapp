@@ -242,7 +242,7 @@ export const SEO_AUTHORITY_PAGES: Record<string, SeoAuthorityPage> = {
         intro: "Cost depends on experience, specialization, working hours, live coverage, tools, communication requirements, and how independently the person is expected to work. Compare the responsibility level before comparing rates.",
         links: [
           { href: "/pricing", label: "Virtual Assistant pricing", description: "See the current hiring models and how service pricing is confirmed." },
-          { href: "/how-much-virtual-assistant-philippines", label: "VA cost guide", description: "Learn the factors that change a Filipino Virtual Assistant budget." },
+          { href: "/average-hourly-rate-virtual-assistants-philippines", label: "VA cost guide", description: "Learn the factors that change a Filipino Virtual Assistant budget." },
           { href: "/research/virtual-assistant-rates-philippines-2026", label: "2026 rate and skills report", description: "See first-party aggregate profile data from Filipino Virtual Assistants." }
         ]
       }

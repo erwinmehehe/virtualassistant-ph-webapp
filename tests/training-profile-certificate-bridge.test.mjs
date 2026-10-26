@@ -77,18 +77,17 @@ test("recruiter training views are tracked as evidence and do not change hiring 
   assert.match(component, /never required for recruiter approval or client selection/);
 });
 
-test("training analytics extends from certificate issue to public profile and recruiter view", async () => {
-  const [training, analytics] = await Promise.all([
-    read("src/lib/training.ts"),
+test("certificate and recruiter training evidence survive disabled event analytics", async () => {
+  const [training, certificates, dashboard, recorder] = await Promise.all([
+    read("src/app/actions/training.ts"),
+    read("src/lib/training-credentials.ts"),
     read("src/app/workspace/admin/analytics/page.tsx"),
+    read("src/lib/product-events.ts"),
   ]);
-
-  assert.match(training, /training_certificate_issued/);
-  assert.match(training, /training_certificate_profile_added/);
-  assert.match(training, /training_certificate_recruiter_view/);
-  assert.match(analytics, /Certificates issued/);
-  assert.match(analytics, /Certificates added publicly/);
-  assert.match(analytics, /Recruiter training views/);
+  assert.match(training, /finalizeTrainingCourseIfEligible/);
+  assert.match(certificates, /training_certificates/);
+  assert.match(dashboard, /redirect\("\/workspace\/admin\/today"\)/);
+  assert.doesNotMatch(recorder, /analytics_events|createAdminClient/);
 });
 
 test("certificate verification has mobile share and print support", async () => {

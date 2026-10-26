@@ -47,6 +47,11 @@ const industrySeoContent = source("src/lib/industry-seo-content.ts");
 const ogHelper = source("src/lib/og.ts");
 const blogArticle = source("src/components/blog-article.tsx");
 
+const seoPrunePolicy = source("src/lib/seo-prune.ts");
+const seoPruneMatch = seoPrunePolicy.match(/SEO_PRUNE_REDIRECTS: Record<string, string> = (\{[\s\S]*?\});/);
+if (!seoPruneMatch) throw new Error("SEO pruning redirect policy missing");
+const seoPruneRedirects = JSON.parse(seoPruneMatch[1]);
+
 const failures = [];
 const warnings = [];
 const serviceSlugs = new Set(services.map((item) => item.slug));
@@ -61,7 +66,8 @@ for (const post of posts) {
   if (post.softwareSlug) {
     if (!softwareSlugs.has(post.softwareSlug)) failures.push(`${post.slug}: softwareSlug ${post.softwareSlug} does not resolve to a current software page`);
     const softwareHref = `/software/${post.softwareSlug}`;
-    if (!(post.internalLinks || []).some((link) => link.href === softwareHref)) failures.push(`${post.slug}: missing canonical software link ${softwareHref}`);
+    const canonicalHref = seoPruneRedirects[softwareHref] || softwareHref;
+    if (!(post.internalLinks || []).some((link) => link.href === canonicalHref)) failures.push(`${post.slug}: missing canonical software link ${canonicalHref}`);
   }
 
   for (const industrySlug of post.industrySlugs || []) {

@@ -9,11 +9,19 @@ const demandGuidesPath = path.join(root, 'src/lib/blog-demand-guides.ts');
 const keywordSupportGuidesPath = path.join(root, 'src/lib/blog-keyword-support-guides.ts');
 const candidateGuidesPath = path.join(root, 'src/lib/blog-candidate-profile-guides.ts');
 const jobSearchGuidesPath = path.join(root, 'src/lib/blog-job-search-guides.ts');
+const aeoGuidesPath = path.join(root, 'src/lib/blog-aeo-guides.ts');
+const aeoFollowupGuidesPath = path.join(root, 'src/lib/blog-aeo-followup-guides.ts');
+const usOutsourcingGuidesPath = path.join(root, 'src/lib/blog-us-outsourcing-guides.ts');
 const servicePath = path.join(root, 'src/lib/service-pages.ts');
 const softwarePath = path.join(root, 'src/lib/software-pages.ts');
 const industryPath = path.join(root, 'src/lib/industries.ts');
 const archivePath = path.join(root, 'src/lib/archive-posts.ts');
 const editorialPath = path.join(root, 'src/lib/editorial-seo-guides.ts');
+
+const seoPrunePolicy = fs.readFileSync(path.join(root, 'src/lib/seo-prune.ts'), 'utf8');
+const seoPruneMatch = seoPrunePolicy.match(/SEO_PRUNE_REDIRECTS: Record<string, string> = (\{[\s\S]*?\});/);
+if (!seoPruneMatch) throw new Error('SEO pruning redirect policy missing');
+const seoPruneRedirects = JSON.parse(seoPruneMatch[1]);
 
 function readPosts() {
   return [
@@ -24,6 +32,9 @@ function readPosts() {
     ...readPostArray(keywordSupportGuidesPath, 'export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = '),
     ...readPostArray(candidateGuidesPath, 'export const BLOG_CANDIDATE_PROFILE_GUIDES: BlogPost[] = '),
     ...readPostArray(jobSearchGuidesPath, 'export const BLOG_JOB_SEARCH_GUIDES: BlogPost[] = '),
+    ...readPostArray(aeoGuidesPath, 'export const BLOG_AEO_GUIDES: BlogPost[] = '),
+    ...readPostArray(aeoFollowupGuidesPath, 'export const BLOG_AEO_FOLLOWUP_GUIDES: BlogPost[] = '),
+    ...readPostArray(usOutsourcingGuidesPath, 'export const BLOG_US_OUTSOURCING_GUIDES: BlogPost[] = '),
   ];
 }
 function readPostArray(file, marker) {
@@ -118,10 +129,12 @@ for (const slug of slugsFrom(editorialPath)) blogRoutes.add(`/blog/${slug}`);
 for (const slug of editorialResourceSlugs()) blogRoutes.add(`/blog/${slug}`);
 const topicRoutes = new Set(posts.map(p => `/blog/topic/${p.topic}`));
 const knownStatic = new Set([
-  '/', '/blog', '/services', '/industries', '/software', '/training', '/hire', '/pricing', '/jobs', '/post-a-job', '/for-virtual-assistants', '/auth/join/va', '/virtual-assistant-companies-philippines', '/managed-vs-direct-hire',
+  '/', '/blog', '/services', '/industries', '/software', '/training', '/hire', '/pricing', '/jobs', '/post-a-job', '/for-virtual-assistants', '/auth/join/va', '/virtual-assistant-companies-philippines', '/managed-vs-direct-hire', '/how-vetting-works',
   '/tools/virtual-assistant-cost-calculator', '/tools/hourly-to-monthly-calculator',
   '/tools/virtual-assistant-job-description-generator', '/tools/what-type-of-va-do-i-need',
-  '/research/virtual-assistant-rates-philippines-2026', '/resources/virtual-assistant-job-description'
+  '/research/virtual-assistant-rates-philippines-2026', '/resources/virtual-assistant-job-description',
+  '/downloads/virtual-assistant-kpi-scorecard.csv', '/downloads/virtual-assistant-sop-template.txt', '/downloads/virtual-assistant-paid-trial-rubric.csv',
+  '/downloads/virtual-assistant-offboarding-checklist.csv', '/downloads/first-virtual-assistant-task-audit.csv'
 ]);
 const banned = [
   'delve into', 'game-changer', 'game changer', 'unlock the potential', 'seamless solution',
@@ -188,7 +201,11 @@ for (const post of posts) {
   const hrefs = (post.internalLinks || []).map(link => link.href);
   if (!hrefs.includes(`/blog/topic/${post.topic}`)) failures.push(`${post.slug}: missing topic-hub internal link`);
   if (post.serviceSlug && !hrefs.includes(`/service/${post.serviceSlug}`)) failures.push(`${post.slug}: missing canonical service-page link`);
-  if (post.softwareSlug && !hrefs.includes(`/software/${post.softwareSlug}`)) failures.push(`${post.slug}: missing canonical software-page link`);
+  if (post.softwareSlug) {
+    const sourceHref = `/software/${post.softwareSlug}`;
+    const canonicalHref = seoPruneRedirects[sourceHref] || sourceHref;
+    if (!hrefs.includes(canonicalHref)) failures.push(`${post.slug}: missing canonical software-page link ${canonicalHref}`);
+  }
   const articleLinkCount = hrefs.filter(href => blogRoutes.has(href)).length;
   if (articleLinkCount < 1) failures.push(`${post.slug}: missing a contextual article link`);
 

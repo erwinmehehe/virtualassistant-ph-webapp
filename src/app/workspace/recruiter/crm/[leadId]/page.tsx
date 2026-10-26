@@ -280,8 +280,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   if (engagementError) throw engagementError;
   const engagement = (engagementRows || [])[0] as {
     last_login_at?: string | null;
-    last_va_view_at?: string | null;
-    va_views?: number | null;
     shortlist_opened_at?: string | null;
     last_shortlist_activity_at?: string | null;
     latest_decision?: string | null;
@@ -293,8 +291,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
   } | undefined;
 
   const clientLastLoginAt = engagement?.last_login_at || null;
-  const candidateViewCount = Number(engagement?.va_views || 0);
-  const lastCandidateViewAt = engagement?.last_va_view_at || null;
   const shortlistOpenedAt = engagement?.shortlist_opened_at || null;
   const snapshotShortlistActivityAt = engagement?.last_shortlist_activity_at || null;
   const lastClientReplyAt = engagement?.last_client_contact_at || replyState?.last_client_reply_at || null;
@@ -755,8 +751,6 @@ export default async function RecruiterCrmRecordPage({ params, searchParams }: {
       <ClientEngagementPanel
         linked={Boolean(lead.client_id)}
         lastLogin={clientLastLoginAt ? fmt(clientLastLoginAt, true) : "Never / not linked"}
-        lastVaView={lastCandidateViewAt ? fmt(lastCandidateViewAt, true) : "No tracked view"}
-        vaViews={candidateViewCount}
         shortlistOpened={shortlistOpenedAt ? fmt(shortlistOpenedAt, true) : "Not tracked yet"}
         shortlistActivity={lastShortlistActivityAt ? fmt(lastShortlistActivityAt, true) : "No activity yet"}
         decision={decisionSummary}

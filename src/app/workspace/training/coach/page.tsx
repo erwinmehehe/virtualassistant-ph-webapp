@@ -115,6 +115,15 @@ export default async function KiroCareerStudioPage() {
         </section>
       </div>
 
+      <section className="kiro-career-next" aria-labelledby="kiro-expert-panel-title">
+        <span className="kiro-career-eyebrow"><Sparkles size={15}/> NEW PRACTICE EXPERIENCE</span>
+        <h2 id="kiro-expert-panel-title">Meet your fictional interview panel</h2>
+        <p>Try a six-round mock interview based on an enrolled VAPH training course. Three interviewer roles, your choice of difficulty, and a transparent self-review rubric. Offline practice is available without AI or uploads; real AI is a separately approved pilot.</p>
+        <Link className="kiro-career-text-link" href="/workspace/training/coach/mock-interview">
+          Open Mock Interview Studio <ArrowRight size={15}/>
+        </Link>
+      </section>
+
       <section className="kiro-career-practice" id="career-practice" aria-labelledby="career-practice-title">
         <div className="kiro-career-section-heading">
           <div><span className="kiro-career-eyebrow">YOUR PRACTICE WORKSPACE</span><h2 id="career-practice-title">Build evidence you can explain in an interview.</h2></div>

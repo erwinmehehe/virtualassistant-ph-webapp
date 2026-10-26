@@ -43,7 +43,8 @@ test("all app-controlled password changes stop when breach verification is unava
 
 test("production Turnstile token verification checks expected hostname and action", async () => {
   const turnstile = await read("src/lib/turnstile.ts");
-  assert.match(turnstile, /if \(!secret && !siteKey\) return true/);
+  assert.match(turnstile, /if \(!secret && !siteKey\) \{/);
+  assert.match(turnstile, /missing production configuration; refusing protected submission/);
   assert.match(turnstile, /if \(!secret \|\| !siteKey\)/);
   assert.match(turnstile, /result\.action !== expectedAction/);
   assert.match(turnstile, /if \(process\.env\.VERCEL_ENV === "production"\)/);

@@ -109,11 +109,15 @@ test("regulated Australia courses state their professional boundaries", async ()
 });
 
 test("learner UI only exposes published paths and avoids duplicate course cards", async () => {
-  const training = await readFile("src/lib/training.ts", "utf8");
-  const page = await readFile("src/app/workspace/training/page.tsx", "utf8");
+  const [training, curriculum, page] = await Promise.all([
+    readFile("src/lib/training.ts", "utf8"),
+    readFile("src/lib/training-curriculum-cache.ts", "utf8"),
+    readFile("src/app/workspace/training/page.tsx", "utf8"),
+  ]);
 
-  assert.match(training, /from\("training_learning_paths"\)/);
-  assert.match(training, /\.eq\("status", "published"\)/);
+  assert.match(training, /getCachedPublishedTrainingCatalogue/);
+  assert.match(curriculum, /\.from\("training_learning_paths"\)/);
+  assert.match(curriculum, /\.eq\("status", "published"\)/);
   assert.match(page, /const notStarted = courses\.filter/);
   assert.match(page, /filteredNotStarted/);
   assert.match(page, /course\.country_focus !== "Australia"/);

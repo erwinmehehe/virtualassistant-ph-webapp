@@ -1,4 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCachedPublishedTrainingCatalogue, getCachedPublishedTrainingCourse } from "@/lib/training-curriculum-cache";
+import { getTrainingVerifiedAuthUser } from "@/lib/training-verified-auth-user";
 import { createClient } from "@/lib/supabase/server";
 import { buildTrainingCompletionHealth } from "@/lib/training-completion-health";
 import { buildTrainingCohortConversion } from "@/lib/training-cohort-conversion";
@@ -194,21 +196,14 @@ function percent(done: number, total: number) {
 
 export async function getTrainingDashboard(userId: string) {
   const supabase = await createClient();
-  const [
-    { data: authUserData },
-    { data: courseData, error },
-  ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
-      .from("training_courses")
-      .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
-      .eq("status", "published")
-      .order("recommended_order", { ascending: true })
-      .order("title"),
-  ]);
+  const { data: authUserData } = await getTrainingVerifiedAuthUser();
   const learnerName = String(authUserData.user?.user_metadata?.full_name || "").trim() || null;
-
-  if (error) {
+  let catalogue: Awaited<ReturnType<typeof getCachedPublishedTrainingCatalogue>>;
+  try {
+    catalogue = await getCachedPublishedTrainingCatalogue();
+  } catch {
+    // Fail closed; a transient database issue must not cache partial curriculum
+    // or expose privileged query errors to the learner.
     return {
       courses: [] as TrainingCourseSummary[],
       paths: [] as TrainingLearningPathSummary[],
@@ -216,11 +211,11 @@ export async function getTrainingDashboard(userId: string) {
       learnerPreferences: null as TrainingLearnerPreferences | null,
       savedCourseIds: [] as string[],
       learnerName,
-      error: error.message,
+      error: "Training catalogue is temporarily unavailable.",
     };
   }
 
-  const courses = (courseData || []) as CourseRow[];
+  const courses = catalogue.courses as CourseRow[];
   const courseIds = courses.map((course) => course.id);
   if (!courseIds.length) {
     return {
@@ -234,25 +229,11 @@ export async function getTrainingDashboard(userId: string) {
     };
   }
 
-  const { data: moduleData } = await supabase
-    .from("training_modules")
-    .select("id,course_id,title,summary,position")
-    .in("course_id", courseIds)
-    .order("position");
-
-  const modules = (moduleData || []) as ModuleRow[];
-  const moduleIds = modules.map((module) => module.id);
-
-  const { data: lessonData } = moduleIds.length
-    ? await supabase
-        .from("training_lessons")
-        .select("id,module_id,slug,title,summary,content,estimated_minutes,position,is_published,content_version,reviewed_by,last_reviewed_at")
-        .in("module_id", moduleIds)
-        .eq("is_published", true)
-        .order("position")
-    : { data: [] };
-
-  const lessons = (lessonData || []) as LessonRow[];
+  // Shared metadata contains only published lessons, without their lengthy
+  // content. Enrollment, progress, certificates and preferences remain
+  // private requests below and are NEVER put into the shared cache.
+  const modules = catalogue.modules as ModuleRow[];
+  const lessons = catalogue.lessons as LessonRow[];
   const lessonIds = lessons.map((lesson) => lesson.id);
 
   const [
@@ -292,12 +273,7 @@ export async function getTrainingDashboard(userId: string) {
       .select("id,course_id,credential_code,issued_at,revoked_at,metadata")
       .eq("user_id", userId)
       .in("course_id", courseIds),
-    supabase
-      .from("training_assessments")
-      .select("id,course_id,title,pass_score,position")
-      .in("course_id", courseIds)
-      .eq("is_published", true)
-      .order("position"),
+    Promise.resolve({ data: catalogue.assessments }),
     supabase
       .from("va_profiles")
       .select("primary_category,categories,tools,industries")
@@ -442,11 +418,7 @@ export async function getTrainingDashboard(userId: string) {
     };
   });
 
-  const { data: pathData } = await supabase
-    .from("training_learning_paths")
-    .select("id,slug,title,summary,country_focus,status")
-    .eq("status", "published")
-    .order("title");
+  const pathData = catalogue.paths;
 
   const pathRows = (pathData || []) as Array<{
     id: string;
@@ -456,14 +428,7 @@ export async function getTrainingDashboard(userId: string) {
     country_focus: string | null;
     status: "draft" | "published" | "archived";
   }>;
-  const pathIds = pathRows.map((item) => item.id);
-  const { data: pathCourseData } = pathIds.length
-    ? await supabase
-        .from("training_learning_path_courses")
-        .select("path_id,course_id,position")
-        .in("path_id", pathIds)
-        .order("position")
-    : { data: [] };
+  const pathCourseData = catalogue.pathCourses;
 
   const pathCourses = (pathCourseData || []) as Array<{ path_id: string; course_id: string; position: number }>;
   const paths: TrainingLearningPathSummary[] = pathRows.map((item) => ({
@@ -498,39 +463,26 @@ export async function getTrainingDashboard(userId: string) {
 
 export async function getTrainingCourse(slug: string, userId: string): Promise<{ course: TrainingCourseDetail | null; error: string | null }> {
   const supabase = await createClient();
-  const { data: courseData, error } = await supabase
-    .from("training_courses")
-    .select("id,slug,title,summary,category,country_focus,estimated_minutes,recommended_order,status,content_version,trademark_disclaimer,reviewed_by,last_reviewed_at,published_at,updated_at")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
+  let published: Awaited<ReturnType<typeof getCachedPublishedTrainingCourse>>;
+  try {
+    published = await getCachedPublishedTrainingCourse(slug);
+  } catch {
+    return { course: null, error: "This training course is temporarily unavailable." };
+  }
+  if (!published) return { course: null, error: null };
 
-  if (error || !courseData) return { course: null, error: error?.message || null };
-  const course = courseData as CourseRow;
+  const course = published.course as CourseRow;
+  const modules = published.modules as ModuleRow[];
+  const lessons = published.lessons as LessonRow[];
+  const assessmentData = published.assessments as TrainingAssessment[];
+  const lessonIds = lessons.map((lesson) => lesson.id);
 
-  const { data: moduleData } = await supabase
-    .from("training_modules")
-    .select("id,course_id,title,summary,position")
-    .eq("course_id", course.id)
-    .order("position");
-
-  const modules = (moduleData || []) as ModuleRow[];
-  const moduleIds = modules.map((module) => module.id);
-
+  // Learner progress is resolved with the request-bound RLS client every time.
   const [
-    { data: lessonData },
     { data: enrollmentData },
-    { data: assessmentData },
     { data: certificateData },
+    { data: progressData },
   ] = await Promise.all([
-    moduleIds.length
-      ? supabase
-          .from("training_lessons")
-          .select("id,module_id,slug,title,summary,content,estimated_minutes,position,is_published,content_version,reviewed_by,last_reviewed_at")
-          .in("module_id", moduleIds)
-          .eq("is_published", true)
-          .order("position")
-      : Promise.resolve({ data: [] }),
     supabase
       .from("training_enrollments")
       .select("course_id,started_at,completed_at")
@@ -538,29 +490,20 @@ export async function getTrainingCourse(slug: string, userId: string): Promise<{
       .eq("course_id", course.id)
       .maybeSingle(),
     supabase
-      .from("training_assessments")
-      .select("id,course_id,module_id,title,instructions,assessment_type,pass_score,position,is_published,rubric,resource_pack")
-      .eq("course_id", course.id)
-      .eq("is_published", true)
-      .order("position"),
-    supabase
       .from("training_certificates")
       .select("id,course_id,credential_code,issued_at,revoked_at,metadata")
       .eq("user_id", userId)
       .eq("course_id", course.id)
       .is("revoked_at", null)
       .maybeSingle(),
+    lessonIds.length
+      ? supabase
+          .from("training_lesson_progress")
+          .select("lesson_id")
+          .eq("user_id", userId)
+          .in("lesson_id", lessonIds)
+      : Promise.resolve({ data: [] }),
   ]);
-
-  const lessons = (lessonData || []) as LessonRow[];
-  const lessonIds = lessons.map((lesson) => lesson.id);
-  const { data: progressData } = lessonIds.length
-    ? await supabase
-        .from("training_lesson_progress")
-        .select("lesson_id")
-        .eq("user_id", userId)
-        .in("lesson_id", lessonIds)
-    : { data: [] };
 
   const completed = new Set(
     ((progressData || []) as Array<{ lesson_id: string }>).map((row) => row.lesson_id),
@@ -731,10 +674,6 @@ export async function getTrainingAdminSummary() {
       courses: [] as Array<CourseRow & { modules: number; lessons: number; publishedLessons: number }>,
       paths: [] as Array<{ id: string; slug: string; title: string; summary: string | null; country_focus: string | null; status: string; courseCount: number }>,
       totals: { courses: 0, published: 0, lessons: 0 },
-      funnel: {
-        windowDays: 30,
-        stages: [] as Array<{ event: string; label: string; learners: number; events: number }>,
-      },
       recovery: {
         inactivityHours: 72,
         incompleteEnrollments: 0,
@@ -755,8 +694,6 @@ export async function getTrainingAdminSummary() {
       }),
       integrity: {
         windowDays: 30,
-        checkpointAttempts: 0,
-        checkpointFailureRate: 0,
         firstAttemptPassRate: 0,
         retryRate: 0,
         automaticFinalAttempts: 0,
@@ -770,9 +707,6 @@ export async function getTrainingAdminSummary() {
           lessonId: string;
           lessonTitle: string;
           courseTitle: string;
-          attempts: number;
-          failures: number;
-          failureRate: number;
           finalMisses: number;
         }>,
       },
@@ -835,44 +769,8 @@ export async function getTrainingAdminSummary() {
     : { data: [] };
   const adminPathCourses = (adminPathCourseData || []) as Array<{ path_id: string; course_id: string }>;
 
-  const funnelWindowDays = 30;
-  const funnelSince = new Date(Date.now() - funnelWindowDays * 86_400_000).toISOString();
-  const funnelDefinitions = [
-    { event: "training_course_view", label: "Viewed a course" },
-    { event: "training_course_start", label: "Started a course" },
-    { event: "training_lesson_complete", label: "Completed a lesson" },
-    { event: "training_assessment_view", label: "Opened final check" },
-    { event: "training_assessment_submit", label: "Submitted final check" },
-    { event: "training_assessment_reviewed", label: "Final check scored" },
-    { event: "training_course_complete", label: "Completed a course" },
-    { event: "training_certificate_issued", label: "Certificate issued" },
-    { event: "training_certificate_profile_added", label: "Added certificate to public profile" },
-    { event: "training_certificate_recruiter_view", label: "Recruiter viewed verified training" },
-    { event: "training_certificate_view", label: "Viewed certificate" },
-  ] as const;
-  const { data: funnelEventData } = await admin
-    .from("analytics_events")
-    .select("event_name,user_id")
-    .gte("created_at", funnelSince)
-    .in("event_name", funnelDefinitions.map((item) => item.event))
-    .limit(10000);
-
-  const funnelRows = (funnelEventData || []) as Array<{
-    event_name: string;
-    user_id: string | null;
-  }>;
-  const funnel = {
-    windowDays: funnelWindowDays,
-    stages: funnelDefinitions.map((definition) => {
-      const matching = funnelRows.filter((row) => row.event_name === definition.event);
-      return {
-        ...definition,
-        learners: new Set(matching.map((row) => row.user_id).filter(Boolean)).size,
-        events: matching.length,
-      };
-    }),
-  };
-
+  const integrityWindowDays = 30;
+  const integritySince = new Date(Date.now() - integrityWindowDays * 86_400_000).toISOString();
   const courseById = new Map(courses.map((course) => [course.id, course]));
   const lessonMeta = new Map(
     lessons.map((lesson) => {
@@ -890,35 +788,26 @@ export async function getTrainingAdminSummary() {
     }),
   );
 
-  const [{ data: checkpointEventData }, { data: engagementData }, { data: completionData }, { data: submissionData }] =
+  // Read saved learner state only. No analytics-event scan is needed.
+  const [{ data: engagementData }, { data: completionData }, { data: submissionData }] =
     await Promise.all([
-      admin
-        .from("analytics_events")
-        .select("metadata,user_id")
-        .eq("event_name", "training_checkpoint_attempt")
-        .gte("created_at", funnelSince)
-        .limit(10000),
       admin
         .from("training_lesson_engagement")
         .select("lesson_id,user_id,active_seconds,max_scroll_percent,updated_at")
-        .gte("updated_at", funnelSince)
+        .gte("updated_at", integritySince)
         .limit(10000),
       admin
         .from("training_lesson_progress")
         .select("lesson_id,user_id,completed_at")
-        .gte("completed_at", funnelSince)
+        .gte("completed_at", integritySince)
         .limit(10000),
       admin
         .from("training_assessment_submissions")
         .select("user_id,status,score,response,submitted_at")
-        .gte("submitted_at", funnelSince)
+        .gte("submitted_at", integritySince)
         .limit(10000),
     ]);
 
-  const checkpointRows = (checkpointEventData || []) as Array<{
-    metadata: Record<string, unknown> | null;
-    user_id: string | null;
-  }>;
   const engagements = (engagementData || []) as Array<{
     lesson_id: string;
     user_id: string;
@@ -938,16 +827,6 @@ export async function getTrainingAdminSummary() {
     response: Record<string, unknown> | null;
     submitted_at: string;
   }>;
-
-  const checkpointByLesson = new Map<string, { attempts: number; failures: number }>();
-  for (const row of checkpointRows) {
-    const lessonId = typeof row.metadata?.lesson_id === "string" ? row.metadata.lesson_id : "";
-    if (!lessonId) continue;
-    const current = checkpointByLesson.get(lessonId) || { attempts: 0, failures: 0 };
-    current.attempts += 1;
-    if (row.metadata?.correct !== true) current.failures += 1;
-    checkpointByLesson.set(lessonId, current);
-  }
 
   const automaticSubmissions = submissions.filter(
     (row) => row.response?.kind === "automatic_knowledge_check",
@@ -1009,35 +888,21 @@ export async function getTrainingAdminSummary() {
   const assessedLearners = new Set(automaticSubmissions.map((row) => row.user_id));
   const retryLearners = new Set(retries.map((row) => row.user_id));
 
-  const lessonFailures = [...new Set([
-    ...checkpointByLesson.keys(),
-    ...finalMissesByLesson.keys(),
-  ])]
+  // Final assessment responses persist in the training database. Display only
+  // misses supported by those records, never zero checkpoint failure rates.
+  const lessonFailures = [...finalMissesByLesson.keys()]
     .map((lessonId) => {
-      const checkpoint = checkpointByLesson.get(lessonId) || { attempts: 0, failures: 0 };
       const meta = lessonMeta.get(lessonId);
       return {
         lessonId,
         lessonTitle: meta?.title || "Lesson",
         courseTitle: meta?.courseTitle || "Course",
-        attempts: checkpoint.attempts,
-        failures: checkpoint.failures,
-        failureRate: checkpoint.attempts
-          ? Math.round((checkpoint.failures / checkpoint.attempts) * 100)
-          : 0,
         finalMisses: finalMissesByLesson.get(lessonId) || 0,
       };
     })
-    .filter((item) => item.attempts || item.finalMisses)
-    .sort((a, b) =>
-      b.finalMisses - a.finalMisses ||
-      b.failureRate - a.failureRate ||
-      b.attempts - a.attempts
-    )
+    .sort((a, b) => b.finalMisses - a.finalMisses)
     .slice(0, 10);
 
-  const checkpointAttempts = checkpointRows.length;
-  const checkpointFailures = checkpointRows.filter((row) => row.metadata?.correct !== true).length;
   // The Data API may enforce a 1,000-row response ceiling regardless of
   // .limit(). Page in stable order and chunk user IDs so completion rates never
   // silently omit late rows or exceed a long REST query-string limit.
@@ -1226,11 +1091,7 @@ export async function getTrainingAdminSummary() {
   };
 
   const integrity = {
-    windowDays: funnelWindowDays,
-    checkpointAttempts,
-    checkpointFailureRate: checkpointAttempts
-      ? Math.round((checkpointFailures / checkpointAttempts) * 100)
-      : 0,
+    windowDays: integrityWindowDays,
     firstAttemptPassRate: firstAttempts.length
       ? Math.round((firstAttemptPasses.length / firstAttempts.length) * 100)
       : 0,
@@ -1258,7 +1119,6 @@ export async function getTrainingAdminSummary() {
       published: hydrated.filter((course) => course.status === "published").length,
       lessons: lessons.length,
     },
-    funnel,
     recovery,
     completionHealth,
     cohortConversion,

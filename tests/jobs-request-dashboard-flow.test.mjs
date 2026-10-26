@@ -78,9 +78,12 @@ test("submitted requests notify the assigned recruiter, without changing moderat
 
 test("public job search still reads only the filtered public view", async () => {
   const source = await read("src/app/jobs/page.tsx");
-  assert.match(source, /\.from\("public_jobs"\)/);
-  assert.match(source, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
-  assert.doesNotMatch(source, /\.from\("jobs"\)/);
+  const publicDirectory = await read("src/lib/public-job-directory.ts");
+  assert.match(source, /getPublicJobResults\(filters\)/);
+  assert.match(publicDirectory, /\.from\("public_jobs"\)/);
+  assert.match(publicDirectory, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
+  assert.doesNotMatch(source + publicDirectory, /\.from\("jobs"\)/);
+  assert.doesNotMatch(source + publicDirectory, /from "@\/lib\/supabase\/server"/);
   assert.match(source, /href=\{VA_JOIN_HREF\}/);
   assert.match(source, /href=\{EMPLOYER_POST_HREF\}/);
   assert.match(source, /href="\/hire"/);

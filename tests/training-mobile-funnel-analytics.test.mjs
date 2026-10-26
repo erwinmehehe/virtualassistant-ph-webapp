@@ -13,31 +13,16 @@ const assessmentPath = "src/app/workspace/training/courses/[slug]/assessments/[a
 const certificateActionsPath = "src/components/training-certificate-actions.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
 
-test("training route analytics distinguish course, lesson, assessment, and certificate views", async () => {
-  const [analytics, api] = await Promise.all([
+test("training and candidate analytics are inert while learner state persists", async () => {
+  const [client, api, recorder] = await Promise.all([
     readFile(analyticsPath, "utf8"),
     readFile(analyticsApiPath, "utf8"),
+    readFile("src/lib/product-events.ts", "utf8"),
   ]);
-
-  assert.match(analytics, /training_dashboard_view/);
-  assert.match(analytics, /training_course_view/);
-  assert.match(analytics, /training_lesson_view/);
-  assert.match(analytics, /training_assessment_view/);
-  assert.match(analytics, /training_certificate_view/);
-  assert.match(analytics, /course_slug: courseSlug/);
-  assert.match(analytics, /assessment_id:/);
-  assert.match(analytics, /lesson_id:/);
-
-  for (const event of [
-    "training_assessment_view",
-    "training_assessment_reviewed",
-    "training_certificate_issued",
-    "training_certificate_view",
-    "training_certificate_open",
-    "training_certificate_share",
-  ]) {
-    assert.ok(api.includes(`"${event}"`), "Analytics API must allow " + event);
-  }
+  assert.match(client, /return null/);
+  assert.match(api, /status: 204/);
+  assert.doesNotMatch(recorder, /analytics_events|createAdminClient/);
+  assert.match(recorder, /export async function recordProductEvent/);
 });
 
 test("automatic assessment scoring closes the learner funnel through certificate issuance", async () => {
@@ -51,38 +36,21 @@ test("automatic assessment scoring closes the learner funnel through certificate
   assert.match(actions, /completion\.certificateIssued/);
 });
 
-test("admin training exposes a 30-day milestone funnel without presenting it as a fixed cohort", async () => {
+test("admin training shows saved progress, not the retired event-based funnel", async () => {
   const [lib, page] = await Promise.all([
     readFile(trainingLibPath, "utf8"),
     readFile(adminTrainingPath, "utf8"),
   ]);
-
-  for (const event of [
-    "training_course_view",
-    "training_course_start",
-    "training_lesson_complete",
-    "training_assessment_view",
-    "training_assessment_submit",
-    "training_assessment_reviewed",
-    "training_course_complete",
-    "training_certificate_issued",
-    "training_certificate_view",
-  ]) {
-    assert.ok(lib.includes(`event: "${event}"`), "Missing funnel stage " + event);
-  }
-
-  assert.match(lib, /funnelWindowDays = 30/);
-  assert.match(lib, /new Set\(matching\.map/);
-  assert.match(lib, /label: "Viewed a course"/);
-  assert.match(lib, /label: "Opened final check"/);
-  assert.match(lib, /label: "Certificate issued"/);
-  assert.match(page, /Learner completion funnel/);
-  assert.match(page, /activity funnel, not a fixed start-date cohort/);
-  assert.match(page, /stage\.learners/);
-  assert.match(page, /stage\.events/);
+  assert.doesNotMatch(lib, /\.from\("analytics_events"\)/);
+  assert.doesNotMatch(lib, /funnelDefinitions|funnelWindowDays/);
+  assert.match(lib, /buildTrainingCohortConversion/);
+  assert.match(lib, /buildTrainingCompletionHealth/);
+  assert.match(page, /Completion within 7 and 14 days/);
+  assert.match(page, /Learner integrity signals/);
+  assert.doesNotMatch(page, /Learner completion funnel|stage\.events|Checkpoint failure/);
 });
 
-test("primary learner CTAs emit the funnel interactions", async () => {
+test("primary learner CTAs remain accessible while telemetry is disabled", async () => {
   const [course, lesson, assessment, certificateActions] = await Promise.all([
     readFile(coursePath, "utf8"),
     readFile(lessonPath, "utf8"),

@@ -27,6 +27,7 @@ import { HiringHero } from "@/components/hiring-hero";
 import { getPublicTalentProof } from "@/lib/public-talent-proof";
 import { Band, CheckList, CtaBand, FaqBlock, JumpNav, LinkTiles, SectionHead, Steps } from "@/components/hiring-page-sections";
 import { SERVICE_PAGES, serviceMetaDescription, serviceMetaTitle, servicePageBySlug, type ServiceSeoPage } from "@/lib/service-pages";
+import { SEO_PRUNE_COST_SERVICE_SLUGS } from "@/lib/seo-prune";
 import { blogHref, serviceBlogPosts } from "@/lib/blog";
 import { serviceSeoResources } from "@/lib/seo-resource-pages";
 import { INDUSTRIES } from "@/lib/industries";
@@ -911,6 +912,13 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
               <h3>How much does {article} {s.name} cost?</h3>
               <p>There is no single rate for this role. What moves the number for {article} {s.name} is scope and depth, so compare the work and the evidence of fit before comparing hourly figures.</p>
               <CheckList items={costFactorsFor(s)}/>
+              {SEO_PRUNE_COST_SERVICE_SLUGS.has(s.slug) ? (
+                <div className="hs-prose" id="philippines-va-cost">
+                  <h4>Planning the Philippines cost for this role</h4>
+                  <p>For {article} {s.name}, estimate recurring hours before comparing rates. Weigh {s.costFactors.slice(0, 3).join(", ")} and allow for onboarding, tool access, and review time. Separate candidate pay from any provider or placement fees.</p>
+                  <p>Our <Link href="/average-hourly-rate-virtual-assistants-philippines">2026 Philippine VA hourly-rate guide</Link> reports self-stated candidate preferences, not a confirmed price for this role. Compare an actual brief and engagement terms before setting a budget.</p>
+                </div>
+              ) : null}
               <Link className="hs-link" href="/pricing">See how pricing works <ArrowRight size={14}/></Link>
             </aside>
           </div>

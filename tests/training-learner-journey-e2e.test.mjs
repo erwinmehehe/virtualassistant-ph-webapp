@@ -83,22 +83,15 @@ test("training learner journey remains connected from signup through verified hi
   assert.match(clientHiringRoomMigration, /c\.status='published'/);
   assert.match(clientHiringRoom, /credentialCode: row\.credential_code/);
 
-  // Funnel events remain accepted and visible to admins.
-  for (const eventName of [
-    "training_landing_view",
-    "training_account_click",
-    "training_course_start",
-    "training_lesson_complete",
-    "training_assessment_submit",
-    "training_course_complete",
-  ]) {
-    assert.match(analyticsRoute, new RegExp(eventName));
-  }
-  assert.match(analyticsRoute, /training_account_created/);
-  assert.match(analyticsRoute, /training_email_confirmed/);
+  // Training events are no longer stored in analytics_events.
+  // Canonical progress, assessments and certificates remain functional.
+  assert.match(analyticsRoute, /status: 204/);
+  const browserAnalytics = await source("src/components/analytics.tsx");
+  assert.match(browserAnalytics, /return null/);
+  const recorder = await source("src/lib/product-events.ts");
+  assert.doesNotMatch(recorder, /analytics_events|createAdminClient/);
   assert.match(signup, /recordProductEvent\("training_account_created"/);
-  assert.match(adminAnalytics, /Training engagement/);
-  assert.match(adminAnalytics, /Assessment submissions|Training engagement/);
+  assert.match(adminAnalytics, /redirect\("\/workspace\/admin\/today"\)/);
 });
 
 test("training signup and workspace remain intentionally separate from candidate onboarding", async () => {

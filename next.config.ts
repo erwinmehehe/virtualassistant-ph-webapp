@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { SEO_PRUNE_REDIRECTS, resolvePrunedSeoHref } from "./src/lib/seo-prune";
+
 
 const ROLE_RESOURCE_CONSOLIDATIONS = [
   { service: "admin-inbox", base: "administrative-virtual-assistant", article: "an" },
@@ -63,6 +65,22 @@ const softwareSlugRedirects = SOFTWARE_SLUG_REDIRECTS.flatMap((slug) => [
 
 const allowUnsafeEval = process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "";
 
+// Local Supabase auth is allowed only for loopback browser tests/development.
+// Live production retains the strict external-origin allowlist.
+const localSupabaseConnectSrc = (() => {
+  if (process.env.VERCEL_ENV === "production") return "";
+  try {
+    const appOrigin = new URL(process.env.NEXT_PUBLIC_APP_URL || "");
+    const supabaseOrigin = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "");
+    const isLoopback = (url: URL) => url.protocol === "http:" &&
+      (url.hostname === "127.0.0.1" || url.hostname === "localhost");
+    return isLoopback(appOrigin) && isLoopback(supabaseOrigin)
+      ? ` ${supabaseOrigin.origin}` : "";
+  } catch {
+    return "";
+  }
+})();
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -77,15 +95,20 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com https://*.vercel-insights.com https://www.google-analytics.com https://*.google-analytics.com",
+  `connect-src 'self'${localSupabaseConnectSrc} https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://vitals.vercel-insights.com https://*.vercel-insights.com https://www.google-analytics.com https://*.google-analytics.com`,
   "frame-src https://challenges.cloudflare.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
-  "upgrade-insecure-requests",
+  // Production hosts use HTTPS. Do not force HTTPS on the isolated HTTP
+  // browser-test app (or local dev), where this breaks Next.js prefetch requests.
+  ...(process.env.NODE_ENV === "production" &&
+  (process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph").startsWith("https://")
+    ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  trailingSlash: false,
   // pdf-parse's Node worker uses @napi-rs/canvas native bindings. Keep both
   // packages out of the Next/Webpack server bundle so Node loads the native
   // .node binary at runtime instead of Webpack trying to parse it.
@@ -127,7 +150,20 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    return [
+    return ([
+      // Implement the CSV decisions before older resource migrations.
+      ...Object.entries(SEO_PRUNE_REDIRECTS).flatMap(([source, destination]) => [
+        { source, destination, permanent: true },
+        { source: source + "/", destination, permanent: true }
+      ]),
+      // Static, auth-free course discovery. The personal learner catalog remains
+      // at /workspace/training?browse=personal and keeps its access gate.
+      {
+        source: "/workspace/training",
+        has: [{ type: "query", key: "browse", value: "1" }],
+        destination: "/training#course-library",
+        permanent: false,
+      },
       ...roleResourceConsolidationRedirects,
       ...softwareSlugRedirects,
       // Recruiter workspace consolidation. Keep the legacy pages intact for safe rollback/testing,
@@ -348,7 +384,13 @@ const nextConfig: NextConfig = {
       { source: "/client-dashboard/", destination: "/workspace/client", permanent: false },
       { source: "/va-dashboard/", destination: "/workspace/va", permanent: false },
       { source: "/account/", destination: "/auth/login", permanent: false }
-    ];
+    ] as Awaited<ReturnType<NonNullable<NextConfig["redirects"]>>>).reduce((rules, rule) => {
+      // Some legacy rules already covered these paths. First match wins.
+      if (rules.some((existing) => existing.source === rule.source)) return rules;
+      // Repoint older rule targets as well, avoiding redirect chains.
+      rules.push({ ...rule, destination: resolvePrunedSeoHref(rule.destination) });
+      return rules;
+    }, [] as Awaited<ReturnType<NonNullable<NextConfig["redirects"]>>>);
   },
   experimental: {
     serverActions: {

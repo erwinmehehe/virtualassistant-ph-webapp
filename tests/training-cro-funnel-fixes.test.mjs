@@ -31,10 +31,12 @@ test("training public header stays learner-focused while using the primary site 
   assert.match(siteNav, /Training login/);
   assert.match(siteNav, /Start free training/);
   assert.match(siteNav, /<Link className="va-nav-jobs-link" href="\/jobs">Jobs<\/Link>/);
-  assert.match(siteNav, /<Link className="va-mobile-jobs-link" href="\/jobs">Jobs<\/Link>/);
-  assert.match(siteNav, /!isTrainingContext && !user \? \([\s\S]*href="\/auth\/join\/va"/);
-  assert.match(page, /export const dynamic = "force-dynamic"/);
-  assert.match(page, /export const revalidate = 0/);
+  const accountControls = await readFile("src/components/public-nav-account-controls.tsx", "utf8");
+  assert.match(accountControls, /<Link className="va-mobile-jobs-link" href="\/jobs">Jobs<\/Link>/);
+  assert.match(accountControls, /!isTrainingContext && !signedIn \? \([\s\S]*href="\/auth\/join\/va"/);
+  assert.match(page, /export const dynamic = "force-static"/);
+  assert.match(page, /export const revalidate = 300/);
+  assert.doesNotMatch(page, /getSessionProfile\(/);
 
   // Signup/login keep the compact training-specific header.
   assert.match(header, /mode="training"/);
@@ -109,29 +111,25 @@ test("successful signup shows a dedicated confirmation state and keeps the inten
   assert.match(action, /courseTitle,/);
 });
 
-test("training acquisition analytics support training-only auth users and confirmation milestones", async () => {
-  const [analytics, route, action, confirm, callback, migration] = await Promise.all([
+test("training signup and confirmation remain functional with event tracking disabled", async () => {
+  const [tracker, route, action, confirm, callback, migration, recorder] = await Promise.all([
     readFile(analyticsPath, "utf8"),
     readFile(analyticsRoute, "utf8"),
     readFile(joinAction, "utf8"),
     readFile(confirmRoute, "utf8"),
     readFile(callbackRoute, "utf8"),
     readFile(migrationPath, "utf8"),
+    readFile("src/lib/product-events.ts", "utf8"),
   ]);
-
-  assert.match(analytics, /course_slug: clicked\.dataset\.courseSlug/);
-  assert.match(analytics, /cta_position: clicked\.dataset\.ctaPosition/);
-  assert.match(route, /training_course_interest_click/);
-  assert.match(route, /training_signup_submit_click/);
-  assert.match(route, /training_account_created/);
-  assert.match(route, /training_confirmation_sent/);
-  assert.match(route, /training_email_confirmed/);
-  assert.match(action, /recordProductEvent\("training_account_created"/);
-  assert.match(action, /recordProductEvent\("training_confirmation_sent"/);
-  assert.match(confirm, /recordProductEvent\("training_email_confirmed"/);
+  assert.match(tracker, /return null/);
+  assert.match(route, /status: 204/);
+  assert.match(action, /sendAccountConfirmationEmail/);
+  assert.match(confirm, /verifyOtp/);
   assert.match(callback, /recordProductEvent\("training_email_confirmed"/);
   assert.match(migration, /references auth\.users\(id\)/i);
   assert.match(migration, /on delete set null/i);
+  assert.match(recorder, /export async function recordProductEvent/);
+  assert.doesNotMatch(recorder, /analytics_events|createAdminClient/);
 });
 
 test("mobile training CTA only appears after the hero and before the final CTA", async () => {

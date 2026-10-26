@@ -53,8 +53,8 @@ test("recruiter analytics prioritizes operating health before diagnostics",async
   assert.match(page,/Why clients pass/);
   assert.match(page,/Website & sales analytics/);
   assert.match(sales,/Hiring enquiries/);
-  assert.match(sales,/Website → client funnel/);
-  assert.match(sales,/from previous step/);
+  assert.doesNotMatch(sales,/Website → client funnel/);
+  assert.match(sales,/Verified conversion control/);
 });
 
 

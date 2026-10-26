@@ -4,7 +4,6 @@ import { requireRoleFast } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dateShort } from "@/lib/format";
-import { clientCanSelfPublishJob } from "@/lib/job-publication";
 
 function roleStatus(status: string) {
   if (status === "published") return { label: "Recruiting", tone: "badge-success", copy: "Your recruiter is screening and shortlisting vetted VAs." };
@@ -17,23 +16,13 @@ function roleStatus(status: string) {
 export default async function ClientJobsPage(){
   const {userId}=await requireRoleFast("client");
   const supabase=await createClient();
-  const [{data:jobs},{data:clientProfile},verifiedUser]=await Promise.all([
-    supabase
-      .from("jobs")
-      .select("id,title,status,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,created_at")
-      .eq("client_id",userId)
-      .order("created_at",{ascending:false}),
-    supabase.from("client_profiles").select("can_self_publish_jobs,verified_at").eq("user_id",userId).maybeSingle(),
-    process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true"
-      ? supabase.auth.getUser()
-      : Promise.resolve({ data: { user: null } }),
-  ]);
-  const canSelfPublishJobs = clientCanSelfPublishJob({
-    serviceModel: "curated_placement",
-    legacyApproved: Boolean(clientProfile?.can_self_publish_jobs && clientProfile?.verified_at),
-    emailVerified: Boolean(verifiedUser.data.user?.email_confirmed_at),
-    verifiedClientRollout: process.env.ENABLE_VERIFIED_CLIENT_AUTO_PUBLISH === "true",
-  });
+  // Read job status once; the extra company-permission and auth.getUser
+  // lookups are unnecessary now that publication follows email verification.
+  const { data: jobs } = await supabase
+    .from("jobs")
+    .select("id,title,status,hours_per_week,min_hourly_rate,max_hourly_rate,timezone,created_at")
+    .eq("client_id", userId)
+    .order("created_at", { ascending: false });
 
   const ids=(jobs||[]).map((job:any)=>job.id);
   const admin=createAdminClient();
@@ -63,7 +52,7 @@ export default async function ClientJobsPage(){
       <div><UsersRound size={17}/><span><strong>{shortlistTotal}</strong> shortlisted</span></div>
     </div>
 
-    {canSelfPublishJobs?<div className="success-banner client-jobs-publish-note">Direct publishing is enabled for your account. Complete curated-placement roles can go live immediately after your final review.</div>:null}
+    <div className="success-banner client-jobs-publish-note">Verified client accounts can publish complete job posts automatically. Content safety and service terms remain separate.</div>
 
     {jobs?.length?<div className="client-jobs-grid">
       {jobs.map((job:any)=>{

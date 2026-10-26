@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" width="1200" height="540" role="img" aria-labelledby="title desc">
+  <title id="title">VAPH Foundations V2: Inbox message to auditable action</title>
+  <desc id="desc">Six-step visual decision flow: capture source, verify facts, assess impact and deadline, check authority, take safe action or escalate, then document owner and next checkpoint. Urgency never creates approval authority.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+    </marker>
+    <style>
+      .title { font: 700 30px system-ui, Arial, sans-serif; fill: #172554; }
+      .intro { font: 400 17px system-ui, Arial, sans-serif; fill: #475569; }
+      .step { font: 700 16px system-ui, Arial, sans-serif; fill: #1e293b; }
+      .body { font: 400 14px system-ui, Arial, sans-serif; fill: #334155; }
+      .counter { font: 700 15px system-ui, Arial, sans-serif; fill: white; }
+      .rule { font: 700 19px system-ui, Arial, sans-serif; fill: #312e81; }
+      .rulebody { font: 400 16px system-ui, Arial, sans-serif; fill: #3730a3; }
+      .footer { font: 400 13px system-ui, Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="1200" height="540" rx="22" fill="#f8faff"/>
+  <rect x="0.5" y="0.5" width="1199" height="539" rx="21.5" fill="none" stroke="#c7d2fe"/>
+  <text x="36" y="55" class="title">One inbox message → one traceable next action</text>
+  <text x="36" y="86" class="intro">Fictional client workflow • Always verify facts, approvals and follow-up</text>
+  <g stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+    <path d="M 206 224 L 219 224"/>
+    <path d="M 398 224 L 411 224"/>
+    <path d="M 590 224 L 603 224"/>
+    <path d="M 782 224 L 795 224"/>
+    <path d="M 974 224 L 987 224"/>
+  </g>
+  <g>
+    <rect x="26" y="137" width="180" height="174" rx="16" fill="white" stroke="#c7d2fe" stroke-width="2"/>
+    <rect x="26" y="137" width="180" height="9" rx="5" fill="#4f46e5"/>
+    <circle cx="51" cy="172" r="15" fill="#4f46e5"/><text x="51" y="177" text-anchor="middle" class="counter">1</text>
+    <text x="75" y="178" class="step">Capture</text>
+    <text x="43" y="218" class="body">Record ID, received</text>
+    <text x="43" y="240" class="body">time and source.</text>
+    <text x="43" y="277" class="body">Do not lose context.</text>
+  </g>
+  <g>
+    <rect x="218" y="137" width="180" height="174" rx="16" fill="white" stroke="#c7d2fe" stroke-width="2"/>
+    <rect x="218" y="137" width="180" height="9" rx="5" fill="#4f46e5"/>
+    <circle cx="243" cy="172" r="15" fill="#4f46e5"/><text x="243" y="177" text-anchor="middle" class="counter">2</text>
+    <text x="267" y="178" class="step">Verify</text>
+    <text x="235" y="218" class="body">Facts, source of</text>
+    <text x="235" y="240" class="body">truth and policy.</text>
+    <text x="235" y="277" class="body">Flag unknowns.</text>
+  </g>
+  <g>
+    <rect x="410" y="137" width="180" height="174" rx="16" fill="white" stroke="#c7d2fe" stroke-width="2"/>
+    <rect x="410" y="137" width="180" height="9" rx="5" fill="#4f46e5"/>
+    <circle cx="435" cy="172" r="15" fill="#4f46e5"/><text x="435" y="177" text-anchor="middle" class="counter">3</text>
+    <text x="459" y="178" class="step">Prioritize</text>
+    <text x="427" y="218" class="body">Consequence and</text>
+    <text x="427" y="240" class="body">deadline, not noise.</text>
+    <text x="427" y="277" class="body">P0 / P1 / P2 / P3</text>
+  </g>
+  <g>
+    <rect x="602" y="137" width="180" height="174" rx="16" fill="white" stroke="#c7d2fe" stroke-width="2"/>
+    <rect x="602" y="137" width="180" height="9" rx="5" fill="#7c3aed"/>
+    <circle cx="627" cy="172" r="15" fill="#7c3aed"/><text x="627" y="177" text-anchor="middle" class="counter">4</text>
+    <text x="651" y="178" class="step">Authority</text>
+    <text x="619" y="218" class="body">Is approval needed?</text>
+    <text x="619" y="240" class="body">Is access permitted?</text>
+    <text x="619" y="277" class="body">Unsafe? Stop first.</text>
+  </g>
+  <g>
+    <rect x="794" y="137" width="180" height="174" rx="16" fill="white" stroke="#c7d2fe" stroke-width="2"/>
+    <rect x="794" y="137" width="180" height="9" rx="5" fill="#7c3aed"/>
+    <circle cx="819" cy="172" r="15" fill="#7c3aed"/><text x="819" y="177" text-anchor="middle" class="counter">5</text>
+    <text x="843" y="178" class="step">Act safely</text>
+    <text x="811" y="218" class="body">Draft, log, route or</text>
+    <text x="811" y="240" class="body">hold pending review.</text>
+    <text x="811" y="277" class="body">No guessed promises.</text>
+  </g>
+  <g>
+    <rect x="986" y="137" width="188" height="174" rx="16" fill="white" stroke="#c7d2fe" stroke-width="2"/>
+    <rect x="986" y="137" width="188" height="9" rx="5" fill="#0d9488"/>
+    <circle cx="1011" cy="172" r="15" fill="#0d9488"/><text x="1011" y="177" text-anchor="middle" class="counter">6</text>
+    <text x="1035" y="178" class="step">Track &amp; hand off</text>
+    <text x="1003" y="218" class="body">Owner, next check,</text>
+    <text x="1003" y="240" class="body">status and evidence.</text>
+    <text x="1003" y="277" class="body">Close only if verified.</text>
+  </g>
+  <rect x="180" y="359" width="840" height="114" rx="18" fill="#eef2ff" stroke="#a5b4fc" stroke-width="2"/>
+  <text x="600" y="398" class="rule" text-anchor="middle">Decision checkpoint: urgency does not grant authority</text>
+  <text x="600" y="429" class="rulebody" text-anchor="middle">If risky or unapproved → hold and escalate; if authorized → act and document.</text>
+  <text x="600" y="502" class="footer" text-anchor="middle">Original VAPH instructional diagram • Synthetic cases only • Never enter live customer information</text>
+</svg>
+

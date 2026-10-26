@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { getTrainingVerifiedAuthUser } from "@/lib/training-verified-auth-user";
 
 export type TrainingShellNotification = {
   id: string;
@@ -19,7 +20,7 @@ function safeName(value: unknown) {
 export async function getTrainingShellData(userId: string) {
   const supabase = await createClient();
   const [{ data: userResult }, { data: notificationRows }] = await Promise.all([
-    supabase.auth.getUser(),
+    getTrainingVerifiedAuthUser(),
     supabase
       .from("training_notifications")
       .select("id,title,body,href,read_at,created_at")

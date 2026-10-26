@@ -94,7 +94,29 @@ try {
       const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2);
 
       if (status !== route.status) {
-        throw new Error(`${route.name} returned HTTP ${status}; expected ${route.status}`);
+        // Preserve the platform error code and a public-page screenshot when
+        // Vercel serves a disabled deployment or an unexpected error page.
+        // Do not record response cookies or private request headers.
+        const vercelError = response?.headers()["x-vercel-error"] ?? null;
+        const vercelRequestId = response?.headers()["x-vercel-id"] ?? null;
+        const failureName = `${route.name}-${viewport.name}-failed`;
+        await fs.writeFile(
+          path.join(outputDir, `${failureName}.json`),
+          JSON.stringify({
+            route: route.path,
+            viewport: viewport.name,
+            status,
+            expectedStatus: route.status,
+            vercelError,
+            vercelRequestId,
+          }, null, 2),
+        );
+        await page.screenshot({ path: path.join(outputDir, `${failureName}.png`), fullPage: true }).catch(() => {});
+        await fs.writeFile(path.join(outputDir, `${failureName}.html`), await page.content()).catch(() => {});
+        throw new Error(
+          `${route.name} returned HTTP ${status}; expected ${route.status}` +
+          (vercelError ? `; x-vercel-error=${vercelError}` : ""),
+        );
       }
       if (bodyText.length < route.minText) {
         await page.screenshot({ path: path.join(outputDir, `${route.name}-${viewport.name}-failed.png`), fullPage: true });

@@ -59,7 +59,7 @@ test("course discovery keeps one standalone library, leaves Australia in paths, 
   assert.match(page, /filteredNotStarted/);
   assert.match(page, /course\.country_focus !== "Australia"/);
   assert.match(page, /libraryOpen/);
-  assert.match(page, /params\.browse === "1"/);
+  assert.match(page, /params\.browse === "personal"/);
   assert.match(page, /Browse courses/);
   assert.match(page, /Hide library/);
   assert.match(page, /Australian courses stay in the specialisation paths above/);

@@ -94,22 +94,19 @@ export function canAutoPublishLeadJob({
   }).length === 0;
 }
 
-/** A complete curated-placement role can be published without waiting for
- * commercial approval. Candidate identity/access remains separately gated.
- * The email-verified rollout is default-off; legacy admin permission still works. */
+/** A completed employer job publishes immediately after email verification.
+ * Company-approval toggles, rollout flags and service model do not gate public
+ * visibility. Commercial acceptance and candidate access remain separate.
+ */
 export function clientCanSelfPublishJob({
-  serviceModel,
   emailVerified,
-  legacyApproved,
-  verifiedClientRollout,
 }: {
-  serviceModel: string;
   emailVerified: boolean;
-  legacyApproved: boolean;
-  verifiedClientRollout: boolean;
-}) {
-  if (serviceModel !== "curated_placement") return false;
-  return legacyApproved || (verifiedClientRollout && emailVerified);
+  serviceModel?: string;
+  legacyApproved?: boolean;
+  verifiedClientRollout?: boolean;
+}): boolean {
+  return emailVerified;
 }
 
 /** Shared, testable state decision. A staff hold always wins over auto-publishing. */

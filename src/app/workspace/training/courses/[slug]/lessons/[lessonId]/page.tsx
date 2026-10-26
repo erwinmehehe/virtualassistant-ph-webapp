@@ -355,6 +355,7 @@ export default async function TrainingLessonPage({
 
           {!lesson.completed ? (
             <TrainingLessonIntegrityGate
+              key={lesson.id}
               lessonId={lesson.id}
               courseSlug={course.slug}
               nextHref={nextHref}

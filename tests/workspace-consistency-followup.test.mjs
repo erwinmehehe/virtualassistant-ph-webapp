@@ -4,6 +4,15 @@ import test from "node:test";
 
 const read=(path)=>readFile(new URL("../"+path,import.meta.url),"utf8");
 
+function allowedCspSources(config, directive) {
+  const prefix = String.fromCharCode(96) + directive + " ";
+  const sourceLine = config.split("\n").find((line) => line.trimStart().startsWith(prefix));
+  assert.ok(sourceLine, "Missing " + directive + " CSP directive");
+  // Compare complete whitespace-delimited CSP source expressions instead of URL substrings.
+  return new Set(sourceLine.replaceAll(String.fromCharCode(96), "").replace(/[",]/g, "").trim().split(/\s+/));
+}
+
+
 test("remaining common workspace GET pages use fast verified auth",async()=>{
   const paths=[
     "src/app/workspace/admin/settings/page.tsx",
@@ -60,10 +69,12 @@ test("primary recruiter navigation stays consolidated",async()=>{
 });
 
 
-test("content security policy permits the existing GA4 integration",async()=>{
-  const config=await read("next.config.ts");
-  assert.match(config,/script-src[^"]*https:\/\/www\.googletagmanager\.com/);
-  assert.match(config,/connect-src[^"]*https:\/\/www\.google-analytics\.com/);
-  assert.match(config,/connect-src[^"]*https:\/\/\*\.google-analytics\.com/);
-  assert.match(config,/https:\/\/challenges\.cloudflare\.com/);
+test("content security policy allows GA4 while custom Vercel telemetry stays retired", async () => {
+  const config = await read("next.config.ts");
+  const scriptSources = allowedCspSources(config, "script-src");
+  const connectSources = allowedCspSources(config, "connect-src");
+  assert.ok(scriptSources.has("https://www.googletagmanager.com"));
+  assert.ok(connectSources.has("https://www.google-analytics.com"));
+  assert.ok(connectSources.has("https://*.google-analytics.com"));
+  assert.ok(scriptSources.has("https://challenges.cloudflare.com"));
 });

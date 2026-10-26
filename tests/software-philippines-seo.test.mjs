@@ -76,13 +76,15 @@ test("software pages remain discoverable from the hub, sitemap, static params, a
   const route = await readFile(routePath, "utf8");
   const sitemap = await readFile("src/app/sitemap.ts", "utf8");
 
-  assert.match(hub, /softwarePages\.map/);
+  assert.match(hub, /softwarePages\.filter/);
+  assert.match(hub, /directorySoftwarePages\.map/);
   assert.match(hub, /<SoftwareDirectory guides=\{guidePreviews\}/);
   assert.match(directory, /href=\{\`\/software\/\$\{guide\.slug\}\`\}/);
   assert.match(route, /generateStaticParams\(\)/);
   assert.match(route, /softwarePages\.map\(\(page\) => \(\{ slug: page\.slug \}\)\)/);
   assert.match(route, /canonicalPath\(\`\/software\/\$\{page\.slug\}\`\)/);
-  assert.match(sitemap, /softwarePages\.map\(\(page\) => \(\{/);
+  assert.match(sitemap, /softwarePages\.filter/);
+  assert.match(sitemap, /SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS\.has\(page\.slug\)/);
   assert.match(sitemap, /url: \`\$\{base\}\/software\/\$\{page\.slug\}\`/);
 });
 

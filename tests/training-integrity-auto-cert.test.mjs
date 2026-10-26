@@ -45,7 +45,7 @@ test("lesson completion cannot be earned by clicking through", async () => {
 
   assert.match(gate, /document\.visibilityState !== "visible"/);
   assert.match(gate, /document\.hasFocus\(\)/);
-  assert.match(gate, /20_000/);
+  assert.match(gate, /30_000/);
   assert.match(gate, /Reach the lesson end/);
   assert.match(gate, /Your practical note/);
   assert.match(gate, /Ready to complete this lesson\?/);

@@ -10,7 +10,6 @@ const adminLibPath = "src/lib/training-admin.ts";
 test("admin integrity analytics cover failures, first-pass rate, retries, reading time, and fast-completion signals", async () => {
   const source = await readFile(trainingPath, "utf8");
 
-  assert.match(source, /checkpointFailureRate/);
   assert.match(source, /firstAttemptPassRate/);
   assert.match(source, /retryRate/);
   assert.match(source, /automaticFinalAttempts/);
@@ -20,11 +19,13 @@ test("admin integrity analytics cover failures, first-pass rate, retries, readin
   assert.match(source, /averageActiveSeconds/);
   assert.match(source, /thresholdHuggingCompletions/);
   assert.match(source, /lessonFailures/);
-  assert.match(source, /training_checkpoint_attempt/);
+  assert.doesNotMatch(source, /\.from\("analytics_events"\)/);
+  assert.doesNotMatch(source, /checkpointFailureRate|checkpointAttempts/);
   assert.match(source, /training_lesson_engagement/);
   assert.match(source, /training_lesson_progress/);
   assert.match(source, /automatic_knowledge_check/);
   assert.match(source, /missed_lesson_ids/);
+  assert.match(source, /finalMissesByLesson/);
 });
 
 test("fast completion is explicitly treated as a review signal, not proof of cheating", async () => {

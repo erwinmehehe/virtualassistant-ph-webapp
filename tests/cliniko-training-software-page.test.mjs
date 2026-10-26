@@ -46,7 +46,8 @@ test("Cliniko software page inherits static route and canonical without FAQPage 
   assert.match(route, /canonicalPath\(\`\/software\/\$\{page\.slug\}\`\)/);
   assert.doesNotMatch(route, /FAQPage/);
   assert.match(route, /BreadcrumbList/);
-  assert.match(sitemap, /softwarePages\.map/);
+  assert.match(sitemap, /softwarePages\.filter/);
+  assert.match(sitemap, /SEO_PRUNE_NOINDEX_SOFTWARE_SLUGS\.has\(page\.slug\)/);
 });
 
 test("Cliniko training uses least-privilege security roles", async () => {

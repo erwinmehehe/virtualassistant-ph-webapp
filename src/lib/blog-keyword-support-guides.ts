@@ -686,7 +686,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       {
         "label": "HubSpot Virtual Assistant",
         "href": "/software/hubspot",
-        "description": "See the software-specific commercial hiring page."
+        "description": "Review the QuickBooks hiring scope, cost factors, and role requirements."
       },
       {
         "label": "Virtual Assistant tasks",
@@ -1545,7 +1545,7 @@ export const BLOG_KEYWORD_SUPPORT_GUIDES: BlogPost[] = [
       },
       {
         "label": "QuickBooks Virtual Assistant",
-        "href": "/software/quickbooks",
+        "href": "/service/quickbooks-virtual-assistant",
         "description": "See the software-specific commercial hiring page."
       },
       {

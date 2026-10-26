@@ -143,6 +143,12 @@ export async function GET(request: NextRequest) {
         <div style={{ position: "absolute", left: 26, right: 26, bottom: 42, display: "flex", padding: "14px 18px", borderRadius: 18, background: "#17205a", color: "#fff", fontSize: 14, lineHeight: 1.3, fontWeight: 700 }}>{model.footer}</div>
       </div>
     </div>,
-    { width: 1200, height: 630 },
+    {
+      width: 1200,
+      height: 630,
+      // Public, deterministic URL parameters only: never cache auth pages.
+      // Vercel reuses identical images instead of invoking the renderer again.
+      headers: { "Cache-Control": "public, max-age=0, s-maxage=21600, stale-while-revalidate=86400" },
+    },
   );
 }

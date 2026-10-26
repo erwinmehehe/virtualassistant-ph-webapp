@@ -19,18 +19,26 @@ test("default public metadata includes branded Open Graph and Twitter imagery", 
   assert.match(twitter, /OpengraphImage/);
 });
 
-test("public Core Web Vitals are measured without losing CLS precision", async () => {
-  const analytics = await read("src/components/analytics.tsx");
-  assert.match(analytics, /useReportWebVitals\(reportWebVital\)/);
-  assert.match(analytics, /surface: pathname\.startsWith\("\/workspace"\) \? "workspace" : "public"/);
-  assert.match(analytics, /metric\.name === "CLS"/);
-  assert.doesNotMatch(analytics, /function reportWorkspaceVital/);
+test("GA4 stays active but custom Web Vitals and first-party analytics remain disabled", async () => {
+  const [layout, analytics, route] = await Promise.all([
+    read("src/app/layout.tsx"),
+    read("src/components/analytics.tsx"),
+    read("src/app/api/analytics/route.ts"),
+  ]);
+  assert.match(layout, /NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  assert.match(layout, /ga4-init/);
+  assert.match(layout, /<AttributionTracker\/><Analytics\/>/);
+  assert.match(analytics, /forwardToGa4/);
+  assert.match(analytics, /!isTrainingPath\(pathname\)/);
+  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useReportWebVitals|reportWebVital/);
+  assert.match(route, /status: 204/);
+  assert.doesNotMatch(route, /analytics_events|createAdminClient/);
 });
 
 test("public accessibility defaults include keyboard focus and reduced motion", async () => {
   const [styles, nav, cta, avatar] = await Promise.all([
     read("src/app/public-foundation.css"),
-    read("src/components/site-nav.tsx"),
+    read("src/components/public-nav-account-controls.tsx"),
     read("src/components/floating-cta.tsx"),
     read("src/components/public-avatar.tsx"),
   ]);

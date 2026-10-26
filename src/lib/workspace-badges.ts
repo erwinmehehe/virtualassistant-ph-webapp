@@ -20,10 +20,12 @@ async function getAdminBadges(): Promise<WorkspaceBadges> {
   };
 }
 
+// Badge counts are advisory UI data, not authorization checks. A one-minute
+// window reduces repeated Supabase RPCs and cache revalidation during outages.
 const getCachedAdminBadges = unstable_cache(
   getAdminBadges,
   ["admin-workspace-badges"],
-  { revalidate: 15 },
+  { revalidate: 60 },
 );
 
 const getCachedRoleBadges = unstable_cache(
@@ -85,7 +87,7 @@ const getCachedRoleBadges = unstable_cache(
     };
   },
   ["workspace-role-badges"],
-  { revalidate: 15 },
+  { revalidate: 60 },
 );
 
 export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeResult(role: Role, userId: string): Promise<{ badges: WorkspaceBadges; error: QueryError }> {

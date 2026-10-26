@@ -1,0 +1,6 @@
+customer_id,record_as_of_aedt,account_contact_email,alternate_email_on_file,booking_or_invoice,identity_verification_status,record_owner,notes
+CUST-109,2026-11-04 08:15 AEDT,julia.m@example.test,,B-109,EXISTING_ACCOUNT_MATCH,Customer service,Matching email alone does not confirm a schedule change or available slot
+CUST-097,2026-11-03 18:00 AEDT,customer.a@example.test,,B-097,EXISTING_ACCOUNT_MATCH,Customer service,Refund authorization not stored in contact record
+CUST-407,2026-11-04 08:00 AEDT,samuel.c@example.test,,INV-407,REQUESTER_NOT_YET_VERIFIED,Customer service,The requester used a different email address not listed in this directory
+CUST-104,2026-11-04 08:05 AEDT,booking.customer@example.test,,B-104,EXISTING_ACCOUNT_MATCH,Customer service,Service address must be independently confirmed through approved process
+

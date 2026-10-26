@@ -166,14 +166,16 @@ test("VA onboarding hides training and workspace distractions until quick setup 
   assert.match(css, /display:none/);
 });
 
-test("VA onboarding funnel is tracked beyond generic web vitals", () => {
+test("VA onboarding saves progression without optional analytics beacons", () => {
   const analyticsRoute = fs.readFileSync("src/app/api/analytics/route.ts", "utf8");
   const analytics = fs.readFileSync("src/components/analytics.tsx", "utf8");
+  const serverEvents = fs.readFileSync("src/lib/product-events.ts", "utf8");
 
-  assert.match(analyticsRoute, /"va_onboarding_started"/);
-  assert.match(analyticsRoute, /"va_onboarding_step_saved"/);
-  assert.match(analyticsRoute, /"va_onboarding_validation_error"/);
-  assert.match(analyticsRoute, /"va_onboarding_complete"/);
-  assert.match(analytics, /pathname === "\/workspace\/va\/onboarding"/);
-  assert.match(analytics, /send\("va_onboarding_started"\)/);
+  assert.match(analyticsRoute, /status: 204/);
+  assert.doesNotMatch(analyticsRoute, /analytics_events|createAdminClient/);
+  assert.match(analytics, /return null/);
+  assert.doesNotMatch(analytics, /sendBeacon|fetch\(|useReportWebVitals/);
+  assert.match(analytics, /forwardToGa4/);
+  assert.match(serverEvents, /recordProductEvent/);
+  assert.doesNotMatch(serverEvents, /createAdminClient|analytics_events/);
 });

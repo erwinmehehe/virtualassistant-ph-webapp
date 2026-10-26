@@ -102,7 +102,7 @@ test("brief success screen offers matches, an account, and a call", () => {
   const claims = source("src/lib/lead-claims.ts");
 
   // Three options after the brief: see the fit, claim the request, or talk.
-  assert.match(form, /<TopMatches category=\{category\} feedbackToken=\{feedbackToken\} \/>/);
+  assert.match(form, /<TopMatches category=\{category\} \/>/);
   assert.match(form, /\/auth\/join\/client\?\$\{joinParams\.toString\(\)\}/);
   assert.match(form, /Create my account/);
   assert.match(form, /hb-secondary[\s\S]*Book a 20-minute call instead/);
@@ -110,9 +110,14 @@ test("brief success screen offers matches, an account, and a call", () => {
   assert.doesNotMatch(form, /Continue to booking/);
   assert.doesNotMatch(form, /No account needed/);
 
-  // Three faces are framed as a sample of a pool, not as the shortlist itself.
+  // The three approved profiles remain visible, with a count when the pool is larger.
   assert.match(form, /of \$\{total\} approved \$\{scope\}VAs/);
-  assert.match(form, /Your recruiter builds your shortlist/);
+  assert.match(form, /Our recruiting team is reviewing your brief/);
+  // Do not restore the explanatory note, feedback chips, or profile browse link.
+  assert.doesNotMatch(form, /Examples only\.|Not quite right\?|Browse approved profiles/);
+  assert.doesNotMatch(form, /<MatchFeedback|feedbackToken|matchFeedbackToken/);
+  const css = source("src/app/hiring-brief-form.css");
+  assert.doesNotMatch(css, /hb-matches-note|hb-feedback|hb-matches-all/);
   assert.match(form, /pool\?\.exact && category/);
   assert.match(route, /const total = exact \? inCategory\.length : eligible\.length;/);
 

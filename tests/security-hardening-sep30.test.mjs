@@ -34,9 +34,8 @@ test("cron secrets use timing-safe comparison", async () => {
   }
 });
 
-test("public event ingestion and payment/email webhooks have request body ceilings", async () => {
+test("live ingestion and payment/email webhooks have request body ceilings", async () => {
   const paths = [
-    "src/app/api/analytics/route.ts",
     "src/app/api/errors/route.ts",
     "src/app/api/webhooks/stripe/route.ts",
     "src/app/api/webhooks/paymongo/route.ts",
@@ -47,6 +46,10 @@ test("public event ingestion and payment/email webhooks have request body ceilin
     const source = await read(path);
     assert.match(source, /readRequest(?:Json|Text)/, path);
   }
+
+  const retiredAnalytics = await read("src/app/api/analytics/route.ts");
+  assert.match(retiredAnalytics, /status: 204/);
+  assert.doesNotMatch(retiredAnalytics, /readRequestJson|analytics_events|createAdminClient/);
 
   const stripe = await read("src/app/api/webhooks/stripe/route.ts");
   assert.doesNotMatch(stripe, /Signature verification failed:"\s*\+/);
@@ -78,8 +81,8 @@ test("global responses include browser isolation headers", async () => {
 });
 
 
-test("public mutation endpoints reject abuse and bound request sizes", async () => {
-  const [helper, analytics, errors, proposals, leads] = await Promise.all([
+test("live public mutation endpoints reject abuse and bound request sizes", async () => {
+  const [helper, retiredAnalytics, errors, proposals, leads] = await Promise.all([
     read("src/lib/http-security.ts"),
     read("src/app/api/analytics/route.ts"),
     read("src/app/api/errors/route.ts"),
@@ -88,9 +91,12 @@ test("public mutation endpoints reject abuse and bound request sizes", async () 
   ]);
 
   assert.match(helper, /isExplicitCrossSiteRequest/);
-  for (const source of [analytics, errors, proposals]) {
+  for (const source of [errors, proposals]) {
     assert.match(source, /isExplicitCrossSiteRequest/);
   }
+  // Obsolete analytics requests cannot mutate state, even from cached clients.
+  assert.match(retiredAnalytics, /status: 204/);
+  assert.doesNotMatch(retiredAnalytics, /readRequestJson|createAdminClient|analytics_events/);
   assert.match(proposals, /readRequestJson<any>\(request, 4_096\)/);
   assert.match(proposals, /enforceEmailAndIpRateLimit\("proposal_view"/);
   assert.match(leads, /readRequestJson\(request, 65_536\)/);
@@ -135,7 +141,8 @@ test("Turnstile fails closed on partial configuration and binds tokens to sensit
     read("src/app/auth/forgot/page.tsx"),
   ]);
 
-  assert.match(turnstile, /if \(!secret && !siteKey\) return true/);
+  assert.match(turnstile, /if \(!secret && !siteKey\) \{/);
+  assert.match(turnstile, /missing production configuration; refusing protected submission/);
   assert.match(turnstile, /if \(!secret \|\| !siteKey\)[\s\S]*return false/);
   assert.match(turnstile, /token\.length > 2_048/);
   assert.match(turnstile, /remoteip/);

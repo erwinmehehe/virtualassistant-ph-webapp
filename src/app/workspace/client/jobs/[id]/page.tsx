@@ -68,6 +68,7 @@ export default async function ClientJobDetail({params,searchParams}:{params:Prom
 
   return <div className="client-role-detail-page">
     {query.saved?<div className="success-banner" role="status"><CheckCircle2 size={17}/> Hiring request saved.</div>:null}
+    {query.claimed?<div className="success-banner" role="status"><CheckCircle2 size={17}/> Your hiring request is linked to this client account. Your recruiter will complete the service terms and candidate access steps before the selected VA profiles appear.</div>:null}
 
     <header className="client-role-detail-hero">
       <div>

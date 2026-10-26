@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
 import { recordProductEvent } from "@/lib/product-events";
-import { normalizeTrainingCertificateName } from "@/lib/training-certificate-identity";
+import { confirmedTrainingCertificateName, normalizeTrainingCertificateName } from "@/lib/training-certificate-identity";
 
 const accountPath = "/workspace/training/account";
 const adminPath = "/workspace/admin/training/certificate-corrections";
@@ -105,6 +105,84 @@ export async function confirmTrainingCertificateNameAction(formData: FormData) {
 
   revalidatePath("/workspace/training", "layout");
   accountStatus(pending ? "saved_pending" : "saved");
+}
+
+/**
+ * Repair a legacy certificate that was issued WITHOUT any recipient name.
+ *
+ * The owner must sign in with a verified account, have a previously confirmed
+ * server-controlled certificate identity, and opt in again to publishing that
+ * name on this exact older credential. This path never changes a named award.
+ * Genuine name corrections remain admin-only with support verification.
+ */
+export async function addNameToUnnamedTrainingCertificateAction(formData: FormData) {
+  const { userId } = await requireAuthenticatedUserFast(accountPath);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.id !== userId || !user.email_confirmed_at) accountStatus("login_required");
+
+  const code = String(formData.get("credential_code") || "").trim().toUpperCase();
+  if (!/^VAT-[A-Z0-9-]{8,64}$/.test(code)) accountStatus("name_unavailable");
+  if (formData.get("publish_unnamed_certificate_consent") !== "yes") accountStatus("consent_required");
+
+  try {
+    await enforceEmailAndIpRateLimit("training_unnamed_certificate_name", user.id, 6, 18, 60);
+  } catch {
+    accountStatus("rate_limited");
+  }
+
+  const admin = createAdminClient();
+  const { data: identity, error: identityError } = await admin.auth.admin.getUserById(user.id);
+  if (identityError || !identity?.user || !identity.user.email_confirmed_at) accountStatus("login_required");
+  // Never use editable user_metadata, profile aliases or an email-derived name.
+  const confirmedName = confirmedTrainingCertificateName(identity.user.app_metadata);
+  if (!confirmedName) accountStatus("name_confirmation_required");
+
+  const { data: certificate, error: lookupError } = await admin
+    .from("training_certificates")
+    .select("id,user_id,credential_code,metadata")
+    .eq("credential_code", code)
+    .eq("user_id", user.id)
+    .is("revoked_at", null)
+    .maybeSingle();
+  if (lookupError || !certificate) accountStatus("name_unavailable");
+
+  const metadata: Record<string, unknown> = certificate.metadata &&
+    typeof certificate.metadata === "object" && !Array.isArray(certificate.metadata)
+      ? certificate.metadata as Record<string, unknown>
+      : {};
+  // Even malformed but nonempty stored names are protected from this action;
+  // only audited, verified staff correction can change an issued recipient.
+  if (typeof metadata.recipient_name === "string" && metadata.recipient_name.trim()) {
+    accountStatus("name_already_recorded");
+  }
+
+  const { data: updated, error: updateError } = await admin
+    .from("training_certificates")
+    .update({
+      metadata: {
+        ...metadata,
+        recipient_name: confirmedName,
+        recipient_name_source: "learner_confirmed_legacy_missing_name",
+        recipient_name_added_at: new Date().toISOString(),
+      },
+    })
+    .eq("id", certificate.id)
+    .eq("user_id", user.id)
+    .eq("credential_code", code)
+    // Concurrent updates/corrections cannot be overwritten by a stale claim.
+    .eq("metadata", JSON.stringify(metadata))
+    .is("revoked_at", null)
+    .select("id")
+    .maybeSingle();
+  if (updateError || !updated) accountStatus("name_update_failed");
+
+  // Preserve certificate code, original issue date, completion record,
+  // assessment results, and any existing audit metadata unchanged.
+  revalidatePath("/training/certificates/" + encodeURIComponent(code));
+  revalidatePath(accountPath);
+  revalidatePath("/workspace/training", "layout");
+  accountStatus("name_added");
 }
 
 /**

@@ -67,8 +67,12 @@ function allowLocalCoachFixture() {
   }
 }
 
-function localCoachFixtureReply(mode: "explain" | "practice" | "review", lessonTitle: string) {
+function localCoachFixtureReply(mode: "explain" | "practice" | "review" | "plan", lessonTitle: string, question: string) {
   const prefix = "LOCAL TEST COACH - not a live AI response. ";
+  if (mode === "plan") return prefix + "3-minute recap, 8-minute fictional practice, 4-minute self-check for " + lessonTitle + ".";
+  if (mode === "practice" && /interview/i.test(question)) {
+    return prefix + "Fictional interviewer: how would you handle a task from " + lessonTitle + "?";
+  }
   if (mode === "practice") return prefix + "Fictional client: please draft a short confirmation email using dummy names.";
   if (mode === "review") return prefix + "Paste a fictional practice draft for " + lessonTitle + " so I can suggest one improvement.";
   return prefix + "For " + lessonTitle + ", what is the first practical step you would take?";
@@ -129,7 +133,7 @@ export async function POST(request: Request) {
   // Exercise authentic session, enrollment, lesson lookup, and rate-limit gates first.
   if (allowLocalCoachFixture()) {
     return NextResponse.json({
-      reply: localCoachFixtureReply(input.mode, lesson.title),
+      reply: localCoachFixtureReply(input.mode, lesson.title, question),
       source: { courseTitle: course.title, lessonTitle: lesson.title },
       testOnly: true,
     }, { headers: RESPONSE_HEADERS });

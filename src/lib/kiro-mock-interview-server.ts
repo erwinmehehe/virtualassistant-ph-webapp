@@ -24,6 +24,11 @@ export function isMockInterviewVerifiedPreview(): boolean {
   if (!branch || branch === "main" ||
       !/^[a-zA-Z0-9][a-zA-Z0-9._/-]{2,120}$/.test(branch) ||
       process.env.VERCEL_GIT_COMMIT_REF !== branch) return false;
+  // Pin one reviewed deployment SHA; a later push to the same branch cannot
+  // silently inherit permission to transmit learner prompts to a provider.
+  const approvedSha = (process.env.AI_MOCK_INTERVIEW_PREVIEW_COMMIT_SHA || "").trim().toLowerCase();
+  if (!/^[0-9a-f]{40}$/.test(approvedSha) ||
+      process.env.VERCEL_GIT_COMMIT_SHA?.toLowerCase() !== approvedSha) return false;
 
   const pilotRef = (process.env.AI_MOCK_INTERVIEW_PREVIEW_SUPABASE_REF || "").trim().toLowerCase();
   const productionRef = (process.env.AI_MOCK_INTERVIEW_PRODUCTION_SUPABASE_REF || "").trim().toLowerCase();

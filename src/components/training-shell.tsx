@@ -90,6 +90,10 @@ export function TrainingShell({
               <TrainingNavIcon tone="indigo"><BookOpenCheck size={16}/></TrainingNavIcon>
               <span>Browse courses</span>
             </Link>
+            <Link href="/workspace/training/coach">
+              <TrainingNavIcon tone="cyan"><Sparkles size={16}/></TrainingNavIcon>
+              <span>Kiro Career Coach</span>
+            </Link>
             <Link href="/workspace/training#certificates">
               <TrainingNavIcon tone="emerald"><Award size={16}/></TrainingNavIcon>
               <span>Certificates</span>
@@ -141,6 +145,10 @@ export function TrainingShell({
                   <span>{workspaceLabel}</span>
                 </Link>
               ) : null}
+              <Link href="/workspace/training/coach">
+                <TrainingNavIcon tone="cyan"><Sparkles size={17}/></TrainingNavIcon>
+                <span>Kiro Career Coach</span>
+              </Link>
               <Link href={accountHref}>
                 <TrainingNavIcon tone="slate"><Settings size={17}/></TrainingNavIcon>
                 <span>Account settings</span>

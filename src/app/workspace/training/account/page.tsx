@@ -3,7 +3,7 @@ import Link from "next/link";
 import { KeyRound, MailCheck, ShieldCheck } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { confirmTrainingCertificateNameAction } from "@/app/actions/training-certificate-identity";
+import { addNameToUnnamedTrainingCertificateAction, confirmTrainingCertificateNameAction } from "@/app/actions/training-certificate-identity";
 import { confirmedTrainingCertificateName, suggestedTrainingCertificateName, normalizeTrainingCertificateName } from "@/lib/training-certificate-identity";
 
 export const metadata: Metadata = {
@@ -60,6 +60,11 @@ export default async function TrainingAccountPage({
     login_required: "Please verify your account email and sign in again.",
     rate_limited: "Too many name updates. Please wait and try again.",
     save_failed: "Your certificate name could not be saved. Please try again.",
+    name_added: "Your confirmed name was added to the existing certificate. Its code, issue date and completion record were preserved.",
+    name_confirmation_required: "Confirm your certificate recipient name above before adding it to an older unnamed certificate.",
+    name_unavailable: "This active certificate is not linked to your account, or its code is invalid.",
+    name_already_recorded: "This certificate already has a recipient name. Contact support for a verified correction.",
+    name_update_failed: "The certificate could not be updated. Please refresh the page and try again.",
   };
 
   return (
@@ -118,12 +123,12 @@ export default async function TrainingAccountPage({
             <div>
               <span className="account-panel-eyebrow">Certificate identity</span>
               <h2>Certificate recipient name</h2>
-              <p>Set the exact full name you want printed on future VAPH course certificates. Your email address and profile nickname are separate.</p>
+              <p>Confirm the exact full name you want printed on VAPH certificates. For older certificates missing a name, you can separately approve adding this confirmed name below.</p>
             </div>
           </div>
 
           {params.certificate_name_status && statusMessages[params.certificate_name_status] ? (
-            <div className={params.certificate_name_status === "saved" ? "success-banner" : "notice"} role="status">
+            <div className={(params.certificate_name_status === "saved" || params.certificate_name_status === "name_added") ? "success-banner" : "notice"} role="status">
               {statusMessages[params.certificate_name_status]}
             </div>
           ) : null}
@@ -144,7 +149,7 @@ export default async function TrainingAccountPage({
               <input
                 id="certificate-recipient-name"
                 name="certificate_name"
-                defaultValue={proposedName || ""}
+                defaultValue={confirmedName || proposedName || ""}
                 minLength={2}
                 maxLength={100}
                 autoComplete="name"
@@ -162,7 +167,7 @@ export default async function TrainingAccountPage({
             </div>
           </form>
 
-          <p className="muted">Changes here apply to certificates issued after you confirm. Existing certificates keep their original recipient name unless a verified staff correction is approved.</p>
+          <p className="muted">This confirmation applies to new certificates. An already-issued certificate that has no recipient name can be completed separately below. A name already printed on a certificate still requires a verified support correction.</p>
         </section>
 
         <section className="account-settings-section" id="issued-certificate-names">
@@ -170,7 +175,7 @@ export default async function TrainingAccountPage({
             <div>
               <span className="account-panel-eyebrow">Issued credentials</span>
               <h2>Existing certificate names</h2>
-              <p>Already earned a certificate with the wrong name? Request a verified correction; do not retake the course or create a second account.</p>
+              <p>Use your confirmed name to complete a previously issued certificate that has no recipient name. If an existing name is incorrect, request a verified staff correction instead. You never need to retake the course.</p>
             </div>
           </div>
           {issuedCertificates?.length ? (
@@ -186,7 +191,24 @@ export default async function TrainingAccountPage({
                       <strong>{name || "Recipient name not recorded"}</strong>
                       <small>{item.credential_code}</small>
                     </div>
-                    <Link className="btn btn-sm" href={"/training/certificates/" + encodeURIComponent(item.credential_code)}>View certificate</Link>
+                    <div className="account-setting-value" style={{ display: "grid", gap: 10, justifyItems: "start" }}>
+                      <Link className="btn btn-sm" href={"/training/certificates/" + encodeURIComponent(item.credential_code)}>View certificate</Link>
+                      {!name ? (
+                        confirmedName ? (
+                          <form action={addNameToUnnamedTrainingCertificateAction} className="stack" style={{ gap: 10 }}>
+                            <input type="hidden" name="credential_code" value={item.credential_code} />
+                            <small>Confirmed recipient: <strong>{confirmedName}</strong></small>
+                            <label className="row" style={{ alignItems: "flex-start", gap: 8 }}>
+                              <input type="checkbox" name="publish_unnamed_certificate_consent" value="yes" required />
+                              <span>I want to add my confirmed name to this unnamed certificate. Anyone with its verification link can see that name.</span>
+                            </label>
+                            <button className="btn btn-sm btn-primary" type="submit">Add name to certificate</button>
+                          </form>
+                        ) : (
+                          <Link href="#certificate-name" className="btn btn-sm">Confirm your name first</Link>
+                        )
+                      ) : null}
+                    </div>
                   </div>
                 );
               })}
@@ -194,7 +216,7 @@ export default async function TrainingAccountPage({
           ) : (
             <p className="muted">No certificates issued yet. Once you confirm your name and complete an eligible course, your certificate will be available from My learning.</p>
           )}
-          <p>For corrections to certificates that have already been issued, <Link href="/contact">contact VAPH support</Link> using your account email and credential code. Staff will verify ownership and the requested spelling before any correction is made.</p>
+          <p>Names already recorded on issued certificates cannot be changed by the learner. For those corrections, <Link href="/contact">contact VAPH support</Link> with your credential code. Staff will verify account ownership and your requested spelling. Certificates with missing names can use the consent form above.</p>
         </section>
 
         <section className="account-settings-section">

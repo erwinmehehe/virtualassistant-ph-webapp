@@ -15,6 +15,8 @@ import { TrainingCertificateActions } from "@/components/training-certificate-ac
 import { getPublicTrainingCredentialByCode } from "@/lib/training-credentials";
 import "./certificate.css";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: { absolute: "Verify Training Credential | VirtualAssistant.com.ph" },
   description: "Verify a VirtualAssistant.com.ph training completion credential.",
@@ -106,7 +108,7 @@ export default async function TrainingCredentialVerificationPage({
                         <p className="certificate-recipient">{credential.recipientName}</p>
                       ) : (
                         <p className="certificate-recipient certificate-recipient-missing">
-                          Recipient name not recorded
+                          Recipient name pending confirmation
                         </p>
                       )}
                       <p className="certificate-completion-label">
@@ -203,9 +205,20 @@ export default async function TrainingCredentialVerificationPage({
                   <TrainingCertificateActions
                     href={verificationUrl}
                     courseTitle={credential.courseTitle}
-                    showPrint
+                    showPrint={Boolean(credential.recipientName)}
                   />
                 </div>
+
+                {!credential.recipientName ? (
+                  <div className="credential-recipient-pending" role="status">
+                    <strong>Recipient name confirmation needed</strong>
+                    <p>The course completion is verified, but this older certificate does not have a confirmed recipient name. If you earned it, sign in to your training account, confirm your full name, then approve adding it to this unnamed certificate.</p>
+                    <Link className="btn btn-primary btn-sm" href="/workspace/training/account#certificate-name">
+                      Confirm certificate name <ArrowRight size={15} aria-hidden="true" />
+                    </Link>
+                    <small>The Print option becomes available after the name is added. Named certificates require verified staff corrections.</small>
+                  </div>
+                ) : null}
 
                 <div className="credential-note">
                   <div className="credential-note-title">

@@ -41,7 +41,7 @@ The ordinary PR/CI pipeline and synthetic browser suite never call a paid or liv
 ### Gate B: Protected Vercel Preview, separately isolated Supabase
 
 A real hosted interview must pass every `isMockInterviewLivePilot()` gate:
-- Vercel runtime `VERCEL_ENV=preview`, with `VERCEL_GIT_COMMIT_REF` exactly matching the reviewed, non-`main` branch in `AI_MOCK_INTERVIEW_PREVIEW_BRANCH`.
+- Vercel runtime `VERCEL_ENV=preview`, with `VERCEL_GIT_COMMIT_REF` exactly matching the reviewed, non-`main` branch in `AI_MOCK_INTERVIEW_PREVIEW_BRANCH`, **and** `VERCEL_GIT_COMMIT_SHA` exactly matching the 40-character, independently reviewed `AI_MOCK_INTERVIEW_PREVIEW_COMMIT_SHA`. Any new push disables inference until its SHA is approved.
 - A separately provisioned non-production Supabase project at `https://<preview-project-ref>.supabase.co`, with `AI_MOCK_INTERVIEW_PREVIEW_SUPABASE_REF` matching the URL **exactly**.
 - An independently reviewed production Supabase project reference in `AI_MOCK_INTERVIEW_PRODUCTION_SUPABASE_REF`, **different** from the Preview reference. Missing or equal references fail closed.
 - Preview-scoped `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` must belong to the same non-production project; the code validates the URL/ref and human review must validate keys and database provenance.

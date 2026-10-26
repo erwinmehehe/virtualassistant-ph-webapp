@@ -95,7 +95,9 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: vaph-coach-pilot-${{ github.run_id }}
-          path: |\n            artifacts/training-coach-pilot/\n            artifacts/kiro-mock-interview/
+          path: |
+            artifacts/training-coach-pilot/
+            artifacts/kiro-mock-interview/
           if-no-files-found: warn
           retention-days: 14
 

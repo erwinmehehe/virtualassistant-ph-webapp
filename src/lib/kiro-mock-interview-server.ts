@@ -47,6 +47,9 @@ export function isMockInterviewVerifiedPreview(): boolean {
 /** For the manual real-model UAT ONLY: fake accounts on a local DB and app. */
 export function isMockInterviewOperatorSandbox(): boolean {
   return process.env.NODE_ENV === "development" &&
+    process.env.GITHUB_ACTIONS === "true" &&
+    process.env.GITHUB_REPOSITORY === "erwinmehehe/virtualassistant-ph-webapp" &&
+    process.env.GITHUB_REF === "refs/heads/main" &&
     process.env.VAPH_MOCK_INTERVIEW_REAL_MODEL_UAT === "operator-approved" &&
     process.env.AI_MOCK_INTERVIEW_LOCAL_SANDBOX_ONLY === "true" &&
     process.env.AI_MOCK_INTERVIEW_E2E_MOCK !== "true" &&

@@ -169,6 +169,7 @@ export function KiroCareerStudio({
             <span>03 / MOCK INTERVIEW</span>
             <h4>Practice explaining how you'd handle a real-world VA task.</h4>
             <p>Choose your preferred specialty. This is a fictional practice question, not a job interview, recruiter evaluation or AI-generated hiring score.</p>
+            <p><Link className="kiro-studio-profile-link" href="/workspace/training/coach/mock-interview">Try the full six-round expert panel interview <ArrowRight size={14}/></Link></p>
           </div>
           <div className="kiro-studio-two-column">
             <div className="kiro-studio-fields">

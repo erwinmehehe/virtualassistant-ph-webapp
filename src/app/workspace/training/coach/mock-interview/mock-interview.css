@@ -1,0 +1,73 @@
+.kiro-interview-page { max-width: 1080px; }
+.kiro-interview-hero, .kiro-interview-studio { min-width: 0; border: 1px solid #e2e8f0; border-radius: 22px; background: #fff; }
+.kiro-interview-hero { padding: clamp(24px, 4vw, 42px); background: linear-gradient(135deg, #f8faff, #effcf9); }
+.kiro-interview-hero h1 { margin: 12px 0; max-width: 680px; font-size: clamp(27px, 4vw, 40px); line-height: 1.16; letter-spacing: -.03em; color: #15243c; }
+.kiro-interview-hero p { margin: 0; max-width: 730px; font-size: 14px; line-height: 1.75; color: #475569; }
+.kiro-interview-boundary { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; font-size: 12px; font-weight: 700; color: #0f766e; }
+.kiro-interview-studio { padding: clamp(20px, 4vw, 38px); }
+.kiro-interview-setup { display: grid; gap: 26px; }
+.kiro-interview-setup h2, .kiro-interview-results h2 { margin: 9px 0 5px; color: #1e293b; font-size: 25px; }
+.kiro-interview-setup p, .kiro-interview-results > p { font-size: 13px; line-height: 1.7; color: #52637a; margin: 0; }
+.kiro-interview-form { display: grid; gap: 11px; max-width: 720px; }
+.kiro-interview-form > label, .kiro-interview-live form > label { display: block; color: #273449; font-size: 13px; font-weight: 800; }
+.kiro-interview-form select, .kiro-interview-live textarea { width: 100%; max-width: 100%; min-width: 0; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; color: #0f172a; padding: 12px 14px; font: inherit; font-size: 14px; line-height: 1.6; }
+.kiro-interview-form select:focus-visible, .kiro-interview-live textarea:focus-visible { outline: 3px solid #c7d2fe; border-color: #6366f1; outline-offset: 2px; }
+.kiro-interview-form fieldset { min-width: 0; display: grid; gap: 10px; margin: 12px 0 0; padding: 16px; border: 1px solid #e2e8f0; border-radius: 14px; }
+.kiro-interview-form legend { padding: 0 6px; font-size: 13px; font-weight: 800; color: #334155; }
+.kiro-interview-form fieldset label, .kiro-interview-consent { display: flex; gap: 10px; align-items: start; font-size: 13px; line-height: 1.55; color: #334155; cursor: pointer; }
+.kiro-interview-form fieldset input, .kiro-interview-consent input { accent-color: #4f46e5; flex: none; width: 16px; height: 16px; margin: 3px 0 0; }
+.kiro-interview-form fieldset small { font-size: 11px; color: #64748b; line-height: 1.6; }
+.kiro-interview-form .kiro-interview-consent { display: flex; padding: 13px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; }
+.kiro-interview-start { display: inline-flex; align-items: center; gap: 8px; justify-content: center; width: max-content; max-width: 100%; padding: 12px 18px; }
+.kiro-interview-start:disabled { opacity: .5; }
+.kiro-interview-panel-list { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.kiro-interview-panel-list div { display: grid; gap: 5px; padding: 17px; border: 1px solid #e0e7ff; border-radius: 13px; background: #f8faff; }
+.kiro-interview-panel-list strong { color: #4338ca; font-size: 14px; }
+.kiro-interview-panel-list span { color: #64748b; font-size: 12px; line-height: 1.5; }
+.kiro-interview-status { display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; color: #4338ca; font-size: 12px; font-weight: 800; }
+.kiro-interview-live progress { width: 100%; height: 10px; display: block; margin-top: 14px; accent-color: #6366f1; }
+.kiro-interview-question { margin: 26px 0; padding: clamp(20px, 3vw, 32px); border: 1px solid #c7d2fe; border-radius: 18px; background: #f8faff; }
+.kiro-interview-question span { display: block; color: #4338ca; font-size: 12px; font-weight: 800; margin-bottom: 12px; }
+.kiro-interview-question h2 { margin: 0; color: #1f2a44; font-size: clamp(19px, 2.5vw, 26px); line-height: 1.45; overflow-wrap: anywhere; }
+.kiro-interview-live form { display: grid; gap: 12px; }
+.kiro-interview-live textarea { resize: vertical; font-size: 15px; }
+.kiro-interview-live form > small { color: #64748b; font-size: 11px; text-align: right; }
+.kiro-interview-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.kiro-interview-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 15px; }
+.kiro-interview-secondary { border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; color: #334155; font-size: 13px; font-weight: 800; cursor: pointer; }
+.kiro-interview-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.kiro-interview-feedback { padding: 18px 20px; border: 1px solid #b7e4d8; background: #f0fdfa; border-radius: 14px; margin: 0 0 24px; color: #155e59; }
+.kiro-interview-feedback strong { font-size: 13px; }
+.kiro-interview-feedback ul { padding-left: 18px; margin: 9px 0; }
+.kiro-interview-feedback li { margin: 7px 0; line-height: 1.55; font-size: 12px; }
+.kiro-interview-feedback small { font-size: 11px; line-height: 1.5; }
+.kiro-interview-disclosure { display: flex; align-items: start; gap: 8px; font-size: 11px; color: #64748b; margin: 23px 0 0; line-height: 1.6; }
+.kiro-interview-disclosure svg { flex: none; }
+.kiro-interview-error { color: #b91c1c; background: #fef2f2; padding: 12px; border-radius: 10px; font-size: 13px; }
+.kiro-interview-results { display: grid; gap: 18px; }
+.kiro-interview-results > h3 { color: #1e293b; font-size: 18px; margin: 10px 0 0; }
+.kiro-interview-rubric { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+.kiro-interview-rubric > div { border: 1px solid #e2e8f0; border-radius: 14px; padding: 17px; background: #f8fafc; }
+.kiro-interview-rubric strong { display: flex; justify-content: space-between; align-items: center; gap: 14px; color: #1e293b; font-size: 13px; line-height: 1.4; }
+.kiro-interview-rubric strong span { color: #4338ca; white-space: nowrap; }
+.kiro-interview-rubric p { font-size: 12px; line-height: 1.6; color: #64748b; margin: 10px 0 0; }
+.kiro-interview-next { margin: 0; padding-left: 23px; color: #475569; font-size: 13px; line-height: 1.9; }
+.kiro-interview-transcript { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+.kiro-interview-transcript summary { cursor: pointer; font-size: 13px; font-weight: 800; color: #4338ca; }
+.kiro-interview-transcript ol { padding-left: 21px; }
+.kiro-interview-transcript li { margin: 14px 0; color: #334155; overflow-wrap: anywhere; }
+.kiro-interview-transcript li p, .kiro-interview-transcript blockquote { color: #64748b; font-size: 12px; line-height: 1.6; margin: 7px 0; }
+.kiro-interview-transcript blockquote { padding: 10px 14px; border-left: 3px solid #a5b4fc; background: #f8faff; white-space: pre-wrap; }
+.kiro-interview-results > p[role="status"], .kiro-interview-fixture { color: #0f766e; font-size: 12px; }
+.kiro-interview-empty { padding: 25px; }
+.kiro-interview-empty h2 { font-size: 21px; color: #1e293b; }
+.kiro-interview-empty p { color: #64748b; font-size: 13px; line-height: 1.7; }
+@media (max-width: 720px) {
+  .kiro-interview-hero, .kiro-interview-studio { border-radius: 16px; }
+  .kiro-interview-panel-list, .kiro-interview-rubric { grid-template-columns: minmax(0,1fr); }
+  .kiro-interview-hero h1 { font-size: 28px; }
+  .kiro-interview-question { margin: 18px 0; }
+  .kiro-interview-actions button { flex: 1 1 auto; }
+  .kiro-interview-form select, .kiro-interview-live textarea { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .kiro-interview-page * { scroll-behavior: auto; } }

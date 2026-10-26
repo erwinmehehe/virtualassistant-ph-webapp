@@ -90,7 +90,7 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
   }
 
   const completedAt = new Date().toISOString();
-  const { data: enrollmentRows } = await admin
+  const { data: enrollmentRows, error: completionSaveError } = await admin
     .from("training_enrollments")
     .update({ completed_at: completedAt })
     .eq("user_id", userId)
@@ -98,14 +98,17 @@ export async function finalizeTrainingCourseIfEligible(userId: string, courseId:
     .is("completed_at", null)
     .select("id");
 
+  if (completionSaveError) throw new Error("Course completion could not be saved.");
   const newlyCompleted = Boolean(enrollmentRows?.length);
 
-  const { data: existingCertificate } = await admin
+  const { data: existingCertificate, error: certificateLookupError } = await admin
     .from("training_certificates")
     .select("id,credential_code")
     .eq("user_id", userId)
     .eq("course_id", courseId)
     .maybeSingle();
+
+  if (certificateLookupError) throw new Error("Certificate status could not be verified.");
 
   let certificateIssued = false;
   let certificate = existingCertificate || null;

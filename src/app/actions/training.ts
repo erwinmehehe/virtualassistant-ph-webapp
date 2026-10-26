@@ -198,34 +198,18 @@ export async function recordTrainingLessonEngagementAction(input: {
   const validLessonId = await getCachedPublishedLessonId(lessonId, courseSlug);
   if (!validLessonId) return { activeSeconds: 0, maxScrollPercent: 0 };
 
-  const { data: existing } = await admin
-    .from("training_lesson_engagement")
-    .select("active_seconds,max_scroll_percent,last_activity_at")
-    .eq("user_id", userId)
-    .eq("lesson_id", validLessonId)
-    .maybeSingle();
-
-  const now = new Date();
-  let earnedSeconds = 0;
-  if (existing?.last_activity_at) {
-    const elapsed = Math.floor((now.getTime() - new Date(existing.last_activity_at).getTime()) / 1000);
-    if (elapsed >= 5 && elapsed <= 45) earnedSeconds = Math.min(30, elapsed);
+  const { data, error: engagementError } = await admin.rpc("record_training_engagement_atomic", {
+    p_user_id: userId,
+    p_lesson_id: validLessonId,
+    p_scroll_percent: scrollPercent,
+  });
+  if (engagementError || !data?.[0]) {
+    throw new Error("Training progress could not be saved. Please try again.");
   }
-
-  const activeSeconds = Number(existing?.active_seconds || 0) + earnedSeconds;
-  const maxScrollPercent = Math.max(Number(existing?.max_scroll_percent || 0), scrollPercent);
-
-  const { error: engagementError } = await admin.from("training_lesson_engagement").upsert({
-    user_id: userId,
-    lesson_id: validLessonId,
-    active_seconds: activeSeconds,
-    max_scroll_percent: maxScrollPercent,
-    last_activity_at: now.toISOString(),
-    updated_at: now.toISOString(),
-  }, { onConflict: "user_id,lesson_id" });
-
-  if (engagementError) throw new Error("Training progress could not be saved. Please try again.");
-  return { activeSeconds, maxScrollPercent };
+  return {
+    activeSeconds: Number(data[0].active_seconds || 0),
+    maxScrollPercent: Number(data[0].max_scroll_percent || 0),
+  };
 }
 
 export async function checkTrainingLessonCheckpointAction(input: {

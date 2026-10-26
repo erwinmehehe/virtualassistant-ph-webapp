@@ -63,6 +63,7 @@ test("real model eligibility always requires verified preview or protected local
   const source = await read("src/lib/kiro-mock-interview-server.ts");
   assert.match(source, /VERCEL_ENV !== \"preview\"/);
   assert.match(source, /VERCEL_GIT_COMMIT_REF !== branch/);
+  assert.match(source, /VERCEL_GIT_COMMIT_SHA\?\.toLowerCase\(\) !== approvedSha/);
   assert.match(source, /pilotRef === productionRef/);
   assert.match(source, /url\.hostname === pilotRef \+ \"\.supabase\.co\"/);
   assert.match(source, /GITHUB_ACTIONS === \"true\"/);

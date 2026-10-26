@@ -109,7 +109,7 @@ export async function POST(request: Request) {
   if (!course || course.status !== "published") return failure("Training course not found.", 404);
   if (!course.enrolled) return failure("Enroll in this course to practice its interview.", 403);
 
-  if (input.turns.some((turn) => trainingCoachRequestsExamAnswers(turn.answer))) {
+  if (input.turns.some((turn) => trainingCoachRequestsExamAnswers(turn.answer) || trainingCoachRequestsExamAnswers(turn.question))) {
     return failure("This practice cannot reveal official assessment answers. Please use a fictional work example.", 422);
   }
 

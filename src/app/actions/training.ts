@@ -248,6 +248,16 @@ export async function checkTrainingLessonCheckpointAction(input: {
     .maybeSingle();
   if (!course) return { correct: false };
 
+  // Admin-client queries bypass RLS: explicitly require course enrollment.
+  const { data: enrollment, error: enrollmentLookupError } = await admin
+    .from("training_enrollments")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("course_id", course.id)
+    .maybeSingle();
+  if (enrollmentLookupError) throw new Error("Could not verify course enrollment.");
+  if (!enrollment) return { correct: false };
+
   const { data: modules } = await admin
     .from("training_modules")
     .select("id")
@@ -293,7 +303,7 @@ export async function checkTrainingLessonCheckpointAction(input: {
     .eq("lesson_id", lesson.id)
     .maybeSingle();
 
-  await admin.from("training_lesson_engagement").upsert({
+  const { error: checkpointSaveError } = await admin.from("training_lesson_engagement").upsert({
     user_id: userId,
     lesson_id: lesson.id,
     active_seconds: Number(existing?.active_seconds || 0),
@@ -303,6 +313,7 @@ export async function checkTrainingLessonCheckpointAction(input: {
     last_activity_at: existing?.last_activity_at || now,
     updated_at: now,
   }, { onConflict: "user_id,lesson_id" });
+  if (checkpointSaveError) throw new Error("Checkpoint result could not be saved. Please try again.");
 
   return { correct: true };
 }
@@ -398,7 +409,7 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
   }
 
   const now = new Date().toISOString();
-  await admin.from("training_lesson_engagement").upsert({
+  const { error: exerciseSaveError } = await admin.from("training_lesson_engagement").upsert({
     user_id: userId,
     lesson_id: lesson.id,
     active_seconds: Number(engagement?.active_seconds || 0),
@@ -409,6 +420,7 @@ export async function markTrainingLessonCompleteAction(formData: FormData) {
     last_activity_at: now,
     updated_at: now,
   }, { onConflict: "user_id,lesson_id" });
+  if (exerciseSaveError) throw new Error("Lesson activity could not be saved. Please try again.");
 
   const { error: enrollmentError } = await admin
     .from("training_enrollments")

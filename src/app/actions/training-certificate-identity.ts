@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import { enforceEmailAndIpRateLimit } from "@/lib/rate-limit";
 import { finalizeTrainingCourseIfEligible } from "@/lib/training-completion";
 import { recordProductEvent } from "@/lib/product-events";
-import { confirmedTrainingCertificateName, normalizeTrainingCertificateName } from "@/lib/training-certificate-identity";
+import { confirmedTrainingCertificateName, hasMissingTrainingCertificateRecipient, normalizeTrainingCertificateName } from "@/lib/training-certificate-identity";
 
 const accountPath = "/workspace/training/account";
 const adminPath = "/workspace/admin/training/certificate-corrections";
@@ -153,7 +153,7 @@ export async function addNameToUnnamedTrainingCertificateAction(formData: FormDa
       : {};
   // Even malformed but nonempty stored names are protected from this action;
   // only audited, verified staff correction can change an issued recipient.
-  if (typeof metadata.recipient_name === "string" && metadata.recipient_name.trim()) {
+  if (!hasMissingTrainingCertificateRecipient(certificate.metadata)) {
     accountStatus("name_already_recorded");
   }
 

@@ -22,7 +22,7 @@ test("lesson completion does not proceed after an exercise engagement write fail
   const end = actions.indexOf("export async function submitTrainingAssessmentAction", start);
   const lesson = actions.slice(start, end);
   assert.match(lesson, /if \(exerciseSaveError\) throw/);
-  assert.ok(lesson.indexOf("if (exerciseSaveError)") < lesson.indexOf('from("training_lesson_progress")'));
+  assert.ok(lesson.indexOf("if (exerciseSaveError)") < lesson.indexOf('const { error: progressError }'));
 });
 
 test("completion and certificate database lookup errors are not ignored", () => {

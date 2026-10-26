@@ -114,7 +114,7 @@ export function KiroMockInterview({
           credentials: "same-origin",
           cache: "no-store",
           signal: controller.signal,
-          body: JSON.stringify({ courseSlug, difficulty, focus, turns: nextTurns }),
+          body: JSON.stringify({ courseSlug, difficulty, focus, turns: nextTurns, consent: true }),
         });
         const data: InterviewResponse = await response.json();
         if (!response.ok || !Array.isArray(data.feedback)) throw new Error(data.error || "The AI interviewer is unavailable.");

@@ -56,7 +56,7 @@ as $function$
 declare
   v_count integer := 0;
 begin
-  if current_setting('request.jwt.claim.role', true) is distinct from 'service_role' then
+  if (coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb ->> 'role') is distinct from 'service_role' then
     raise exception 'Server-only matching acknowledgment'
       using errcode = '42501';
   end if;

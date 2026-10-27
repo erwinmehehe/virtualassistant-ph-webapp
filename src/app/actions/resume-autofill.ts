@@ -2,6 +2,7 @@
 
 import { requireRole } from "@/lib/auth";
 import { uploadContentsMatch } from "@/lib/upload-file-signatures";
+import { MAX_SERVER_ACTION_RESUME_BYTES, SERVER_ACTION_RESUME_SIZE_LABEL } from "@/lib/upload-limits";
 import { extractResumeText, parseResumeWithAI, type ParsedResumeFields } from "@/lib/resume-parsing";
 
 export type ParseResumeState = {
@@ -34,8 +35,8 @@ export async function parseResumeAction(_previousState: ParseResumeState, formDa
   if (!(file instanceof File) || file.size === 0) {
     return { status: "error", message: "Choose a resume file first." };
   }
-  if (file.size > 5 * 1024 * 1024) {
-    return { status: "error", message: "Resume must be 5 MB or smaller." };
+  if (file.size > MAX_SERVER_ACTION_RESUME_BYTES) {
+    return { status: "error", message: `Resume must be ${SERVER_ACTION_RESUME_SIZE_LABEL} or smaller.` };
   }
   const resumeType = resolvedResumeType(file);
   if (!resumeType) {

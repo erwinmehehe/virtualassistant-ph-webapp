@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const migrationPath = "supabase/migrations/20261027113900_defer_job_matching_from_client_save.sql";
+const migrationPath = "supabase/migrations/20261027120411_defer_job_matching_from_client_save.sql";
 
 test("editing job matching criteria queues refresh instead of executing a full synchronous match", async () => {
   const sql = await readFile(migrationPath, "utf8");

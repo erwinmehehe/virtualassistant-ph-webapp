@@ -239,6 +239,9 @@ const MATCH_REFRESH_CONCURRENCY = 4;
 const MATCH_REFRESH_MAX_VAS = 500;
 
 async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>) {
+  // Only acknowledge changes that existed before this refresh began. Edits
+  // during matching remain queued for another safe refresh.
+  const matchingStartedAt = new Date().toISOString();
   const { data: candidates, error: candidatesError } = await admin
     .from("va_vetting")
     .select("va_id")
@@ -274,11 +277,19 @@ async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>
     // subsequent daily run may safely retry; shortlist upserts are idempotent.
     throw new Error(`Match refresh failed for ${failed} of ${(candidates || []).length} VAs (code ${firstErrorCode})`);
   }
+  const { data: acknowledged, error: acknowledgeError } = await admin.rpc(
+    "acknowledge_job_match_refresh_queue",
+    { p_completed_through: matchingStartedAt },
+  );
+  if (acknowledgeError) {
+    throw new Error("Job match refresh succeeded but its pending queue could not be acknowledged");
+  }
   return {
     jobsMatched: null,
     candidatesProposed: proposed,
     candidatesReleased: 0,
     vasChecked: (candidates || []).length,
+    queuedJobRefreshesAcknowledged: Number(acknowledged || 0),
   };
 }
 

@@ -232,10 +232,54 @@ async function runLeadClaimNudges(admin: ReturnType<typeof createAdminClient>) {
   return { checked: jobs?.length || 0, sent };
 }
 
+// Refreshing all approved VAs in a single SQL transaction can hit Postgres'
+// statement_timeout (observed 2026-10-26). Each independent per-VA RPC gets
+// its own bounded transaction; cap concurrency to avoid stampeding the DB.
+const MATCH_REFRESH_CONCURRENCY = 4;
+const MATCH_REFRESH_MAX_VAS = 500;
+
 async function runPendingJobMatching(admin: ReturnType<typeof createAdminClient>) {
-  const { data, error } = await admin.rpc("refresh_all_match_suggestions");
-  if (error) throw error;
-  return { jobsMatched: null, candidatesProposed: Number(data || 0), candidatesReleased: 0 };
+  const { data: candidates, error: candidatesError } = await admin
+    .from("va_vetting")
+    .select("va_id")
+    .in("stage", ["approved", "bench"])
+    .order("va_id", { ascending: true })
+    .limit(MATCH_REFRESH_MAX_VAS + 1);
+  if (candidatesError) throw new Error("Could not load matching candidates");
+  if ((candidates || []).length > MATCH_REFRESH_MAX_VAS) {
+    // Never silently skip eligible VAs: increase pagination capacity or move
+    // matching to a durable queue before this limit is reached.
+    throw new Error("Matching candidate count exceeds safe per-run capacity");
+  }
+
+  let proposed = 0;
+  let failed = 0;
+  let firstErrorCode = "";
+  for (let offset = 0; offset < (candidates || []).length; offset += MATCH_REFRESH_CONCURRENCY) {
+    const batch = (candidates || []).slice(offset, offset + MATCH_REFRESH_CONCURRENCY);
+    const results = await Promise.all(batch.map((row) =>
+      admin.rpc("refresh_match_suggestions_for_va", { p_va_id: row.va_id }),
+    ));
+    for (const { data, error } of results) {
+      if (error) {
+        failed += 1;
+        if (!firstErrorCode) firstErrorCode = String(error.code || "UNKNOWN").slice(0, 24);
+      } else {
+        proposed += Number(data || 0);
+      }
+    }
+  }
+  if (failed) {
+    // The outer maintenance audit records this as an explicit failure. A
+    // subsequent daily run may safely retry; shortlist upserts are idempotent.
+    throw new Error(`Match refresh failed for ${failed} of ${(candidates || []).length} VAs (code ${firstErrorCode})`);
+  }
+  return {
+    jobsMatched: null,
+    candidatesProposed: proposed,
+    candidatesReleased: 0,
+    vasChecked: (candidates || []).length,
+  };
 }
 
 type ReminderSubject = "job" | "application" | "lead" | "proposal" | "va";

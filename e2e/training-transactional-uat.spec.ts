@@ -263,6 +263,66 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
     expect(credentials).toHaveLength(0);
   });
 
+  test("a correctly checked first lesson really completes and opens the next published lesson", async ({ page }) => {
+    test.setTimeout(120_000);
+    const firstPath = COURSE_URL + "/lessons/" + firstLessonId;
+    await signIn(page, learnerEmail, firstPath);
+
+    const { data: checkpointRow, error: checkpointError } = await admin.from("training_lesson_engagement")
+      .select("checkpoint_key,max_scroll_percent")
+      .eq("user_id", learnerId).eq("lesson_id", firstLessonId).single();
+    expect(checkpointError).toBeNull();
+    expect(checkpointRow?.checkpoint_key).toBeTruthy();
+    expect(Number(checkpointRow?.max_scroll_percent || 0)).toBeGreaterThanOrEqual(85);
+
+    // The real heartbeat and checkpoint were exercised in the prior test.
+    // Seed only the remaining 5 minutes of active time inside this disposable
+    // loopback database, avoiding real-time waits in CI. Never do this on prod.
+    const { data: seeded, error: seedError } = await admin.from("training_lesson_engagement")
+      .update({ active_seconds: 300 })
+      .eq("user_id", learnerId).eq("lesson_id", firstLessonId)
+      .select("active_seconds").single();
+    expect(seedError).toBeNull();
+    expect(seeded?.active_seconds).toBe(300);
+
+    const { data: modules, error: modulesError } = await admin.from("training_modules")
+      .select("id,position").eq("course_id", courseId).order("position");
+    expect(modulesError).toBeNull();
+    const { data: lessons, error: lessonsError } = await admin.from("training_lessons")
+      .select("id,module_id,position")
+      .in("module_id", (modules || []).map((module) => module.id)).eq("is_published", true);
+    expect(lessonsError).toBeNull();
+    const moduleOrder = new Map((modules || []).map((module) => [module.id, module.position]));
+    const sorted = [...(lessons || [])].sort((a, b) =>
+      Number(moduleOrder.get(a.module_id) || 0) - Number(moduleOrder.get(b.module_id) || 0) ||
+      a.position - b.position);
+    expect(sorted[0]?.id).toBe(firstLessonId);
+    expect(sorted.length).toBeGreaterThan(1);
+
+    await page.reload();
+    const finishForm = page.locator("form.training-integrity-complete-form");
+    await expect(finishForm).toBeVisible();
+    const note = finishForm.locator('textarea[name="exercise_response"]');
+    if (await note.count()) {
+      await note.fill(
+        "I would confirm the source details, record the client's request and open questions, " +
+        "document the approvals needed, and hand over the next steps with clear owners."
+      );
+    }
+    const finish = finishForm.locator('button[type="submit"]');
+    await expect(finish).toBeEnabled({ timeout: 15_000 });
+    await finish.click();
+    const secondPath = COURSE_URL + "/lessons/" + sorted[1].id;
+    await expect(page).toHaveURL((url) => url.pathname === secondPath, { timeout: 30_000 });
+
+    const { data: completed, error: completedError } = await admin.from("training_lesson_progress")
+      .select("completed_at").eq("user_id", learnerId).eq("lesson_id", firstLessonId).single();
+    expect(completedError).toBeNull();
+    expect(completed?.completed_at).toBeTruthy();
+    await expect(page.getByRole("heading", { name: "Ready to complete this lesson?" })).toBeVisible();
+    await page.screenshot({ path: ARTIFACT_DIR + "/second-lesson-unlocked-desktop.png", animations: "disabled" });
+  });
+
   test("final assessment failure, retry, course completion and certificate issuance use real UI actions", async ({ page, browser }) => {
     test.setTimeout(240_000);
     // This phase deliberately starts from *synthetic local prerequisite records*.

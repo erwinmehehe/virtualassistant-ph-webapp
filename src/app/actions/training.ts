@@ -284,6 +284,19 @@ export async function checkTrainingLessonCheckpointAction(input: {
   });
   if (!correct) return { correct: false };
 
+  // A correct answer can arrive before the first asynchronous reading heartbeat.
+  // Insert the missing engagement row without awarding active time or scroll credit.
+  // On conflict, DO NOTHING: never reset reading time, scroll or concurrent writes.
+  const { error: engagementInitError } = await admin
+    .from("training_lesson_engagement")
+    .upsert(
+      { user_id: userId, lesson_id: lesson.id },
+      { onConflict: "user_id,lesson_id", ignoreDuplicates: true },
+    );
+  if (engagementInitError) {
+    throw new Error("Checkpoint result could not be saved. Please try again.");
+  }
+
   const now = new Date().toISOString();
   // Update only checkpoint columns: never replace concurrent reading-time totals.
   const { data: savedCheckpoint, error: checkpointSaveError } = await admin

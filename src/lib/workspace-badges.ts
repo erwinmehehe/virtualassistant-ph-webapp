@@ -20,6 +20,24 @@ async function getAdminBadges(): Promise<WorkspaceBadges> {
   };
 }
 
+// VA notifications need one indexed count, not a background-revalidated
+// service-role cache. A failed Next.js stale-while-revalidate fetch can surface
+// as a noisy, uncaught revalidation error on the unrelated training lesson.
+// React's request-level cache below still deduplicates per-render queries.
+async function getVaBadges(userId: string): Promise<WorkspaceBadges> {
+  const admin = createAdminClient();
+  const { count, error } = await admin
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .is("read_at", null);
+  if (error) throw error;
+  return {
+    "/workspace/va/messages": 0,
+    "/workspace/va/notifications": Number(count || 0),
+  };
+}
+
 // Badge counts are advisory UI data, not authorization checks. A one-minute
 // window reduces repeated Supabase RPCs and cache revalidation during outages.
 const getCachedAdminBadges = unstable_cache(
@@ -94,6 +112,10 @@ export const getWorkspaceBadgeResult = cache(async function getWorkspaceBadgeRes
   try {
     if (role === "admin") {
       return { badges: await withServerTiming("workspace.badges.admin", getCachedAdminBadges), error: null };
+    }
+
+    if (role === "va") {
+      return { badges: await withServerTiming("workspace.badges.va", () => getVaBadges(userId)), error: null };
     }
 
     return {

@@ -17,7 +17,7 @@ test("production learner smoke is explicitly manual, gated and account-scoped", 
   assert.doesNotMatch(workflow, /SUPABASE_SERVICE_ROLE_KEY|env pull|download-artifact|upload-artifact/);
 
   assert.match(script, /consent !== "dedicated-test-account-only"/);
-  assert.match(script, /https:\/\/virtualassistant\.com\.ph/);
+  assert.ok(script.includes('const baseUrl = "https://virtualassistant.com.ph";'));
   assert.match(script, /Quick check complete\./);
   assert.match(script, /Ready to complete this lesson\?/);
   assert.match(script, /page\.waitForURL/);

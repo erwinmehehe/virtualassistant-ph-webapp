@@ -1,0 +1,47 @@
+name: Production authenticated training QA (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dedicated_test_account:
+        description: "I confirm both secrets belong to a fresh, dedicated QA learner (not a real user)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-training-learner-smoke
+  cancel-in-progress: false
+
+jobs:
+  learner-journey:
+    if: ${{ inputs.dedicated_test_account == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PRODUCTION_TEST_LEARNER_EMAIL: ${{ secrets.PRODUCTION_TEST_LEARNER_EMAIL }}
+      PRODUCTION_TEST_LEARNER_PASSWORD: ${{ secrets.PRODUCTION_TEST_LEARNER_PASSWORD }}
+      PRODUCTION_LEARNER_SMOKE_ACK: dedicated-test-account-only
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run dedicated production learner smoke without storing login artifacts
+        run: node scripts/production-training-learner-smoke.mjs

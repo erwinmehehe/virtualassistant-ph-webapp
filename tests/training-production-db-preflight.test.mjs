@@ -33,7 +33,7 @@ test("production build probes the exact progress RPC with deliberately invalid i
   };
   assert.deepEqual(await verifyTrainingDatabaseContract(env, makeClient), { skipped: false, verified: true });
   assert.equal(calls, 1);
-  const sql = await readFile("supabase/migrations/20261026150000_atomic_training_engagement.sql", "utf8");
+  const sql = await readFile("supabase/migrations/20261026235826_atomic_training_engagement.sql", "utf8");
   assert.ok(sql.indexOf("if p_scroll_percent is null") < sql.indexOf("insert into public.training_lesson_engagement"));
 });
 

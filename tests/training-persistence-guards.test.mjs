@@ -12,7 +12,7 @@ test("checkpoint writes require enrollment and acknowledge persistence failures"
   assert.match(checkpoint, /from\("training_enrollments"\)/);
   assert.match(checkpoint, /\.eq\("user_id", userId\)/);
   assert.match(checkpoint, /\.eq\("course_id", course\.id\)/);
-  assert.match(checkpoint, /if \(!enrollment\) return \{ correct: false \}/);
+  assert.match(checkpoint, /if \(!enrollment\) return \{ correct: false, reason: "not_enrolled" as const \}/);
   assert.match(checkpoint, /if \(checkpointSaveError\) throw/);
   assert.ok(checkpoint.indexOf("if (checkpointSaveError)") < checkpoint.indexOf("return { correct: true }"));
 });

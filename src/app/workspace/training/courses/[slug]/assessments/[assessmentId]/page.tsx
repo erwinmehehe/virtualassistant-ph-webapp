@@ -14,6 +14,7 @@ import {
 import { submitTrainingAssessmentAction } from "@/app/actions/training";
 import { updateTrainingCertificateVisibilityAction } from "@/app/actions/training-credentials";
 import { TrainingCertificateActions } from "@/components/training-certificate-actions";
+import { TrainingAssessmentSubmitButton } from "@/components/training-assessment-submit-button";
 import { TrainingNextSteps } from "@/components/training-next-steps";
 import { requireAuthenticatedUserFast } from "@/lib/auth";
 import { getTrainingAssessment, getTrainingDashboard } from "@/lib/training";
@@ -409,13 +410,7 @@ export default async function TrainingAssessmentPage({
             </div>
 
             <div className="training-assessment-submit-actions">
-              <button
-                className="btn btn-primary"
-                type="submit"
-                data-track="training_assessment_submit_click"
-              >
-                <CheckCircle2 size={15}/> Submit final check
-              </button>
+              <TrainingAssessmentSubmitButton />
               <span>Results are scored immediately. If you miss the pass score, you will get lesson-level review guidance.</span>
             </div>
           </form>

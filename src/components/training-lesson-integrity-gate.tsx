@@ -48,6 +48,7 @@ export function TrainingLessonIntegrityGate({
   const [activeSeconds, setActiveSeconds] = useState(initialActiveSeconds);
   const [maxScrollPercent, setMaxScrollPercent] = useState(initialScrollPercent);
   const [readingSyncError, setReadingSyncError] = useState(false);
+  const readingSyncReportedRef = useRef(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [checkpointPassed, setCheckpointPassed] = useState(checkpointAlreadyPassed || !checkpoint);
   const [checkpointMessage, setCheckpointMessage] = useState(
@@ -106,9 +107,24 @@ export function TrainingLessonIntegrityGate({
           setReadingSyncError(false);
         }
       } catch {
-        // Never imply progress was saved when the server couldn't persist it.
-        // Keep the lesson open, and retry automatically on the next active heartbeat.
-        if (!cancelled) setReadingSyncError(true);
+        // Never imply progress was saved. Report once per mounted lesson while
+        // the active heartbeat keeps retrying, without sending answer content.
+        if (!cancelled) {
+          setReadingSyncError(true);
+          if (!readingSyncReportedRef.current) {
+            readingSyncReportedRef.current = true;
+            void fetch("/api/errors", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                name: "TrainingProgressSaveError",
+                message: "Training reading progress could not be saved",
+                source: "training_progress_recoverable",
+                path: window.location.pathname,
+              }),
+            }).catch(() => {});
+          }
+        }
       } finally {
         heartbeatPending = false;
       }
@@ -201,6 +217,9 @@ export function TrainingLessonIntegrityGate({
         if (result.correct) {
           setCheckpointPassed(true);
           setCheckpointMessage("Correct. Your quick check is saved.");
+        } else if ("reason" in result && result.reason === "not_enrolled") {
+          setCheckpointPassed(false);
+          setCheckpointMessage("Please start this course from its overview before answering the quick check.");
         } else {
           setCheckpointPassed(false);
           setCheckpointMessage("Not quite. Review the relevant part of the lesson, then try again.");

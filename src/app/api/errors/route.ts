@@ -25,7 +25,9 @@ export async function POST(request: Request) {
     const clientStack = body?.stack ? String(body.stack).slice(0, 6000) : null;
     const source = body?.source === "training_checkpoint_recoverable"
       ? "training_checkpoint_recoverable"
-      : "next_error_boundary";
+      : body?.source === "training_progress_recoverable"
+        ? "training_progress_recoverable"
+        : "next_error_boundary";
     const suppliedDigest = body?.digest ? String(body.digest).slice(0, 200) : null;
     const digest = suppliedDigest || createHash("sha256")
       .update([errorName, message, path || ""].join("|"))

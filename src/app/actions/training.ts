@@ -204,6 +204,11 @@ export async function recordTrainingLessonEngagementAction(input: {
     p_scroll_percent: scrollPercent,
   });
   if (engagementError || !data?.[0]) {
+    // Keep operational diagnostics useful without logging learner IDs,
+    // checkpoint answers, or activity content.
+    console.error("Training engagement RPC failed", {
+      code: engagementError?.code || "EMPTY_RESULT",
+    });
     throw new Error("Training progress could not be saved. Please try again.");
   }
   return {
@@ -240,7 +245,7 @@ export async function checkTrainingLessonCheckpointAction(input: {
     .eq("course_id", course.id)
     .maybeSingle();
   if (enrollmentLookupError) throw new Error("Could not verify course enrollment.");
-  if (!enrollment) return { correct: false };
+  if (!enrollment) return { correct: false, reason: "not_enrolled" as const };
 
   const { data: modules } = await admin
     .from("training_modules")

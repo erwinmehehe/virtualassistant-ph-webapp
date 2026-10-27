@@ -76,6 +76,7 @@ test("incomplete lessons use the integrity gate and continue to the next require
 
 test("automatic final check is locked until lessons complete and never waits for admin review", async () => {
   const assessment = await readFile(assessmentPath, "utf8");
+  const submitButton = await readFile("src/components/training-assessment-submit-button.tsx", "utf8");
 
   assert.match(assessment, /lessonsComplete/);
   assert.match(assessment, /Complete the lessons first/);
@@ -84,7 +85,10 @@ test("automatic final check is locked until lessons complete and never waits for
   assert.match(assessment, /3 attempts in a rolling 24-hour period/);
   assert.match(assessment, /answer key is not shown/i);
   assert.match(assessment, /training-auto-assessment-questions/);
-  assert.match(assessment, /Submit final check/);
+  assert.match(assessment, /TrainingAssessmentSubmitButton/);
+  assert.match(submitButton, /Submit final check/);
+  assert.match(submitButton, /disabled=\{pending\}/);
+  assert.match(submitButton, /Submitting final check/);
   assert.match(assessment, /Review and try again/);
   assert.match(assessment, /Use this time to review/);
   assert.match(assessment, /Certificate after passing/);

@@ -55,9 +55,19 @@ try {
   let correct = false;
   for (let i = 0; i < choiceCount; i++) {
     await checkpoint.locator('input[type="radio"]').nth(i).check();
-    await checkpoint.getByRole("button", { name: "Check answer" }).click();
-    await page.getByText(/Correct\. Your quick check is saved\.|Not quite\.|couldn't save that answer/i)
-      .first().waitFor({ state: "visible", timeout: 30_000 });
+    const checkButton = checkpoint.getByRole("button", { name: "Check answer" });
+    await checkButton.click();
+    // Wait for each server action, not a stale previous response.
+    await page.waitForTimeout(500);
+    let settled = false;
+    for (let retry = 0; retry < 120; retry++) {
+      if (await checkButton.isEnabled()) { settled = true; break; }
+      await page.waitForTimeout(250);
+    }
+    if (!settled) throw new Error("Checkpoint submission did not finish");
+    if (await page.getByText(/couldn't save that answer/i).count()) {
+      throw new Error("Checkpoint answer was not persisted");
+    }
     if (await page.getByText("Correct. Your quick check is saved.").count()) {
       correct = true;
       break;

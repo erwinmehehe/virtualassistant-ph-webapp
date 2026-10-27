@@ -26,3 +26,23 @@ test("maintenance completion audit never changes task failure isolation", async 
   assert.match(source, /\{ status: ok \? 200 : 500 \}/);
   assert.match(source, /\{ \.\.\.result, ok, errorTasks \}/);
 });
+
+test("matching refresh never runs every VA in one database statement", async () => {
+  const source = await readFile("src/app/api/cron/maintenance/route.ts", "utf8");
+  const matching = source.slice(
+    source.indexOf("async function runPendingJobMatching"),
+    source.indexOf("type ReminderSubject", source.indexOf("async function runPendingJobMatching")),
+  );
+
+  assert.match(source, /const MATCH_REFRESH_CONCURRENCY = 4/);
+  assert.match(source, /const MATCH_REFRESH_MAX_VAS = 500/);
+  assert.match(matching, /\.in\("stage", \["approved", "bench"\]\)/);
+  assert.match(matching, /\.order\("va_id", \{ ascending: true \}\)/);
+  assert.match(matching, /MATCH_REFRESH_MAX_VAS \+ 1/);
+  assert.match(matching, /admin\.rpc\("refresh_match_suggestions_for_va", \{ p_va_id: row\.va_id \}\)/);
+  assert.match(matching, /await Promise\.all\(batch\.map/);
+  assert.match(matching, /if \(failed\) \{/);
+  assert.match(matching, /throw new Error\(`Match refresh failed/);
+  assert.doesNotMatch(matching, /refresh_all_match_suggestions/);
+  assert.doesNotMatch(matching, /candidatesReleased: [1-9]/);
+});

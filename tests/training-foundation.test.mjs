@@ -258,6 +258,7 @@ test("training library and admin inventory use roadmap order", async () => {
 test("learners take server-scored final checks without an admin review queue", async () => {
   const learnerAction = await readFile("src/app/actions/training.ts", "utf8");
   const learnerPage = await readFile("src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx", "utf8");
+  const submitButton = await readFile("src/components/training-assessment-submit-button.tsx", "utf8");
   const adminPage = await readFile("src/app/workspace/admin/training/[courseId]/page.tsx", "utf8");
 
   assert.match(learnerAction, /submitTrainingAssessmentAction/);
@@ -265,7 +266,9 @@ test("learners take server-scored final checks without an admin review queue", a
   assert.match(learnerAction, /buildAssessmentQuestionsFromLessons/);
   assert.match(learnerAction, /status: passed \? "reviewed" : "needs_revision"/);
   assert.match(learnerAction, /finalizeTrainingCourseIfEligible/);
-  assert.match(learnerPage, /Submit final check/);
+  assert.match(learnerPage, /TrainingAssessmentSubmitButton/);
+  assert.match(submitButton, /Submit final check/);
+  assert.match(submitButton, /disabled=\{pending\}/);
   assert.match(learnerPage, /Course-based questions/);
   assert.match(learnerPage, /Fresh mix each attempt/);
   assert.match(adminPage, /Automatic learner assessment/);

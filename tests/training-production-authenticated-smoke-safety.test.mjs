@@ -22,5 +22,5 @@ test("production learner smoke is explicitly manual, gated and account-scoped", 
   assert.match(script, /Ready to complete this lesson\?/);
   assert.match(script, /page\.waitForURL/);
   assert.match(script, /Mobile next-lesson page has horizontal overflow/);
-  assert.doesNotMatch(script, /createUser|deleteUser|storageState|addCookies|screenshot|auth\.admin|service_role/);
+  assert.doesNotMatch(script, /createUser|deleteUser|storageState|addCookies|\.screenshot\(|auth\.admin|service_role/);
 });

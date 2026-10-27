@@ -11,6 +11,7 @@ import { inferCategoriesFromProfile, inferPrimaryCategoryFromProfile } from "@/l
 import { getClassificationEvidenceReadiness } from "@/lib/classification-readiness";
 import { isPubliclyEligible } from "@/lib/public-visibility";
 import { uploadContentsMatch } from "@/lib/upload-file-signatures";
+import { MAX_SERVER_ACTION_RESUME_BYTES, SERVER_ACTION_RESUME_SIZE_LABEL } from "@/lib/upload-limits";
 import { writeRecruiterActivity } from "@/lib/recruiter-activity";
 
 // Each tag is meant to be a short label ("Customer Service", "HubSpot"),
@@ -61,7 +62,7 @@ const cleanUrl = (value: FormDataEntryValue | null) => {
 
 function validateResumeUpload(value: FormDataEntryValue | null) {
   if (!(value instanceof File) || value.size === 0) return null;
-  if (value.size > 5 * 1024 * 1024) throw new Error("Resume must be 5 MB or smaller.");
+  if (value.size > MAX_SERVER_ACTION_RESUME_BYTES) throw new Error(`Resume must be ${SERVER_ACTION_RESUME_SIZE_LABEL} or smaller.`);
 
   const extension = value.name.toLowerCase().match(/\.(pdf|doc|docx)$/)?.[1];
   const mimeByExtension: Record<string, string> = {

@@ -111,15 +111,40 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
       .select("lesson_id").eq("user_id", learnerId).eq("lesson_id", firstLessonId);
     expect(progress).toHaveLength(0);
 
-    // Exercise a real checkpoint request without guessing or storing its answer.
+    // This is a disposable LOCAL learner: a rejected answer must never count as
+    // passing acceptance. Exercise the rendered choices until the real app
+    // confirms the correct answer and persistently saves its checkpoint.
     const checkpoint = page.locator(".training-inline-checkpoint");
-    if (await checkpoint.count()) {
-      await checkpoint.locator('input[type="radio"]').first().check();
-      await checkpoint.getByRole("button", { name: "Check answer" }).click();
-      await expect(page.getByText(/quick check is saved|Not quite\. Review/i)).toBeVisible();
-    }
+    await expect(checkpoint).toBeVisible();
+    await expect.poll(async () => {
+      const { data, error } = await admin.from("training_lesson_engagement")
+        .select("lesson_id").eq("user_id", learnerId).eq("lesson_id", firstLessonId).maybeSingle();
+      if (error) throw error;
+      return Boolean(data?.lesson_id);
+    }, { timeout: 40_000, intervals: [1000, 2000, 5000] }).toBe(true);
 
-    // Real reader engagement is persisted by the page's 20-second heartbeat.
+    const choiceCount = await checkpoint.locator('input[type="radio"]').count();
+    expect(choiceCount).toBeGreaterThan(1);
+    let saved = false;
+    for (let i = 0; i < choiceCount; i++) {
+      await checkpoint.locator('input[type="radio"]').nth(i).check();
+      await checkpoint.getByRole("button", { name: "Check answer" }).click();
+      const feedback = page.locator(".training-checkpoint-message, .training-checkpoint-success");
+      await expect(feedback).toContainText(/Correct\. Your quick check is saved\.|Not quite\./);
+      if (await page.getByText("Correct. Your quick check is saved.").count()) {
+        saved = true;
+        break;
+      }
+    }
+    expect(saved).toBe(true);
+    await expect.poll(async () => {
+      const { data, error } = await admin.from("training_lesson_engagement")
+        .select("checkpoint_key").eq("user_id", learnerId).eq("lesson_id", firstLessonId).maybeSingle();
+      if (error) throw error;
+      return Boolean(data?.checkpoint_key);
+    }, { timeout: 15_000 }).toBe(true);
+
+    // Real reader engagement is persisted by the page's 30-second heartbeat.
     await page.locator('[data-training-content-end="' + firstLessonId + '"]').scrollIntoViewIfNeeded();
     await expect.poll(async () => {
       const { data } = await admin.from("training_lesson_engagement")

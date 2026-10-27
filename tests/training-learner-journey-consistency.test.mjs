@@ -5,13 +5,15 @@ import test from "node:test";
 const coursePath = "src/app/workspace/training/courses/[slug]/page.tsx";
 const lessonPath = "src/app/workspace/training/courses/[slug]/lessons/[lessonId]/page.tsx";
 const assessmentPath = "src/app/workspace/training/courses/[slug]/assessments/[assessmentId]/page.tsx";
+const submitButtonPath = "src/components/training-assessment-submit-button.tsx";
 const cssPath = "src/app/workspace/training/training-home.css";
 
 test("learner journey uses explicit next-step CTA language", async () => {
-  const [course, lesson, assessment] = await Promise.all([
+  const [course, lesson, assessment, submitButton] = await Promise.all([
     readFile(coursePath, "utf8"),
     readFile(lessonPath, "utf8"),
     readFile(assessmentPath, "utf8"),
+    readFile(submitButtonPath, "utf8"),
   ]);
 
   assert.match(course, /Start first lesson/);
@@ -26,7 +28,9 @@ test("learner journey uses explicit next-step CTA language", async () => {
 
   assert.match(assessment, /Continue lessons/);
   assert.match(assessment, /Start final check again/);
-  assert.match(assessment, /Submit final check/);
+  assert.match(assessment, /TrainingAssessmentSubmitButton/);
+  assert.match(submitButton, /Submit final check/);
+  assert.match(submitButton, /disabled=\{pending\}/);
 });
 
 test("course, lesson, and final check share responsive visual continuity", async () => {

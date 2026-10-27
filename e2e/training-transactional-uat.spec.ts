@@ -123,6 +123,21 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
       return Boolean(data?.lesson_id);
     }, { timeout: 40_000, intervals: [1000, 2000, 5000] }).toBe(true);
 
+    // LOCAL DISPOSABLE DB ONLY: remove the row to reproduce a correct quiz
+    // answer arriving before the first heartbeat. The action must re-create
+    // its checkpoint row without granting reading time or bypassing the gate.
+    const { data: removed, error: removalError } = await admin
+      .from("training_lesson_engagement")
+      .delete()
+      .eq("user_id", learnerId)
+      .eq("lesson_id", firstLessonId)
+      .select("lesson_id");
+    expect(removalError).toBeNull();
+    expect(removed).toHaveLength(1);
+    const { data: absent } = await admin.from("training_lesson_engagement")
+      .select("lesson_id").eq("user_id", learnerId).eq("lesson_id", firstLessonId).maybeSingle();
+    expect(absent).toBeNull();
+
     const choiceCount = await checkpoint.locator('input[type="radio"]').count();
     expect(choiceCount).toBeGreaterThan(1);
     let saved = false;
@@ -143,6 +158,12 @@ test.describe("P1 training transactional acceptance (disposable local Supabase)"
       if (error) throw error;
       return Boolean(data?.checkpoint_key);
     }, { timeout: 15_000 }).toBe(true);
+    const { data: checkpointEvidence } = await admin.from("training_lesson_engagement")
+      .select("active_seconds,max_scroll_percent,checkpoint_key")
+      .eq("user_id", learnerId).eq("lesson_id", firstLessonId).single();
+    expect(checkpointEvidence?.checkpoint_key).toBeTruthy();
+    expect(Number(checkpointEvidence?.active_seconds || 0)).toBeLessThan(60);
+    await expect(finish).toBeDisabled();
 
     // Real reader engagement is persisted by the page's 30-second heartbeat.
     await page.locator('[data-training-content-end="' + firstLessonId + '"]').scrollIntoViewIfNeeded();

@@ -13,6 +13,13 @@ test("checkpoint writes require enrollment and acknowledge persistence failures"
   assert.match(checkpoint, /\.eq\("user_id", userId\)/);
   assert.match(checkpoint, /\.eq\("course_id", course\.id\)/);
   assert.match(checkpoint, /if \(!enrollment\) return \{ correct: false, reason: "not_enrolled" as const \}/);
+  // Correct answers must initialize missing rows without clobbering a racing heartbeat.
+  assert.match(checkpoint, /ignoreDuplicates: true/);
+  assert.match(checkpoint, /onConflict: "user_id,lesson_id"/);
+  assert.match(checkpoint, /if \(engagementInitError\)/);
+  assert.ok(checkpoint.indexOf("if (!correct) return") < checkpoint.indexOf("ignoreDuplicates: true"));
+  assert.ok(checkpoint.indexOf("ignoreDuplicates: true") < checkpoint.indexOf("checkpoint_passed_at: now"));
+  assert.doesNotMatch(checkpoint.slice(checkpoint.indexOf("if (!correct) return")), /active_seconds:|max_scroll_percent:|last_activity_at:/);
   assert.match(checkpoint, /if \(checkpointSaveError\) throw/);
   assert.ok(checkpoint.indexOf("if (checkpointSaveError)") < checkpoint.indexOf("return { correct: true }"));
 });
@@ -38,7 +45,7 @@ test("reading engagement uses serialized database RPC rather than read-modify-wr
   assert.doesNotMatch(action, /\.from\("training_lesson_engagement"\)\.upsert/);
 
   const migration = readFileSync(
-    new URL("../supabase/migrations/20261026150000_atomic_training_engagement.sql", import.meta.url),
+    new URL("../supabase/migrations/20261026235826_atomic_training_engagement.sql", import.meta.url),
     "utf8",
   );
   assert.match(migration, /pg_advisory_xact_lock/);

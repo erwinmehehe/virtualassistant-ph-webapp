@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { CheckCircle2, FileText, UploadCloud } from "lucide-react";
 import { parseResumeAction, type ParseResumeState } from "@/app/actions/resume-autofill";
 import { removeVaResumeAction } from "@/app/actions/profile";
+import { MAX_SERVER_ACTION_RESUME_BYTES, SERVER_ACTION_RESUME_SIZE_LABEL } from "@/lib/upload-limits";
 
 const parseResumeInitialState: ParseResumeState = { status: "idle" };
 
@@ -19,6 +20,7 @@ export function ResumeAutoFill({
   const parseFileRef = useRef<HTMLInputElement>(null);
   const profileResumeRef = useRef<HTMLInputElement>(null);
   const [selectedName, setSelectedName] = useState("");
+  const [fileSizeError, setFileSizeError] = useState("");
 
   function attachResumeToProfileForm(file: File) {
     const target = profileResumeRef.current;
@@ -108,7 +110,7 @@ export function ResumeAutoFill({
             <strong id="resume-import-title">Use your resume to fill this profile</strong>
             {hasSavedResume && !selectedName ? <span className="badge badge-success"><CheckCircle2 size={12}/> Resume saved</span> : null}
           </div>
-          <p>Choose your resume once. PDF/DOCX can fill profile fields automatically, including your address when it is clearly listed. PDF, DOC, or DOCX will be saved privately when you save the profile.</p>
+          <p>Choose your resume once. PDF/DOCX can fill profile fields automatically, including your address when it is clearly listed. PDF, DOC, or DOCX will be saved privately when you save the profile. Files must be {SERVER_ACTION_RESUME_SIZE_LABEL} or smaller.</p>
           {hasSavedResume && savedResumeName && !selectedName ? <span className="resume-saved-name">Saved file: {savedResumeName}</span> : null}
         </div>
       </div>
@@ -124,6 +126,16 @@ export function ResumeAutoFill({
             required
             onChange={(event) => {
               const file = event.target.files?.[0];
+              if (file && file.size > MAX_SERVER_ACTION_RESUME_BYTES) {
+                // Reject before the browser sends a >4.5 MB multipart request
+                // that Vercel would reject with an unhelpful 413 error.
+                setFileSizeError(`Resume must be ${SERVER_ACTION_RESUME_SIZE_LABEL} or smaller.`);
+                setSelectedName("");
+                event.currentTarget.value = "";
+                if (profileResumeRef.current) profileResumeRef.current.value = "";
+                return;
+              }
+              setFileSizeError("");
               setSelectedName(file?.name || "");
               if (file) attachResumeToProfileForm(file);
             }}
@@ -141,6 +153,7 @@ export function ResumeAutoFill({
         </form>
       ) : null}
 
+      {fileSizeError ? <div className="alert resume-import-message" role="alert">{fileSizeError}</div> : null}
       {state.status === "error" ? (
         <div className="alert resume-import-message" role="alert">{state.message}</div>
       ) : null}

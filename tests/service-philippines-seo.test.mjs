@@ -15,7 +15,7 @@ test("all service SEO owners use Philippines-focused primary keywords and pure t
   const source = await readFile("src/lib/service-pages.ts", "utf8");
   const services = parseServiceArray(source);
 
-  assert.equal(services.length, 96);
+  assert.equal(services.length, 97);
 
   for (const page of services) {
     assert.match(page.primaryKeyword, /philippines$/i, `${page.slug} primary keyword must end in Philippines`);
@@ -78,4 +78,28 @@ test("service pages emit a connected transactional Service entity graph", async 
   assert.match(route, /"@type": "Offer"/);
   assert.match(route, /name: toTitle\(task\)/);
   assert.match(route, /"@type": "BreadcrumbList"/);
+});
+
+test("healthcare virtual assistant has a distinct, linked, non-clinical service page", async () => {
+  const servicesSource = await readFile("src/lib/service-pages.ts", "utf8");
+  const industriesSource = await readFile("src/lib/industries.ts", "utf8");
+  const route = await readFile("src/app/service/[slug]/page.tsx", "utf8");
+  const services = parseServiceArray(servicesSource);
+  const healthcare = services.find((page) => page.slug === "healthcare-virtual-assistant");
+  const medical = services.find((page) => page.slug === "medical-virtual-assistant");
+
+  assert.ok(healthcare, "new healthcare service is missing");
+  assert.equal(healthcare.metaTitle, "Healthcare Virtual Assistant Philippines");
+  assert.equal(healthcare.primaryKeyword, "healthcare virtual assistant philippines");
+  assert.equal(healthcare.group, "Healthcare");
+  assert.equal(healthcare.directoryCategory, "Dental & Healthcare");
+  assert.notEqual(healthcare.focus, medical.focus, "healthcare and medical service intent should remain distinct");
+  assert.ok(healthcare.tasks.some((task) => task.includes("care-team handoffs")));
+  assert.ok(healthcare.relatedSlugs.includes("medical-virtual-assistant"));
+  assert.ok(medical.relatedSlugs.includes("healthcare-virtual-assistant"));
+  assert.match(industriesSource, /"slug": "healthcare-dental"[\\s\\S]*?"healthcare-virtual-assistant"/);
+  assert.match(industriesSource, /"slug": "medical-practices"[\\s\\S]*?"healthcare-virtual-assistant"/);
+  assert.match(route, /s.slug === "healthcare-virtual-assistant"/);
+  assert.match(route, /Only if the healthcare organization permits it under applicable privacy laws/);
+  assert.match(route, /Diagnosis, treatment advice, clinical triage/);
 });

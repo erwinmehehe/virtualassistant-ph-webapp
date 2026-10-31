@@ -760,6 +760,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         talentLabel={`Approved ${roleName(s.name)} VAs you can interview`}
         primary={{ href: "#talent", label: `Browse ${roleName(s.name)} VAs`, track: `service_${s.slug.replaceAll("-", "_")}_browse` }}
         secondary={{ href: "#responsibilities", label: "See what you can delegate" }}
+        note={s.slug === "healthcare-virtual-assistant" ? "Describe workflows, not patient cases. Do not submit identifiable patient or health information in this hiring brief." : undefined}
         form={<HiringBriefForm
           variant="service"
           slug={s.slug}

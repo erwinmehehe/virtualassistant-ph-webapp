@@ -42,6 +42,7 @@ export const INDUSTRIES: IndustryPage[] = [
       "records coordination"
     ],
     "serviceSlugs": [
+      "healthcare-virtual-assistant",
       "medical-virtual-assistant",
       "dental-virtual-assistant",
       "medical-billing-virtual-assistant",
@@ -200,6 +201,7 @@ export const INDUSTRIES: IndustryPage[] = [
     ],
     "serviceSlugs": [
       "medical-virtual-assistant",
+      "healthcare-virtual-assistant",
       "medical-billing-virtual-assistant",
       "medical-scribe-virtual-assistant",
       "phone-receptionist",

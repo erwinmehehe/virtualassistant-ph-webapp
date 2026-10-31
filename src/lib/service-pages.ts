@@ -146,6 +146,7 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "Scope, complexity, and decision ownership"
     ],
     "relatedSlugs": [
+      "healthcare-virtual-assistant",
       "medical-virtual-assistant",
       "dental-billing-virtual-assistant",
       "phone-receptionist",
@@ -397,11 +398,75 @@ export const SERVICE_PAGES: ServiceSeoPage[] = [
       "Scope, complexity, and decision ownership"
     ],
     "relatedSlugs": [
+      "healthcare-virtual-assistant",
       "medical-billing-virtual-assistant",
       "medical-scribe-virtual-assistant",
       "mental-health-virtual-assistant",
       "phone-receptionist",
       "medical-receptionist"]
+  },
+  {
+    "slug": "healthcare-virtual-assistant",
+    "name": "Healthcare Virtual Assistant",
+    "group": "Healthcare",
+    "directoryCategory": "Dental & Healthcare",
+    "primaryKeyword": "healthcare virtual assistant philippines",
+    "metaTitle": "Healthcare Virtual Assistant Philippines",
+    "metaDescription": "Hire a Healthcare Virtual Assistant in the Philippines for patient intake, referrals, scheduling and records. Compare candidates by relevant experience.",
+    "intro": "Hire a Philippines-based Healthcare Virtual Assistant for non-clinical operations across multi-provider clinics, allied health, telehealth, and care coordination teams. Delegate intake follow-up, referral tracking, scheduling, and records administration with clear privacy permissions and clinician-led escalation.",
+    "focus": "non-clinical coordination across multidisciplinary healthcare teams",
+    "tasks": [
+      "patient intake and registration follow-up",
+      "referral tracking and care-team handoffs",
+      "multi-provider appointment coordination",
+      "records requests and document tracking",
+      "patient reminders and approved communications",
+      "insurance eligibility administration",
+      "telehealth appointment preparation",
+      "administrative worklist and exception reporting"
+    ],
+    "tools": [
+      "EHR and practice-management systems",
+      "referral management tools",
+      "secure patient portals",
+      "RingCentral",
+      "Microsoft 365",
+      "Google Workspace",
+      "telehealth scheduling tools"
+    ],
+    "skills": [
+      "patient communication",
+      "cross-provider coordination",
+      "referral and intake workflows",
+      "privacy and data-handling awareness",
+      "accurate records administration",
+      "clear escalation and documentation"
+    ],
+    "bestFor": [
+      "multispecialty clinics",
+      "allied health teams",
+      "telehealth providers",
+      "multi-location healthcare groups"
+    ],
+    "outcomes": [
+      "Give non-clinical intake, referrals, and follow-up clear ownership across teams",
+      "Keep outstanding documents and appointments in a documented work queue",
+      "Make exceptions and handoffs visible while clinical judgment stays with licensed staff"
+    ],
+    "costFactors": [
+      "Number of providers and referral volume",
+      "Experience with your EHR or patient-management tools",
+      "Coverage hours and live patient communication",
+      "Privacy training and role-specific access requirements",
+      "Complexity of handoffs across specialties"
+    ],
+    "relatedSlugs": [
+      "medical-virtual-assistant",
+      "dental-virtual-assistant",
+      "medical-billing-virtual-assistant",
+      "allied-health-referral-billing-virtual-assistant",
+      "phone-receptionist"
+    ]
   },
   {
     "slug": "property-management-virtual-assistant",

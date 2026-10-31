@@ -97,8 +97,8 @@ test("healthcare virtual assistant has a distinct, linked, non-clinical service 
   assert.ok(healthcare.tasks.some((task) => task.includes("care-team handoffs")));
   assert.ok(healthcare.relatedSlugs.includes("medical-virtual-assistant"));
   assert.ok(medical.relatedSlugs.includes("healthcare-virtual-assistant"));
-  assert.match(industriesSource, /"slug": "healthcare-dental"[\\s\\S]*?"healthcare-virtual-assistant"/);
-  assert.match(industriesSource, /"slug": "medical-practices"[\\s\\S]*?"healthcare-virtual-assistant"/);
+  assert.match(industriesSource, /"slug": "healthcare-dental"[\s\S]*?"healthcare-virtual-assistant"/);
+  assert.match(industriesSource, /"slug": "medical-practices"[\s\S]*?"healthcare-virtual-assistant"/);
   assert.match(route, /s.slug === "healthcare-virtual-assistant"/);
   assert.match(route, /Only if the healthcare organization permits it under applicable privacy laws/);
   assert.match(route, /Diagnosis, treatment advice, clinical triage/);

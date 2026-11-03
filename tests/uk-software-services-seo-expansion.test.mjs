@@ -96,5 +96,5 @@ test("service and software datasets have unique slugs after UK expansion", async
   assert.equal(new Set(softwareSlugs).size, softwareSlugs.length);
   assert.equal(new Set(serviceSlugs).size, serviceSlugs.length);
   assert.equal(softwareSlugs.length, 59);
-  assert.equal(serviceSlugs.length, 96);
+  assert.equal(serviceSlugs.length, 97);
 });

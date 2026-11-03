@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendClaimDraftEmail, sendTransactionalEventEmail } from "@/lib/email";
 import { submitToIndexNow } from "@/lib/indexnow";
@@ -72,6 +73,10 @@ async function runExpiredJobCleanup(admin: ReturnType<typeof createAdminClient>)
     .eq("status", "published");
   if (closeError) throw closeError;
 
+  // Scheduled expiry runs in a Route Handler, so updateTag is not available.
+  // Mark public caches stale as soon as jobs close, without a blanket purge.
+  revalidateTag("public-jobs", "max");
+  revalidateTag("public-job-details", "max");
   return { closed: ids.length };
 }
 
@@ -1094,6 +1099,27 @@ async function runRecruiterNotificationHygiene(admin: ReturnType<typeof createAd
   return { checked: rows.length, archived: archiveIds.length, rewritten };
 }
 
+// Keep independent daily work from starting 16 concurrent database/API flows.
+// Every task still runs, and the original per-task failure isolation is retained.
+const MAINTENANCE_MAX_CONCURRENCY = 6;
+
+function createMaintenanceLimiter(maxConcurrent: number) {
+  let active = 0;
+  const waiters: Array<() => void> = [];
+  return async function limit<T>(work: () => Promise<T>): Promise<T> {
+    if (active >= maxConcurrent) {
+      await new Promise<void>((resolve) => waiters.push(resolve));
+    }
+    active += 1;
+    try {
+      return await work();
+    } finally {
+      active -= 1;
+      waiters.shift()?.();
+    }
+  };
+}
+
 async function runMaintenanceTask<T>(name: string, task: () => Promise<T>): Promise<T | { error: string }> {
   try {
     return await task();
@@ -1118,25 +1144,26 @@ export async function GET(request: Request) {
   // the same lifecycle state during this maintenance run.
   const expiredJobResult = await runMaintenanceTask("expired job cleanup", () => runExpiredJobCleanup(admin));
 
+  const limitMaintenance = createMaintenanceLimiter(MAINTENANCE_MAX_CONCURRENCY);
   const [quoteResult, staleResult, leadNudgeResult, matchResult, workflowResult, handoffRecoveryResult, retentionRecoveryResult, recruiterNotificationResult, trainingResumeResult, talentHealthResult, clientClaimFollowupResult, salesReminderResult, nurtureResult, talentEmbeddingResult, paymentReconciliationResult, indexNowResult] = await Promise.all([
-    runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs()),
-    runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin)),
-    runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin)),
-    runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin)),
-    runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin)),
-    runMaintenanceTask("placement handoff recovery", () => runPlacementHandoffRecovery(admin)),
-    runMaintenanceTask("placement retention recovery", () => runPlacementRetentionRecovery(admin)),
-    runMaintenanceTask("recruiter notification hygiene", () => runRecruiterNotificationHygiene(admin)),
-    runMaintenanceTask("training resume nudges", () => runTrainingResumeNudges(admin)),
-    runMaintenanceTask("talent health", () => runTalentHealthNudges(admin)),
-    runMaintenanceTask("client shortlist claim follow-up", () => runClientClaimFollowups(admin)),
-    runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin)),
-    runMaintenanceTask("lead nurture", () => runLeadNurtureAutomation(20)),
+    limitMaintenance(() => runMaintenanceTask("quoting", () => autoQuoteStraightforwardJobs())),
+    limitMaintenance(() => runMaintenanceTask("abandoned VA cleanup", () => runAbandonedVaCleanup(admin))),
+    limitMaintenance(() => runMaintenanceTask("lead claim nudges", () => runLeadClaimNudges(admin))),
+    limitMaintenance(() => runMaintenanceTask("pending job matching", () => runPendingJobMatching(admin))),
+    limitMaintenance(() => runMaintenanceTask("workflow reminders", () => runWorkflowReminders(admin))),
+    limitMaintenance(() => runMaintenanceTask("placement handoff recovery", () => runPlacementHandoffRecovery(admin))),
+    limitMaintenance(() => runMaintenanceTask("placement retention recovery", () => runPlacementRetentionRecovery(admin))),
+    limitMaintenance(() => runMaintenanceTask("recruiter notification hygiene", () => runRecruiterNotificationHygiene(admin))),
+    limitMaintenance(() => runMaintenanceTask("training resume nudges", () => runTrainingResumeNudges(admin))),
+    limitMaintenance(() => runMaintenanceTask("talent health", () => runTalentHealthNudges(admin))),
+    limitMaintenance(() => runMaintenanceTask("client shortlist claim follow-up", () => runClientClaimFollowups(admin))),
+    limitMaintenance(() => runMaintenanceTask("sales CRM reminders", () => runSalesCrmReminders(admin))),
+    limitMaintenance(() => runMaintenanceTask("lead nurture", () => runLeadNurtureAutomation(20))),
     isPublicTalentSemanticSearchEnabled()
-      ? runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25))
+      ? limitMaintenance(() => runMaintenanceTask("talent embeddings", () => syncPublicTalentEmbeddings(25)))
       : { skipped: "semantic_search_disabled" },
-    runMaintenanceTask("PayMongo reconciliation", () => reconcilePaymongoPayments(75)),
-    runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin))
+    limitMaintenance(() => runMaintenanceTask("PayMongo reconciliation", () => reconcilePaymongoPayments(75))),
+    limitMaintenance(() => runMaintenanceTask("IndexNow", () => runIndexNowSubmission(admin)))
   ]);
   const trainingLaunchResult = await runMaintenanceTask("VA training launch announcement", () => sendVaTrainingAnnouncementBatch(20));
   const result = { ok: true, expiredJobs: expiredJobResult, quoting: quoteResult, abandonedVaCleanup: staleResult, leadNudges: leadNudgeResult, matching: matchResult, workflowReminders: workflowResult, placementHandoffRecovery: handoffRecoveryResult, placementRetentionRecovery: retentionRecoveryResult, recruiterNotificationHygiene: recruiterNotificationResult, trainingResumeNudges: trainingResumeResult, talentHealth: talentHealthResult, clientClaimFollowups: clientClaimFollowupResult, salesReminders: salesReminderResult, leadNurture: nurtureResult, talentEmbeddings: talentEmbeddingResult, paymentReconciliation: paymentReconciliationResult, indexNow: indexNowResult, trainingLaunchAnnouncement: trainingLaunchResult };

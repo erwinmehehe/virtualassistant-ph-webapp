@@ -130,6 +130,21 @@ function experienceCopy(s: ServiceSeoPage) {
     finalBody: `Tell us which parts of ${s.tasks.slice(0, 3).join(", ")} you want delegated, plus the tools, hours, overlap, and decisions that must stay with your team. Your role brief is private and you can start without creating an account.`
   };
 
+  if (s.slug === "healthcare-virtual-assistant") {
+    return {
+      ...defaults,
+      talentTitle: "Compare healthcare administration Virtual Assistants",
+      talentIntro: "Look for evidence of referral tracking, multi-provider scheduling, patient communication, secure documentation, EHR familiarity, and practical schedule overlap.",
+      responsibilityTitle: "What can a healthcare virtual assistant take off your team's plate?",
+      responsibilityIntro: "A healthcare Virtual Assistant can coordinate non-clinical intake, referral, scheduling, and administrative follow-through across teams. Define record access and handoff rules while clinicians retain clinical judgment.",
+      toolsTitle: "Prioritize workflow experience and secure system use.",
+      fitTitle: "Where healthcare virtual assistant support fits best",
+      fitIntro: "Multispecialty clinics, allied health teams, and telehealth providers benefit most when referrals, intake records, patient communications, and appointment updates have one clear administrative owner.",
+      finalTitle: "Build a healthcare Virtual Assistant role around coordinated, non-clinical work.",
+      finalBody: "Tell us your care setting, providers, intake and referral workflows, systems, schedule, and escalation requirements. Do not include patient details or health information in the hiring brief."
+    };
+  }
+
   if (s.slug !== "law-firm-virtual-assistant") return defaults;
 
   return {
@@ -351,6 +366,28 @@ const PRIORITY_SERVICE_MODULES: Record<string, PriorityServiceModule> = {
       "A delayed-shipment example showing the checks, customer update, and escalation path",
       "Hands-on use of Shopify, ShipStation, Gorgias, Amazon Seller Central, or the client's equivalent stack",
       "A daily or weekly exception report that makes unresolved orders easy to review"
+    ]
+  },
+  "healthcare-virtual-assistant": {
+    kicker: "Healthcare coordination",
+    title: "Support the care team's administration without shifting clinical decisions.",
+    lede: "A Healthcare Virtual Assistant can keep intake, referrals, appointments, and records requests moving across providers. The practice must first define access permissions, secure channels, supervision, and how exceptions reach qualified staff.",
+    owns: [
+      "Follow up incomplete intake and registration checklists using approved workflows",
+      "Track referral status, records requests, and administrative handoffs between teams",
+      "Coordinate appointments, confirmations, and approved patient communications",
+      "Maintain a worklist of open requests, missing information, and escalations"
+    ],
+    keepInternal: [
+      "Diagnosis, treatment advice, clinical triage, and other licensed clinical decisions",
+      "Patient-data access authorization and sensitive disclosure approvals",
+      "Final coding, billing, or coverage judgments requiring qualified review",
+      "Emergency response, privacy incidents, and clinical complaints"
+    ],
+    proof: [
+      "A de-identified referral or intake handoff showing ownership and follow-up",
+      "An example of documenting and escalating an unusual request without sharing patient details",
+      "Relevant EHR or scheduling workflow experience with clear permission boundaries"
     ]
   },
   "dental-virtual-assistant": {
@@ -607,7 +644,21 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
     { q: `What tools should ${article} ${s.name} know?`, a: `Common tools for this role include ${s.tools.slice(0, 6).join(", ")}. Require only the platforms your hire will use, then verify practical familiarity during the interview.` },
     { q: `How much does ${article} ${s.name} cost?`, a: "Rates vary with experience, specialization, schedule, live-overlap requirements, technical depth, and how independently the person is expected to operate. Compare scope and evidence of fit, not only the lowest hourly rate." },
     { q: `How do I choose the best ${s.name}?`, a: `Start with the work the person must own. Then compare relevant experience, ${s.skills.slice(0, 4).join(", ")}, communication, availability, and examples that show they can execute your workflow.` },
-    { q: "Can this role be part-time?", a: "Often, yes. Define the workload, response-time expectations, and required schedule overlap first so candidates can tell you whether the hours are realistic." }
+    { q: "Can this role be part-time?", a: "Often, yes. Define the workload, response-time expectations, and required schedule overlap first so candidates can tell you whether the hours are realistic." },
+    ...(s.slug === "healthcare-virtual-assistant" ? [
+      {
+        q: "Can a healthcare virtual assistant access patient records?",
+        a: "Only if the healthcare organization permits it under applicable privacy laws, contracts, and policies. Set minimum-necessary permissions, approved secure systems, supervision, and any required agreements before granting access. Hiring remotely does not automatically establish HIPAA or other privacy-law compliance."
+      },
+      {
+        q: "Can a healthcare virtual assistant give medical advice or triage patients?",
+        a: "No. This role covers non-clinical administration. Diagnosis, treatment advice, clinical triage, and other regulated decisions stay with qualified professionals. Use a documented escalation procedure for urgent or sensitive requests."
+      },
+      {
+        q: "How is this different from a medical virtual assistant?",
+        a: "This healthcare role focuses on administrative coordination across providers, specialties, or locations, including referral and records handoffs. The medical virtual assistant role focuses more closely on day-to-day administration in a physician or medical practice."
+      }
+    ] : [])
   ], s.locale);
 
   const serviceAreas = market === "Australia"
@@ -709,6 +760,7 @@ export default async function ServiceSeoPage({ params }: { params: Promise<{ slu
         talentLabel={`Approved ${roleName(s.name)} VAs you can interview`}
         primary={{ href: "#talent", label: `Browse ${roleName(s.name)} VAs`, track: `service_${s.slug.replaceAll("-", "_")}_browse` }}
         secondary={{ href: "#responsibilities", label: "See what you can delegate" }}
+        note={s.slug === "healthcare-virtual-assistant" ? "Describe workflows, not patient cases. Do not submit identifiable patient or health information in this hiring brief." : undefined}
         form={<HiringBriefForm
           variant="service"
           slug={s.slug}

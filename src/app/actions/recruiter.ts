@@ -1,7 +1,7 @@
 "use server";
 
 import { createHash } from "node:crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAnyRole, requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -949,7 +949,7 @@ export async function closeRecruiterRoleAction(formData: FormData) {
   const returnTo = safePath(formData.get("return_to"), "/workspace/recruiter/matching");
   if (!jobId) throw new Error("Role not found.");
   const admin = createAdminClient();
-  const { data: job } = await admin.from("jobs").select("id,title,status").eq("id", jobId).maybeSingle();
+  const { data: job } = await admin.from("jobs").select("id,title,status,slug").eq("id", jobId).maybeSingle();
   if (!job) throw new Error("Role not found.");
   if (["closed", "filled"].includes(String(job.status))) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}role_archived=1`);
   const now = new Date().toISOString();
@@ -959,6 +959,11 @@ export async function closeRecruiterRoleAction(formData: FormData) {
   revalidatePath("/workspace/recruiter");
   revalidatePath("/workspace/recruiter/matching");
   revalidatePath(`/workspace/recruiter/matching/${jobId}`);
+  // Closing a published role must remove it from the longer-lived public cache.
+  updateTag("public-jobs");
+  updateTag("public-job-details");
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${job.slug || job.id}`);
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}role_archived=1`);
 }
 

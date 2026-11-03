@@ -46,3 +46,24 @@ test("matching refresh never runs every VA in one database statement", async () 
   assert.doesNotMatch(matching, /refresh_all_match_suggestions/);
   assert.doesNotMatch(matching, /candidatesReleased: [1-9]/);
 });
+
+test("daily maintenance bounds database concurrency and invalidates expired public job caches", async () => {
+  const source = await readFile("src/app/api/cron/maintenance/route.ts", "utf8");
+  assert.match(source, /const MAINTENANCE_MAX_CONCURRENCY = 6/);
+  assert.match(source, /const limitMaintenance = createMaintenanceLimiter\(MAINTENANCE_MAX_CONCURRENCY\)/);
+  assert.ok((source.match(/limitMaintenance\(\(\) => runMaintenanceTask/g) || []).length >= 15);
+  assert.match(source, /revalidateTag\("public-jobs", "max"\)/);
+  assert.match(source, /revalidateTag\("public-job-details", "max"\)/);
+});
+
+test("recruiters invalidate public caches when archiving a job", async () => {
+  const source = await readFile("src/app/actions/recruiter.ts", "utf8");
+  const close = source.slice(
+    source.indexOf("export async function closeRecruiterRoleAction"),
+    source.indexOf("export async function completeDiscoveryAction"),
+  );
+  assert.match(close, /select\("id,title,status,slug"\)/);
+  assert.match(close, /updateTag\("public-jobs"\)/);
+  assert.match(close, /updateTag\("public-job-details"\)/);
+  assert.match(close, /revalidatePath\("\/jobs"\)/);
+});

@@ -80,7 +80,7 @@ export const getCachedPublishedTrainingCatalogue = unstable_cache(
     };
   },
   ["published-training-catalogue-v1"],
-  { revalidate: 120, tags: ["training-curriculum"] },
+  { revalidate: 600, tags: ["training-curriculum"] },
 );
 
 export const getCachedPublishedTrainingCourse = unstable_cache(
@@ -119,5 +119,5 @@ export const getCachedPublishedTrainingCourse = unstable_cache(
     };
   },
   ["published-training-course-v1"],
-  { revalidate: 120, tags: ["training-curriculum"] },
+  { revalidate: 600, tags: ["training-curriculum"] },
 );

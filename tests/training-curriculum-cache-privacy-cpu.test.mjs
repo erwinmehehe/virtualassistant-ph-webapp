@@ -7,7 +7,7 @@ const read = (file) => readFile(new URL("../" + file, import.meta.url), "utf8");
 test("cross-request training cache contains only published curriculum, never learner data", async () => {
   const cache = await read("src/lib/training-curriculum-cache.ts");
   assert.match(cache, /unstable_cache\(/);
-  assert.match(cache, /revalidate: 120, tags: \["training-curriculum"\]/);
+  assert.match(cache, /revalidate: 600, tags: \["training-curriculum"\]/);
   assert.match(cache, /\.eq\("status", "published"\)/);
   assert.match(cache, /\.eq\("is_published", true\)/);
   assert.match(cache, /LESSON_SUMMARY_FIELDS/);
@@ -18,6 +18,12 @@ test("cross-request training cache contains only published curriculum, never lea
   assert.match(cache, /if \(slug\.length > 120 \|\|/);
   assert.doesNotMatch(cache, /\.from\("(training_enrollments|training_lesson_progress|training_lesson_engagement|training_assessment_submissions|training_certificates|training_notifications|training_saved_courses|profiles)"\)/);
   assert.doesNotMatch(cache, /cookies\(\)|headers\(\)|getUser\(\)|userId/);
+});
+
+test("published lesson eligibility keeps the bounded heartbeat TTL and invalidation tag", async () => {
+  const lessonCache = await read("src/lib/training-published-lesson-cache.ts");
+  assert.match(lessonCache, /revalidate: 120, tags: \["training-curriculum"\]/);
+  assert.match(lessonCache, /\.eq\("is_published", true\)/);
 });
 
 test("learner state still loads by owner from the request client, not cached curriculum", async () => {

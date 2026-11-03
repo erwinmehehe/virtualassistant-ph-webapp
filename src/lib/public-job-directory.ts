@@ -72,12 +72,12 @@ async function queryPublicJobResults(filters: PublicJobFilters) {
 }
 
 // The unfiltered landing page is visited most by browsers and crawlers.
-// Cache that shared, non-personal result for one minute. Filtered searches
+// Cache that shared, non-personal result for five minutes. Filtered searches
 // remain fresh and are not allowed to create unlimited cache keys.
 const getCachedDefaultJobResults = unstable_cache(
   () => queryPublicJobResults({ q: "", category: "", minRate: 0, hours: "", sort: "newest", page: 1 }),
   ["public-jobs-default-page-v1"],
-  { revalidate: 60, tags: ["public-jobs"] },
+  { revalidate: 300, tags: ["public-jobs"] },
 );
 
 export async function getPublicJobResults(filters: PublicJobFilters) {

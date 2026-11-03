@@ -19,7 +19,7 @@ test("public jobs page never needs per-visitor Supabase auth or live business se
   assert.match(directory, /\.from\("public_jobs"\)/);
   assert.match(directory, /\.gte\("min_hourly_rate", MIN_HOURLY_RATE\)/);
   assert.match(directory, /const getCachedDefaultJobResults = unstable_cache\(/);
-  assert.match(directory, /\{ revalidate: 60, tags: \["public-jobs"\] \}/);
+  assert.match(directory, /\{ revalidate: 300, tags: \["public-jobs"\] \}/);
   assert.match(directory, /\{ revalidate: 300 \}/);
   assert.match(directory, /return isDefault \? getCachedDefaultJobResults\(\) : queryPublicJobResults\(filters\)/);
 });

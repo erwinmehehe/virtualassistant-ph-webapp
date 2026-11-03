@@ -20,9 +20,9 @@ test("cross-request training cache contains only published curriculum, never lea
   assert.doesNotMatch(cache, /cookies\(\)|headers\(\)|getUser\(\)|userId/);
 });
 
-test("published lesson eligibility uses the same cache lifetime and invalidation tag", async () => {
+test("published lesson eligibility keeps the bounded heartbeat TTL and invalidation tag", async () => {
   const lessonCache = await read("src/lib/training-published-lesson-cache.ts");
-  assert.match(lessonCache, /revalidate: 600, tags: \["training-curriculum"\]/);
+  assert.match(lessonCache, /revalidate: 120, tags: \["training-curriculum"\]/);
   assert.match(lessonCache, /\.eq\("is_published", true\)/);
 });
 

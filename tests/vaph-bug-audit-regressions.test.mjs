@@ -31,6 +31,8 @@ test("rescheduling never silently advances CRM after a configured calendar failu
   assert.match(reschedule, /redirect\(managePath\(token, "error=calendar"\)\)/);
   assert.match(reschedule, /saveQuery = lead\.discovery_scheduled_at/);
   assert.match(reschedule, /if \(error \|\| !saved\)/);
+  assert.match(reschedule, /const persistedTime = persistedBooking/);
+  assert.match(reschedule, /startsAt: persistedTime/);
   assert.match(reschedule, /startsAt: lead\.discovery_scheduled_at/);
   assert.match(reschedule, /cancelGoogleMeetDiscoveryMeeting\(meeting\.eventId\)/);
   const cancellation = source.slice(source.indexOf("export async function cancelDiscoveryBookingAction"), source.indexOf("export async function rescheduleDiscoveryBookingAction"));

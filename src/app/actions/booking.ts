@@ -16,8 +16,9 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
   const token = String(formData.get("token") || "").trim();
   if (token.length < 32) redirect("/book-client-call/manage?error=invalid");
   const admin = createAdminClient();
-  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,discovery_scheduled_at,discovery_duration_minutes,discovery_calendar_event_id,discovery_manage_token_expires_at").eq("discovery_manage_token_hash", hashBookingManageToken(token)).gt("discovery_manage_token_expires_at", new Date().toISOString()).maybeSingle();
+  const { data: lead } = await admin.from("lead_intake").select("id,name,email,company,discovery_scheduled_at,discovery_duration_minutes,discovery_calendar_event_id,discovery_cancelled_at,discovery_manage_token_expires_at").eq("discovery_manage_token_hash", hashBookingManageToken(token)).gt("discovery_manage_token_expires_at", new Date().toISOString()).maybeSingle();
   if (!lead?.id) redirect("/book-client-call/manage?error=invalid");
+  if (lead.discovery_cancelled_at || !lead.discovery_scheduled_at) redirect(managePath(token, "cancelled=1"));
   const now = new Date().toISOString();
   let calendarCancelled = false;
   if (lead.discovery_calendar_event_id) {
@@ -30,30 +31,58 @@ export async function cancelDiscoveryBookingAction(formData: FormData) {
       redirect(managePath(token, "error=calendar"));
     }
   }
-  const { data: cancelled, error } = await admin.from("lead_intake")
+  // Only cancel the booking observed above. If another tab already rescheduled
+  // this lead, do not overwrite the newer appointment with an old cancellation.
+  let cancelUpdate = admin.from("lead_intake")
     .update({ discovery_cancelled_at: now, discovery_outcome: "cancelled", discovery_scheduled_at: null, crm_stage: "nurture", next_follow_up_at: now, stage_updated_at: now })
     .eq("id", lead.id)
     .eq("discovery_manage_token_hash", hashBookingManageToken(token))
-    .select("id")
-    .maybeSingle();
+    .gt("discovery_manage_token_expires_at", now)
+    .eq("discovery_scheduled_at", lead.discovery_scheduled_at)
+    .is("discovery_cancelled_at", null);
+  cancelUpdate = lead.discovery_calendar_event_id
+    ? cancelUpdate.eq("discovery_calendar_event_id", lead.discovery_calendar_event_id)
+    : cancelUpdate.is("discovery_calendar_event_id", null);
+  const { data: cancelled, error } = await cancelUpdate.select("id").maybeSingle();
   if (error || !cancelled) {
-    // Google accepted the deletion but Supabase could not save it: recreate a
-    // meeting for the original slot instead of silently losing the calendar event.
-    if (calendarCancelled && lead.discovery_scheduled_at) {
-      try {
-        const restored = await createGoogleMeetDiscoveryMeeting({
-          topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
-          startsAt: lead.discovery_scheduled_at,
-          durationMinutes: lead.discovery_duration_minutes || 30,
-          attendeeEmails: [lead.email],
-          notifyAttendees: true,
-        });
-        const { error: restoreError } = await admin.from("lead_intake")
-          .update({ discovery_calendar_event_id: restored.eventId, discovery_meeting_url: restored.joinUrl })
-          .eq("id", lead.id);
-        if (restoreError) throw restoreError;
-      } catch (restoreError) {
-        console.error("[booking] cancelled meeting restoration needs manual reconciliation", { leadId: lead.id, error: restoreError });
+    // Calendar deletion succeeded, but the database save did not. Inspect the
+    // authoritative row: a concurrent booking may now have a different time
+    // or event ID, so restoring our stale snapshot is unsafe.
+    if (calendarCancelled) {
+      const { data: currentBooking, error: lookupError } = await admin.from("lead_intake")
+        .select("discovery_scheduled_at,discovery_cancelled_at,discovery_calendar_event_id")
+        .eq("id", lead.id)
+        .maybeSingle();
+      if (lookupError) {
+        console.error("[booking] cancellation recovery lookup failed", { leadId: lead.id, error: lookupError });
+      }
+      const restoreTime = currentBooking?.discovery_scheduled_at;
+      const calendarWasStillCurrent = currentBooking?.discovery_calendar_event_id === lead.discovery_calendar_event_id;
+      if (restoreTime && !currentBooking?.discovery_cancelled_at && calendarWasStillCurrent) {
+        try {
+          const restored = await createGoogleMeetDiscoveryMeeting({
+            topic: `VirtualAssistant.com.ph discovery call with ${lead.company || lead.name}`,
+            startsAt: restoreTime,
+            durationMinutes: lead.discovery_duration_minutes || 30,
+            attendeeEmails: [lead.email],
+            notifyAttendees: true,
+          });
+          const { data: reconciled, error: restoreError } = await admin.from("lead_intake")
+            .update({ discovery_calendar_event_id: restored.eventId, discovery_meeting_url: restored.joinUrl })
+            .eq("id", lead.id)
+            .eq("discovery_calendar_event_id", lead.discovery_calendar_event_id)
+            .eq("discovery_scheduled_at", restoreTime)
+            .is("discovery_cancelled_at", null)
+            .select("id")
+            .maybeSingle();
+          if (restoreError || !reconciled) {
+            try { await cancelGoogleMeetDiscoveryMeeting(restored.eventId); }
+            catch (cleanupError) { console.error("[booking] orphaned cancellation recovery event", { leadId: lead.id, error: cleanupError }); }
+            throw restoreError || new Error("Booking changed during calendar restoration.");
+          }
+        } catch (restoreError) {
+          console.error("[booking] cancelled meeting restoration needs manual reconciliation", { leadId: lead.id, error: restoreError });
+        }
       }
     }
     redirect(managePath(token, "error=cancel"));

@@ -175,7 +175,7 @@ export async function updateVaProfileAction(formData: FormData) {
   const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
     admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
     admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle(),
-    admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
+    admin.from("profiles").select("full_name,avatar_url").eq("id", user.id).maybeSingle()
   ]);
   if (!current) throw new Error("VA profile not found.");
   const address = addressProvided ? submittedAddress || "" : String(current.address || "");
@@ -263,19 +263,37 @@ export async function updateVaProfileAction(formData: FormData) {
     throw uploadError;
   }
 
-  const [{ error: nameError }, { error: profileError }] = await Promise.all([
-    admin.from("profiles").update({
+  // Save account identity first, then VA-specific fields. This prevents
+  // changing an approved VA's specialty if the account update fails.
+  const { data: savedAccount, error: nameError } = await admin.from("profiles")
+    .update({
       full_name: fullName,
       ...(stagedAvatarUrl ? { avatar_url: stagedAvatarUrl } : {}),
-    }).eq("id", user.id),
-    admin.from("va_profiles").update({
-      ...updates,
-      ...(stagedResumePath ? { resume_path: stagedResumePath } : {}),
-    }).eq("user_id", user.id)
-  ]);
-  if (nameError || profileError) {
-    // The tables are distinct writes. Only clean up a staged file after
-    // checking it was NOT saved as the authoritative file path.
+    })
+    .eq("id", user.id).select("id").maybeSingle();
+  const { data: savedVa, error: profileError } = nameError || !savedAccount
+    ? { data: null, error: null }
+    : await admin.from("va_profiles").update({
+        ...updates,
+        ...(stagedResumePath ? { resume_path: stagedResumePath } : {}),
+      }).eq("user_id", user.id).select("user_id").maybeSingle();
+  if (nameError || !savedAccount || profileError || !savedVa) {
+    // These are distinct tables. Compensate the account update when the VA
+    // write fails; avoid clobbering another tab's newer name or avatar.
+    if (savedAccount && !savedVa) {
+      let rollback = admin.from("profiles")
+        .update({
+          full_name: currentProfile?.full_name ?? null,
+          ...(stagedAvatarUrl ? { avatar_url: currentProfile?.avatar_url ?? null } : {}),
+        })
+        .eq("id", user.id).eq("full_name", fullName);
+      if (stagedAvatarUrl) rollback = rollback.eq("avatar_url", stagedAvatarUrl);
+      const { data: rolledBack, error: rollbackError } = await rollback.select("id").maybeSingle();
+      if (rollbackError || !rolledBack) {
+        console.error("[profile] account rollback needs reconciliation", { userId: user.id, code: rollbackError?.code });
+      }
+    }
+    // Only clean up staged files when they are not the saved DB references.
     const [resumePointer, avatarPointer] = await Promise.all([
       admin.from("va_profiles").select("resume_path").eq("user_id", user.id).maybeSingle(),
       admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle(),
@@ -286,7 +304,7 @@ export async function updateVaProfileAction(formData: FormData) {
     if (stagedAvatarPath && !avatarPointer.error && avatarPointer.data?.avatar_url !== stagedAvatarUrl) {
       await supabase.storage.from("avatars").remove([stagedAvatarPath]);
     }
-    throw nameError || profileError;
+    throw nameError || profileError || new Error("Profile changes were not saved.");
   }
 
   if (stagedResumePath && current.resume_path && current.resume_path !== stagedResumePath) {

@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { readRequestBuffer, RequestBodyTooLargeError } from "@/lib/http-security";
 import {
   diditConfiguration,
   outcomeFromDidit,
@@ -15,13 +16,11 @@ export async function POST(request: Request) {
   const config = diditConfiguration();
   if (!config) return new Response(null, { status: 503 });
 
-  const contentLength = Number(request.headers.get("content-length") || 0);
-  if (contentLength > 128 * 1024) return new Response(null, { status: 413 });
   let raw: Buffer;
   try {
-    raw = Buffer.from(await request.arrayBuffer());
-  } catch {
-    return new Response(null, { status: 400 });
+    raw = await readRequestBuffer(request, 128 * 1024);
+  } catch (error) {
+    return new Response(null, { status: error instanceof RequestBodyTooLargeError ? 413 : 400 });
   }
   const event = verifyDiditWebhook(raw, request.headers, config);
   if (!event) return new Response(null, { status: 401 });

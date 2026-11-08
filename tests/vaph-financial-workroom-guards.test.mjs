@@ -63,6 +63,15 @@ test("already-vetted VA cannot bypass profile-review rules using quick setup", a
   assert.ok(body.indexOf("if ([\"approved\", \"bench\"].includes") < body.indexOf(".update({ primary_category: category, headline })"));
 });
 
+test("approved VAs cannot update rates or availability through quick setup", async () => {
+  const source = await read("src/app/actions/va-onboarding.ts");
+  const body = action(source, "saveVaOnboardingWorkAction", "completeVaQuickSetupAction");
+  assert.match(body, /\.from\("va_vetting"\)\s*\.select\("stage"\)/);
+  assert.match(body, /\["approved", "bench"\]\.includes/);
+  assert.match(body, /Use Edit profile to change your work preferences/);
+  assert.ok(body.indexOf('if (["approved", "bench"].includes') < body.indexOf("years_experience: yearsExperience,"));
+});
+
 test("password change reports other-session revocation results accurately", async () => {
   const source = await read("src/app/actions/account-security.ts");
   const body = action(source, "changeAccountPasswordAction", "updateAccountProfileAction");

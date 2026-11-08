@@ -87,16 +87,20 @@ test("Next keeps native PDF parser dependencies out of the server bundle", async
 });
 
 
-test("VA profile validates resume and photo before persisting profile edits", async () => {
+test("VA profile validates and stages both files before persisting form edits", async () => {
   const action = await source("src/app/actions/profile.ts");
   const resumeValidation = action.indexOf('const resumeUpload = validateResumeUpload(formData.get("resume"))');
   const avatarValidation = action.indexOf('const avatarUpload = validateAvatarUpload(formData.get("avatar"))');
-  const firstProfileWrite = action.indexOf('admin.from("profiles").update({ full_name: fullName })');
+  const stagedResume = action.indexOf("stagedResumePath = path");
+  const stagedAvatar = action.indexOf("stagedAvatarPath = path");
+  const firstProfileWrite = action.indexOf('const { data: savedAccount, error: nameError } = await admin.from("profiles")');
 
   assert.ok(resumeValidation >= 0, "resume validation must run");
   assert.ok(avatarValidation >= 0, "avatar validation must run");
-  assert.ok(firstProfileWrite > resumeValidation, "resume must validate before profile writes");
-  assert.ok(firstProfileWrite > avatarValidation, "photo must validate before profile writes");
+  assert.ok(stagedResume > resumeValidation, "resume upload must occur after validation");
+  assert.ok(stagedAvatar > avatarValidation, "avatar upload must occur after validation");
+  assert.ok(firstProfileWrite > stagedResume, "profile writes must follow resume staging");
+  assert.ok(firstProfileWrite > stagedAvatar, "profile writes must follow photo staging");
   assert.match(action, /function validateResumeUpload/);
   assert.match(action, /function validateAvatarUpload/);
 });

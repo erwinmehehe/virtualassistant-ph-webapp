@@ -44,13 +44,29 @@ export async function saveVaOnboardingBasicsAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
-  const { data: updatedProfile, error: profileError } = await admin
-    .from("va_profiles")
-    .update({
-      primary_category: category,
-      headline,
-    })
-    .eq("user_id", user.id)
+  const [{ data: currentProfile, error: lookupError }, { data: vetting, error: vettingError }] =
+    await Promise.all([
+      admin.from("va_profiles").select("primary_category").eq("user_id", user.id).maybeSingle(),
+      admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle(),
+    ]);
+  if (lookupError || vettingError || !currentProfile) {
+    return onboardingError(user.id, 1, "save", "We could not check your profile. Please try again.");
+  }
+  // Quick setup is for onboarding, not an alternative to reviewed profile
+  // changes. Approved VAs must use the profile editor so a specialty change
+  // revokes directory eligibility and requires re-vetting.
+  if (["approved", "bench"].includes(String(vetting?.stage || ""))) {
+    return onboardingError(user.id, 1, "primary_category",
+      "Your profile has already been approved. Use Edit profile to request specialty or headline changes.");
+  }
+
+  let saveProfile = admin.from("va_profiles")
+    .update({ primary_category: category, headline })
+    .eq("user_id", user.id);
+  saveProfile = currentProfile.primary_category
+    ? saveProfile.eq("primary_category", currentProfile.primary_category)
+    : saveProfile.is("primary_category", null);
+  const { data: updatedProfile, error: profileError } = await saveProfile
     .select("user_id")
     .maybeSingle();
 
@@ -85,6 +101,17 @@ export async function saveVaOnboardingWorkAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
+  // The quick-setup form must not bypass recruiter review for approved VAs'
+  // rate, experience, or availability changes either.
+  const { data: vetting, error: vettingError } = await admin.from("va_vetting")
+    .select("stage").eq("va_id", user.id).maybeSingle();
+  if (vettingError) {
+    return onboardingError(user.id, 2, "save", "We could not check your vetting status. Please try again.");
+  }
+  if (["approved", "bench"].includes(String(vetting?.stage || ""))) {
+    return onboardingError(user.id, 2, "save",
+      "Your profile has already been approved. Use Edit profile to change your work preferences.");
+  }
   const { data: updatedProfile, error: profileError } = await admin
     .from("va_profiles")
     .update({

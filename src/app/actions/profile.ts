@@ -175,7 +175,7 @@ export async function updateVaProfileAction(formData: FormData) {
   const [{ data: current }, { data: vetting }, { data: currentProfile }] = await Promise.all([
     admin.from("va_profiles").select("*").eq("user_id", user.id).single(),
     admin.from("va_vetting").select("stage").eq("va_id", user.id).maybeSingle(),
-    admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
+    admin.from("profiles").select("full_name,avatar_url").eq("id", user.id).maybeSingle()
   ]);
   if (!current) throw new Error("VA profile not found.");
   const address = addressProvided ? submittedAddress || "" : String(current.address || "");
@@ -228,12 +228,97 @@ export async function updateVaProfileAction(formData: FormData) {
     (current?.portfolio_url ?? null) !== updates.portfolio_url ||
     (current?.linkedin_url ?? null) !== updates.linkedin_url;
 
-  const [{ error: nameError }, { error: profileError }] = await Promise.all([
-    admin.from("profiles").update({ full_name: fullName }).eq("id", user.id),
-    admin.from("va_profiles").update(updates).eq("user_id", user.id)
-  ]);
-  if (nameError) throw nameError;
-  if (profileError) throw profileError;
+  // Stage both files *before* changing profile fields. A failed upload
+  // should not leave a partially saved form, and old assets must stay in
+  // place until the new files are successfully referenced from the database.
+  let stagedResumePath: string | null = null;
+  let stagedAvatarPath: string | null = null;
+  let stagedAvatarUrl: string | null = null;
+  try {
+    if (resumeUpload) {
+      const { file: resume, expectedMime, safeName } = resumeUpload;
+      const path = `${user.id}/${Date.now()}-${safeName}`;
+      const { error: uploadError } = await supabase.storage.from("resumes")
+        .upload(path, resume, { upsert: false, contentType: expectedMime });
+      if (uploadError) throw uploadError;
+      stagedResumePath = path;
+    }
+    if (avatarUpload) {
+      const { file: avatar, extension } = avatarUpload;
+      const path = `${user.id}/${Date.now()}.${extension}`;
+      const { error: uploadError } = await supabase.storage.from("avatars")
+        .upload(path, avatar, { upsert: false, contentType: avatar.type });
+      if (uploadError) throw uploadError;
+      stagedAvatarPath = path;
+      stagedAvatarUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+    }
+  } catch (uploadError) {
+    // Neither profile table has been updated. Discard any file that staged.
+    if (stagedResumePath) {
+      await supabase.storage.from("resumes").remove([stagedResumePath]);
+    }
+    if (stagedAvatarPath) {
+      await supabase.storage.from("avatars").remove([stagedAvatarPath]);
+    }
+    throw uploadError;
+  }
+
+  // Save account identity first, then VA-specific fields. This prevents
+  // changing an approved VA's specialty if the account update fails.
+  const { data: savedAccount, error: nameError } = await admin.from("profiles")
+    .update({
+      full_name: fullName,
+      ...(stagedAvatarUrl ? { avatar_url: stagedAvatarUrl } : {}),
+    })
+    .eq("id", user.id).select("id").maybeSingle();
+  const { data: savedVa, error: profileError } = nameError || !savedAccount
+    ? { data: null, error: null }
+    : await admin.from("va_profiles").update({
+        ...updates,
+        ...(stagedResumePath ? { resume_path: stagedResumePath } : {}),
+      }).eq("user_id", user.id).select("user_id").maybeSingle();
+  if (nameError || !savedAccount || profileError || !savedVa) {
+    // These are distinct tables. Compensate the account update when the VA
+    // write fails; avoid clobbering another tab's newer name or avatar.
+    if (savedAccount && !savedVa) {
+      let rollback = admin.from("profiles")
+        .update({
+          full_name: currentProfile?.full_name ?? null,
+          ...(stagedAvatarUrl ? { avatar_url: currentProfile?.avatar_url ?? null } : {}),
+        })
+        .eq("id", user.id).eq("full_name", fullName);
+      if (stagedAvatarUrl) rollback = rollback.eq("avatar_url", stagedAvatarUrl);
+      const { data: rolledBack, error: rollbackError } = await rollback.select("id").maybeSingle();
+      if (rollbackError || !rolledBack) {
+        console.error("[profile] account rollback needs reconciliation", { userId: user.id, code: rollbackError?.code });
+      }
+    }
+    // Only clean up staged files when they are not the saved DB references.
+    const [resumePointer, avatarPointer] = await Promise.all([
+      admin.from("va_profiles").select("resume_path").eq("user_id", user.id).maybeSingle(),
+      admin.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle(),
+    ]);
+    if (stagedResumePath && !resumePointer.error && resumePointer.data?.resume_path !== stagedResumePath) {
+      await supabase.storage.from("resumes").remove([stagedResumePath]);
+    }
+    if (stagedAvatarPath && !avatarPointer.error && avatarPointer.data?.avatar_url !== stagedAvatarUrl) {
+      await supabase.storage.from("avatars").remove([stagedAvatarPath]);
+    }
+    throw nameError || profileError || new Error("Profile changes were not saved.");
+  }
+
+  if (stagedResumePath && current.resume_path && current.resume_path !== stagedResumePath) {
+    const { error: removeError } = await supabase.storage.from("resumes").remove([current.resume_path]);
+    if (removeError) console.error("[profile] previous resume cleanup failed", { userId: user.id, code: removeError.name });
+  }
+  if (stagedAvatarPath) {
+    const previousPath = currentProfile?.avatar_url?.split("/avatars/")[1];
+    if (previousPath && previousPath !== stagedAvatarPath) {
+      const { error: removeError } = await supabase.storage.from("avatars").remove([previousPath]);
+      if (removeError) console.error("[profile] previous avatar cleanup failed", { userId: user.id, code: removeError.name });
+    }
+  }
+  if (stagedResumePath || stagedAvatarPath) materialChanged = true;
 
   if (address) {
     const resolvedAt = new Date().toISOString();
@@ -255,38 +340,6 @@ export async function updateVaProfileAction(formData: FormData) {
         actorId: user.id,
       });
     }
-  }
-
-  if (resumeUpload) {
-    const { file: resume, expectedMime, safeName } = resumeUpload;
-    const path = `${user.id}/${Date.now()}-${safeName}`;
-    const { error } = await supabase.storage.from("resumes").upload(path, resume, { upsert: false, contentType: expectedMime });
-    if (error) throw error;
-    const { error: resumePathError } = await admin.from("va_profiles").update({ resume_path: path }).eq("user_id", user.id);
-    if (resumePathError) {
-      await supabase.storage.from("resumes").remove([path]);
-      throw resumePathError;
-    }
-    if (current.resume_path && current.resume_path !== path) await supabase.storage.from("resumes").remove([current.resume_path]);
-    materialChanged = true;
-  }
-
-  if (avatarUpload) {
-    const { file: avatar, extension } = avatarUpload;
-    const path = `${user.id}/${Date.now()}.${extension}`;
-    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, avatar, { upsert: false, contentType: avatar.type });
-    if (uploadError) throw uploadError;
-    const { data: publicUrl } = supabase.storage.from("avatars").getPublicUrl(path);
-    const { error: avatarPathError } = await admin.from("profiles").update({ avatar_url: publicUrl.publicUrl }).eq("id", user.id);
-    if (avatarPathError) {
-      await supabase.storage.from("avatars").remove([path]);
-      throw avatarPathError;
-    }
-    // Best-effort cleanup of the previous photo, matched by the storage path
-    // segment after "/avatars/" in its public URL.
-    const previousPath = currentProfile?.avatar_url?.split("/avatars/")[1];
-    if (previousPath && previousPath !== path) await supabase.storage.from("avatars").remove([previousPath]);
-    materialChanged = true;
   }
 
   if (materialChanged && vetting && ["approved", "bench"].includes(vetting.stage)) {

@@ -219,16 +219,24 @@ export async function changeAccountPasswordAction(formData: FormData) {
     redirect(`/workspace/account?tab=security&error=${encodeURIComponent(error.message || "We could not change your password.")}`);
   }
 
+  let otherSessionsRevoked = false;
   try {
-    await supabase.auth.signOut({ scope: "others" });
-  } catch {
-    // Password change succeeds even if other-session cleanup needs a later retry.
+    const { error: signOutError } = await supabase.auth.signOut({ scope: "others" });
+    if (signOutError) {
+      console.error("[account-security] could not revoke other sessions", { status: signOutError.status });
+    } else {
+      otherSessionsRevoked = true;
+    }
+  } catch (signOutError) {
+    console.error("[account-security] other-session revocation failed", {
+      reason: signOutError instanceof Error ? signOutError.name : "unknown",
+    });
   }
 
   try {
     await recordSecurityEvent({
       eventType: "password_changed",
-      metadata: { other_sessions_revoked: true },
+      metadata: { other_sessions_revoked: otherSessionsRevoked },
     });
   } catch {
     // Password changes must not fail because audit logging is unavailable.
@@ -240,7 +248,9 @@ export async function changeAccountPasswordAction(formData: FormData) {
         to: user.email,
         subject: "Your password was changed",
         heading: "Password updated",
-        body: "The password for your VirtualAssistant.com.ph account was changed. Other sessions were signed out. If you did not do this, reset your password immediately.",
+        body: otherSessionsRevoked
+          ? "The password for your VirtualAssistant.com.ph account was changed. Other devices' refresh sessions were revoked; existing access tokens may remain valid until they expire. If you did not do this, reset your password immediately."
+          : "The password for your VirtualAssistant.com.ph account was changed, but we could not confirm other device sessions were revoked. Open Account Security to log out everywhere. If you did not make this change, reset your password immediately.",
         priority: "critical",
         archive: false,
         idempotencyKey: `account-password-changed-${user.id}-${Date.now()}`,
@@ -251,7 +261,10 @@ export async function changeAccountPasswordAction(formData: FormData) {
   }
 
   revalidatePath("/workspace/account");
-  redirect("/workspace/account?tab=security&message=Password%20updated.%20Other%20sessions%20were%20signed%20out.");
+  const message = otherSessionsRevoked
+    ? "Password updated. Other device sessions were revoked; existing access tokens may remain valid until expiry."
+    : "Password updated, but other sessions could not be confirmed revoked. Use Log out everywhere in Account Security.";
+  redirect(`/workspace/account?tab=security&message=${encodeURIComponent(message)}`);
 }
 
 

@@ -47,14 +47,20 @@ export async function updateTaskStatusAction(formData: FormData) {
   const isVa=profile.role==="va"&&room?.va_id===user.id&&(!task.assigned_to||task.assigned_to===user.id);
   if(!isClient&&!isVa) throw new Error("You are not part of this placement.");
 
+  if (task.status === "done") throw new Error("Accepted tasks cannot be reopened.");
   if(isClient){
     if(task.status!=="review"||status!=="done") throw new Error("Clients can only accept tasks that are ready for review.");
   }else if(status==="done"){
     throw new Error("Submit the task for client review instead of marking it done.");
   }
 
-  const { error } = await admin.from("workroom_tasks").update({ status, updated_at: new Date().toISOString() }).eq("id",taskId);
+  // A stale VA tab must not reopen a task after the client accepted it.
+  const { data: updated, error } = await admin.from("workroom_tasks")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", taskId).eq("status", task.status)
+    .select("id").maybeSingle();
   if (error) throw error;
+  if (!updated) throw new Error("This task changed. Refresh the workroom and try again.");
   revalidatePath("/workspace/client/workroom");
   revalidatePath("/workspace/va/workroom");
 }
@@ -91,7 +97,7 @@ export async function logTimeAction(formData: FormData) {
   const supabase = await createClient();
   const { data: room } = await supabase.from("workrooms").select("id").eq("id",workroomId).eq("va_id",user.id).single();
   if (!room) throw new Error("Workroom not found.");
-  await supabase.from("time_entries").insert({
+  const { error: insertError } = await supabase.from("time_entries").insert({
     workroom_id: workroomId,
     va_id: user.id,
     work_date: String(formData.get("work_date") ?? new Date().toISOString().slice(0,10)),
@@ -99,6 +105,7 @@ export async function logTimeAction(formData: FormData) {
     note: String(formData.get("note") ?? "").trim() || null,
     status: "pending"
   });
+  if (insertError) throw new Error("Could not save your time entry. Please try again.");
   revalidatePath("/workspace/va/workroom");
   revalidatePath("/workspace/client/workroom");
 }
@@ -112,11 +119,21 @@ export async function updateTimeEntryAction(formData: FormData) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(workDate)) throw new Error("Choose a valid work date.");
   if (!Number.isFinite(hours) || hours <= 0 || hours > 24) throw new Error("Enter valid hours.");
   const supabase = await createClient();
-  const { data: entry } = await supabase.from("time_entries").select("id,status,va_id,workroom_id").eq("id", id).eq("va_id", user.id).single();
+  const { data: entry } = await supabase.from("time_entries")
+    .select("id,status,payment_id").eq("id", id).eq("va_id", user.id).single();
   if (!entry) throw new Error("Time entry not found.");
-  if (entry.status === "approved") throw new Error("Approved time cannot be changed. Ask the client to review it before making a correction.");
+  if (entry.status === "approved" || entry.payment_id) {
+    throw new Error("Approved or invoiced time cannot be changed.");
+  }
   const admin = createAdminClient();
-  await admin.from("time_entries").update({ work_date: workDate, hours, note, status: "pending", client_note: null, updated_at: new Date().toISOString() }).eq("id", id).eq("va_id", user.id);
+  // Compare the original status at write time: client approval may have
+  // happened after our read. Never edit hours attached to an invoice.
+  const { data: updated, error: updateError } = await admin.from("time_entries")
+    .update({ work_date: workDate, hours, note, status: "pending", client_note: null, updated_at: new Date().toISOString() })
+    .eq("id", id).eq("va_id", user.id).eq("status", entry.status)
+    .is("payment_id", null).select("id").maybeSingle();
+  if (updateError) throw updateError;
+  if (!updated) throw new Error("This time entry was approved or changed. Refresh before editing.");
   revalidatePath("/workspace/va/workroom");
   revalidatePath("/workspace/client/workroom");
 }
@@ -125,11 +142,18 @@ export async function deleteTimeEntryAction(formData: FormData) {
   const { user } = await requireRole("va");
   const id = String(formData.get("time_entry_id") ?? "");
   const supabase = await createClient();
-  const { data: entry } = await supabase.from("time_entries").select("id,status").eq("id", id).eq("va_id", user.id).single();
+  const { data: entry } = await supabase.from("time_entries")
+    .select("id,status,payment_id").eq("id", id).eq("va_id", user.id).single();
   if (!entry) throw new Error("Time entry not found.");
-  if (entry.status === "approved") throw new Error("Approved time cannot be deleted.");
-  const { error } = await supabase.from("time_entries").delete().eq("id", id).eq("va_id", user.id);
+  if (entry.status === "approved" || entry.payment_id) {
+    throw new Error("Approved or invoiced time cannot be deleted.");
+  }
+  const { data: deleted, error } = await supabase.from("time_entries")
+    .delete().eq("id", id).eq("va_id", user.id)
+    .eq("status", entry.status).is("payment_id", null)
+    .select("id").maybeSingle();
   if (error) throw error;
+  if (!deleted) throw new Error("This time entry was approved or changed. Refresh before deleting.");
   revalidatePath("/workspace/va/workroom");
   revalidatePath("/workspace/client/workroom");
 }
@@ -142,12 +166,30 @@ export async function reviewTimeEntryAction(formData: FormData) {
   if (!["approve", "changes"].includes(decision)) throw new Error("Invalid time-entry review decision.");
   if (decision === "changes" && (!clientNote || clientNote.length < 5)) throw new Error("Add a short note explaining the correction needed.");
   const supabase = await createClient();
-  const { data: entry } = await supabase.from("time_entries").select("id,va_id,status,workroom_id,workrooms!inner(client_id)").eq("id", id).eq("workrooms.client_id", user.id).single();
+  const { data: entry } = await supabase.from("time_entries")
+    .select("id,va_id,status,payment_id,workroom_id,workrooms!inner(client_id)")
+    .eq("id", id).eq("workrooms.client_id", user.id).single();
   if (!entry) throw new Error("Time entry not found.");
+  if (entry.status !== "pending" || entry.payment_id) {
+    throw new Error("Only pending, uninvoiced time can be reviewed.");
+  }
   const admin = createAdminClient();
   const status = decision === "approve" ? "approved" : "changes_requested";
-  await admin.from("time_entries").update({ status, client_note: clientNote, updated_at: new Date().toISOString() }).eq("id", id);
-  if (decision === "changes") await admin.from("notifications").insert({ user_id: entry.va_id, title: "Time entry needs a correction", body: clientNote || "The client requested a correction to a time entry.", href: "/workspace/va/workroom" });
+  // Guard the write as well as the read: a stale form must not change an
+  // approved entry or reopen hours already attached to an invoice.
+  const { data: reviewed, error: reviewError } = await admin.from("time_entries")
+    .update({ status, client_note: clientNote, updated_at: new Date().toISOString() })
+    .eq("id", id).eq("status", "pending").is("payment_id", null)
+    .select("id").maybeSingle();
+  if (reviewError) throw reviewError;
+  if (!reviewed) throw new Error("This time entry changed. Refresh the workroom and try again.");
+  if (decision === "changes") {
+    const { error: notificationError } = await admin.from("notifications").insert({
+      user_id: entry.va_id, title: "Time entry needs a correction",
+      body: clientNote || "The client requested a correction to a time entry.", href: "/workspace/va/workroom"
+    });
+    if (notificationError) console.error("[workroom] could not notify VA of time correction", { entryId: id, code: notificationError.code });
+  }
   revalidatePath("/workspace/va/workroom");
   revalidatePath("/workspace/client/workroom");
 }

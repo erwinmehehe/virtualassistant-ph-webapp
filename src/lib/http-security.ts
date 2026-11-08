@@ -31,6 +31,40 @@ export function isExplicitCrossSiteRequest(request: Request) {
   return request.headers.get("sec-fetch-site")?.toLowerCase() === "cross-site";
 }
 
+/** Read exact webhook bytes without altering their cryptographic signature. */
+export async function readRequestBuffer(request: Request, maxBytes: number): Promise<Buffer> {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1) {
+    throw new Error("maxBytes must be a positive safe integer.");
+  }
+  const declaredLength = request.headers.get("content-length");
+  if (declaredLength) {
+    const parsedLength = Number(declaredLength);
+    if (Number.isFinite(parsedLength) && parsedLength > maxBytes) {
+      throw new RequestBodyTooLargeError();
+    }
+  }
+  if (!request.body) return Buffer.alloc(0);
+
+  const reader = request.body.getReader();
+  const chunks: Buffer[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > maxBytes) {
+        await reader.cancel();
+        throw new RequestBodyTooLargeError();
+      }
+      chunks.push(Buffer.from(value));
+    }
+    return Buffer.concat(chunks, totalBytes);
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export async function readRequestText(request: Request, maxBytes: number) {
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1) {
     throw new Error("maxBytes must be a positive safe integer.");

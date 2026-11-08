@@ -175,6 +175,9 @@ export async function createJobAction(formData: FormData) {
   if (jobId) {
     const { data: ownedJob } = await supabase.from("jobs").select("id,status,slug,title,published_at,moderation_status,rejection_note").eq("id", jobId).eq("client_id", user.id).single();
     if (!ownedJob) throw new Error("Job not found.");
+    if (ownedJob.status === "closed") {
+      throw new Error("This role is closed. Create a new request instead of republishing a closed role.");
+    }
     previousStatus = ownedJob.status;
     const shouldRefreshSlug = ["draft", "pending"].includes(ownedJob.status) && ownedJob.title !== title;
     // Staff content holds cannot be removed by a client editing or resubmitting.
@@ -205,6 +208,7 @@ export async function createJobAction(formData: FormData) {
       // Staff can hold a role while a client is editing. Do not overwrite that
       // hold with a stale, previously-clear read.
       .eq("moderation_status", ownedJob.moderation_status)
+      .eq("status", ownedJob.status)
       .select("id").single();
     if (error) throw error;
     savedId = data.id;

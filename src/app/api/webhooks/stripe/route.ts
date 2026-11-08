@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Signature verification failed" }, { status: 400 });
   }
 
-  if (event.type !== "checkout.session.completed") {
+  if (!["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type)) {
     return NextResponse.json({ received: true, ignored: true });
   }
 
@@ -65,7 +65,13 @@ export async function POST(request: Request) {
     livemode?: boolean;
     metadata?: Record<string, string>;
     payment_intent?: string | null;
+    payment_status?: string;
   };
+  // A completed Checkout Session can still have an asynchronous or unpaid
+  // payment. Only a provider-confirmed paid session may release an invoice.
+  if (session.payment_status !== "paid") {
+    return NextResponse.json({ received: true, ignored: true });
+  }
   const paymentId = session.metadata?.payment_id;
   if (!paymentId) return NextResponse.json({ received: true, ignored: true });
 

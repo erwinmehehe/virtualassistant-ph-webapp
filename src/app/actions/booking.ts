@@ -143,21 +143,37 @@ export async function rescheduleDiscoveryBookingAction(formData: FormData) {
     : saveQuery.is("discovery_scheduled_at", null);
   const { data: saved, error } = await saveQuery.select("id").maybeSingle();
   if (error || !saved) {
-    if (meeting?.eventId && canReuseCalendarEvent && lead.discovery_scheduled_at) {
+    // Another tab may have saved a different time after our original read.
+    // Reconcile Google to the *persisted* time, rather than blindly restoring
+    // the stale old time and overwriting the other tab's successful reschedule.
+    const { data: persistedBooking, error: recoveryLookupError } = await admin.from("lead_intake")
+      .select("discovery_scheduled_at,discovery_cancelled_at,discovery_calendar_event_id")
+      .eq("id", lead.id)
+      .maybeSingle();
+    if (recoveryLookupError) {
+      console.error("[booking] failed to look up persisted booking for calendar reconciliation", { leadId: lead.id, error: recoveryLookupError });
+    }
+    const persistedTime = persistedBooking
+      ? (persistedBooking.discovery_cancelled_at ? null : persistedBooking.discovery_scheduled_at)
+      : lead.discovery_scheduled_at;
+    const persistedCalendarId = persistedBooking?.discovery_calendar_event_id || null;
+    if (meeting?.eventId) {
       try {
-        await updateGoogleMeetDiscoveryMeeting({
-          eventId: meeting.eventId,
-          startsAt: lead.discovery_scheduled_at,
-          durationMinutes: lead.discovery_duration_minutes || 30,
-          attendeeEmails: [lead.email],
-          notifyAttendees: false,
-        });
+        const orphanedEvent = !canReuseCalendarEvent && persistedCalendarId !== meeting.eventId;
+        if (!persistedTime || orphanedEvent || (persistedCalendarId && persistedCalendarId !== meeting.eventId)) {
+          await cancelGoogleMeetDiscoveryMeeting(meeting.eventId);
+        } else {
+          await updateGoogleMeetDiscoveryMeeting({
+            eventId: meeting.eventId,
+            startsAt: persistedTime,
+            durationMinutes: lead.discovery_duration_minutes || 30,
+            attendeeEmails: [lead.email],
+            notifyAttendees: false,
+          });
+        }
       } catch (restoreError) {
         console.error("[booking] unsaved Google Calendar reschedule needs reconciliation", { leadId: lead.id, error: restoreError });
       }
-    } else if (meeting?.eventId) {
-      try { await cancelGoogleMeetDiscoveryMeeting(meeting.eventId); }
-      catch (restoreError) { console.error("[booking] unsaved Google Calendar event cleanup failed", { leadId: lead.id, error: restoreError }); }
     }
     redirect(managePath(token, error?.code === "23505" ? "error=taken" : "error=reschedule"));
   }

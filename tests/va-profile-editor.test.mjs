@@ -93,7 +93,7 @@ test("VA profile validates and stages both files before persisting form edits", 
   const avatarValidation = action.indexOf('const avatarUpload = validateAvatarUpload(formData.get("avatar"))');
   const stagedResume = action.indexOf("stagedResumePath = path");
   const stagedAvatar = action.indexOf("stagedAvatarPath = path");
-  const firstProfileWrite = action.indexOf('admin.from("profiles").update({');
+  const firstProfileWrite = action.indexOf('const { data: savedAccount, error: nameError } = await admin.from("profiles")');
 
   assert.ok(resumeValidation >= 0, "resume validation must run");
   assert.ok(avatarValidation >= 0, "avatar validation must run");

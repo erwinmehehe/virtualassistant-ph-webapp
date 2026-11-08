@@ -163,9 +163,19 @@ export async function withdrawApplicationAction(formData: FormData) {
   const supabase = await createClient();
   const { data: application } = await supabase.from("applications").select("id,status").eq("id", id).eq("va_id", user.id).single();
   if (!application) throw new Error("Application not found.");
+  if (["hired", "rejected", "withdrawn"].includes(application.status)) {
+    throw new Error("This application can no longer be withdrawn.");
+  }
   const admin = createAdminClient();
-  const { error: updateError } = await admin.from("applications").update({ status: "withdrawn" }).eq("id", id).eq("va_id", user.id);
+  const { data: withdrawn, error: updateError } = await admin.from("applications")
+    .update({ status: "withdrawn" })
+    .eq("id", id)
+    .eq("va_id", user.id)
+    .eq("status", application.status)
+    .select("id")
+    .maybeSingle();
   if (updateError) throw updateError;
+  if (!withdrawn) throw new Error("This application changed while you were withdrawing it. Refresh and try again.");
   await admin.from("application_status_history").insert({ application_id: id, from_status: application.status, to_status: "withdrawn", changed_by: user.id, note: "Application withdrawn by VA" });
   revalidatePath("/workspace/va/applications");
 }
@@ -178,12 +188,21 @@ export async function updateApplicationStatusAction(formData: FormData) {
   const allowed: ApplicationStatus[] = ["new", "reviewing", "shortlisted", "interview", "offered", "rejected"];
   if (!allowed.includes(status)) throw new Error("Use the separate Hire candidate confirmation to complete a hire.");
   const { admin, application } = await getClientApplicationWithAccess(id, user.id);
+  if (["hired", "rejected", "withdrawn"].includes(application.status) && application.status !== status) {
+    throw new Error("This application has reached a final status and cannot be reopened.");
+  }
   if (application.status === status) {
     if (returnTo.startsWith("/") && !returnTo.startsWith("//")) redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}status_updated=1`);
     return;
   }
-  const { error: updateError } = await admin.from("applications").update({ status }).eq("id", id);
+  const { data: updated, error: updateError } = await admin.from("applications")
+    .update({ status })
+    .eq("id", id)
+    .eq("status", application.status)
+    .select("id")
+    .maybeSingle();
   if (updateError) throw updateError;
+  if (!updated) throw new Error("The application changed while you were updating it. Refresh and try again.");
   await admin.from("application_status_history").insert({ application_id: id, from_status: application.status, to_status: status, changed_by: user.id });
   try { const { writeRecruiterActivity } = await import("@/lib/recruiter-activity"); await writeRecruiterActivity({ subjectType: "job", subjectId: application.job_id, action: `application_${status}`, description: `Candidate moved to ${status}`, actorId: user.id, metadata: { application_id: id, va_id: application.va_id } }); await writeRecruiterActivity({ subjectType: "va", subjectId: application.va_id, action: `application_${status}`, description: `Application moved to ${status}`, actorId: user.id, metadata: { application_id: id, job_id: application.job_id } }); } catch {}
   if (["shortlisted","interview","offered","rejected"].includes(status)) await recordProductEvent(`application_${status}`, { userId: user.id, path: `/workspace/client/jobs/${application.job_id}`, metadata: { application_id: id, job_id: application.job_id } });

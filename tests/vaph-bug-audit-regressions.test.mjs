@@ -39,6 +39,12 @@ test("rescheduling never silently advances CRM after a configured calendar failu
   assert.match(cancellation, /calendarCancelled = true/);
   assert.ok(cancellation.indexOf("await cancelGoogleMeetDiscoveryMeeting") < cancellation.indexOf('.update({ discovery_cancelled_at: now'));
   assert.match(cancellation, /cancelled meeting restoration needs manual reconciliation/);
+  assert.match(cancellation, /\.eq\("discovery_scheduled_at", lead\.discovery_scheduled_at\)/);
+  assert.match(cancellation, /\.is\("discovery_cancelled_at", null\)/);
+  assert.match(cancellation, /const calendarWasStillCurrent =/);
+  assert.match(cancellation, /startsAt: restoreTime/);
+  assert.match(cancellation, /\.eq\("discovery_calendar_event_id", lead\.discovery_calendar_event_id\)/);
+  assert.match(cancellation, /cancelGoogleMeetDiscoveryMeeting\(restored\.eventId\)/);
 });
 
 test("Didit verification reads signed bytes under a stream-enforced 128 KiB limit", async () => {

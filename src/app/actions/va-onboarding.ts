@@ -101,6 +101,17 @@ export async function saveVaOnboardingWorkAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
+  // The quick-setup form must not bypass recruiter review for approved VAs'
+  // rate, experience, or availability changes either.
+  const { data: vetting, error: vettingError } = await admin.from("va_vetting")
+    .select("stage").eq("va_id", user.id).maybeSingle();
+  if (vettingError) {
+    return onboardingError(user.id, 2, "save", "We could not check your vetting status. Please try again.");
+  }
+  if (["approved", "bench"].includes(String(vetting?.stage || ""))) {
+    return onboardingError(user.id, 2, "save",
+      "Your profile has already been approved. Use Edit profile to change your work preferences.");
+  }
   const { data: updatedProfile, error: profileError } = await admin
     .from("va_profiles")
     .update({

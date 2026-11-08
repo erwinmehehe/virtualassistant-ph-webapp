@@ -34,7 +34,7 @@ test("VA time corrections and deletion cannot race against approval or invoicing
   const del = action(source, "deleteTimeEntryAction", "reviewTimeEntryAction");
   for (const body of [edit, del]) {
     assert.match(body, /entry\.status === "approved" \|\| entry\.payment_id/);
-    assert.match(body, /\.eq\("status", entry\.status\)\.is\("payment_id", null\)/);
+    assert.match(body, /\.eq\("status", entry\.status\)\s*\.is\("payment_id", null\)/);
     assert.match(body, /\.select\("id"\)\.maybeSingle\(\)/);
   }
   assert.match(edit, /if \(updateError\) throw/);

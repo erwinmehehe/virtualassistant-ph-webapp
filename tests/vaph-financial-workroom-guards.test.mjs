@@ -86,7 +86,7 @@ test("password change reports other-session revocation results accurately", asyn
 test("VA profile stages uploads before writing rows and protects referenced files", async () => {
   const source = await read("src/app/actions/profile.ts");
   const body = action(source, "updateVaProfileAction", "removeVaResumeAction");
-  const firstWrite = body.indexOf('admin.from("profiles").update({');
+  const firstWrite = body.indexOf('const { data: savedAccount, error: nameError } = await admin.from("profiles")');
   const stagedResume = body.indexOf("stagedResumePath = path");
   const stagedAvatar = body.indexOf("stagedAvatarPath = path");
   assert.ok(firstWrite > stagedResume && stagedResume >= 0);

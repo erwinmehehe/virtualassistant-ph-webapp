@@ -1,0 +1,8 @@
+.env
+.env.*
+.git
+node_modules
+.next
+.netlify
+playwright-report
+test-results

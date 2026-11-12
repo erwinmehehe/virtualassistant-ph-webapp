@@ -12,3 +12,6 @@ tsconfig.tsbuildinfo
 .e2e-hiring-fixtures.json
 playwright-report
 test-results
+
+# Local Netlify folder
+.netlify

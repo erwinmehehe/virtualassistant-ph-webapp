@@ -101,7 +101,7 @@ test("public pricing is static ISR with admin-triggered price refresh", async ()
     read("src/components/site-nav.tsx"),
   ]);
   assert.match(pricing, /export const dynamic = "force-static"/);
-  assert.match(pricing, /export const revalidate = 120/);
+  assert.match(pricing, /export const revalidate = 3600/);
   assert.match(pricing, /getBusinessSettings\(\)/);
   assert.match(settings, /revalidatePath\("\/pricing"\)/);
   assert.match(header, /<PublicNavAccountControls/);

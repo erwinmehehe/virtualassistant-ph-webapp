@@ -61,11 +61,11 @@ test("homepage, service pages, and public training can be rendered from shared c
     source("src/app/services/page.tsx"),
     source("src/app/training/page.tsx"),
   ]);
-  assert.match(home, /export const revalidate = 300/);
-  assert.match(service, /export const revalidate = 3600/);
-  assert.match(services, /export const revalidate = 300/);
+  assert.match(home, /export const revalidate = 3600/);
+  assert.match(service, /export const revalidate = 21600/);
+  assert.match(services, /export const revalidate = 3600/);
   assert.match(training, /export const dynamic = "force-static"/);
-  assert.match(training, /export const revalidate = 300/);
+  assert.match(training, /export const revalidate = 3600/);
   assert.doesNotMatch(home + services + service + training, /getSessionProfile\(|cookies\(|headers\(/);
 });
 

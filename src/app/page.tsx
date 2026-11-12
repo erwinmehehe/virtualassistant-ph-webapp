@@ -129,7 +129,11 @@ function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export const revalidate = 300;
+// Rebuilt at most hourly. Each rebuild is a full server render billed as
+// Fluid Active CPU, and crawlers trigger one on nearly every expiry, so a
+// 5-minute window cost ~12x the CPU for content that rarely changes.
+// A newly approved VA can take up to an hour to appear here.
+export const revalidate = 3600;
 
 export default async function HomePage() {
   const [featured, talentProof] = await Promise.all([getHomepageFeaturedVas(), getPublicTalentProof()]);

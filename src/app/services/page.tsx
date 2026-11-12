@@ -13,7 +13,11 @@ import { socialMetadata } from "@/lib/og";
 import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 
-export const revalidate = 300;
+// Rebuilt at most hourly. Each rebuild is a full server render billed as
+// Fluid Active CPU, and crawlers trigger one on nearly every expiry, so a
+// 5-minute window cost ~12x the CPU for content that rarely changes.
+// A newly approved VA can take up to an hour to appear here.
+export const revalidate = 3600;
 
 const SERVICES_META_TITLE = "Virtual Assistant Services Philippines | VA Roles";
 const SERVICES_META_DESCRIPTION = "Compare Filipino Virtual Assistant services across admin, marketing, sales, finance, ecommerce, healthcare, legal, real estate, technical, and specialist roles.";

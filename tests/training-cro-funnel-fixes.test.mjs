@@ -35,7 +35,7 @@ test("training public header stays learner-focused while using the primary site 
   assert.match(accountControls, /<Link className="va-mobile-jobs-link" href="\/jobs">Jobs<\/Link>/);
   assert.match(accountControls, /!isTrainingContext && !signedIn \? \([\s\S]*href="\/auth\/join\/va"/);
   assert.match(page, /export const dynamic = "force-static"/);
-  assert.match(page, /export const revalidate = 300/);
+  assert.match(page, /export const revalidate = 3600/);
   assert.doesNotMatch(page, /getSessionProfile\(/);
 
   // Signup/login keep the compact training-specific header.

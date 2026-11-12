@@ -86,7 +86,7 @@ test("homepage public data no longer depends on request cookies and is cached", 
     read("src/app/api/talent/top-matches/route.ts"),
   ]);
 
-  assert.match(page, /export const revalidate = 300/);
+  assert.match(page, /export const revalidate = 3600/);
   assert.match(page, /getHomepageFeaturedVas/);
   assert.doesNotMatch(page, /supabase\/server/);
   assert.doesNotMatch(page, /searchParams/);

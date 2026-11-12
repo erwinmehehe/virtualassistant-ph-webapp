@@ -36,7 +36,7 @@ test("training landing does not render a second disconnected navigation bar", as
   ]);
 
   assert.match(page, /export const dynamic = "force-static"/);
-  assert.match(page, /export const revalidate = 300/);
+  assert.match(page, /export const revalidate = 3600/);
   assert.doesNotMatch(page, /getSessionProfile/);
   assert.doesNotMatch(page, /className="tr-page-nav"/);
   assert.doesNotMatch(css, /\.tr-page-nav/);

@@ -37,7 +37,7 @@ test("public LMS course catalog remains shared ISR rather than per-user SSR", as
     read("src/lib/public-training.ts"),
   ]);
   assert.match(page, /export const dynamic = "force-static"/);
-  assert.match(page, /export const revalidate = 300/);
+  assert.match(page, /export const revalidate = 3600/);
   assert.match(loader, /unstable_cache/);
   assert.match(page, /const signedIn = false/);
 });

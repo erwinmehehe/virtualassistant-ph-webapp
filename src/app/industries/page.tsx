@@ -18,7 +18,10 @@ import "../hiring-pages.css";
 import "../info-pages.css";
 
 // Refresh published-directory social proof without changing public page URLs.
-export const revalidate = 300;
+// Rebuilt at most every 6 hours: many near-identical pages, each re-rendered
+// on expiry by crawlers, and each render billed as Fluid Active CPU. A newly
+// approved VA can take up to 6 hours to appear on these pages.
+export const revalidate = 21600;
 
 export const metadata: Metadata = {
   title: "Virtual Assistant Services by Industry",

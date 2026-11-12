@@ -8,7 +8,7 @@ test("public training page is revalidated static content without per-visit sessi
   const page = await source("src/app/training/page.tsx");
   const catalogue = await source("src/lib/public-training.ts");
   assert.match(page, /export const dynamic = "force-static"/);
-  assert.match(page, /export const revalidate = 300/);
+  assert.match(page, /export const revalidate = 3600/);
   assert.match(page, /const \{ courses \} = await getPublicTrainingOverview\(\)/);
   assert.doesNotMatch(page, /getSessionProfile\(/);
   assert.match(page, /const signedIn = false/);

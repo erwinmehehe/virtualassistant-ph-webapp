@@ -101,7 +101,7 @@ test("public cached training offers neutral CTAs and signed-in learners skip sig
 
   // Shared HTML is cacheable and must not read per-user sessions.
   assert.match(page, /export const dynamic = "force-static"/);
-  assert.match(page, /export const revalidate = 300/);
+  assert.match(page, /export const revalidate = 3600/);
   assert.doesNotMatch(page, /getSessionProfile/);
   assert.match(page, /const signedIn = false/);
   assert.match(page, /const LOGIN_HREF = "\/auth\/login\?next=/);

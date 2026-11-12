@@ -14,7 +14,7 @@ test("assistant crawlers are allowed by name and private surfaces stay closed", 
   }
   // Every named rule reuses one disallow list, so a private path cannot be
   // closed to Google and left open to an assistant.
-  assert.match(robots, /const DISALLOW = \["\/workspace\/", "\/auth\/", "\/api\/"\]/);
+  assert.match(robots, /const DISALLOW = \["\/workspace\/", "\/auth\/", "\/api\/", \.\.\.PARAMETER_VARIANTS\]/);
   assert.match(robots, /AI_CRAWLERS\.map\(\(userAgent\) => \(\{ userAgent, allow: "\/", disallow: DISALLOW \}\)\)/);
 });
 

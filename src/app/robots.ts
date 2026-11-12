@@ -22,7 +22,16 @@ const AI_CRAWLERS = [
   "meta-externalagent"
 ];
 
-const DISALLOW = ["/workspace/", "/auth/", "/api/"];
+/**
+ * Filter and pagination variants render on the server per parameter combination,
+ * so crawlers walking every filter cost Fluid Active CPU for pages with no search
+ * value. The canonical pages and every job detail page stay crawlable via the
+ * sitemap. Deliberately not a blanket block on every query string: Vercel serves
+ * JS/CSS with a ?dpl= query, and blocking those would stop Googlebot rendering.
+ */
+const PARAMETER_VARIANTS = ["/jobs?", "/find-talent?", "/hire?", "/book-client-call?"];
+
+const DISALLOW = ["/workspace/", "/auth/", "/api/", ...PARAMETER_VARIANTS];
 
 export default function robots(): MetadataRoute.Robots {
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://virtualassistant.com.ph";

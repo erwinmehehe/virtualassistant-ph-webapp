@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export function RecruiterClientChatRefresh({ intervalMs = 7000 }: { intervalMs?: number }) {
+export function RecruiterClientChatRefresh({ intervalMs = 30000 }: { intervalMs?: number }) {
   const router = useRouter();
 
   useEffect(() => {

@@ -1,0 +1,54 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_PUBLIC_GOOGLE_LOGIN_ENABLED = "true"
+
+# Retain existing production-only abuse checks and database preflight while
+# the application still uses this legacy environment flag across providers.
+[context.production.environment]
+  VERCEL_ENV = "production"
+
+[context.deploy-preview.environment]
+  VERCEL_ENV = "preview"
+
+[context.branch-deploy.environment]
+  VERCEL_ENV = "preview"
+
+[[redirects]]
+  from = "https://www.virtualassistant.com.ph/*"
+  to = "https://virtualassistant.com.ph/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/virtual-assistant-jobs"
+  to = "/jobs"
+  status = 301
+
+[[redirects]]
+  from = "/careers"
+  to = "/jobs"
+  status = 301
+
+[[redirects]]
+  from = "/favicon.gif"
+  to = "/favicon.png"
+  status = 301
+
+[[redirects]]
+  from = "/apple-touch-icon-precomposed.png"
+  to = "/apple-touch-icon.png"
+  status = 301
+
+[[redirects]]
+  from = "/apple-touch-icon-120x120.png"
+  to = "/apple-touch-icon.png"
+  status = 301
+
+[[redirects]]
+  from = "/apple-touch-icon-120x120-precomposed.png"
+  to = "/apple-touch-icon.png"
+  status = 301

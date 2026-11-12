@@ -21,7 +21,7 @@ export function SiteFooter() {
       <footer className="footer va-site-footer">
         <div className="container footer-grid">
           <div className="footer-brand-block">
-            <Link className="brand" href="/" style={{ gap: 0 }}><span style={{ marginLeft: 9, display: "inline-flex", gap: 0 }}>VirtualAssistant<span className="ph" style={{ marginLeft: 0, paddingLeft: 0 }}>.com.ph</span></span></Link>
+            <Link prefetch={false} className="brand" href="/" style={{ gap: 0 }}><span style={{ marginLeft: 9, display: "inline-flex", gap: 0 }}>VirtualAssistant<span className="ph" style={{ marginLeft: 0, paddingLeft: 0 }}>.com.ph</span></span></Link>
             <p>Vetted Filipino virtual assistants for businesses that want a clearer path from workload to shortlist to hire.</p>
             <div className={styles.socialLinks}>
               <a
@@ -38,25 +38,25 @@ export function SiteFooter() {
               </a>
             </div>
           </div>
-          <div className="footer-links"><strong>Hire</strong><Link href="/hire">Hire a Virtual Assistant</Link><Link href="/find-talent">Browse Virtual Assistants</Link><Link href="/services">Services</Link><Link href="/pricing">Pricing</Link><Link href="/managed-vs-direct-hire">Managed vs. Direct Hire</Link></div>
-          <div className="footer-links"><strong>Resources</strong><Link href="/industries">Industries</Link><Link href="/software">Software guides</Link><Link href="/how-vetting-works">How vetting works</Link><Link href="/blog">Blog</Link><Link href="/research/virtual-assistant-rates-philippines-2026">2026 Rate &amp; Skills Report</Link><Link href="/tools">Free tools</Link></div>
-          <div className="footer-links"><strong>Company</strong><Link href="/about">About</Link><Link href="/faq">FAQ</Link><Link href="/contact">Contact</Link><Link href="/editorial-policy">Editorial policy</Link></div>
-          <div className="footer-links"><strong>For Virtual Assistants</strong><Link href="/jobs">Browse Virtual Assistant jobs</Link><Link href="/auth/join/va">Apply as a Virtual Assistant</Link><Link href="/auth/login">Log in</Link></div>
+          <div className="footer-links"><strong>Hire</strong><Link prefetch={false} href="/hire">Hire a Virtual Assistant</Link><Link prefetch={false} href="/find-talent">Browse Virtual Assistants</Link><Link prefetch={false} href="/services">Services</Link><Link prefetch={false} href="/pricing">Pricing</Link><Link prefetch={false} href="/managed-vs-direct-hire">Managed vs. Direct Hire</Link></div>
+          <div className="footer-links"><strong>Resources</strong><Link prefetch={false} href="/industries">Industries</Link><Link prefetch={false} href="/software">Software guides</Link><Link prefetch={false} href="/how-vetting-works">How vetting works</Link><Link prefetch={false} href="/blog">Blog</Link><Link prefetch={false} href="/research/virtual-assistant-rates-philippines-2026">2026 Rate &amp; Skills Report</Link><Link prefetch={false} href="/tools">Free tools</Link></div>
+          <div className="footer-links"><strong>Company</strong><Link prefetch={false} href="/about">About</Link><Link prefetch={false} href="/faq">FAQ</Link><Link prefetch={false} href="/contact">Contact</Link><Link prefetch={false} href="/editorial-policy">Editorial policy</Link></div>
+          <div className="footer-links"><strong>For Virtual Assistants</strong><Link prefetch={false} href="/jobs">Browse Virtual Assistant jobs</Link><Link prefetch={false} href="/auth/join/va">Apply as a Virtual Assistant</Link><Link prefetch={false} href="/auth/login">Log in</Link></div>
         </div>
 
         <div className="container">
           <details className="footer-seo-directory">
             <summary>Browse all Virtual Assistant roles, industries, and software guides</summary>
             <div className="footer-directory">
-              {footerRoleGroups.map(([group, pages]) => <div key={group}><strong>{group}</strong><div className="footer-directory-links">{pages.slice(0, 5).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div></div>)}
-              <div><strong>All services</strong><div className="footer-directory-links">{SERVICE_PAGES.slice(0, 5).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div><Link className="footer-directory-all" href="/services">All {SERVICE_PAGES.length} services</Link></div>
-              <div><strong>By industry</strong><div className="footer-directory-links">{INDUSTRIES.slice(0, 12).map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}</div><Link className="footer-directory-all" href="/industries">All {INDUSTRIES.length} industries</Link></div>
-              <div><strong>By software</strong><div className="footer-directory-links">{softwarePages.slice(0, 12).map((page) => <Link href={`/software/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div><Link className="footer-directory-all" href="/software">All {softwarePages.length} software guides</Link></div>
+              {footerRoleGroups.map(([group, pages]) => <div key={group}><strong>{group}</strong><div className="footer-directory-links">{pages.slice(0, 5).map((page) => <Link prefetch={false} href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div></div>)}
+              <div><strong>All services</strong><div className="footer-directory-links">{SERVICE_PAGES.slice(0, 5).map((page) => <Link prefetch={false} href={`/service/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div><Link prefetch={false} className="footer-directory-all" href="/services">All {SERVICE_PAGES.length} services</Link></div>
+              <div><strong>By industry</strong><div className="footer-directory-links">{INDUSTRIES.slice(0, 12).map((industry) => <Link prefetch={false} href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}</div><Link prefetch={false} className="footer-directory-all" href="/industries">All {INDUSTRIES.length} industries</Link></div>
+              <div><strong>By software</strong><div className="footer-directory-links">{softwarePages.slice(0, 12).map((page) => <Link prefetch={false} href={`/software/${page.slug}`} key={page.slug}>{page.name}</Link>)}</div><Link prefetch={false} className="footer-directory-all" href="/software">All {softwarePages.length} software guides</Link></div>
             </div>
           </details>
         </div>
 
-        <div className="container footer-bottom"><span>© {new Date().getFullYear()} VirtualAssistant.com.ph</span><span>Founded by <a href="https://www.linkedin.com/in/seo-expert-ph/" target="_blank" rel="noopener noreferrer">Erwin Valles</a> · SEO, Web Design &amp; Development</span><span className="footer-legal"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span></div>
+        <div className="container footer-bottom"><span>© {new Date().getFullYear()} VirtualAssistant.com.ph</span><span>Founded by <a href="https://www.linkedin.com/in/seo-expert-ph/" target="_blank" rel="noopener noreferrer">Erwin Valles</a> · SEO, Web Design &amp; Development</span><span className="footer-legal"><Link prefetch={false} href="/privacy">Privacy</Link><Link prefetch={false} href="/terms">Terms</Link></span></div>
       </footer>
     </>
   );

@@ -94,12 +94,12 @@ export function ServicesSection() {
             <p>At VirtualAssistant.com.ph, we match businesses with virtual assistants based on the actual work they need handled rather than simply forwarding a list of applicants. Candidates can be screened for relevant experience, tools, communication skills, working hours, and timezone overlap before you spend time interviewing.</p>
             <p>You can hire support for executive assistance, customer service, ecommerce operations, bookkeeping, lead generation, digital marketing, real estate support, and other remote business functions.</p>
           </div>
-          <Link className="hs-btn hs-btn-primary" href="/services">Explore our services <ArrowRight size={16} /></Link>
+          <Link prefetch={false} className="hs-btn hs-btn-primary" href="/services">Explore our services <ArrowRight size={16} /></Link>
         </div>
 
         <div className="hs-tiles-3" aria-label="Virtual Assistant service areas">
           {SERVICE_AREAS.map(({ label, href, icon }, index) => (
-            <Link key={label} href={href} className="hs-tile">
+            <Link prefetch={false} key={label} href={href} className="hs-tile">
               <Chip icon={icon} tone={index} />
               <strong>{label}</strong>
             </Link>
@@ -195,7 +195,7 @@ export function WhyPhilippinesSection() {
               <p>The Philippines has become a global hub for experienced virtual assistants. Filipino professionals have built a strong reputation for supporting international businesses, and the advantage is more than cost: communication, adaptability, service mindset, and remote-work experience all matter when you are trusting someone with important day-to-day work.</p>
               <p>Whether you run an ecommerce store, manage a growing client base, handle a busy sales pipeline, or simply need help keeping daily operations under control, a <strong>Filipino virtual assistant</strong> can take ownership of recurring work so you have more time to focus on the business itself.</p>
               <p>The Philippines has developed a strong reputation for <strong>virtual assistant services</strong> because of its large English-speaking workforce, established outsourcing industry, and professionals with experience supporting companies in Australia, the United States, the United Kingdom, and other international markets.</p>
-            <p>For current first-party data, see our <Link href="/research/virtual-assistant-rates-philippines-2026">2026 Virtual Assistant Rate &amp; Skills Report</Link>, which aggregates preferred USD hourly rates, experience, skills, and tools from VirtualAssistant.com.ph candidate profiles.</p>
+            <p>For current first-party data, see our <Link prefetch={false} href="/research/virtual-assistant-rates-philippines-2026">2026 Virtual Assistant Rate &amp; Skills Report</Link>, which aggregates preferred USD hourly rates, experience, skills, and tools from VirtualAssistant.com.ph candidate profiles.</p>
             </div>
           </div>
 
@@ -225,15 +225,15 @@ export function WhyPhilippinesSection() {
             <p>We match for the role itself, including the tools you use, the hours you need, the communication style that works for your team, and the level of ownership you expect.</p>
           </div>
           <div className="hs-prose">
-            <p>An <Link href="/service/ecommerce">ecommerce virtual assistant</Link> can help with product listings, order administration, customer service, inventory updates, and supplier coordination.</p>
-            <p>A <Link href="/service/social-media">social media virtual assistant</Link> can help schedule content, prepare graphics, manage comments, track campaigns, and keep your publishing calendar moving.</p>
+            <p>An <Link prefetch={false} href="/service/ecommerce">ecommerce virtual assistant</Link> can help with product listings, order administration, customer service, inventory updates, and supplier coordination.</p>
+            <p>A <Link prefetch={false} href="/service/social-media">social media virtual assistant</Link> can help schedule content, prepare graphics, manage comments, track campaigns, and keep your publishing calendar moving.</p>
           </div>
           </div>
         </details>
 
         <div className="hs-delegate">
           <p>If you are spending too much time on work that someone else could reliably handle, it may be time to delegate.</p>
-          <Link className="hs-btn hs-btn-primary" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
+          <Link prefetch={false} className="hs-btn hs-btn-primary" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
         </div>
       </div>
     </section>
@@ -335,7 +335,7 @@ export function HiringModelsSection() {
               <h3>We make hiring simpler and safer.</h3>
               <p>VirtualAssistant.com.ph is a recruiter-supported option. You get screened candidates, hiring guidance, and ongoing support, without having to source, interview, and manage everything on your own.</p>
             </div>
-            <Link className="hs-link" href="/managed-vs-direct-hire">Compare managed vs. direct hire in detail <ArrowRight size={14} /></Link>
+            <Link prefetch={false} className="hs-link" href="/managed-vs-direct-hire">Compare managed vs. direct hire in detail <ArrowRight size={14} /></Link>
           </div>
         </div>
       </div>
@@ -413,7 +413,7 @@ export function TalentSection({ talent }: { talent: FeaturedVa[] }) {
             <h2 className="hs-h2" id="hs-talent-title">Meet experienced Filipino virtual assistants.</h2>
             <p className="hs-lede">Browse examples of approved talent. Your recruiter confirms current fit and availability before presenting anyone to you.</p>
           </div>
-          <Link className="hs-btn hs-btn-ghost" href="/find-talent">Browse all talent <ArrowRight size={16} /></Link>
+          <Link prefetch={false} className="hs-btn hs-btn-ghost" href="/find-talent">Browse all talent <ArrowRight size={16} /></Link>
         </div>
 
         {talent.length ? (
@@ -484,8 +484,8 @@ export function HowItWorksSection() {
         </ol>
 
         <div className="hs-process-links">
-          <Link className="hs-link" href="/about">About VirtualAssistant.com.ph <ArrowRight size={14} /></Link>
-          <Link className="hs-link" href="/how-vetting-works">See the vetting process <ArrowRight size={14} /></Link>
+          <Link prefetch={false} className="hs-link" href="/about">About VirtualAssistant.com.ph <ArrowRight size={14} /></Link>
+          <Link prefetch={false} className="hs-link" href="/how-vetting-works">See the vetting process <ArrowRight size={14} /></Link>
         </div>
       </div>
     </section>
@@ -528,12 +528,12 @@ export function IndustriesSection() {
             <h2 className="hs-h2" id="hs-industries-title">Filipino Virtual Assistants for Growing Businesses</h2>
             <p className="hs-lede">A good VA for a dental clinic and a good VA for an online store do very different work. We screen for the workflows, tools, and customer expectations of your industry, not just a job title.</p>
           </div>
-          <Link className="hs-link" href="/industries">View all {INDUSTRIES.length} industries <ArrowRight size={14} /></Link>
+          <Link prefetch={false} className="hs-link" href="/industries">View all {INDUSTRIES.length} industries <ArrowRight size={14} /></Link>
         </div>
 
         <div className="hs-industry-grid">
           {featured.map(({ industry, icon }, index) => (
-            <Link key={industry.slug} href={`/industries/${industry.slug}`} className="hs-industry">
+            <Link prefetch={false} key={industry.slug} href={`/industries/${industry.slug}`} className="hs-industry">
               <div className="hs-industry-top">
                 <Chip icon={icon} tone={index} size={20} />
                 <ArrowRight className="hs-tile-arrow" size={15} aria-hidden="true" />
@@ -550,7 +550,7 @@ export function IndustriesSection() {
         <div className="hs-industry-more">
           <span>Also hiring for</span>
           <div>
-            {more.map((industry) => <Link key={industry.slug} href={`/industries/${industry.slug}`}>{industry.label}</Link>)}
+            {more.map((industry) => <Link prefetch={false} key={industry.slug} href={`/industries/${industry.slug}`}>{industry.label}</Link>)}
           </div>
         </div>
       </div>
@@ -589,7 +589,7 @@ export function FaqSection({ faqs }: { faqs: readonly Faq[] }) {
           <Kicker>Questions, answered</Kicker>
           <h2 className="hs-h2" id="hs-faq-title">What to know before you hire a Filipino Virtual Assistant.</h2>
           <p className="hs-lede">Clear answers to the questions clients ask before sending a hiring brief.</p>
-          <Link className="hs-link" href="/faq">View all FAQs <ArrowRight size={14} /></Link>
+          <Link prefetch={false} className="hs-link" href="/faq">View all FAQs <ArrowRight size={14} /></Link>
         </div>
         <div className="hs-faq-list">
           {faqs.map(([question, answer], index) => (
@@ -617,8 +617,8 @@ export function FinalCtaSection({ bookingUrl }: { bookingUrl: string }) {
           <h2 id="hs-cta-title">Ready to stop doing everything yourself?</h2>
           <p>Tell us what you need help with and we will look for Filipino virtual assistants whose skills, experience, schedule, and working style fit your business.</p>
           <div className="hs-cta-actions">
-            <Link className="hs-btn hs-btn-light" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
-            <Link className="hs-btn hs-btn-outline-light" href={bookingUrl}>Discuss your VA needs</Link>
+            <Link prefetch={false} className="hs-btn hs-btn-light" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
+            <Link prefetch={false} className="hs-btn hs-btn-outline-light" href={bookingUrl}>Discuss your VA needs</Link>
           </div>
           <div className="hs-cta-proof">
             <span><Check size={14} aria-hidden="true" /> Private brief</span>

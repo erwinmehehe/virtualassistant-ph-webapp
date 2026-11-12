@@ -23,7 +23,7 @@ function CallCard({ title, body }: { title: string; body: string }) {
       <CalendarCheck size={20} aria-hidden="true" />
       <strong>{title}</strong>
       <p>{body}</p>
-      <Link href="/hire" data-track="nav_hiring_brief_click">Start a hiring brief <ArrowRight size={14} aria-hidden="true" /></Link>
+      <Link prefetch={false} href="/hire" data-track="nav_hiring_brief_click">Start a hiring brief <ArrowRight size={14} aria-hidden="true" /></Link>
     </aside>
   );
 }
@@ -44,33 +44,33 @@ function TrainingNav({
     <header className={`site-header va-site-nav training-connected-nav ${isJoin ? "is-join" : ""} ${isLogin ? "is-login" : ""}`}>
       <div className="container site-nav">
         <div className="training-nav-brand-group">
-          <Link className="brand" href="/" aria-label="VirtualAssistant.com.ph home">
+          <Link prefetch={false} className="brand" href="/" aria-label="VirtualAssistant.com.ph home">
             VirtualAssistant<span className="ph">.com.ph</span>
           </Link>
-          <Link className="training-nav-context" href="/training" aria-label="Training home">
+          <Link prefetch={false} className="training-nav-context" href="/training" aria-label="Training home">
             Training
           </Link>
         </div>
 
         <nav className="nav-links" aria-label="Training navigation">
-          <Link className="training-section-link" data-section="course-library" href="/training#course-library">Courses</Link>
-          <Link className="training-section-link" data-section="how-training-works" href="/training#how-training-works">How it works</Link>
-          <Link className="training-section-link" data-section="certificate" href="/training#certificate">Certificates</Link>
-          <Link className="training-section-link" data-section="faq" href="/training#faq">FAQ</Link>
-          <Link href="/jobs" className="training-nav-jobs">Jobs</Link>
+          <Link prefetch={false} className="training-section-link" data-section="course-library" href="/training#course-library">Courses</Link>
+          <Link prefetch={false} className="training-section-link" data-section="how-training-works" href="/training#how-training-works">How it works</Link>
+          <Link prefetch={false} className="training-section-link" data-section="certificate" href="/training#certificate">Certificates</Link>
+          <Link prefetch={false} className="training-section-link" data-section="faq" href="/training#faq">FAQ</Link>
+          <Link prefetch={false} href="/jobs" className="training-nav-jobs">Jobs</Link>
         </nav>
         <TrainingSectionObserver />
 
         <div className="nav-actions">
           {isLogin ? (
-            <Link className="va-nav-account-login" href="/training">Training home</Link>
+            <Link prefetch={false} className="va-nav-account-login" href="/training">Training home</Link>
           ) : (
-            <Link className="va-nav-account-login" href={loginHref} data-track="training_login_click">
+            <Link prefetch={false} className="va-nav-account-login" href={loginHref} data-track="training_login_click">
               Training login
             </Link>
           )}
           {!isJoin ? (
-            <Link
+            <Link prefetch={false}
               className="btn btn-primary desktop-hire-cta training-header-cta"
               href={joinHref}
               data-track="training_account_click"
@@ -86,7 +86,7 @@ function TrainingNav({
             </summary>
             <nav className="va-mobile-panel" aria-label="Mobile training navigation">
               {!isJoin ? (
-                <Link
+                <Link prefetch={false}
                   className="mobile-menu-primary"
                   href={joinHref}
                   data-track="training_account_click"
@@ -95,7 +95,7 @@ function TrainingNav({
                   Start free training
                 </Link>
               ) : (
-                <Link
+                <Link prefetch={false}
                   className="mobile-menu-primary"
                   href={loginHref}
                   data-track="training_login_click"
@@ -103,16 +103,16 @@ function TrainingNav({
                   Training login
                 </Link>
               )}
-              <Link href="/training">Training home</Link>
-              <Link href="/training#course-library">Courses</Link>
-              <Link href="/training#how-training-works">How it works</Link>
-              <Link href="/training#certificate">Certificates</Link>
-              <Link href="/training#faq">FAQ</Link>
-              <Link href="/jobs">Browse VA jobs</Link>
+              <Link prefetch={false} href="/training">Training home</Link>
+              <Link prefetch={false} href="/training#course-library">Courses</Link>
+              <Link prefetch={false} href="/training#how-training-works">How it works</Link>
+              <Link prefetch={false} href="/training#certificate">Certificates</Link>
+              <Link prefetch={false} href="/training#faq">FAQ</Link>
+              <Link prefetch={false} href="/jobs">Browse VA jobs</Link>
               {!isJoin && !isLogin ? (
                 <>
                   <span className="va-mobile-panel-label">Account</span>
-                  <Link href={loginHref} data-track="training_login_click">Training login</Link>
+                  <Link prefetch={false} href={loginHref} data-track="training_login_click">Training login</Link>
                 </>
               ) : null}
             </nav>
@@ -143,10 +143,10 @@ export function SiteNav({
   return (
     <header className="site-header va-site-nav">
       <div className="container site-nav">
-        <Link className="brand" href="/" aria-label="VirtualAssistant.com.ph home">VirtualAssistant<span className="ph">.com.ph</span></Link>
+        <Link prefetch={false} className="brand" href="/" aria-label="VirtualAssistant.com.ph home">VirtualAssistant<span className="ph">.com.ph</span></Link>
 
         <nav className="nav-links" aria-label="Primary navigation">
-          <Link href="/find-talent">Find a VA</Link>
+          <Link prefetch={false} href="/find-talent">Find a VA</Link>
 
           <details className="va-nav-menu">
             <summary>Services <ChevronDown size={14} aria-hidden="true" /></summary>
@@ -156,11 +156,11 @@ export function SiteNav({
                   {serviceGroups.map(([group, pages]) => (
                     <div className="va-nav-column" key={group}>
                       <span>{group}</span>
-                      {pages.slice(0, 3).map((page) => <Link href={`/service/${page.slug}`} key={page.slug}>{page.name.replace(/ Virtual Assistant$/, "")}</Link>)}
+                      {pages.slice(0, 3).map((page) => <Link prefetch={false} href={`/service/${page.slug}`} key={page.slug}>{page.name.replace(/ Virtual Assistant$/, "")}</Link>)}
                     </div>
                   ))}
                 </div>
-                <Link className="va-nav-all" href="/services">View all {SERVICE_PAGES.length} services</Link>
+                <Link prefetch={false} className="va-nav-all" href="/services">View all {SERVICE_PAGES.length} services</Link>
               </div>
               <CallCard title="Not sure which role?" body="Describe the work and our recruiters will scope the right VA with you." />
             </div>
@@ -171,18 +171,18 @@ export function SiteNav({
             <div className="va-nav-panel va-nav-panel-industries va-nav-mega">
               <div>
                 <div className="va-nav-industries-grid">
-                  {industryLinks.map((industry) => <Link href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}
+                  {industryLinks.map((industry) => <Link prefetch={false} href={`/industries/${industry.slug}`} key={industry.slug}>{industry.label}</Link>)}
                 </div>
-                <Link className="va-nav-all" href="/industries">View all industries</Link>
+                <Link prefetch={false} className="va-nav-all" href="/industries">View all industries</Link>
               </div>
               <CallCard title="Hiring for your industry?" body="We screen for the tools and workflows your team already uses." />
             </div>
           </details>
 
-          <Link href="/software">Software</Link>
-          <Link className="va-nav-jobs-link" href="/jobs">Jobs</Link>
-          <Link href="/training">Training</Link>
-          <Link href="/for-virtual-assistants">For VAs</Link>
+          <Link prefetch={false} href="/software">Software</Link>
+          <Link prefetch={false} className="va-nav-jobs-link" href="/jobs">Jobs</Link>
+          <Link prefetch={false} href="/training">Training</Link>
+          <Link prefetch={false} href="/for-virtual-assistants">For VAs</Link>
         </nav>
 
         <div className="nav-actions">

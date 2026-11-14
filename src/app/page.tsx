@@ -260,10 +260,6 @@ export default async function HomePage() {
           <div className="pva-orb pva-orb-b" aria-hidden="true" />
           <div className="container pva-hero-grid">
             <div className="pva-hero-copy">
-              <div className="pva-eyebrow">
-                <span><ShieldCheck size={14} /> Vetted &amp; managed</span>
-                <strong>Vetted Filipino VAs for growing teams worldwide</strong>
-              </div>
               <h1>Virtual Assistant Philippines</h1>
               <p className="pva-hero-lede">
                 Get matched with a Filipino virtual assistant who fits your role, tools, schedule, and way of working.

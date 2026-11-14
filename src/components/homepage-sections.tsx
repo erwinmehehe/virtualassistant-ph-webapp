@@ -2,28 +2,12 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  BarChart3,
   BriefcaseBusiness,
-  Calculator,
-  CalendarCheck2,
-  Check,
   CheckCircle2,
   CircleX,
   CircleMinus,
-  ClipboardCheck,
   Clock3,
-  Headphones,
-  HeartPulse,
-  Home,
-  MessageCircle,
-  MoreHorizontal,
   Plus,
-  Rocket,
-  Scale,
-  SearchCheck,
-  ShoppingCart,
-  Store,
-  Users,
 } from "lucide-react";
 import { PublicAvatar } from "@/components/public-avatar";
 import { VaCostCalculator } from "@/components/va-cost-calculator";
@@ -42,7 +26,6 @@ import { INDUSTRIES } from "@/lib/industries";
  * The hero and the trust strip directly under it are intentionally not here.
  */
 
-type Icon = typeof ArrowRight;
 type Faq = readonly [string, string];
 
 type FeaturedVa = {
@@ -58,24 +41,20 @@ type FeaturedVa = {
   hourly_rate?: number | null;
 };
 
-function Chip({ icon: Icon, tone, size = 24 }: { icon: Icon; tone: number; size?: number }) {
-  return <span className={`hs-chip hs-chip-${(tone % 4) + 1}`} aria-hidden="true"><Icon size={size} /></span>;
-}
-
 /* -------------------------------------------------------------------------- */
 /* 1. Services                                                                */
 /* -------------------------------------------------------------------------- */
 
-const SERVICE_AREAS: { label: string; href: string; icon: Icon }[] = [
-  { label: "Executive Assistance", href: "/service/general-virtual-assistant", icon: BriefcaseBusiness },
-  { label: "Customer Support", href: "/service/customer-service", icon: Headphones },
-  { label: "Ecommerce Support", href: "/service/ecommerce", icon: ShoppingCart },
-  { label: "Bookkeeping & Accounting", href: "/service/bookkeeping", icon: Calculator },
-  { label: "Digital Marketing", href: "/service/digital-marketing-virtual-assistant", icon: BarChart3 },
-  { label: "Real Estate Support", href: "/service/real-estate", icon: Home },
-  { label: "Lead Generation", href: "/service/lead-generation", icon: Users },
-  { label: "Social Media Management", href: "/service/social-media", icon: MessageCircle },
-  { label: "And More", href: "/services", icon: MoreHorizontal },
+const SERVICE_AREAS: { label: string; href: string }[] = [
+  { label: "Executive Assistance", href: "/service/general-virtual-assistant" },
+  { label: "Customer Support", href: "/service/customer-service" },
+  { label: "Ecommerce Support", href: "/service/ecommerce" },
+  { label: "Bookkeeping & Accounting", href: "/service/bookkeeping" },
+  { label: "Digital Marketing", href: "/service/digital-marketing-virtual-assistant" },
+  { label: "Real Estate Support", href: "/service/real-estate" },
+  { label: "Lead Generation", href: "/service/lead-generation" },
+  { label: "Social Media Management", href: "/service/social-media" },
+  { label: "All services", href: "/services" },
 ];
 
 export function ServicesSection() {
@@ -92,14 +71,14 @@ export function ServicesSection() {
           <Link className="hs-btn hs-btn-primary" href="/services">Explore our services <ArrowRight size={16} /></Link>
         </div>
 
-        <div className="hs-tiles-3" aria-label="Virtual Assistant service areas">
-          {SERVICE_AREAS.map(({ label, href, icon }, index) => (
-            <Link key={label} href={href} className="hs-tile">
-              <Chip icon={icon} tone={index} />
+        <nav className="hs-service-links" aria-label="Virtual Assistant service areas">
+          {SERVICE_AREAS.map(({ label, href }) => (
+            <Link key={label} href={href} className="hs-service-link">
               <strong>{label}</strong>
+              <ArrowRight size={15} aria-hidden="true" />
             </Link>
           ))}
-        </div>
+        </nav>
       </div>
     </section>
   );
@@ -130,7 +109,6 @@ function WorkingHoursCard() {
   return (
     <aside className="hs-tz" aria-labelledby="hs-tz-title">
       <div className="hs-tz-head">
-        <Chip icon={Clock3} tone={1} size={20} />
         <div>
           <strong id="hs-tz-title">Your VA works your business hours</strong>
           <small>A 9am-5pm day in each market, shown in Manila time</small>
@@ -345,22 +323,18 @@ export function WhyChooseSection() {
     {
       title: "Screened before client presentation",
       copy: "Candidates are reviewed for experience, communication, practical skills, availability, and role fit before they reach your shortlist.",
-      icon: SearchCheck,
     },
     {
       title: "Shortlists built around the role",
       copy: "Recruiters narrow the field around responsibilities, tools, schedule, experience, and the way your team actually works.",
-      icon: BadgeCheck,
     },
     {
       title: "You make the final hiring decision",
       copy: "Interview the strongest matches, compare candidates, and choose who joins your team.",
-      icon: CheckCircle2,
     },
     {
       title: "Support after placement",
       copy: "Client Success remains available after your Virtual Assistant starts, so early issues can be addressed before they become bigger problems.",
-      icon: Headphones,
     },
   ] as const;
 
@@ -376,9 +350,8 @@ export function WhyChooseSection() {
         </div>
 
         <div className="hs-whychoose-grid">
-          {points.map(({ title, copy, icon }, index) => (
+          {points.map(({ title, copy }) => (
             <article className="hs-whychoose-card" key={title}>
-              <Chip icon={icon} tone={index} size={20} />
               <div>
                 <h3>{title}</h3>
                 <p>{copy}</p>
@@ -444,11 +417,11 @@ export function TalentSection({ talent }: { talent: FeaturedVa[] }) {
 /* 5. How it works                                                            */
 /* -------------------------------------------------------------------------- */
 
-const STEPS: { title: string; copy: string; icon: Icon }[] = [
-  { title: "Tell us the role", copy: "Share responsibilities, schedule, timezone, tools, budget, and what success should look like.", icon: ClipboardCheck },
-  { title: "We recruit and vet", copy: "Recruiters review experience, practical skills, communication, availability, and role fit.", icon: SearchCheck },
-  { title: "Review the shortlist", copy: "Interview a focused group of client-ready candidates and choose who you want to hire.", icon: CalendarCheck2 },
-  { title: "We manage the launch", copy: "Managed placements continue with onboarding, Client Success check-ins, monitoring, and support.", icon: Headphones },
+const STEPS: { title: string; copy: string }[] = [
+  { title: "Tell us the role", copy: "Share responsibilities, schedule, timezone, tools, budget, and what success should look like." },
+  { title: "We recruit and vet", copy: "Recruiters review experience, practical skills, communication, availability, and role fit." },
+  { title: "Review the shortlist", copy: "Interview a focused group of client-ready candidates and choose who you want to hire." },
+  { title: "We manage the launch", copy: "Managed placements continue with onboarding, Client Success check-ins, monitoring, and support." },
 ];
 
 export function HowItWorksSection() {
@@ -461,12 +434,9 @@ export function HowItWorksSection() {
         </div>
 
         <ol className="hs-steps">
-          {STEPS.map(({ title, copy, icon }, index) => (
+          {STEPS.map(({ title, copy }, index) => (
             <li className="hs-step" key={title}>
-              <div className="hs-step-top">
-                <Chip icon={icon} tone={index} size={22} />
-                <span className="hs-step-num" aria-hidden="true">0{index + 1}</span>
-              </div>
+              <span className="hs-step-num" aria-hidden="true">0{index + 1}</span>
               <h3>{title}</h3>
               <p>{copy}</p>
             </li>
@@ -486,16 +456,16 @@ export function HowItWorksSection() {
 /* 6. Industries                                                              */
 /* -------------------------------------------------------------------------- */
 
-const FEATURED_INDUSTRIES: { slug: string; icon: Icon }[] = [
-  { slug: "small-business", icon: Store },
-  { slug: "startups", icon: Rocket },
-  { slug: "ecommerce-stores", icon: ShoppingCart },
-  { slug: "real-estate-agents", icon: Home },
-  { slug: "healthcare-dental", icon: HeartPulse },
-  { slug: "law-firms", icon: Scale },
-  { slug: "accountants-cpas", icon: Calculator },
-  { slug: "professional-services-growth", icon: BriefcaseBusiness },
-];
+const FEATURED_INDUSTRY_SLUGS = [
+  "small-business",
+  "startups",
+  "ecommerce-stores",
+  "real-estate-agents",
+  "healthcare-dental",
+  "law-firms",
+  "accountants-cpas",
+  "professional-services-growth",
+] as const;
 
 const MORE_INDUSTRY_SLUGS = ["home-local-services", "property-management-companies", "insurance-agencies", "financial-advisors", "coaches", "construction-companies", "ndis-providers", "therapists"];
 
@@ -504,9 +474,9 @@ function capitalise(value: string) {
 }
 
 export function IndustriesSection() {
-  const featured = FEATURED_INDUSTRIES
-    .map(({ slug, icon }) => ({ industry: INDUSTRIES.find((item) => item.slug === slug), icon }))
-    .filter((item): item is { industry: (typeof INDUSTRIES)[number]; icon: Icon } => Boolean(item.industry));
+  const featured = FEATURED_INDUSTRY_SLUGS
+    .map((slug) => INDUSTRIES.find((item) => item.slug === slug))
+    .filter((item): item is (typeof INDUSTRIES)[number] => Boolean(item));
   const more = MORE_INDUSTRY_SLUGS.map((slug) => INDUSTRIES.find((item) => item.slug === slug)).filter((item): item is (typeof INDUSTRIES)[number] => Boolean(item));
 
   return (
@@ -521,14 +491,12 @@ export function IndustriesSection() {
         </div>
 
         <div className="hs-industry-grid">
-          {featured.map(({ industry, icon }, index) => (
+          {featured.map((industry) => (
             <Link key={industry.slug} href={`/industries/${industry.slug}`} className="hs-industry">
               <div className="hs-industry-top">
-                <Chip icon={icon} tone={index} size={20} />
+                <strong>{industry.label}</strong>
                 <ArrowRight className="hs-tile-arrow" size={15} aria-hidden="true" />
               </div>
-              <strong>{industry.label}</strong>
-              <span className="hs-industry-label">Common work</span>
               <ul>
                 {industry.workflows.slice(0, 3).map((workflow) => <li key={workflow}>{capitalise(workflow)}</li>)}
               </ul>
@@ -605,11 +573,6 @@ export function FinalCtaSection({ bookingUrl }: { bookingUrl: string }) {
           <div className="hs-cta-actions">
             <Link className="hs-btn hs-btn-light" href="/hire">Get your free VA match <ArrowRight size={16} /></Link>
             <Link className="hs-btn hs-btn-outline-light" href={bookingUrl}>Discuss your VA needs</Link>
-          </div>
-          <div className="hs-cta-proof">
-            <span><Check size={14} aria-hidden="true" /> Private brief</span>
-            <span><Check size={14} aria-hidden="true" /> Human screening</span>
-            <span><Check size={14} aria-hidden="true" /> Support after placement</span>
           </div>
         </div>
       </div>

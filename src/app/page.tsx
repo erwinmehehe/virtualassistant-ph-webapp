@@ -6,7 +6,6 @@ import {
   Headphones,
   PhoneCall,
   ShieldCheck,
-  Video,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -255,15 +254,8 @@ export default async function HomePage() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(schema) }} />
 
         <section className="pva-hero">
-          <div className="pva-grid-pattern" aria-hidden="true" />
-          <div className="pva-orb pva-orb-a" aria-hidden="true" />
-          <div className="pva-orb pva-orb-b" aria-hidden="true" />
           <div className="container pva-hero-grid">
             <div className="pva-hero-copy">
-              <div className="pva-eyebrow">
-                <span><ShieldCheck size={14} /> Vetted &amp; managed</span>
-                <strong>Vetted Filipino VAs for growing teams worldwide</strong>
-              </div>
               <h1>Virtual Assistant Philippines</h1>
               <p className="pva-hero-lede">
                 Get matched with a Filipino virtual assistant who fits your role, tools, schedule, and way of working.
@@ -283,12 +275,6 @@ export default async function HomePage() {
 
               <PublicTalentProof proof={talentProof} />
 
-              <div className="pva-proof-row" aria-label="Candidate screening checks">
-                <span><ClipboardCheck size={15} /> Skills tested</span>
-                <span><Video size={15} /> Video reviewed</span>
-                <span><ShieldCheck size={15} /> Recruiter approved</span>
-                <span><CheckCircle2 size={15} /> You choose</span>
-              </div>
             </div>
 
             <div id="hero-hiring-form" className="pva-hero-form-shell">
